@@ -1,0 +1,52 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+`torch_dtype` is deprecated! Use `dtype` instead!
+Some weights of the model checkpoint at /local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/checkpoints/update_000002 were not used when initializing RavenForCausalLM: ['ep_loop_exit_head.bias', 'ep_loop_exit_head.weight']
+- This IS expected if you are initializing RavenForCausalLM from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing RavenForCausalLM from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+{
+  "settings": {
+    "max_new_tokens": 4,
+    "temperature": 1.0,
+    "top_p": 0.7,
+    "samples_per_problem": 1,
+    "student_loops": [
+      4
+    ],
+    "scope": "AIME integer math; symbolic mathematics and code use external official evaluators",
+    "student_policy": "learned"
+  },
+  "results": {
+    "learned_4": {
+      "avg": 0.0,
+      "pass_at_n": 0.0,
+      "problems": 2,
+      "completions": 2,
+      "samples_per_problem": [
+        1
+      ],
+      "actual_depth_hist": [
+        0,
+        0,
+        0,
+        8
+      ],
+      "mean_actual_depth": 4.0,
+      "selected_exit_depth_hist": [
+        0,
+        0,
+        0,
+        8
+      ],
+      "actual_depth_p50": 4,
+      "actual_depth_p90": 4,
+      "actual_depth_p99": 4,
+      "max_depth_fraction": 1.0,
+      "executed_token_loops": 3056,
+      "generation_seconds_sum": 0.10576012078672647,
+      "mean_response_seconds": 0.05288006039336324
+    }
+  },
+  "verifier": "strict_boxed_integer_v1",
+  "smoke": true,
+  "scope": "Measured generated-token depths and generation latency; excludes external tokenization, validation and model loading. No teacher labels are used at student deployment."
+}

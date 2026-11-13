@@ -1,0 +1,11 @@
+{
+  "extends": "dynamic_student_base.json",
+  "run_name": "e_dynamic_js_current",
+  "algorithm": {
+    "teacher_update": "current",
+    "stage_selection": "threshold"
+  },
+  "optimization": {
+    "warmup_steps": 10
+  }
+}

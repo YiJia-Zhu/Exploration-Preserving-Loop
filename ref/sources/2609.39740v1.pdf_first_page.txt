@@ -1,0 +1,115 @@
+BangLab
+
+LatentHarness: Learning Latent Actions
+for Memory and Reasoning via
+Counterfactual Policy Distillation
+1
+
+Université de Montréal
+
+2
+
+Mila – Quebec AI Institute
+
+Long-context reasoning faces two complementary bottlenecks: retaining evidence across
+long inputs and sustaining computation across many reasoning steps. Existing approaches
+largely address them separately, with external memory extending access to distant evidence
+and latent reasoning compressing multi-step computation. We introduce LatentHarness,
+which unifies memory access and latent reasoning as sequential latent action selection.
+At each internal step, the model chooses Think for further computation, Recall from a
+fast-weight memory of input evidence and intermediate reasoning states, or Exit to emit
+the next token. We train this policy with counterfactual policy distillation, which branches
+every action for one step and scores its effect on the emitted token. These gains teach
+the policy when memory is more useful than further reasoning, while gradients through
+counterfactual recall teach which intermediate states should be retained in memory for
+future use. Across six general and long-context reasoning benchmarks, LatentHarness at
+1.4B improves on the strongest baselines by 2.8% and 10.0% relative, respectively, and
+runs 5.9× faster than the strongest long-context baseline.
+{ Date: October 1, 2026
+# Correspondence: bang.liu@umontreal.ca
+
+Token space
+
+Latent space
+
+Long-context reasoning (2Wiki, MuSiQue, HotpotQA)
+
+Exact match
+
+RLTT
+40
+
+MEM1
+Search-R1 MemAgent
+
+Ouro (GRPO)
+Ouro
+
+35
+3
+
+5
+
+General reasoning (GSM8K, MATH500, GPQA)
+
+58
+Memory-R2
+
+45
+
+LatentHarness (Ours)
+60
+
+LatentHarness (Ours)
+5.9× faster, +4.5
+
+50
+
+Answer F1
+
+arXiv:2609.39740v1 [cs.CL] 30 Sep 2026
+
+Xiaoqiang Wang1,2 , Suyuchen Wang1,2 , Bang Liu1,2
+
+LatentHarness (Ours)
+1.4× faster, +1.5
+
+56
+
+52
+
+RLTT
+MEM1
+Ouro (GRPO)
+
+50
+
+Search-R1
+
+54
+
+10
+
+20
+
+MemAgent
+Ouro
+
+48
+1.5
+
+Latency per answer (s, log scale)
+
+Memory-R2
+
+2
+
+3
+
+Latency per answer (s, log scale)
+
+Figure 1 Accuracy versus latency of LatentHarness on general and long-context reasoning with Ouro-1.4BThinking. The dashed arrow points from the strongest baseline to ours.
+
+1
+
+

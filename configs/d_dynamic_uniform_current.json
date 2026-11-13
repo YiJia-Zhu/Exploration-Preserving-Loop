@@ -1,0 +1,11 @@
+{
+  "extends": "dynamic_student_base.json",
+  "run_name": "d_dynamic_uniform_current",
+  "algorithm": {
+    "teacher_update": "current",
+    "stage_selection": "threshold_uniform"
+  },
+  "optimization": {
+    "warmup_steps": 10
+  }
+}

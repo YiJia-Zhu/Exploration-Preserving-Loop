@@ -1,0 +1,52 @@
+When to Follow the Teacher:
+Advantage-Based On-Policy Distillation
+Mahdi Sabbaghi* 1 , George Pappas1 , Hamed Hassani1 , and Adel Javanmard2
+
+arXiv:2610.31563v1 [cs.LG] 22 Oct 2026
+
+1 University of Pennsylvania
+
+2 University of Southern California
+
+Abstract
+Online Policy Distillation (OPD) often outperforms offline methods such as Supervised Fine-Tuning
+(SFT) by training on trajectories sampled directly from the student. However, standard OPD trains the student
+to follow the teacher at every state of the trajectory, assuming that teacher guidance is always beneficial. We
+instead distinguish between what the teacher prefers and what actually helps the current student succeed.
+We introduce Advantage-Based On-Policy Distillation (AOPD), which weights teacher actions by their
+counterfactual advantage under the student. Teacher actions that improve the student’s expected outcome are
+reinforced, while those that do not are downweighted.
+Directly computing these advantages requires trying alternative teacher actions at each step and running
+new rollouts from each. Instead, we show that the AOPD objective can be estimated using only standard
+student rollouts and their terminal rewards. Our estimator uses teacher importance weights on the studentsampled actions to provide unbiased advantage-weighted supervision, without any additional rollouts or
+reward evaluations. This allows AOPD to focus teacher supervision on actions that help the current student
+while preserving the rollout efficiency of standard OPD. Experiments on math, coding, and Medqa show
+gains over distillation and RL baselines in both external-teacher and self-distillation settings.
+§ https://github.com/Helloworld10011/AOPD
+
+1
+
+Introduction
+
+Knowledge distillation transfers capabilities from a stronger teacher to a smaller student model by training
+the student to imitate the teacher’s outputs. Offline distillation is a common approach that uses fixed teachergenerated trajectories. But this approach can lead to a mismatch between the training trajectories and the states
+the student generates itself. On-policy distillation (OPD) addresses this mismatch by querying the teacher
+along student-sampled trajectories, providing dense token-level supervision at the states the student actually
+visits (Agarwal et al., 2024; Lu and Lab, 2025; Song and Zheng, 2026; Ross et al., 2011; Li et al., 2026a).
+Although the trajectories now come from the student, the objective remains to match the teacher, without
+distinguishing which teacher actions improve the student’s chance of success (Liu et al., 2026).
+This limitation also applies to on-policy self-distillation (OPSD), which replaces the external teacher with
+a privileged version of the student itself, such as conditioned on ground-truth solutions (Zhao et al., 2026;
+Hübotter et al., 2026). Whether external or privileged, the teacher may choose an action from which it can
+solve the problem, while the student cannot complete the remaining steps correctly. Conversely, distillation
+discourages a valid student solution when it differs from the teacher’s preferred approach. Thus the question
+is whether the teacher action at every state increases the student’s chance of success. An action should be
+credited according to its impact on the student’s task success, not simply the teacher’s preference (Chen et al.,
+2026; Saadi and Wang, 2026).
+Prior attempts to mitigate this optimization misalignment rely on making the teacher supervision more
+selective. A common approach combines outcome-based reinforcement learning with distillation, but adding a
+* Correspondence can be made to: smahdi@seas.upenn.edu
+
+1
+
+

@@ -1,0 +1,1077 @@
+Cross-Loop Query Handoff: How Later Loops RedirectTwo-Hop Retrieval in the Ouro Looped Language Models
+Skip to main content
+ Report GitHub Issue
+ ×
+ Title:
+Content selection saved. Describe the issue below:
+ Description:
+ Submit without GitHub
+ Submit in GitHub
+ Why HTML?
+ Report Issue
+ Back to Abstract
+ Download PDF
+ Contents
+ Reading mode
+ Colour theme
+Abstract
+1 Introduction
+2 Setup
+Ouro.
+Task.
+Interventions.
+Protocol.
+3 In Ouro, the loop gain is specific to two-hop composition
+4 Late queries rescue early-loop errors
+Looping versus depth.
+5 Crossed query swaps favor bridge-conditioned retrieval
+5.1 Late keys and values recover far less than the late query
+6 Freezing queries and fact values disrupts the loop gain
+The query at the answer position.
+Keys and values of the used facts.
+A matched control.
+7 Natural two-hop questions
+Ouro-2.6B: a smaller rescue that replicates.
+Ouro-1.4B: a loop gain without a handoff.
+No redirection in a crossed swap.
+8 The rescue weakens beyond the base template
+Templates and formats.
+Larger scenes.
+9 Related work
+Latent multi-hop reasoning and patching.
+Looped language models.
+10 Limitations
+11 Conclusion
+References
+A Prompt formats
+Synthetic two-hop.
+Natural QA.
+B Query transplantation procedure
+C Native accuracy by loop
+ License: arXiv.org perpetual non-exclusive license
+arXiv:2610.34639v1 [cs.LG] 25 Oct 2026
+Cross-Loop Query Handoff: How Later Loops Redirect
+Two-Hop Retrieval in the Ouro Looped Language Models
+Ziyu Mu
+Affiliation: Faculty of Science
+Affiliation: The University of British Columbia
+Email: yuzzzi06@student.ubc.ca
+Zehua Wang
+Affiliation: Department of Electrical and Computer Engineering
+Affiliation: The University of British Columbia
+Email: zwang@ece.ubc.ca
+October 23, 2026
+Abstract
+How do later loops in a pretrained looped language model repair two-hop retrieval? We study Ouro-1.4B
+and Ouro-2.6B by transplanting attention queries between loops at the same layer, head and final prompt
+position. On synthetic in-context questions, injecting the layer-indexed collection of loop-3 queries
+throughout loop 1 rescues 90% and 97% of questions answered incorrectly at loop 1 and correctly at
+loop 3, versus 24% and 21% for shuffled donors. The rescue also holds under greedy generation in
+Ouro-2.6B; in Ouro-1.4B it is limited to four-candidate ranking. Crossed donor–recipient swaps favor
+retrieval through the donor’s bridge entity over copying its answer, although a substantial positional
+component remains in Ouro-2.6B. Late keys and values rescue far fewer targets. Freezing queries at their
+loop-1 values also damages two-hop accuracy more than a matched question that supplies the bridge.
+On natural questions, rescue is smaller and replicates only in Ouro-2.6B, and crossed swaps do not
+establish bridge redirection. These results identify a transferable collection of late-loop queries
+that supports bridge-conditioned retrieval on synthetic scenes; they do not locate where the bridge
+is computed or establish a single-vector handoff.
+ Code available on GitHub
+1 Introduction
+Language models often fail to compose two facts they know separately. On two-hop questions about facts
+stored in the weights, if the bridge entity is resolved late, the remaining layers may no longer
+carry out the second hop (Biran et al., 2024), and evidence for latent use of the second hop is only
+moderate (Yang et al., 2024). Patching a later-layer state back into an earlier layer repairs some of
+these failures, but only if the best layer pair is chosen for each item (Biran et al., 2024). In
+models trained from scratch, reusing layers on a second pass improves out-of-distribution two-hop
+generalization (Wang et al., 2024; Zhang et al., 2026).
+Looped language models build this reuse into the architecture of pretrained models.
+Ouro (Zhu and others, 2025) applies its layer stack four times to every token and reads out a prediction
+after each loop; its authors conjecture that this recurrent structure is why small looped models
+manipulate synthetic knowledge better than non-looped models of the same size (Zhu and others, 2025, Sec. 6).
+Pretrained looped models have mostly been analyzed through per-loop answers (Olszowiec et al., 2026),
+patches between runs at the same loop (Wu et al., 2026; Anonymous, 2026a), or interventions on
+whole loops (Anonymous, 2026b; Wang and Reid, 2026), rather than by moving a later loop’s query into
+an earlier loop.
+Attention offers a natural way to split the problem: at the answer position, the query determines
+what to look for; at the fact positions, the keys determine where each fact is found and the
+values what it contributes. In a looped model, each layer and head applies the same weights in
+every loop, so a query computed in loop 3 can be placed into loop 1 at exactly the same layer, head and
+position, with no search over layer pairs. Our intervention supplies each layer with its own late-loop
+query; it does not insert a single vector once. Sequential query mechanisms have been identified in
+small models trained on two-hop tasks (Guo et al., 2025). Here we test whether queries in pretrained
+looped models can be transferred across recurrent passes at matching coordinates, and what retrieval
+behavior that transfer induces. We study Ouro-1.4B and Ouro-2.6B on synthetic in-context
+two-hop questions (“What color is in Bob’s box?”), each paired with matched one-hop questions. In both
+models, loop 1 answers nearly every one-hop question but fails on 42% (1.4B) and 35% (2.6B) of the
+two-hop ones.
+Our contributions are as follows:
+• 
+A cross-loop query handoff. In a setting fixed before the first run, placing the late
+queries at the answer position into loop 1, with keys and values at earlier prompt positions
+left at loop 1, corrects
+most of the loop-1 failures that loop 3 corrects, far more than another example’s query does
+(Section 4); holding the query at its loop-1 value removes the loop gain
+(Section 6).
+• 
+What the handoff supports. Crossed swaps favor retrieval through the donor’s bridge
+over copying its answer, with a substantial positional component in Ouro-2.6B. Late keys and
+values recover far less (Section 5).
+• 
+A matched control. Against a question that names the bridge, the query freeze is
+composition-selective in both models, and more so than freezing the values of the fact line
+both questions read (Section 6).
+• 
+A boundary on natural text. On natural two-hop questions, the Ouro-2.6B rescue
+replicates on new items but is smaller; Ouro-1.4B shows no rescue, and a crossed swap shows no
+redirection (Section 7).
+Together, these results identify a collection of late-loop queries at the answer position that can be
+transferred to an earlier loop and favors bridge-conditioned retrieval on synthetic scenes. Under this
+intervention, keys and values at earlier prompt positions remain at their loop-1 states, although
+freezing experiments also show that native loop gains depend on updates to fact values
+(Section 6). We use handoff for this transfer across matching layer and head
+coordinates; the experiments neither establish a single-vector bottleneck nor locate where the bridge
+is computed.
+Our scope is limited. All results are on Ouro, and most are on synthetic scenes. The handoff weakens
+beyond the base template. On natural questions, it is smaller in Ouro-2.6B and absent in Ouro-1.4B, which
+also fails our behavioral gate on two of seven other templates (Sections 7
+and 8); the boundary thus depends on model size and format. Ouro-1.4B’s loop 1 generates
+no answer, so its rescue shows only in a ranking among candidates, and our two dense controls do not
+isolate looping as the source of the rescue (Section 4).
+1.4B2.6B00252550507575100100correct at loop 1 (%)(a) Late query into loop 1same exampleshuffled donorsame-loop donor1.4B2.6B00252550507575100100correct at loop 1 (%)(b) Converse: late K/V vs late Qlate QQ at qqlate QQ at qq (donor)late K,VK{,}V of ℱ\mathcal{F}late K,VK{,}V of ℱ\mathcal{F} (donor)late K,VK{,}V, all but qq
+Figure 1: Rescue rates on two-hop targets (wrong at loop 1, right at loop 3), read at the loop-1 exit.
+(a) Rescue round: the same example’s loop-3 query at qq, another target’s loop-3 query (shuffled
+donor), and another example’s loop-1 query (same-loop donor). (b) Converse round
+(Section 5.1; different scenes): the late query and the late keys and values of ℱ\mathcal{F}, each
+from the same example or from a shuffled donor, and the same example’s late keys and values at every
+position except qq; the key–value arms leave queries unpatched. Dashed line: chance (25%). Intervals
+are in Tables 2 and 4; the same-loop donor and same-example late
+K,VK,V of ℱ\mathcal{F} rates are point estimates.
+2 Setup
+Ouro.
+Ouro (Zhu and others, 2025) is a family of looped decoder-only transformers. A stack of
+LL layers (L=24L=24 in Ouro-1.4B and L=48L=48 in Ouro-2.6B; 16 attention heads per layer with 16 key–value
+heads, head dimension 128, rotary position embeddings) is applied T=4T=4 times. In loop tt, the whole
+sequence passes through the stack, and head hh of layer ℓ\ell attends using the queries, keys and values
+computed in that loop and layer from the normalized attention input xi(t,ℓ)x^{(t,\ell)}_{i} at position ii:
+Qℓ​h,i(t)\displaystyle Q^{(t)}_{\ell h,i}
+=RoPEi​(WQℓ​h​xi(t,ℓ)),\displaystyle=\mathrm{RoPE}_{i}\big(W^{\ell h}_{Q}x^{(t,\ell)}_{i}\big),
+Kℓ​h,j(t)\displaystyle K^{(t)}_{\ell h,j}
+=RoPEj​(WKℓ​h​xj(t,ℓ)),Vℓ​h,j(t)=WVℓ​h​xj(t,ℓ).\displaystyle=\mathrm{RoPE}_{j}\big(W^{\ell h}_{K}x^{(t,\ell)}_{j}\big),\quad V^{(t)}_{\ell h,j}=W^{\ell h}_{V}x^{(t,\ell)}_{j}.
+Because the weights are shared across loops, a coordinate (ℓ,h,i)(\ell,h,i) refers to the same weights in
+every loop, and all differences between loops come from the inputs. The output of loop tt is the input
+of loop t+1t+1. A shared final norm and language-model head produce a next-token distribution after every
+loop, which we call the loop-tt exit. Ouro trains all exits jointly: the pretraining loss weights
+the next-token loss at each exit by a learned exit distribution, with an entropy term that corresponds to
+a uniform prior over exits (Zhu and others, 2025, Sec. 3.3). Ouro-2.6B was obtained from the 24-layer model
+by duplicating its layers after the first 3 trillion training tokens (Zhu and others, 2025, Sec. 4.3), so the
+two sizes are not independent replications. We read the loop-tt exit directly and do not use the
+learned exit gate.
+Task.
+Each scene has four people, four boxes (A–D) and four colors, linked by random
+bijections and written as eight fact lines (“Box D contains blue.”, “Bob has box D.”). All box–color
+lines precede all person–box lines, and the lines are shuffled within each block
+(Appendix A). The two-hop question asks for the target entity (a color) from the
+source entity (a person) through the bridge entity (a box): “Question: What color is in
+Bob’s box?” followed by “Answer:”. The matched one-hop questions in the same scene ask for the bridge
+from the source (person→\tobox) and for the target from the bridge (box→\tocolor). We score the four
+candidates of the question’s type (all single tokens) by their next-token log-probability at a loop exit;
+chance is 25%. Table 1 lists the notation. Let aj,i​(t)∈{0,1}a_{j,i}(t)\in\{0,1\} indicate
+whether question type j∈{2,1​a,1​b}j\in\{2,1a,1b\} is answered correctly in scene ii at loop tt, and let
+Aj​(t)=n−1​∑iaj,i​(t)A_{j}(t)=n^{-1}\sum_{i}a_{j,i}(t). The composition-specific loop gain uses scene-level changes,
+δj,i=aj,i​(3)−aj,i​(1)\delta_{j,i}=a_{j,i}(3)-a_{j,i}(1):
+Gcomp=1n​∑i=1n[δ2,i−max⁡{δ1​a,i,δ1​b,i}].G_{\mathrm{comp}}=\frac{1}{n}\sum_{i=1}^{n}\left[\delta_{2,i}-\max\{\delta_{1a,i},\delta_{1b,i}\}\right].
+Thus, the larger one-hop gain is subtracted within each scene before averaging; taking the maximum of
+the two aggregate one-hop gains would define a different statistic.
+Table 1: Notation.
+ℱ\mathcal{F}
+the two fact lines the question uses (person–box, box–color)
+qq
+the final prompt position (“Answer:”), where the answer is read out
+𝒮⋆\mathcal{S}^{\star}
+scenes whose two one-hop questions are right at every loop
+Interventions.
+Each intervention replaces one attention component at a fixed coordinate with
+its value from another loop or another prompt and lets the rest of the forward pass run as usual; queries
+and keys are replaced after RoPE.
+Freezes (dependence on native updates) hold one component at its own loop-1 value in loops 2–4, in every layer and
+head: the query at qq (IQI_{Q}), or the keys (IKI_{K}) or values (IVI_{V}) at every position in ℱ\mathcal{F}.
+Matched-size controls freeze the same component outside the question and outside ℱ\mathcal{F}: the keys or values
+of the two unused fact lines (CKC_{K}, CVC_{V}), or the query at one other position (CQC_{Q}). The
+retained loop gain is ρI=[A2I​(3)−A2​(1)]/[A2​(3)−A2​(1)]\rho_{I}=[A^{I}_{2}(3)-A_{2}(1)]/[A_{2}(3)-A_{2}(1)] (loop 1 is never
+modified), and the selective causal damage SCD⁡(I)\mathrm{SCD}(I) is the two-hop accuracy loss at
+loop 3 minus the larger of the two one-hop losses (the one-hop loss). ρ\rho measures how much of
+the loop gain survives a freeze, and SCD how selectively the freeze hurts composition; we report both
+because they can disagree.
+The rescue (sufficiency under query transplantation) replaces the query at qq, in loop rr and in every layer and head, with
+the same example’s query from a later loop ss (the late query):
+Qℓ​h,q(r)←Qℓ​h,q(s)Q^{(r)}_{\ell h,q}\leftarrow Q^{(s)}_{\ell h,q} for every (ℓ,h)(\ell,h).
+The donor queries come from an unmodified forward pass. The recipient receives a separate cached query
+at each layer and head; its residual stream and subsequent computations otherwise evolve under the
+intervention. Since qq is the last prompt position and attention is causal, every query, key and value
+at positions before qq keeps its native loop-rr value. Keys and values at qq itself are not patched
+and may change in later layers as a consequence of earlier query patches. Thus, “late query” denotes
+a layer-indexed collection, not a single state inserted once. Appendix B gives the
+intervention sequence. Targets are two-hop
+questions answered wrongly at loop rr and correctly at loop ss. The rescue rate is the share of targets
+answered correctly at the loop-rr exit after the patch, and Δrescue\Delta_{\mathrm{rescue}} is this rate minus the rate for a
+shuffled donor (another target’s loop-ss query). Synthetic rescue uses donors with the same prompt
+token length; natural-QA donor selection and rotary position alignment are specified in
+Section 7. The primary setting
+(r=1r=1, s=3s=3, the final position qq, all layers and heads) was fixed before the first rescue round and
+never changed; other loops and layer ranges serve as robustness checks. Rescue rates are conditional
+on this target set, not accuracies over all questions or net improvements on the full set. They do not
+measure whether patching would damage questions already answered correctly at loop rr.
+Swaps place a component from a donor prompt into a recipient prompt. Unless stated otherwise, we
+read a patched model at the exit of the patched loop, and we state the donor rule for each
+result (Anonymous, 2026a).
+Protocol.
+Each experiment had a design specifying its inputs, intervention sites, metrics,
+primary tests and stopping rules, committed before that experiment was run. Follow-up experiments could
+therefore be designed after earlier results were available; analyses described as post hoc were not
+pre-specified primary tests. On synthetic
+scenes, identity patches reproduce the unpatched outputs bitwise, and an independent script recomputed
+every primary statistic. Each experiment uses newly sampled scenes: 400 per model for the freezes (each
+with one two-hop and two one-hop questions) and, unless stated otherwise, 600 elsewhere. Intervals are
+95% paired bootstrap percentile intervals over scenes (over items for natural QA; 20,000 resamples),
+Bonferroni-corrected within each experiment’s primary tests where stated (“Bonferroni kk” marks a
+correction over kk tests). Differences between rates are given in percentage points (points).
+3 In Ouro, the loop gain is specific to two-hop composition
+Before analyzing a model’s mechanism, we require its loop gain to be specific to composition (the
+behavioral gate): a two-hop gain on 𝒮⋆\mathcal{S}^{\star} whose 95% interval lies above zero, and
+Gcomp>0G_{\mathrm{comp}}>0. On the 400 freeze scenes, two-hop accuracy rises from 58.3% at loop 1 to
+93.8% at loop 3 in Ouro-1.4B and from 65.3% to 99.5% in Ouro-2.6B, gains of 35.5 points
+[30.5,40.5][30.5,40.5] and 34.2 points [29.5,39.0][29.5,39.0]. The one-hop questions are near ceiling from loop 1 onward
+(95.5–99.5%), with mean gains of at most 3.5 and 0.75 points (Table 7). On 𝒮⋆\mathcal{S}^{\star}
+(n=364n=364 and 393), the two-hop gain is 33.8 [28.9,39.0][28.9,39.0] and 33.3 [28.8,38.2][28.8,38.2] points, and on the
+full set GcompG_{\mathrm{comp}} is 28.7 [23.5,34.0][23.5,34.0] and 33.0 [28.5,37.8][28.5,37.8]: the loop gain comes mostly
+from composition rather than from better one-hop lookup. Both Ouro models therefore pass the gate.
+4 Late queries rescue early-loop errors
+Table 2: Query rescue at qq, all layers and heads (600 two-hop scenes per model). Targets are wrong at
+loop rr and right at loop ss; rates are the share of targets correct at the loop-rr exit after the
+patch. Same: the same example’s loop-ss query. Shuffled: another target’s loop-ss query. 95% paired
+bootstrap intervals.
+Model
+s→rs\to r
+nn
+Same
+Shuffled
+Δrescue\Delta_{\mathrm{rescue}} (pts)
+1.4B
+3→13\to 1
+245
+89.8%
+23.7%
+66.1 [60.0, 72.2]
+1.4B
+3→23\to 2
+91
+100%
+19.8%
+80.2 [71.4, 87.9]
+2.6B
+3→13\to 1
+223
+96.9%
+20.6%
+76.2 [70.4, 81.6]
+2.6B
+3→23\to 2
+12
+100%
+25.0%
+75.0 [50.0, 100.0]
+Replacing only the final-position query of loop 1 with the same example’s loop-3 query, while queries, keys and values at
+all earlier prompt positions keep their loop-1 values, rescues 89.8% (Ouro-1.4B) and
+96.9% (Ouro-2.6B) of the targets (Table 2; Figure 1). Another target’s
+loop-3 query recovers 23.7% and 20.6%, near chance, so Δrescue\Delta_{\mathrm{rescue}} is 66.1 and 76.2 points; both exceed
+zero with Bonferroni correction over the four model-by-loop cells (1.4B [58.4,73.9][58.4,73.9], 2.6B
+[69.1,83.0][69.1,83.0]). Patched into loop 2, the same query rescues every target. Another example’s loop-1
+query recovers 9.8% and 18.4%, and a shuffled donor’s late query does not carry the donor’s answer:
+when the two answers differ, the prediction matches the donor’s answer in 25.4% and 24.8% of cases, at
+chance.
+The rescued targets lie near the loop-1 decision boundary (median margin −0.47-0.47 and −0.62-0.62). After the
+patch, the median margin is +0.30+0.30 in Ouro-1.4B, a small push across the boundary, and +2.03+2.03 in
+Ouro-2.6B. A replication on 300 new scenes rescues 98.9% of 91 Ouro-2.6B targets against 26.4% for a
+shuffled donor (Δrescue=72.5\Delta_{\mathrm{rescue}}=72.5 [63.7,81.3][63.7,81.3]), and three other Ouro-1.4B experiments on new scenes
+rescue 81.7%, 86.7% and 81.8% of their targets. Scored by greedy generation instead (600 new scenes),
+the Ouro-2.6B rescue holds: the late query makes loop 1 generate the correct color for 89.6% of 202
+targets, a shuffled donor’s for 20.3% (+69.3+69.3 points [61.9,76.7][61.9,76.7]).
+Ouro-1.4B’s loop 1 generates no color at all, with or without the patch, so in this model the rescue
+changes which of the four candidates ranks first, not what loop 1 says.
+Looping versus depth.
+Unlike back-patching (Biran et al., 2024), where the layer pair is
+chosen for each item, one intervention specification fixed in advance repairs most targets here. In two dense controls, a
+late query from deeper layers barely rescues: 1.7 points [−2.5,5.9][-2.5,5.9] in
+LayerSkip-Llama3-8B (Elhoushi et al., 2024), which is trained to answer at intermediate layers (a
+query from 16 layers deeper, patched into every layer below exit 16), and at most 8.9 [3.9,15.1][3.9,15.1] in
+Qwen3-1.7B-Base (Yang and others, 2025) (patched at one layer; the interval extends above the 10-point bound
+we set in advance). Neither control isolates looping: the dense depth offsets are at most 16 layers,
+against 48 in Ouro-1.4B.
+5 Crossed query swaps favor bridge-conditioned retrieval
+If the late query carried the answer, the model should output the donor’s color; if the resolved
+bridge (“look up box X”), the recipient’s color for the donor’s box; if a position, the recipient’s
+color at the line position of the donor’s answer. Following the crossed design
+that Kale et al. (2026) apply to the residual stream of non-looped models, donor and recipient ask
+about the same person, who holds a different box in each, so these three predictions and the
+recipient’s own answer are four different colors on every item.
+Table 3: Two-hop query swaps (600 new scenes per model): the donor’s loop-3 query at qq, all layers and
+heads, patched into the recipient at loop rr. Shares of predictions (%) equal to each of four
+pairwise-different colors: the recipient’s answer (Rec.), the recipient’s color for the donor’s bridge box
+(Bridge), the donor’s answer (Ans.), and the recipient’s color at the line position of the donor’s answer
+(Line); chance 25%. 95% intervals for the bridge share.
+Model, patch
+rr
+Rec.
+Bridge
+Ans.
+Line
+1.4B, none
+1
+56.3
+10.5
+15.3
+17.8
+1.4B, swap
+1
+15.5
+45.0 [41.0, 49.0]
+13.3
+26.2
+1.4B, swap
+3
+14.7
+49.2 [45.2, 53.2]
+9.0
+27.2
+2.6B, none
+1
+68.0
+10.3
+11.5
+10.2
+2.6B, swap
+1
+9.0
+48.0 [44.0, 52.0]
+8.2
+34.8
+2.6B, swap
+3
+10.8
+45.8 [41.8, 49.8]
+7.2
+36.2
+Patched into loop 1, the donor’s late query most often makes the model return the recipient’s color for
+the donor’s bridge box (Table 3): 45.0% and 48.0%, against 13.3% and 8.2% for the
+donor’s answer. The bridge-consistent outcome is the largest category, supporting bridge-conditioned
+retrieval over direct answer copying. It accounts for fewer than half of the loop-1 predictions in both
+models, however, so the swap does not establish a uniformly entity-based code. Swapped at loop 3 instead, the query
+has the same effect (49.2% and 45.8%). In Ouro-2.6B, 34.8% and 36.2% of predictions instead follow
+the line position of the donor’s answer, which is above chance (in Ouro-1.4B this share is at chance), as
+with positional and pointer-based retrieval in standard
+transformers (Prakash et al., 2025; Gur-Arieh et al., 2025; Zhou, 2026). Because line order was not
+varied independently of box identity, the experiment does not fully separate entity-based and positional
+routing. The positional shares are descriptive, and the query may support a mixture of retrieval
+strategies. On natural questions, a
+crossed swap does not show this redirection (Section 7).
+5.1 Late keys and values recover far less than the late query
+Table 4: Converse test (600 new scenes per model; targets wrong at loop 1 and right at loop 3, n=263n=263
+and 223). Each row patches the same example’s loop-3 state into loop 1, except the shuffled-donor rows;
+every K,VK,V row leaves queries unpatched. 95% intervals where reported (Bonferroni 2 for the primary
+contrast).
+Patched into loop 1
+1.4B
+2.6B
+QQ at qq
+86.7% [82.5, 90.5]
+98.2% [96.4, 99.6]
+QQ at qq, shuffled donor
+27.0% [21.7, 32.3]
+27.4% [21.5, 33.2]
+KK / VV / K,VK,V at ℱ\mathcal{F}
+24.3 / 22.4 / 26.2%
+4.9 / 22.4 / 33.2%
+K,VK,V at ℱ\mathcal{F}, shuffled donor
+20.9% [16.0, 25.9]
+9.4% [5.8, 13.5]
+K,VK,V at all positions but qq
+13.7% [9.5, 17.9]
+11.2% [7.2, 15.2]
+Primary: QQ −- K,VK,V at ℱ\mathcal{F} (pts)
+60.5 [52.9, 68.1]
+65.0 [57.8, 72.2]
+The converse test patches the same example’s loop-3 keys and values into loop 1, either at ℱ\mathcal{F} or at
+every position except qq, while leaving queries unpatched (Table 4). Late keys and
+values of ℱ\mathcal{F} rescue 26.2% and 33.2%, against 86.7% and 98.2% for the late query; this pre-specified
+primary contrast is 60.5 and 65.0 points. Patching late keys and values at all positions before qq,
+while leaving queries unpatched, rescues only 13.7% and 11.2%. Conversely, freezing this memory at
+loop 1 removes much of the native gain (Table 5). These interventions show an asymmetry
+between query and memory transplantation; they do not identify the causal path by which memory updates
+contribute to the native gain. One possibility is that those updates help construct later queries, but
+this remains untested. Net of a shuffled donor, the late keys and values of ℱ\mathcal{F} add 5.3 points [0.8,9.9][0.8,9.9] in
+Ouro-1.4B and 23.8 [17.0,30.5][17.0,30.5] in Ouro-2.6B (post hoc), against 59.7 and 70.9 for the late query: the
+query transplantation is substantially more effective than memory transplantation in this setting,
+with a smaller donor-specific rescue from the used fact lines in Ouro-2.6B.
+6 Freezing queries and fact values disrupts the loop gain
+Table 5: Freezes: in loops 2–4, one component is held at its loop-1 value. ρ\rho is the retained
+two-hop loop gain at loop 3 (1 = no cost, 0 = the whole gain removed); SCD is the two-hop loss minus the
+one-hop loss, which is the larger of the two one-hop accuracy losses (both in points). Matched-size
+controls freeze the same component outside the question and outside ℱ\mathcal{F}. Top: 400 scenes per model.
+Bottom: co-freezes on 600 further scenes (native gain 34.5 and 33.2 points). 95% paired bootstrap
+intervals.
+Ouro-1.4B
+Ouro-2.6B
+Held at loop 1
+ρ\rho
+SCD (pts)
+One-hop loss
+ρ\rho
+SCD (pts)
+One-hop loss
+QQ at qq (IQI_{Q})
+−0.12-0.12 [−0.23-0.23, −0.02-0.02]
+27.5 [22.2, 32.8]
+12.2 [8.8, 15.8]
+−0.14-0.14 [−0.26-0.26, −0.03-0.03]
+36.0 [31.2, 40.8]
+3.0 [1.5, 4.8]
+KK at ℱ\mathcal{F} (IKI_{K})
+0.72 [0.62, 0.81]
+5.8 [2.2, 9.2]
+4.2 [2.5, 6.2]
+0.54 [0.42, 0.64]
+12.5 [9.0, 16.0]
+3.2 [1.8, 5.0]
+VV at ℱ\mathcal{F} (IVI_{V})
+0.01 [−0.16-0.16, 0.15]
+30.8 [25.8, 35.8]
+4.5 [2.5, 6.8]
+−0.62-0.62 [−0.88-0.88, −0.41-0.41]
+15.8 [11.5, 20.0]
+39.8 [35.0, 44.5]
+CQC_{Q} / CKC_{K} / CVC_{V}
+1.04 / 0.96 / 0.98
+−1.2-1.2 / 1.2 / 0.8
+0 / 0 / 0
+0.99 / 0.98 / 0.99
+0.2 / 0.8 / 0.2
+0 / 0 / 0
+VV at ℱ\mathcal{F}
+0.03 [−0.10-0.10, 0.15]
+−0.65-0.65 [−0.87-0.87, −0.46-0.46]
+K,VK,V at ℱ\mathcal{F}
+−0.02-0.02 [−0.15-0.15, 0.09]
+0.41 [0.31, 0.51]
+K,VK,V at all positions but qq
+0.35 [0.27, 0.42]
+−0.06-0.06 [−0.14-0.14, 0.02]
+The matched-size controls leave the gain intact (ρ\rho 0.96–1.04, SCD within 1.2 points of zero, no
+one-hop loss; Table 5). This argues against damage explained solely by the number of
+patched sites. It does not rule out incompatibility between early and late states at task-relevant
+positions.
+The query at the answer position.
+Holding the query at qq at its loop-1 value removes the
+whole gain and pushes two-hop accuracy below its own loop-1 level (ρQ=−0.12\rho_{Q}=-0.12 and −0.14-0.14). By SCD,
+the damage is selective for composition (27.5 and 36.0 points), but in Ouro-1.4B the freeze also costs
+12.2 points on a one-hop question. The one-hop cost is smaller in Ouro-2.6B (3.0 points),
+where the damage is more strongly concentrated on composition.
+Keys and values of the used facts.
+Reusing the loop-1 keys of ℱ\mathcal{F} keeps part of the gain
+(ρK=0.72\rho_{K}=0.72 and 0.540.54). Reusing their loop-1 values removes it (ρV=0.01\rho_{V}=0.01 and −0.62-0.62) and,
+in Ouro-2.6B, also costs 39.8 points on a one-hop question. In Ouro-2.6B, much of this damage is
+consistent with a mismatch between loop-1 values and later-loop keys: holding both the keys and the values
+of ℱ\mathcal{F} at loop 1 gives ρ=0.41\rho=0.41, against −0.65-0.65 for the values alone in that run (difference 1.06
+[0.85,1.30][0.85,1.30], Bonferroni); in Ouro-1.4B, also holding the keys changes nothing (−0.05-0.05
+[−0.17,0.07][-0.17,0.07]).
+A matched control.
+The one-hop questions differ from the two-hop question in length and
+wording. A pre-specified control (400 new scenes per model) therefore pairs each two-hop question TT
+with a question GG that names the bridge (“What color is in box D which Bob has?”) and has the same
+length, answer, candidates and fact lines. This controls these features while supplying the bridge
+explicitly; the question wording also changes. We
+define MM as TT’s accuracy loss at loop 3 minus GG’s. Holding the query at qq at its loop-1 value
+costs TT 38.2 and 35.0 points and GG 21.2 and 4.8 points, so M=17.0M=17.0 [11.5,22.8][11.5,22.8] and 30.330.3
+[25.0,35.5][25.0,35.5] (Bonferroni 2): the query state is composition-selective in both models, although in
+Ouro-1.4B it also partly serves generic retrieval. In Ouro-2.6B, GG is near ceiling from loop 1 onward
+(96.5%), so there MM mostly reflects the fact that only TT has a loop gain.
+A second pre-specified run, on new scenes, freezes each used line separately. For the box→\tocolor line,
+which both questions read, freezing the values costs TT and GG about equally (M=−1.2M=-1.2 and 4.84.8) and
+keeps most of the gain (ρ=0.69\rho=0.69 and 0.640.64); this freeze is less selective than the query freeze by
+14.3 [8.8,19.8][8.8,19.8] and 22.5 [16.8,28.3][16.8,28.3] points (Bonferroni 2). Freezing the values of the
+person→\tobox line, which only TT reads, removes most or all of TT’s gain (ρ=0.26\rho=0.26 and
+−0.85-0.85); this design cannot tell whether that reflects composition or only the fact that GG does not
+read the line. On matched material, the clearest composition signal thus comes from the query, while
+later loops also rewrite part of the memory.
+Under these freezes, preserving the native loop gain depends on updates to both queries and fact
+values, with interactions between keys and values. Conversely, the query rescue tests whether late
+queries can recover answers while the memory at earlier prompt positions remains at loop 1.
+7 Natural two-hop questions
+We test the primary setting on two-hop questions from 2WikiMultiHopQA (Ho et al., 2020) and
+MuSiQue (Trivedi et al., 2022), given with their gold passages in Ouro’s chat format, and score four
+candidate answer strings by length-normalized log-likelihood (Appendix A).
+For the initial rescue and fresh replication, shuffled donors are seeded permutations of the target
+set with no item assigned to itself, without matching prompt lengths. Before patching, each cached
+post-RoPE donor query is re-rotated by Δ​p=Lrecipient−Ldonor\Delta p=L_{\mathrm{recipient}}-L_{\mathrm{donor}}, where LL is
+the prompt token length, to align the donor’s final prompt position with the recipient’s at each
+layer and head. Same-item patches have zero offset. Last-quarter controls also allow different prompt
+lengths and use the same alignment; natural-QA crossed swaps use their stored donor–recipient
+pairings with the same rotary alignment.
+Table 6: Natural-QA query rescue at loop 1 using loop-3 queries. Initial set: 1,105 items from
+2WikiMultiHopQA and MuSiQue; replication: 646 unused 2WikiMultiHopQA items. nn counts targets wrong at
+loop 1 and right at loop 3. Rescue and shuffled-donor rates are percentages; Δrescue\Delta_{\mathrm{rescue}} is in points.
+Intervals are 95%; both 2.6B replication intervals (all layers and last quarter) are
+Bonferroni-corrected over two primary tests.
+Last-quarter patches are follow-up analyses.
+Model
+Set
+Layers
+nn
+Rescue
+Shuffled
+Δrescue\Delta_{\mathrm{rescue}} [95% CI]
+1.4B
+Initial
+All
+176
+7.4
+6.3
+1.1 [−1.1-1.1, 3.4]
+2.6B
+Initial
+All
+134
+33.6
+19.4
+14.2 [7.5, 20.9]
+2.6B
+Replication
+All
+110
+31.8
+23.6
+8.2 [1.8, 15.5]
+2.6B
+Initial
+Last quarter
+134
+62.7
+32.8
+29.9 [20.9, 38.8]
+2.6B
+Replication
+Last quarter
+110
+63.6
+38.2
+25.5 [16.4, 35.5]
+Ouro-2.6B: a smaller rescue that replicates.
+On 1,105 items, the late query rescues 33.6% of
+134 targets, and a shuffled donor’s 19.4% (Δrescue=14.2\Delta_{\mathrm{rescue}}=14.2 points [7.5,20.9][7.5,20.9]). A
+pre-specified replication on 646 unused items (all from 2WikiMultiHopQA, as no unused MuSiQue items
+remained) gives 31.8% against 23.6% of 110 targets (+8.2+8.2 [1.8,15.5][1.8,15.5], Bonferroni 2), smaller
+than the first estimate. Patching only the last quarter of the layers (all heads) rescues more:
+62.7% against 32.8% for a shuffled donor (+29.9+29.9 [20.9,38.8][20.9,38.8]; a follow-up), and this
+result replicates on the new items (63.6% against 38.2%, +25.5+25.5 [16.4,35.5][16.4,35.5]). Because another
+item’s late-layer query alone recovers roughly a third of the targets, the absolute rescue rate
+includes a substantial component not specific to the donor item.
+Ouro-1.4B: a loop gain without a handoff.
+On the same 1,105 items, Ouro-1.4B gains 15.0
+points [12.8,17.3][12.8,17.3] from looping (78.3% to 93.3%), but its late query does not carry the gain into
+loop 1: 7.4% against 6.3% of 176 targets (+1.1+1.1 [−1.1,3.4][-1.1,3.4]). As on two of the template variants
+(Section 8), the smaller model’s handoff depends more on the input; we report this as a
+boundary condition and do not explain it.
+No redirection in a crossed swap.
+To repeat the crossed swap of Section 5 on
+natural text, we add one passage to the recipient’s prompt: the donor’s second-hop passage, with its
+answer replaced by another answer of the same type. Following the donor’s bridge, copying the donor’s
+answer and giving the recipient’s own answer then correspond to different candidates. In a pre-specified
+test on the 711 pairs in which Ouro-2.6B answers both items correctly at loop 3, the donor’s late query
+makes the model follow the donor’s bridge on 27.7% of pairs, and an unrelated item’s late query on
+26.2% (+1.5+1.5 [−0.1,3.2][-0.1,3.2], Bonferroni 2; not supported); patching only the last quarter of the layers
+gives the same result (+1.8+1.8 [0.0,3.7][0.0,3.7]). Without any patch, the edited passage alone draws this
+choice on 25.7% of pairs, and the donor’s answer is almost never chosen (at most 7% in any arm). On
+these items, we therefore cannot establish that the late query carries the resolved intermediate.
+The positive rescue result alone does not establish the synthetic bridge-retrieval mechanism on natural
+text. Nor are freezes on natural items
+composition-selective against a bridge-given question (SCD within 2 points of zero).
+8 The rescue weakens beyond the base template
+Templates and formats.
+On three template variants (V1 shuffles the facts and adds distractor
+lines; V2 rewords the names, containers, attribute, relation and question; V3 does both), Ouro-2.6B passes
+the gate and the rescue still works, though more weakly (rescue 44.0–76.5% of targets against
+96.9%); Ouro-1.4B fails the gate on V2 and V3 (Gcomp=−6.0G_{\mathrm{comp}}=-6.0 and −8.8-8.8). On four formats
+with shuffled facts (lockers, rooms, cars and a short story), gate and rescue pass in all eight cells,
+again more weakly: the late query rescues 60–79% of targets in Ouro-2.6B
+and 52–71% in Ouro-1.4B, where a shuffled donor gets 16–45%.
+Larger scenes.
+With 8 people, boxes and colors, distractor lines and eight-way scoring, both
+models pass the gate and the rescue holds (Δrescue\Delta_{\mathrm{rescue}} 30.5 and 35.5 points; rescue 38–48% of targets,
+shuffled donor 7.0–12.9%). With 16 of each, Ouro-2.6B still passes (Δrescue=26.3\Delta_{\mathrm{rescue}}=26.3),
+and Ouro-1.4B fails the gate. On the four formats with 8 and 16 entities, Ouro-2.6B passes the gate in all
+eight cells and Ouro-1.4B in six: it fails the gate on the locker and story formats at 16 entities, which
+leaves the rescue untested there. Wherever the gate passes, the late query beats a shuffled donor’s by
+16–35 points in Ouro-2.6B and by 18–29 in Ouro-1.4B, while the rescue rate falls from 31–48% of
+targets at 8 entities to 20–25% at 16 (kk-way scoring).
+9 Related work
+Latent multi-hop reasoning and patching.
+Letting lower layers attend to higher layers
+improves multi-hop answers (Yu et al., 2025), and Patchscopes repair two-hop failures by patching a
+first-hop representation into a second-hop prompt (Ghandeharioun et al., 2024). In a three-layer
+toy model of in-context two-hop reasoning, a later layer’s query built from the copied bridge retrieves the
+target (Guo et al., 2025), providing a precedent for the sequential query mechanism (see also
+Ye et al., 2025). Our contribution is to test transfer across loops at matching coordinates in
+pretrained models and to distinguish bridge-consistent retrieval from answer copying. Query patching
+itself is an established tool: filter-head queries carry a predicate (Sen Sharma et al., 2026); our
+crossed swaps instead test entity-conditioned retrieval. Bound entities are retrieved by
+pointer and positional mechanisms (Prakash et al., 2025; Gur-Arieh et al., 2025; Zhou, 2026), and
+routing heads carry multilingual two-hop reasoning in dense LMs (Kim et al., 2026b).
+Looped language models.
+Weight-shared depth goes back to the Universal
+Transformer (Dehghani et al., 2019), and looping has been argued to suit compositional
+reasoning (Saunshi et al., 2025; Popescu et al., 2026). Interpretability work on looped LMs finds
+fixed points with stable head behavior and heads that keep their roles across
+iterations (Blayney et al., 2026; Olszowiec et al., 2026), limited evidence of decodable
+intermediate results in Huginn (Lu et al., 2025), cross-loop structure in Ouro and
+Huginn (Wang and Reid, 2026), and, in Ouro-1.4B, an intermediate of two-step arithmetic that a probe
+reads but the model does not use (Shalev Merin, 2026). In models trained from scratch,
+bridge entities become causal and decodable over
+loops (Kohli et al., 2026; Fu et al., 2026; Anonymous, 2026c), and a recurrent search circuit supports
+depth generalization (Cheng and Zhang, 2026).
+Wu et al. (2026) swap attention patterns (and, in an appendix, queries) between runs at the
+same loop in an Ouro-2.6B model fine-tuned on letter transitivity, with one cross-loop control from
+loop 2 into loop 4. In the released Ouro-2.6B, Same Head, Different Calls? (Anonymous, 2026a)
+shows that a head-output patch can lose its effect one loop later, and What Does Another Loop
+Buy? (Anonymous, 2026b) shows that freezing a loop’s attention pattern at its previous value
+hurts GSM8K. None of these moves a later loop’s query into an earlier loop, compares
+query, key and value freezes at fixed coordinates, or tests two-hop rescue. Methods that compress or share
+the KV cache across
+loops (O’Neill and Reid, 2026; Yang and Liu, 2026; Kim et al., 2026a; Monea et al., 2026; Conchello Vendrell et al., 2026; Ladhak et al., 2026; Mishra et al., 2026; Huang et al., 2026)
+or layers (Wu et al., 2025; Lin et al., 2026) mostly train or adapt the model for sharing. In Huginn,
+queries and keys approach their final geometry before values do (Li et al., 2026), and keys and
+attention routing settle early in looped models (O’Neill and Reid, 2026; Wan and Chen, 2026); in Ouro, the query
+still carries a needed update.
+10 Limitations
+We do not show where the composition is computed: loop 1 binds each person to a box (97.5% and 99.5% on
+person→\tobox) yet fails on 42% and 35% of two-hop questions. Both models come from the Ouro family,
+and Ouro-2.6B was grown from the 24-layer model; we make no claim about looped models in general. Our
+dense controls are only two models, with depth offsets of at most 16 layers against 48 in Ouro-1.4B, so
+we show neither that looping causes the rescue nor that dense transformers lack it. The mechanism results
+come from synthetic scenes, and the freezes, swaps and converse test were not rerun on other templates.
+On natural questions, the handoff is smaller in Ouro-2.6B (the replication covers 2WikiMultiHopQA only),
+absent in Ouro-1.4B, and not shown to redirect retrieval. For the person→\tobox values, the matched
+control cannot separate composition from the fact that only the two-hop question reads that line, and in
+Ouro-2.6B the bridge-given question is near ceiling. Patched and frozen states are hybrids that the model
+never produces natively; our controls bound generic damage but not the distance of these states from
+natural ones. Query transplantation supplies late-loop information separately at every layer and head;
+it does not show that a single query vector suffices, or that the recipient independently recomputes the
+bridge. The crossed swap also leaves positional routing incompletely separated from entity identity.
+Rescue is measured on questions selected for a loop-1 error and a loop-3 success; it does not establish
+the net benefit of patching all questions. In Ouro-1.4B, the rescue moves items just across the decision boundary of a four-candidate
+ranking, and loop 1 generates no answer, with or without the patch.
+11 Conclusion
+On synthetic two-hop questions, transplanting the layer-indexed collection of Ouro’s late-loop queries
+at the answer position rescues most selected early-loop errors. Crossed swaps favor retrieval through
+the donor’s bridge over answer copying, while leaving a substantial positional component in Ouro-2.6B.
+Query freezes also damage two-hop questions more than matched questions that supply the bridge.
+On natural questions, a smaller rescue replicates in Ouro-2.6B, but bridge redirection is not established.
+These results identify transferable queries that support synthetic two-hop retrieval. Where the bridge
+is computed, how memory updates contribute, and whether a single-state handoff can suffice remain open.
+Impact statement
+This paper analyzes how a pretrained looped language model answers two-hop questions. A better
+understanding of where answers are read out may help to diagnose reasoning failures in such models. We
+do not see societal consequences specific to this work that need to be highlighted here.
+References
+Anonymous (2026a)
+Anonymous
+Same head, different calls? auditing functional role claims in looped transformers.
+Note: Submitted to ICLR 2027, OpenReview id ipTUVMFcAY
+Cited by: §1,
+§2,
+§9.
+Anonymous (2026b)
+Anonymous
+What does another loop buy? attention reallocation tracks the marginal value of test-time compute in looped transformers.
+Note: Submitted to ICLR 2027, OpenReview id mQUR2BQm7r
+Cited by: §1,
+§9.
+Anonymous (2026c)
+Anonymous
+When do stored facts become available in looped transformers?.
+Note: Submitted to ICLR 2027, OpenReview id vzsNgu6lFR
+Cited by: §9.
+Biran et al. (2024)
+E. Biran, D. Gottesman, S. Yang, M. Geva, and A. Globerson
+Hopping too late: exploring the limitations of large language models on multi-hop queries.
+In Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing,
+pp. 14113–14130.
+Cited by: §1,
+§4.
+Blayney et al. (2026)
+H. Blayney, Á. Arroyo, J. Obando-Ceron, P. S. Castro, A. Courville, M. M. Bronstein, and X. Dong
+A mechanistic analysis of looped reasoning language models.
+arXiv preprint arXiv:2604.11791.
+Cited by: §9.
+Cheng and Zhang (2026)
+H. Cheng and Z. Zhang
+Not all thinking is created equal: latent reasoning discovers a recurrent search algorithm for depth generalization.
+arXiv preprint arXiv:2609.35643.
+Cited by: §9.
+Conchello Vendrell et al. (2026)
+V. Conchello Vendrell, A. Padres Masdemont, N. Grillo, J. Ros-Giralt, A. Behboodi, and F. V. Massoli
+Memory-efficient looped transformer: decoupling compute from memory in looped language models.
+arXiv preprint arXiv:2605.07721.
+Cited by: §9.
+Dehghani et al. (2019)
+M. Dehghani, S. Gouws, O. Vinyals, J. Uszkoreit, and Ł. Kaiser
+Universal transformers.
+In International Conference on Learning Representations,
+Cited by: §9.
+Elhoushi et al. (2024)
+M. Elhoushi, A. Shrivastava, D. Liskovich, B. Hosmer, B. Wasti, L. Lai, A. Mahmoud, B. Acun, S. Agarwal, A. Roman, A. Aly, B. Chen, and C. Wu
+LayerSkip: enabling early exit inference and self-speculative decoding.
+In Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers),
+Cited by: §4.
+Fu et al. (2026)
+H. Fu, T. Guo, Z. Wang, H. Zhu, J. D. Lee, J. Jiao, S. Russell, and S. Mei
+DiscoLoop: looping discrete embeddings and continuous hidden states for multi-hop reasoning.
+arXiv preprint arXiv:2607.00341.
+Cited by: §9.
+Ghandeharioun et al. (2024)
+A. Ghandeharioun, A. Caciularu, A. Pearce, L. Dixon, and M. Geva
+Patchscopes: a unifying framework for inspecting hidden representations of language models.
+In Proceedings of the 41st International Conference on Machine Learning,
+Cited by: §9.
+Guo et al. (2025)
+T. Guo, H. Zhu, R. Zhang, J. Jiao, S. Mei, M. I. Jordan, and S. Russell
+How do LLMs perform two-hop reasoning in context?.
+arXiv preprint arXiv:2502.13913.
+Cited by: §1,
+§9.
+Gur-Arieh et al. (2025)
+Y. Gur-Arieh, M. Geva, and A. Geiger
+Mixing mechanisms: how language models retrieve bound entities in-context.
+arXiv preprint arXiv:2510.06182.
+Cited by: §5,
+§9.
+Ho et al. (2020)
+X. Ho, A. Duong Nguyen, S. Sugawara, and A. Aizawa
+Constructing a multi-hop QA dataset for comprehensive evaluation of reasoning steps.
+In Proceedings of the 28th International Conference on Computational Linguistics,
+pp. 6609–6625.
+Cited by: §7.
+Huang et al. (2026)
+B. Huang, C. Shi, J. Chen, S. Wen, Z. Liu, E. Xing, and X. Ma
+Towards looped models done right, part ii: rethinking at fixed points.
+arXiv preprint arXiv:2610.06833.
+Cited by: §9.
+Kale et al. (2026)
+K. Kale, O. Baser, and S. Vishwanath
+The key handoff: retrieval in hybrid language models.
+arXiv preprint arXiv:2609.32942.
+Cited by: §5.
+Kim et al. (2026a)
+H. Kim, J. Lee, S. Cho, D. Han, I. Han, and S. Kim
+ResidualQuant: kv cache quantization for looped transformers with 2-bit residuals.
+arXiv preprint arXiv:2610.10381.
+Cited by: §9.
+Kim et al. (2026b)
+S. Kim, M. Choe, H. Kim, and H. Cho
+Bridge routing heads: where multilingual multi-hop reasoning lives in LLMs.
+arXiv preprint arXiv:2610.09733.
+Cited by: §9.
+Kohli et al. (2026)
+H. Kohli, S. Parthasarathy, H. Sun, and Y. Yao
+Loop, think, & generalize: implicit reasoning in recurrent-depth transformers.
+arXiv preprint arXiv:2604.07822.
+Cited by: §9.
+Ladhak et al. (2026)
+F. Ladhak, S. Acharya, S. Akle Serano, S. Sun, B. Ginsburg, and K. C. Puvvada
+One model to loop them all: elastic latent recurrence for language models.
+arXiv preprint arXiv:2610.12582.
+Cited by: §9.
+Li et al. (2026)
+G. Li, Z. Su, H. Yu, J. Jiang, T. Ren, Z. Li, F. Lu, M. Tang, and C. Yuan
+Shallow queries, mature values: depth-asynchronous self-speculation for looped transformers.
+arXiv preprint arXiv:2609.34538.
+Cited by: §9.
+Lin et al. (2026)
+H. Lin, Z. Bai, X. Zhang, X. Li, S. Yang, Y. Xu, J. Liu, Y. Zhao, J. Wang, Y. Xu, W. Su, and B. Zheng
+Reconstructing KV caches with cross-layer fusion for enhanced transformers.
+In International Conference on Learning Representations,
+Cited by: §9.
+Lu et al. (2025)
+W. Lu, Y. Yang, K. Lee, Y. Li, and E. Liu
+Latent chain-of-thought? decoding the depth-recurrent transformer.
+arXiv preprint arXiv:2507.02199.
+Cited by: §9.
+Mishra et al. (2026)
+A. Mishra, A. Padrés Masdemont, V. Conchello Vendrell, J. Ros Giralt, A. Behboodi, and F. V. Massoli
+Enabling dynamic computation in looped lms.
+arXiv preprint arXiv:2610.09013.
+Cited by: §9.
+Monea et al. (2026)
+G. Monea, K. Ramji, Y. El-Kurdi, L. A. Lastras, Y. Artzi, N. Godey, and R. Fernandez Astudillo
+The surprising effectiveness of shared memory in looped transformers.
+arXiv preprint arXiv:2610.02383.
+Cited by: §9.
+Olszowiec et al. (2026)
+P. Olszowiec, P. Tomaszewska, M. Żelaszczyk, M. Byra, and N. C. Chung
+Monitoring latent reasoning in looped language models.
+arXiv preprint arXiv:2610.18127.
+Cited by: §1,
+§9.
+O’Neill and Reid (2026)
+J. O’Neill and F. Reid
+Looped latent attention: cross-loop kv compression for looped transformers.
+arXiv preprint arXiv:2607.15456.
+Cited by: §9.
+Popescu et al. (2026)
+A. C. Popescu, H. Sáez de Ocáriz Borde, and P. Liò
+Looped language models improve compositional tool calling.
+arXiv preprint arXiv:2608.18171.
+Cited by: §9.
+Prakash et al. (2025)
+N. Prakash, N. Shapira, A. Sen Sharma, C. Riedl, Y. Belinkov, T. Rott Shaham, D. Bau, and A. Geiger
+Language models use lookbacks to track beliefs.
+arXiv preprint arXiv:2505.14685.
+Cited by: §5,
+§9.
+Saunshi et al. (2025)
+N. Saunshi, N. Dikkala, Z. Li, S. Kumar, and S. J. Reddi
+Reasoning with latent thoughts: on the power of looped transformers.
+In International Conference on Learning Representations,
+Cited by: §9.
+Sen Sharma et al. (2026)
+A. Sen Sharma, G. Rogers, N. Shapira, and D. Bau
+LLMs process lists with general filter heads.
+In International Conference on Learning Representations,
+Cited by: §9.
+Shalev Merin (2026)
+A. Shalev Merin
+Present but hard to read: probing latent reasoning with minimal pairs.
+arXiv preprint arXiv:2610.28498.
+Cited by: §9.
+Trivedi et al. (2022)
+H. Trivedi, N. Balasubramanian, T. Khot, and A. Sabharwal
+MuSiQue: multihop questions via single-hop question composition.
+Transactions of the Association for Computational Linguistics 10, pp. 539–554.
+Cited by: §7.
+Wan and Chen (2026)
+K. Wan and C. Chen
+Attention routing stabilizes early: working-set inference for recurrent language models.
+arXiv preprint arXiv:2609.27373.
+Cited by: §9.
+Wang et al. (2024)
+B. Wang, X. Yue, Y. Su, and H. Sun
+Grokked transformers are implicit reasoners: a mechanistic journey to the edge of generalization.
+In Advances in Neural Information Processing Systems,
+Vol. 37.
+Cited by: §1.
+Wang and Reid (2026)
+W. Wang and F. Reid
+Looped transformers under the jacobian lens: does the global workspace survive recurrence?.
+arXiv preprint arXiv:2609.01924.
+Cited by: §1,
+§9.
+Wu et al. (2026)
+J. Wu, Y. Hu, and M. Zhang
+Shared weights, selected computations: how looped transformers route what each loop does.
+arXiv preprint arXiv:2609.39892.
+Cited by: §1,
+§9.
+Wu et al. (2025)
+Y. Wu, H. Wu, and K. Tu
+A systematic study of cross-layer KV sharing for efficient LLM inference.
+In Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 2: Short Papers),
+pp. 396–403.
+Cited by: §9.
+Yang et al. (2025)
+A. Yang et al.
+Qwen3 technical report.
+arXiv preprint arXiv:2505.09388.
+Cited by: §4.
+Yang et al. (2024)
+S. Yang, E. Gribovskaya, N. Kassner, M. Geva, and S. Riedel
+Do large language models latently perform multi-hop reasoning?.
+In Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers),
+pp. 10210–10229.
+Cited by: §1.
+Yang and Liu (2026)
+W. Yang and S. Liu
+FlashLoop: fast and memory-efficient looped transformers via lazy updates.
+arXiv preprint arXiv:2609.29812.
+Cited by: §9.
+Ye et al. (2025)
+J. Ye, Z. Yao, Z. Huang, L. Pan, J. Liu, Y. Bai, A. Xin, W. Liu, X. Che, L. Hou, and J. Li
+How do transformers learn implicit reasoning?.
+arXiv preprint arXiv:2505.23653.
+Cited by: §9.
+Yu et al. (2025)
+Z. Yu, Y. Belinkov, and S. Ananiadou
+Back attention: understanding and enhancing multi-hop reasoning in large language models.
+In Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing,
+pp. 11257–11272.
+Cited by: §9.
+Zhang et al. (2026)
+Z. Zhang, Y. Wang, H. Wang, H. Wan, and M. Luo
+Why knowing both hops is not enough: understanding two-hop generalization in language models.
+arXiv preprint arXiv:2608.07261.
+Cited by: §1.
+Zhou (2026)
+Y. Zhou
+The geometry of contextual relations: language models address facts by order of mention.
+arXiv preprint arXiv:2610.00910.
+Cited by: §5,
+§9.
+Zhu et al. (2025)
+R. Zhu et al.
+Scaling latent reasoning via looped language models.
+arXiv preprint arXiv:2510.25741.
+Cited by: §1,
+§2,
+§2.
+Appendix A Prompt formats
+Synthetic two-hop.
+Raw text, without a chat template. A two-hop prompt, verbatim:
+Use only the facts in this scenario.
+Box B contains red.
+Box D contains blue.
+Box C contains yellow.
+Box A contains green.
+Bob has box D.
+Carol has box C.
+Alice has box B.
+David has box A.
+Question: What color is in Bob’s box?
+Answer:
+The two one-hop prompts are identical except for the question: they end instead with “Question: Which
+box does person have?” followed by “Answer: box” (candidates “ A”–“ D”), or with
+“Question: What color is in box b?” followed by “Answer:”. Each question is a separate prompt,
+and every candidate is a single token scored at the next position.
+Natural QA.
+The prompt, with passage text abbreviated; candidate answers are scored after the
+final newline:
+<|im_start|>system
+You are a helpful assistant.<|im_end|>
+<|im_start|>user
+Use only the following passages to answer the question. Give only the short answer.
+Passages:
+Title: <gold passage 1 title>
+<gold passage 1 text>
+Title: <gold passage 2 title>
+<gold passage 2 text>
+Question: <question><|im_end|>
+<|im_start|>assistant
+The position qq is the last prompt token: the newline after the final <|im_start|>assistant. The
+three distractors are gold answers of other items from the same dataset with the same answer type.
+Appendix B Query transplantation procedure
+The primary rescue uses a native donor run and an intervened recipient run of the same prompt. Crossed
+swaps use different prompts. The mathematical intervention proceeds as follows:
+1. 
+Run the donor without intervention through loop ss and retain its post-RoPE queries
+{Qℓ​h,q(s)}ℓ,h\{Q^{(s)}_{\ell h,q}\}_{\ell,h} at the final prompt position.
+2. 
+Run the recipient to loop rr. At each layer ℓ\ell, replace the post-RoPE query at qq in
+every head hh with the donor query at the matching (ℓ,h)(\ell,h) coordinate.
+3. 
+Compute attention and the remainder of the layer with this replacement, then continue to the
+next layer, where its corresponding donor queries are supplied. No key, value or residual-stream
+activation is directly replaced in the query-rescue arm.
+4. 
+Read the recipient’s output at the loop-rr exit. For rescue, score only targets that were
+wrong at native loop rr and right at native loop ss, using the same targets for the
+same-example and shuffled-donor arms.
+For the primary setting, r=1r=1 and s=3s=3. Causal attention ensures that positions before qq are
+unaffected by these final-position query patches, so their keys and values remain native to the
+recipient loop. At qq, however, the residual stream and later-layer keys and values can respond to
+previous layers’ patches. The resulting forward pass is therefore a hybrid computation supplied with
+late-loop queries throughout the stack, rather than a native early-loop computation initialized by
+one late-loop vector. The cached donor information already required the donor’s later-loop computation;
+the rescue experiment is a mechanistic intervention, not a demonstrated reduction in inference cost.
+Appendix C Native accuracy by loop
+Table 7: Native forced-choice accuracy (%) at the loop-tt exit. Freeze round: 400 scenes per model,
+each with one two-hop and two one-hop questions. Rescue round: 600 two-hop scenes per model, screened at
+loops 1–3. In Ouro-1.4B, two-hop accuracy falls from loop 3 to loop 4.
+Model
+Question
+loop 1
+loop 2
+loop 3
+loop 4
+1.4B
+two-hop
+58.25
+76.25
+93.75
+87.50
+person→\tobox
+97.50
+100.00
+100.00
+100.00
+box→\tocolor
+95.50
+98.00
+99.00
+98.25
+two-hop (rescue round)
+53.0
+77.5
+92.5
+–
+2.6B
+two-hop
+65.25
+97.00
+99.50
+99.25
+person→\tobox
+99.50
+100.00
+100.00
+100.00
+box→\tocolor
+99.25
+100.00
+100.00
+99.50
+two-hop (rescue round)
+62.5
+97.83
+99.67
+–
+In Ouro-1.4B, two-hop accuracy drops from 93.75% at loop 3 to 87.50% at loop 4, while both one-hop
+questions stay at 98–100%; Ouro-2.6B shows no such drop (99.50% and 99.25%). We did not study this
+drop. Every Ouro loop gain in this paper is measured at loop 3.
+ Experimental support, please
+ view the build logs
+ for errors. Generated by
+ L
+ A
+ T
+ E
+ xml
+ .
+Instructions for reporting errors
+We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+ support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+ methods listed below:
+Click the "Report Issue" (
+ ) button, located in the page header.
+Tip: You can select the relevant text first, to include it in your report.
+Our team has already identified the following issues. We appreciate your time reviewing and reporting rendering errors we
+ may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+ should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+ all.
+Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion, and welcome developer contributions.
+ We gratefully acknowledge support from our major funders,
+ member institutions, ,
+ and all contributors.
+ About ·
+ Help ·
+ Contact ·
+ Subscribe ·
+ Copyright ·
+ Privacy ·
+ Accessibility ·
+ Operational Status (opens in new tab)

@@ -1,0 +1,78 @@
+Distillation as Probability Transport: Routed On-Policy Distillation
+Tianle Xia∗ , Lingxiang Hu∗ , Yiding Sun, Linfang Shang, Ming Xu
+Lan Xu† , Ning Zheng, Wei Xu, Jie Jiang
+Tencent
+{tianlexia,lingxianghu,emanuelsun,faelynshang,flemingxu}@tencent.com
+{lanxu,yodazheng,davidxu,zeus}@tencent.com
+
+arXiv:2609.08337v1 [cs.LG] 8 Sep 2026
+
+∗
+
+First author.
+
+†
+
+Corresponding author.
+
+Abstract
+On-policy distillation (OPD) transfers teacher knowledge on
+student-generated trajectories, but efficient sampled objectives reduce the teacher distribution to scalar credit on individual tokens. Such credit indicates whether a token should
+gain or lose probability, yet leaves the corresponding redistribution unspecified. We recast OPD as teacher-guided
+probability transport and propose RouteOPD (Routed OnPolicy Distillation), which decomposes local teacher–student
+disagreement into student-excess sources and teacher-deficit
+destinations and couples them into explicit transport pairs.
+RouteOPD optimizes pairwise log-odds toward jointly realizable targets obtained from a bounded teacher potential, while
+adapting the transport budget to the concentration of teacher
+demand. This formulation directs updates toward teacherpreferred destinations and controls their magnitude within
+a single transport operator. Experiments across four teacher–
+student settings and four mathematical-reasoning benchmarks
+demonstrate that RouteOPD consistently outperforms sampled reverse-KL OPD, with improvements accompanied by
+higher routing fidelity and lower background leakage. These
+results demonstrate the effectiveness of explicitly modeling
+probability transport in on-policy distillation.
+
+1
+
+Introduction
+
+On-policy distillation (OPD) has emerged as an effective
+post-training paradigm for transferring reasoning capabilities between language models (Agarwal et al. 2024; Team
+2025). Unlike offline distillation, which supervises a student on fixed teacher or corpus trajectories (Hinton, Vinyals,
+and Dean 2015; Kim and Rush 2016), OPD samples from
+the student and queries the teacher at the resulting states. It
+therefore combines on-policy state coverage with temporally
+dense teacher feedback, reducing the state-distribution mismatch induced by fixed histories (Ross, Gordon, and Bagnell
+2011; Bengio et al. 2015) without relying only on sparse
+outcome rewards (Xia et al. 2026). This combination is especially attractive for long-horizon mathematical reasoning,
+where an early mistake changes every subsequent state and
+final-answer feedback gives little information about which
+local decisions should be corrected. Yet this advantage raises
+a more basic question: when the teacher prescribes a categorical distributional correction, is scalar credit on an individual token sufficient to specify how the student policy should
+change?
+
+Figure 1: RouteOPD replaces implicit redistribution with
+teacher-guided transport, improving average reasoning accuracy and routing fidelity while reducing leakage.
+
+An efficient and common instantiation of OPD, however,
+leaves each update structurally under-specified. Although the
+teacher provides a categorical distribution over the vocabulary, a sampled objective exposes one student action and
+one scalar credit at a visited state. This scalar can indicate whether the sampled token should be encouraged or
+suppressed, and with what strength. Yet a normalized categorical policy cannot change one probability in isolation:
+suppressing one token releases mass that must be assigned
+elsewhere, while increasing one token must draw mass from
+other alternatives. Thus, scalar credit is not a transport plan.
+It explicitly identifies at most one side of a redistribution,
+even though the teacher distribution provides evidence about
+both student-excess sources and teacher-deficit destinations.
+This distinction matters because the missing route is not
+neutral: it is filled in by student softmax geometry. For logits
+z and a sampled token a, ∇z log πθ (a | s) = ea − πθ (· | s).
+Consequently, a negative credit suppresses a but produces a
+direct background logit update over every non-source token,
+weighted by the student’s current probabilities. Even when
+a scalar estimator recovers a dense objective in expectation,
+each realized stochastic update still delegates this unspecified
+redistribution to the student geometry. It can therefore favor
+
+

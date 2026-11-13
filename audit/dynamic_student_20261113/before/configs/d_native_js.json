@@ -1,0 +1,1 @@
+{"extends":"b_native_endpoint.json","run_name":"D_native_JS_stage_ends","algorithm":{"stage_selection":"js"}}

@@ -1,0 +1,12 @@
+{
+  "extends": "huginn_a_loopopd.json",
+  "run_name": "Huginn_LoopOPD_S16",
+  "algorithm": {
+    "student_loops": 16
+  },
+  "evaluation": {
+    "student_loops": [
+      16
+    ]
+  }
+}

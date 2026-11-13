@@ -1,0 +1,139 @@
+[2604.14084] TIP: Token Importance in On-Policy Distillation
+ Skip to main content
+ Search
+ Submit
+ Donate
+ Log in
+ Search arXiv
+ Press Enter to search · Advanced search
+Computer Science > Machine Learning
+ arXiv:2604.14084 (cs)
+ [Submitted on 15 Apr 2026 (v1), last revised 21 May 2026 (this version, v4)]
+Title:TIP: Token Importance in On-Policy Distillation
+Authors:Yuanda Xu, Hejian Sang, Zhengze Zhou, Ran He, Zhipeng Wang, Alborz Geramifard 
+View a PDF of the paper titled TIP: Token Importance in On-Policy Distillation, by Yuanda Xu and 5 other authors
+ View PDF
+ HTML (experimental)
+ Abstract:On-policy knowledge distillation (OPD) trains a student on its own rollouts under token-level supervision from a teacher. Not all token positions matter equally, but existing views of token importance are incomplete. We ask a direct question: which tokens carry the most useful learning signal in OPD? Our answer is that informative tokens come from two regions: positions with high student entropy, and positions with low student entropy plus high teacher--student divergence, where the student is overconfident and wrong.
+Empirically, student entropy is a strong first-order proxy: retaining $50\%$ of tokens with entropy-based sampling matches or exceeds all-token training while reducing peak memory by up to $47\%$. But entropy alone misses a second important region. When we isolate low-entropy, high-divergence tokens, training on fewer than $10\%$ of all tokens nearly matches full-token baselines, showing that overconfident tokens carry dense corrective signal despite being nearly invisible to entropy-only rules.
+We organize these findings with TIP (Token Importance in on-Policy distillation), a two-axis taxonomy over student entropy and teacher--student divergence, and give a theoretical explanation for why entropy is useful yet structurally incomplete. This view motivates type-aware token selection rules that combine uncertainty and disagreement. We validate this picture across three teacher--student pairs spanning Qwen3, Llama, and Qwen2.5 on MATH-500 and AIME 2024/2025, and on the DeepPlanning benchmark for long-horizon agentic planning, where Q3-only training on $<$$20\%$ of tokens surpasses full-token OPD. Our experiments are implemented by extending the OPD repository this https URL, which supports memory-efficient distillation of larger models under limited GPU budgets.
+ Subjects:
+ Machine Learning (cs.LG); Artificial Intelligence (cs.AI)
+ Cite as:
+ arXiv:2604.14084 [cs.LG]
+ (or 
+ arXiv:2604.14084v4 [cs.LG] for this version)
+ https://doi.org/10.48550/arXiv.2604.14084
+ Focus to learn more
+ arXiv-issued DOI via DataCite
+Submission history From: Yuanda Xu [view email] 
+ [v1]
+ Wed, 15 Apr 2026 16:58:24 UTC (313 KB)
+ [v2]
+ Sun, 19 Apr 2026 02:47:58 UTC (318 KB)
+ [v3]
+ Wed, 20 May 2026 13:52:23 UTC (327 KB)
+ [v4]
+ Thu, 21 May 2026 05:36:13 UTC (318 KB)
+ Full-text links:
+Access Paper:
+View a PDF of the paper titled TIP: Token Importance in On-Policy Distillation, by Yuanda Xu and 5 other authors
+View PDF
+HTML (experimental)
+TeX Source
+ view license
+Current browse context:
+cs.LG
+ < prev
+ | 
+ next >
+ new
+ | 
+ recent
+ | 2026-04
+ Change to browse by:
+ cs
+ cs.AI
+References & Citations
+NASA ADS
+Google Scholar
+Semantic Scholar
+ export BibTeX citation
+ Loading...
+BibTeX formatted citation
+ ×
+ loading...
+ Data provided by: 
+Bookmark
+ Bibliographic Tools
+Bibliographic and Citation Tools
+ Bibliographic Explorer Toggle
+ Bibliographic Explorer (What is the Explorer?)
+ Connected Papers Toggle
+ Connected Papers (What is Connected Papers?)
+ Litmaps Toggle
+ Litmaps (What is Litmaps?)
+ scite.ai Toggle
+ scite Smart Citations (What are Smart Citations?)
+ Code, Data, Media
+Code, Data and Media Associated with this Article
+ alphaXiv Toggle
+ alphaXiv (What is alphaXiv?)
+ Links to Code Toggle
+ CatalyzeX Code Finder for Papers (What is CatalyzeX?)
+ DagsHub Toggle
+ DagsHub (What is DagsHub?)
+ GotitPub Toggle
+ Gotit.pub (What is GotitPub?)
+ Huggingface Toggle
+ Hugging Face (What is Huggingface?)
+ ScienceCast Toggle
+ ScienceCast (What is ScienceCast?)
+ Demos
+Demos
+ Replicate Toggle
+ Replicate (What is Replicate?)
+ Spaces Toggle
+ Hugging Face Spaces (What is Spaces?)
+ Spaces Toggle
+ TXYZ.AI (What is TXYZ.AI?)
+ Related Papers
+Recommenders and Search Tools
+ Link to Influence Flower
+ Influence Flower (What are Influence Flowers?)
+ Core recommender toggle
+ CORE Recommender (What is CORE?)
+ IArxiv recommender toggle
+ IArxiv Recommender
+ (What is IArxiv?)
+Author
+Venue
+Institution
+Topic
+ About arXivLabs
+arXivLabs: experimental projects with community collaborators
+arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website.
+Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them.
+Have an idea for a project that will add value for arXiv's community? Learn more about arXivLabs.
+ Which authors of this paper are endorsers? |
+ Disable MathJax (What is MathJax?)
+ We gratefully acknowledge support from
+ our major funders,
+ member institutions, ,
+ and all contributors.
+ About
+ ·
+ Help
+ ·
+ Contact
+ ·
+ Subscribe
+ ·
+ Copyright
+ ·
+ Privacy
+ ·
+ Accessibility
+ ·
+ Operational Status (opens in new tab)
+Major funding support from

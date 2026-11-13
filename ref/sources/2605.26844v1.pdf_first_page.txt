@@ -1,0 +1,154 @@
+Not All Disagreement Is Learnable:
+Token Teachability in On-Policy Distillation
+Yuanyi Wang1 , Su Lu1 , Yanggan Gu1 , Pengkai Wang1 , Yifan Yang1 ,
+Zhaoyi Yan2 , Congkai Xie2 , Jianmin Wu1 , Hongxia Yang1,2,3 * †
+1
+The Hong Kong Polytechnic University, PolyU
+2
+InfiX.ai 3 Hong Kong Polytechnic University
+Daya Bay Technology and Innovation Research Institute
+Code: https://github.com/wyy-code/TA-OPD
+
+arXiv:2605.26844v1 [cs.LG] 26 May 2026
+
+Within low-entropy with high-KL tokens, raw KL alone is ambiguous.
+
+Learnable DL
+
+On-policy distillation (OPD) trains a student
+on its own rollouts with token-level teacher
+supervision. Recent selective OPD methods
+exploit the non-uniformity of OPD signals by
+prioritizing high-entropy or high-disagreement
+tokens. We revisit this principle and ask: which
+token-level teacher signals are actually learnable? Using a fixed-context diagnostic that
+measures same-context teacher–student KL reduction, we show that raw KL disagreement is
+a coarse proxy for learning value. It conflates
+learnable disagreement, where the teacher assigns corrective mass to the student’s top-K
+candidates, with incompatible disagreement,
+where the teacher places mass mostly off the
+student’s current support. We formalize this
+local compatibility as token teachability and
+show that it better predicts fixed-context improvement than raw KL alone. Motivated by
+this finding, we propose Teachability-Aware
+OPD (TA-OPD), a lightweight token-position
+selection method that applies OPD loss to highteachability positions without reward models or
+verifiers. Across Qwen2.5 and Qwen 3 teacher–
+student settings, TA-OPD often surpasses fulltoken OPD with only 5% retained tokens and
+improves over entropy- and divergence-based
+baselines. Our results reframe selective OPD as
+selecting learnable teacher signals rather than
+merely salient tokens.
+
+1
+
+Same raw KL, different learnability
+
+A
+
+Abstract
+
+teacher reweights local support
+
+teacher
+student
+
+Student local support
+
+Prior work: Q3 = low-entropy with
+high-KL selector region
+
+Incompatible DI
+
+teacher
+student
+
+teacher points off support
+
+Student local support
+
+TA-OPD keeps locally learnable supervision
+
+B
+
+Use support-aligned disagreement rather than raw salience alone.
+
+1
+
+On-Policy states
+
+student rollout postitions
+
+2
+
+Top-K support stats
+compute Dl & Ci
+
+3 Teachability gate
+score learnable KL
+
+4
+
+Budgeted OPD
+
+keep top-p postitions
+keep
+support-aligned
+
+candidate positions
+
+disagreement D
+
+support-aligned
+positions rank higher
+
+filter
+off-support
+
+Figure 1: Token teachability. A: Low-entropy, highKL tokens can contain learnable disagreement DL ,
+which stays within the student’s local support, and incompatible disagreement DI , which shifts off support.
+B: TA-OPD computes disagreement Dt and compati= D̃t C̃t , and keeps
+bility Ct , ranks positions by steach
+t
+only high-teachability OPD supervision.
+
+2026c; Zhang et al., 2025). Compared with offpolicy distillation (Zhou et al., 2025; Wang et al.,
+2026e), OPD supervises the student on states that it
+actually visits, reducing distribution mismatch between training and deployment. However, this also
+exposes a central challenge: the teacher provides
+dense supervision at every token, but not every
+token-level teacher signal is equally useful.
+Recent work shows that OPD supervision is
+highly non-uniform (Jin et al., 2026; Wang et al.,
+2026b). Selective OPD therefore allocates token
+budget to salient positions, such as high-entropy
+tokens or low-entropy tokens with large teacher–
+student disagreement (Guo et al., 2026; Xie et al.,
+2026; Xu et al., 2026). However, these criteria
+measure uncertainty or disagreement, not the learning effect of the induced token-level supervision.
+In on-policy training, two tokens with similar KL
+disagreement can lead to very different updates,
+depending on how the teacher distribution interacts
+with the student’s current predictive state (Fig 1.A).
+This raises a basic question: which token-level
+teacher signals in OPD are actually learnable?
+To answer this question, we need to separate
+
+Introduction
+
+Knowledge distillation has long been used to transfer the behavior of a large teacher model to a
+smaller student model (Hinton, 2014; Zhou et al.,
+2026; Fang et al., 2026). For large language models
+(LLMs), a particularly effective variant is on-policy
+distillation (OPD), which trains a student policy on
+its own rollouts using token-level supervision from
+a teacher policy (Agarwal et al., 2024; Gu et al.,
+* Corresponding author.
+†
+
+wangyuanyi713@gmail.com,
+hongxia.yang@polyu.edu.hk
+
+1
+
+

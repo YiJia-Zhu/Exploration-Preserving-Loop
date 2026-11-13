@@ -1,0 +1,3276 @@
+Learning to Compute Is Not Learning to Retainor Reuse in Looped Transformers
+Skip to main content
+ Report GitHub Issue
+ ×
+ Title:
+Content selection saved. Describe the issue below:
+ Description:
+ Submit without GitHub
+ Submit in GitHub
+ Why HTML?
+ Report Issue
+ Back to Abstract
+ Download PDF
+ Contents
+ Reading mode
+ Colour theme
+Abstract
+1 Introduction
+2 A controlled setting for computation and retention
+Task and model.
+Training objectives.
+Evaluation cohorts.
+Readouts and scoring.
+3 Training to retain changes inference-budget robustness
+A correct endpoint need not survive more loops.
+One supervised position per example is enough for strong retention.
+Varying the exit helps at matched expected loop budgets.
+Truncated gradients do not help retention.
+Retention is a distinct, finite-window property.
+4 Computation is exact, but its answers are transient
+Swapping one state between two inputs.
+One swapped state drives the rest of the execution.
+The answers do not stay.
+5 Answers become readable before their states become reusable
+Halting treats a solved position as finished.
+Freezing applies this halting at the first readable loop.
+The answers are correct, but their states cannot yet be frozen.
+Frozen states fail as inputs to later computation.
+A state becomes reusable two to four loops after its answer.
+The maze network trained against overthinking behaves the same way.
+What freezing shows.
+6 Related work
+Extra iterations in recurrent reasoners.
+Recurrent computation and training requirements.
+Readable and causally usable representations.
+7 Discussion and limitations
+References
+A Experimental methods and scoring
+A.1 Machine generation and input encoding
+A.2 Network, optimization, and curriculum
+A.3 Readouts, thresholds, and exactness
+A.4 Position-8 transport audit
+Localization and intervention controls.
+A.5 Paired delayed and phase-crossing cohorts
+A.6 Controls and statistical interpretation
+B Additional results and their scope
+B.1 Common-stream training controls
+One supervised position per example.
+Progressive and matched random exits.
+Compute accounting.
+Attainment and retention.
+Length boundary.
+B.2 Historical six-seed endpoint accuracy
+B.3 Budget contracts and training support
+Matching recurrent work.
+Endpoint retention and its tradeoffs.
+B.4 Whole-trajectory exactness and complementary contracts
+B.5 Length extrapolation
+B.6 Delayed swaps with their clean controls
+B.7 Crossed times and replacement extent
+B.8 Provenance of the principal quantities
+C Local downstream recovery and source-phase controls
+C.1 Population, interventions, and scoring
+C.2 Joint restoration recovers the fresh response
+C.3 A readable aged source does not provide the same recovery
+C.4 Controls, reproducibility, and interpretation
+D Frontier freezing
+D.1 Original cohort and protocol
+D.2 Additional observations and limits
+D.3 Freezing the new training controls
+Fixed schedules and eight arms.
+Clean eligibility.
+Capture-aligned and common readouts.
+Results and limits.
+D.4 External maze network
+E Local recovery of the first natural failure
+Protocol.
+Results and limits.
+ License: CC BY 4.0
+arXiv:2610.19768v1 [cs.LG] 14 Oct 2026
+Learning to Compute Is Not Learning to Retain
+or Reuse in Looped Transformers
+Peilong Zhou Hongtao Zhang Yulong Huang
+Affiliation: SKLP, Institute of Computing Technology, Chinese Academy of Sciences
+Affiliation: University of Chinese Academy of Sciences
+Affiliation: School of Advanced Interdisciplinary Sciences
+Affiliation: The Hong Kong University of Science and Technology (Guangzhou)*Equal contribution.†Corresponding author.
+Email: wangying2009@ict.ac.cn
+Cangyuan Li Mingyu Chen Ying Wang
+Affiliation: SKLP, Institute of Computing Technology, Chinese Academy of Sciences
+Affiliation: University of Chinese Academy of Sciences
+Abstract
+Looped transformers compute by applying one block repeatedly, so they can run
+for more loops than they were trained with. Recurrent reasoners are known to
+overthink: iterating past the trained depth can turn a correct answer into a
+wrong one. Such a late error can reflect failed computation, loss of
+retention, or a state that later computation cannot reuse. We separate these cases in in-context
+Mealy-machine execution, where a simulator supplies intermediate targets and
+exact counterfactuals for hidden-state interventions. Models trained to answer
+at loop 32 are fully correct there but keep only 22% of these answers at
+loop 64. Retention depends on what training asks for: supervising one randomly
+chosen position per example, instead of always the last, keeps 99.8%, and
+randomizing the number of training loops also helps; truncating gradients, as
+in progressive training against overthinking, does not. The computation itself is
+exact: position kk is computed at loop kk, and swapping its loop-kk hidden
+vector for the one from another input redirects every later position to that
+input’s exact continuation (237/237 pairs in each of ten models). Retention,
+however, is not reuse. Even in models that keep nearly all answers, holding
+each position kk fixed from loop kk drops accuracy to 4–6%, whereas
+holding it from loop k+4k+4 is harmless. A released recurrent maze network
+trained to avoid overthinking behaves the same way. Learning to compute is thus
+not learning to retain, and avoiding overthinking does not make a state
+reusable when its answer first appears.
+1 Introduction
+Looped transformers turn recurrent depth into a computation budget: one block
+is applied repeatedly, so a model can run for more loops than it was trained
+with (Dehghani et al., 2019; Giannou et al., 2023; Geiping et al., 2025).
+Whether those extra loops help depends on what happens to an answer after it
+has been computed.
+Empirically, running past the trained depth can hurt. Recurrent networks
+trained on small instances can solve larger ones by iterating longer
+(Schwarzschild et al., 2021), but further iteration can also turn a correct
+answer into a wrong one. Bansal et al. (2022) call this failure
+overthinking and prevent it with input recall and progressive
+training, which applies the loss at a random depth and blocks gradients to
+the loops before a random starting point. Later work relates extra
+computation to path independence and shows that training and stopping
+objectives change the learned trajectory
+(Anil et al., 2022; Zhang et al., 2026; Kuo et al., 2026; Popescu et al., 2026);
+analysis of recurrent language models separates whether content is readable
+from whether it is transported and can be steered (Wang and Reid, 2026).
+Much of this evidence tracks accuracy or readouts across loops. An
+overthinking curve, however, can mean three different things:
+the answer was never computed, it was computed but not
+retained, or the state that carries it cannot be reused by
+later computation. Telling these apart requires knowing what a correct
+alternative execution would be. We therefore ask: when a looped model
+learns to compute an answer, what does it learn about retaining that answer
+and reusing its internal state?
+In-context execution of Mealy machines makes these distinctions measurable
+(Figure 1). Each example gives a transition table and an
+input sequence of length HH. A simulator supplies the correct state and
+output at every position, including after any counterfactual change, so an
+intervention can be scored against a unique correct continuation rather
+than by whether the output changed. We apply one shared transformer block for
+RR loops and train only on the readout after the last loop, the exit;
+the main models use R=HR=H, one loop per input symbol, and compare objectives that differ only in which answers must be correct at
+that exit: the last position (final-only), every position (all-prefix), or
+one uniformly sampled position per example (sampled-prefix). Endpoint
+accuracy requires both the state and the output at the last position to be
+correct. In the models we analyze, position kk first becomes correct at or near
+loop kk; we call the diagonal r=kr=k the frontier. Because the loop at
+which each answer first appears is known, a state can be tested at exactly
+that moment. We intervene on the recurrent
+trajectory in three ways: replacing a hidden vector in a base run with
+the corresponding vector of a source run on a different input prefix
+(Geiger et al., 2024), resetting a position to its own earlier vector,
+and freezing each position at a chosen loop. At the frontier, one
+position’s hidden vector suffices to drive the rest of the execution, so
+the same unit lets us compare what a state makes readable with what it lets
+later computation do.
+The three properties come apart. In the order of the paper, we find:
+• 
+Retention is set by what training requires
+(Section 3). On shared length-32 test inputs,
+final-only models are 100% correct at the trained exit but 22.3% at
+loop 64 (Figure 2). all-prefix gives 94.3%, and
+sampled-prefix gives 99.8% with the same single supervised position per
+example as final-only. At a matched expected budget, drawing the exit as
+R=H+UR=H+U with UU uniform on {0,…,8}\{0,\ldots,8\}, instead of fixing R=H+4R=H+4,
+raises loop-64 accuracy from 30.0% to 85.6%. Truncated gradients do not
+help: our adaptation of progressive training learns length 32 in one of
+three seeds, whereas a matched random exit control with identical exits and full
+gradients learns it in all three and keeps 97.9% at loop 64.
+• 
+Computation is exact, but its answers are transient
+(Section 4). Replacing one hidden vector at the frontier
+redirects every later frontier readout to the exact counterfactual execution
+in all 237 pairs whose counterfactual differs, in each of ten final-only models (Figure 3). These answers fade soon after they are
+computed, in swapped and unmodified runs alike.
+• 
+Answers become readable before their states become reusable
+(Section 5). Freezing each position kk from the loop at
+which its answer first becomes readable, as per-position halting would and
+with no other run or label involved, reduces endpoint accuracy from 100% to
+4.1% under sampled-prefix and to 6.3% under matched random exit, two objectives
+that retain answers well (Figure 4). Freezing two to four
+loops later restores it. A released recurrent maze network that never loses
+a solved maze solves none of 32 mazes when each pixel is frozen at its
+answer’s arrival, and all of them when frozen four iterations later.
+These interventions separate the three properties; they do not identify a
+microscopic cause of ordinary decline or give a general repair. The main
+evidence comes from one synthetic task family and one architecture, with a
+limited external check (Section 7).
+2 A controlled setting for computation and retention
+Figure 1: Task, recurrence, and where the loss is applied.
+(a) A Mealy machine (edge label: input/output), its in-context encoding,
+and the simulator targets qkq_{k}, yky_{k}. (b) One loop of the shared block
+BθB_{\theta}; ⋄\diamond marks where interventions replace hkrh_{k}^{r}.
+(c) Each cell is one vector hkrh_{k}^{r} (position kk, loop rr). Colored cells
+receive the loss at the exit RR; rows above RR are never trained and are
+where retention is measured.
+Task and model.
+A deterministic Mealy machine has a finite state set QQ, input alphabet
+Σ\Sigma, output alphabet Γ\Gamma, initial state q0q_{0}, transition function
+δ:Q×Σ→Q\delta:Q\times\Sigma\to Q, and output function λ:Q×Σ→Γ\lambda:Q\times\Sigma\to\Gamma.
+Reading a sequence of input symbols, which we call actions,
+a1,…,aH∈Σa_{1},\ldots,a_{H}\in\Sigma (HH is the horizon), it computes
+qk=δ(qk−1,ak),yk=λ(qk−1,ak),k=1,…,H,q_{k}=\delta(q_{k-1},a_{k}),\qquad y_{k}=\lambda(q_{k-1},a_{k}),\qquad k=1,\ldots,H,
+(1)
+so qkq_{k} is the state after action kk and yky_{k} the output emitted on that
+transition. In Figure 1a, from q0=Aq_{0}=A the action a1=0a_{1}=0
+follows the edge 0/10/1, giving q1=Bq_{1}=B and y1=1y_{1}=1. An example xx lists
+q0q_{0}, one token per table entry (q,a)↦(δ⁡(q,a),λ⁡(q,a))(q,a)\mapsto(\delta(q,a),\lambda(q,a)),
+and the HH actions. At the token of action kk the model predicts qkq_{k} and
+yky_{k}; these are targets, never inputs. The generator samples reachable,
+behaviorally minimal machines with 4, 6, or 8 states, 2 or 4 input symbols,
+and 2 output symbols;
+randomized symbol names and row order discourage fixed-label shortcuts but do
+not establish structural disjointness of sampled machines
+(Appendix A).
+The model repeats a two-layer transformer block with width 128, four attention
+heads, and feed-forward width 512. With input embeddings E⁡(x)E(x), it computes
+X0=0,Xr=Bθ​(Xr−1+E⁡(x)).X^{0}=0,\qquad X^{r}=B_{\theta}\bigl(X^{r-1}+E(x)\bigr).
+(2)
+Here rr indexes loops and XrX^{r} collects the hidden vectors of all tokens
+after loop rr; training reads out after loop RR, the exit.
+The block’s two layers have different parameters; the entire block is shared
+across loops (Figure 1b; details in Figure A1).
+There are no positional or loop-depth embeddings; the causal attention mask
+provides the architectural signal of action order.
+The prefix (initial-state token and transition table) attends within itself, and action position kk
+attends to this prefix and actions 1:k1{:}k. Let hkrh_{k}^{r} denote its post-block
+hidden vector. Shared state and output heads are trained jointly with the
+model and read LN⁡(hkr)\operatorname{LN}(h_{k}^{r}) after each loop. Hidden-vector
+interventions replace hkrh_{k}^{r} before this final normalization and affect
+subsequent loops.
+Training objectives.
+Our main comparison fixes the training exit R=HR=H, architecture, curriculum,
+optimizer, and training duration, and changes the supervised positions at the
+exit. Each batch shares one horizon HH. With ℓi,kR\ell_{i,k}^{R} the sum of
+state and output cross-entropies for example ii, the batch objective is
+ℒS=1∑i|Si|​∑i∑k∈Siℓi,kR,Si={{H},final-only,{1,…,H},all-prefix,{Ki},Ki∼U⁡{1,…,H},sampled-prefix.\mathcal{L}_{S}=\frac{1}{\sum_{i}|S_{i}|}\sum_{i}\sum_{k\in S_{i}}\ell_{i,k}^{R},\qquad S_{i}=\begin{cases}\{H\},&\textsc{final-only},\\
+\{1,\ldots,H\},&\textsc{all-prefix},\\
+\{K_{i}\},\ K_{i}\sim U\{1,\ldots,H\},&\textsc{sampled-prefix}.\end{cases}
+(3)
+Relative to final-only, all-prefix broadens position coverage and increases
+the number of supervised state–output pairs per example from one to HH.
+sampled-prefix separates coverage from dense per-example supervision by
+selecting one position independently and uniformly per example. At fixed
+parameters and batch, its expected loss equals the mean all-prefix loss.
+All three objectives apply these losses only at the exit, not at every loop
+(Figure 1c), and average over selected positions rather than
+multiplying the loss by HH.
+The main training comparisons use 132,000 AdamW steps, batch size 256, and
+the same 35-stage curriculum reaching H=32H=32. After the initial H=1H=1 stage,
+each stage draws its maximum horizon with probability .5 and otherwise a
+shorter horizon uniformly from 1 to one below that maximum.
+Under final-only, every horizon H≤32H\leq 32 therefore receives endpoint
+supervision at loop HH as the curriculum progresses.
+Because future actions cannot affect earlier positions, a length-kk input
+and any extension of it have identical computations at positions 1:k1{:}k
+when the machine presentation is unchanged. Shorter-horizon training thus
+directly constrains position kk at loop kk even when that prefix appears in
+a longer input. all-prefix and sampled-prefix additionally supervise
+that position at exits H>kH>k, requiring its answer to be readable H−kH-k
+loops beyond the diagonal r=kr=k. The relation of this diagonal to the
+measured first-correct frontier is evaluated in Section 3.
+Section 3 also varies the exit distribution (Slack-4 versus
+Jitter-8) and tests gradient truncation by comparing progressive training
+with matched random exit at matched supervised exits.
+Evaluation cohorts.
+The common cohort compares final-only, all-prefix, sampled-prefix,
+progressive, and matched random exit on model seeds 9–11 and one shared
+evaluation stream; the existing final-only/all-prefix checkpoints are
+re-evaluated. The original cohort uses seeds 9–14 for the historical
+training comparisons, including Slack-4/Jitter-8, and supplies six pairs of
+final-only/all-prefix models for the position-16 interventions
+(Section 5; Appendices B.6 and C). Its behavioral evaluations use a separate
+stream. The position-8 transport audit in Section 4
+uses ten final-only models, seeds 9–18. Overlapping checkpoints are not
+independent model replications. Additional freezing, larger-model, and maze
+cohorts are specified with their experiments in Section 5
+and the appendices. No seed is selected for intervention success;
+Appendices A and B.1 give the seeds,
+streams, and pairing protocols.
+Readouts and scoring.
+For one model and NN evaluation examples of length HH, endpoint accuracy
+at readout loop rr is the fraction for which both predictions at the last
+action are correct:
+A(H,r)=1N∑i=1N[q^i,Hr=qi,H∧y^i,Hr=yi,H].A(H,r)=\frac{1}{N}\sum_{i=1}^{N}\mathbf{1}\!\left[\hat{q}_{i,H}^{r}=q_{i,H}\;\land\;\hat{y}_{i,H}^{r}=y_{i,H}\right].
+(4)
+Whole-trajectory exactness requires both predictions at all HH
+positions of an example to be correct at the same loop rr, and reports the
+fraction of examples satisfying this conjunction. The main endpoint and
+trajectory evaluations use 512 traces per model and length: 16 machines
+with 32 traces each. Scores are computed within each model and then averaged
+across models with equal weight (Appendix A).
+On a clean loop–position grid, τ⁡(k)\tau(k) is the first evaluated loop at which
+both marginal state and output accuracies at position kk reach .99,
+for the specified model, horizon, and evaluation set. This population
+criterion differs from the example-level conjunctions above. We reserve
+τ⁡(k)\tau(k) for this measured quantity and write s⁡(k)s(k) for a specified readout
+or capture schedule. The matched-frontier audit in Section 4
+uses the diagonal schedule s⁡(k)=ks(k)=k; a common-exit readout uses s⁡(k)=rs(k)=r for
+all positions. Fixed freezing schedules and their agreement with the clean
+frontier are assessed separately in Section 5.
+Section 4 introduces source–base pairs, their
+counterfactual targets, and the corresponding suffix-exactness scores.
+3 Training to retain changes inference-budget robustness
+Figure 2: Position coverage, exit distribution, and gradient propagation.
+Endpoint joint accuracy (a,c,d) and whole-trajectory exactness (b: all 32
+state–output pairs correct) on 512 length-32 examples per model; thin curves
+are models, including incomplete learners, and thick curves their means.
+(a,b) Common cohort: one uniformly sampled supervised position per example
+preserves late accuracy without adding supervised positions. (c) Original
+cohort: Slack-4 and Jitter-8 match expected loop budgets. (d) Common cohort:
+progressive and matched random exit share supervised exits and forward work
+but differ in gradient truncation and backward work. Shading marks training
+exit support; the dashed line in (c) is Slack-4’s exit. Neither comparison
+matches measured training FLOPs.
+A correct endpoint need not survive more loops.
+Figure 2a,b evaluates the common cohort, holding each input
+and checkpoint fixed across loops. final-only endpoint joint
+accuracy falls from 100% at loop 32 to 60.81% at loop 33 and 22.33% at
+loop 64. Whole-trajectory exactness is 0% at both loops 32 and 64.
+These are losses on solved inputs of unchanged length. Original-cohort
+results remain separate (Appendix B.2).
+One supervised position per example is enough for strong retention.
+At the same training exit R=HR=H, all-prefix raises loop-64 endpoint accuracy
+to 94.27% on the common stream, but supplies more supervised positions.
+sampled-prefix controls this difference: each example contributes one
+uniformly chosen position’s state and output losses. All three models attain
+100% endpoint and whole-trajectory accuracy at loop 32. At loops 64 and 96,
+endpoint means are 99.80% and 96.61%, and whole-trajectory means are
+96.03% and 74.09%. The corresponding all-prefix trajectory means are
+74.28% and 67.45%.
+Dense per-example supervision is therefore not necessary for the observed
+retention gain. This three-seed result does not establish that sampling is
+generally superior to all-prefix, nor remove the need for intermediate labels.
+For both baselines trained at R=HR=H, the original readability grids give a
+first-correct frontier τ⁡(k)=k\tau(k)=k (Appendix B.4);
+Section 4 tests its causal role.
+Varying the exit helps at matched expected loop budgets.
+The original-cohort comparison in Figure 2c retains
+final-only supervision and compares Slack-4, R=H+4R=H+4, with Jitter-8,
+R=H+U​{0,…,8}R=H+U\{0,\ldots,8\}. Both have conditional mean H+4H+4; cumulative
+batched block applications differ by only 0.062%. At H32/loop64, endpoint
+means are 30.01% and 85.55%, with Jitter-8 higher in every pair; at
+loop96 they are 26.79% and 79.79%. Both readouts exceed Jitter-8’s H32
+training support of 32–40. The effect has tradeoffs: at the common loop36,
+Slack-4 gives 93.98% versus 87.27%, and some seeds do not fully learn the
+training length range. Appendix B.3 reports all seeds and work
+accounting.
+Truncated gradients do not help retention.
+Bansal et al. (2022) prevent overthinking with progressive training,
+which changes two things at once: the loss is applied at a random depth, and
+gradients do not reach the loops before a random starting point. We adapt it
+to this architecture and separate the two with a matched control. At each
+update, both progressive and matched random exit add to a full branch ending at
+m=H+8m=H+8 a second branch with a random exit n+k≥Hn+k\geq H. progressive detaches this branch after its first nn loops; matched random exit back-propagates through all n+kn+k. Examples, exits, loss weights, and
+updates are identical, so only the gradient path, and with it the backward
+work, differs (Appendix B.1).
+In this recipe truncation impedes learning. Two of three progressive models never exceed 60% H32 endpoint accuracy, so their low late scores are
+not forgetting; the third reaches 100% at loops 40–48 and falls to 26.6%
+by loop 96. All three matched random exit models reach 100% at loop 32 and keep
+97.9% at loop 64 (Figure 2d). Like Jitter-8, this
+random-exit objective keeps endpoint answers well past its training exits.
+Its losses, like those of final-only, use only the last position, and it
+keeps far fewer complete trajectories: 29.6% are exact at loop 64, against
+96.0% under sampled-prefix. This is an FSM adaptation, not a reproduction
+of the original architecture or a ranking of progressive methods.
+Retention is a distinct, finite-window property.
+Supervision support does not fully explain learning or retention, and H32
+retention does not guarantee improved length extrapolation.
+On the common H64/loop96 evaluation, sampled-prefix has 82.68% endpoint
+accuracy versus 93.03% for matched random exit. The original length comparison also
+has mixed outcomes (Appendix B.5).
+4 Computation is exact, but its answers are transient
+Section 3 found that each position’s answer first becomes
+readable at loop kk, even in final-only models that get almost no complete
+trajectory right at the trained exit. Readable does not mean used: a readout
+can decode information that the computation ignores. We therefore test
+whether the frontier state is what the rest of the execution runs on. If it
+is, replacing it with another input’s state should make the run follow that
+input’s execution exactly, and a simulator tells us what that execution is.
+Swapping one state between two inputs.
+We pair two inputs that share the machine, symbol assignment, and
+transition-table presentation, and differ only in their actions up to
+position cc; their states qcSq_{c}^{S} and qcBq_{c}^{B} at cc differ
+(Figure 3a). Following interchange interventions
+(Geiger et al., 2024), we copy the full 128-dimensional hidden vector of
+the source run at position cc and loop rr into the base run,
+hcr←hc,Sr,h_{c}^{r}\leftarrow h_{c,S}^{r},
+(5)
+leave every other base position unchanged, and let the trained model
+continue. No symbolic state or answer enters the network. Because the
+remaining actions are shared, a base run that now carries the source’s state
+should continue exactly as the source run does. Running
+Equation 1 from qcSq_{c}^{S} on these actions gives this
+counterfactual target q~k\tilde{q}_{k} for every k>ck>c (Geiger et al., 2021).
+A pair is suffix-exact under a readout schedule s⁡(k)s(k) when every
+state and output after cc matches the target. We score only eligible
+pairs, whose counterfactual and factual suffixes differ, so that a run
+ignoring the swap cannot succeed (Appendix A).
+Figure 3: One swapped state drives the exact remaining execution.
+(a) Schematic, H=R=6H=R=6, c=3c=3. The source’s vector at position 3 and loop 3,
+whose state is BB, replaces the base run’s; read at loop kk (the
+frontier), positions 4–6 then give CC, DD, AA, the source’s continuation
+q~k\tilde{q}_{k}. (b,c) Ten final-only models, H=32H=32, swap at position 8 and
+loop 8 (⋄\diamond in c). Shading is the fraction of pairs whose state and
+output at (k,r)(k,r) both match the target: the base run’s own trajectory (b)
+or the source’s continuation after the swap (c); means over 256 pairs and
+ten models. The bright diagonal is the frontier; the fading above it shows
+answers decaying after they are computed, and some agreement away from it
+is chance. 237/237: eligible pairs whose whole suffix (k=9,…,32k=9,\ldots,32)
+matches along the frontier.
+One swapped state drives the rest of the execution.
+In ten final-only models with H=32H=32, we swap at position 8 and loop 8,
+the loop at which position 8’s answer first becomes correct in every model
+(τ⁡(8)=8\tau(8)=8; Appendix A). Of 256 pairs, 237 are eligible. In every
+model, all 237 follow the source exactly: every state and output at
+positions 9 to 32, each read at loop kk (Figure 3c). One
+vector thus steers 24 further steps of exact symbolic execution. Copying a
+vector back into its own run changes no prediction, and patch scans place the
+damaging site on the same frontier (Appendix A). The swap
+shows that this state suffices to drive the computation; it does not show
+that the state is a unique symbolic code.
+The answers do not stay.
+In both the swapped and the clean run, agreement is highest on the diagonal
+and fades above it (Figure 3b,c): an answer is readable at
+the loop that computes it, and answers computed early have faded by loop 32.
+The near-zero whole-trajectory exactness of final-only models at the trained
+exit (Section 3) is therefore not a failure to compute: the
+intermediate answers are computed exactly and then not kept.
+5 Answers become readable before their states become reusable
+Figure 4: Answers can be cached when they appear; their states can be
+frozen only a few loops later.
+(a) Freezing captures each position’s own hidden vector at loop kk and
+writes it back after every later block; other positions update normally,
+and no other run or label is involved. (b,c) Six final-only, three
+all-prefix, and three larger final-only models, 512 H32 examples each.
+(b) Fraction of examples with all 32 state–output pairs correct at loop 32.
+Cache keeps each position’s loop-kk prediction outside the model;
+freeze holds the hidden vectors instead, for all positions or only
+positions 1–8. Dots are models; short marks are group means. (c) Accuracy
+of each position at loop 32 after freezing all positions (group means);
+the dashed line is the cache. (d) sampled-prefix and matched random exit, three
+seeds each (thin lines) and their means (thick), with capture delayed by dd
+loops: endpoint accuracy at the actual capture loop 32+d32+d, unchanged
+through loop 64; the dashed line is clean. Clean readouts at s⁡(k)=ks(k)=k are
+not perfectly correct for two matched random exit seeds
+(Appendix D.3).
+Halting treats a solved position as finished.
+Section 3 showed that training can keep an answer readable
+long after it is computed, and Section 4 that a single
+frontier state drives the computation that follows. A position whose answer
+has appeared and stays readable therefore looks finished, and adaptive
+computation treats it that way. The Universal Transformer halts positions
+individually and copies a halted position’s state unchanged to every later
+step (Dehghani et al., 2019). Huginn stops iterating on a token once
+successive steps give nearly the same output distribution, and later tokens
+attend to its last computed key–value state (Geiping et al., 2025).
+Bansal et al. (2022) describe their networks, trained to avoid
+overthinking, as holding on to the representation of a solution once it is
+reached. These methods differ in when a position counts as finished. We test
+the earliest point, the loop at which its answer first becomes readable. Our
+setting makes that loop known: position kk first becomes correct at loop
+kk, and every position has an exact target.
+Freezing applies this halting at the first readable loop.
+For each position kk, we capture its hidden vector at loop kk and write it
+back after every later block, as copying a halted state would. All other
+positions update normally, frozen positions stay visible to attention, and no
+other run or label is involved (Figure 4a). As a control,
+readout caching stores each position’s loop-kk prediction outside
+the model and leaves every hidden state untouched; the two differ only in
+whether the answer or its state is kept. We call a state reusable if
+freezing it in this way leaves the later positions correct. We freeze six
+final-only, three all-prefix, and three larger final-only models (d=512d=512
+and four layers per block, about 32 times the block parameters), and the
+three sampled-prefix and three matched random exit models of
+Section 3.
+The answers are correct, but their states cannot yet be frozen.
+In the twelve models of Figure 4b, caching keeps all 32
+answers correct, so every answer is correct when it is captured. Freezing the
+states instead leaves at most 2% of examples fully correct. Good retention
+does not prevent this. sampled-prefix keeps 99.8% of its endpoint answers
+at loop 64 (Section 3) and its cached answers are all
+correct, yet freezing drops its endpoint accuracy from 100% to 4.1%.
+all-prefix models, which keep every position readable at the exit, and
+matched random exit models collapse in the same way (Appendix D).
+The answers stay readable; their states cannot yet stop changing.
+Frozen states fail as inputs to later computation.
+The errors start just downstream of the frozen states
+(Figure 4c). Positions 1 and 2 stay correct in every model,
+and position 3 is the first to fail. At loop 3 it reads the loop-2 vectors
+of positions 1 to 3, which differ from the clean run in one place only:
+position 1 has missed its loop-2 update, which came after its answer was
+already readable. That one missing update lowers the accuracy of position 3
+to 68% in the final-only models, and errors then compound along the
+sequence. Freezing only positions 1–8 leaves positions
+9–32 free to update, yet in the final-only models the endpoint is still
+correct on at most 11.9% of examples (Appendix D). A frozen
+state still yields its own answer, as positions 1 and 2 show, but it no
+longer works as input: later positions need the updates that upstream states
+receive after their answers appear.
+A state becomes reusable two to four loops after its answer.
+Delaying the capture by dd loops shows when a state can be frozen
+(Figure 4d). With a two-loop delay, sampled-prefix recovers
+to 99.8% endpoint accuracy; matched random exit needs four loops to reach the same
+level (Appendix D.3). An answer is readable at loop kk,
+but the state that carries it becomes reusable only a few loops later, and
+how many loops depends on the model.
+The maze network trained against overthinking behaves the same way.
+We apply the same test to the released maze network of
+Bansal et al. (2022), the model described above as holding on to its
+solution. Trained with 30 iterations, it solves all 32 test mazes of size
+9×99\times 9 at every iteration from 25 to 120. Since mazes have no
+per-position frontier, we freeze each pixel at its answer’s arrival, the last
+iteration at which its clean prediction changes. No maze is then solved;
+freezing two or four iterations later solves 28 and 32, and caching the
+answers solves all 32 (Appendix D; one checkpoint, 32 mazes
+per size). The network does hold on to its solution, but only a few
+iterations after each answer arrives.
+What freezing shows.
+An answer readable at loop kk is thus not yet carried by a reusable state,
+even in models that retain answers almost perfectly; the state becomes
+reusable two to four loops later. Retention and reuse are different
+properties. For per-position halting in such models, stopping a position when
+its answer first becomes readable is too early: its state must keep updating
+for a few loops, or only its answer should be kept. The experiments do not show
+that information is lost, since cached answers stay correct, and they do not
+identify a mechanism. The model has no positional or loop embeddings, so the
+evolving state may also carry timing or order information that later
+positions use to find their predecessors, and freezing would hold that
+information as well. Our tests do not separate these possibilities; under
+either, a state cannot be frozen when its answer first appears. A source
+vector transplanted from another run shows the same dependence on timing
+(Appendix C).
+6 Related work
+Extra iterations in recurrent reasoners.
+Recurrent networks trained on small instances can solve larger ones by
+iterating longer (Schwarzschild et al., 2021). Bansal et al. (2022)
+show that excessive iteration can degrade answers (“overthinking”), and
+prevent this with input recall and progressive training from detached
+intermediate states. They also test recovery after feature-map interventions
+and track feature convergence. We adapt their progressive loss in
+Section 3 and freeze their released maze network in
+Section 5. Anil et al. (2022) relate additional
+computation to path independence: convergence to the same steady state
+regardless of initialization. We do not claim novelty for overthinking,
+variable exits, or mid-computation substitution. What is new is the
+measurement: exact symbolic targets for every position, loop, and
+counterfactual, which let us test a state at the loop where its answer
+first appears.
+These works assess stability through outputs, feature maps, or final
+convergence; we ask whether a state can be held from the moment its clean
+readout becomes correct. This is a position-level counterpart to path
+independence, not a test of it: we do not vary initialization.
+Recurrent computation and training requirements.
+Universal and looped transformers connect shared parameters to adaptive
+computation, programmable execution, and length generalization
+(Dehghani et al., 2019; Giannou et al., 2023; Fan et al., 2025); recurrent-depth
+language models extend this motivation to latent test-time compute
+(Geiping et al., 2025). Zhang et al. (2026) study budget-dependent
+frontiers, causal damage cones, and frontier-state transplants. We build on
+these observations rather than claiming novelty for frontiers or transport.
+A first-correct frontier differs from a convergence time that requires an
+answer to remain correct.
+Stochastic stopping can stabilize budget-dependent behavior without better
+extrapolation (Kuo et al., 2026); adaptive-depth studies distinguish
+trajectory formation from readout selection (Popescu et al., 2026).
+Our comparisons instead change supervised positions at a fixed exit, or exit
+variability at matched expected loops; sampling one position estimates the
+all-position loss rather than introducing a new loss principle.
+Readable and causally usable representations.
+Wang and Reid (2026) distinguish readout, transport, and steering across
+recurrent depth in Ouro and Huginn, and associate verbalizing injected content
+with per-iteration supervision. Our all-prefix loss applies only at the
+exit; we add paired training comparisons, exact symbolic targets, and local
+downstream restoration that separates downstream state from execution phase.
+State-tracking studies identify alternative transformer algorithms and effects
+of intermediate objectives (Liu et al., 2023; Zhang et al., 2025; Li et al., 2025),
+and interchange interventions test such algorithmic hypotheses
+(Geiger et al., 2021; Geiger et al., 2024). Our full-vector intervention
+establishes sufficiency in a specified machine context, not a unique minimal
+encoding or complete algorithm identification.
+7 Discussion and limitations
+Computing an answer, retaining its readout, and reusing its representation
+are different properties, and each needs its own test: correctness at one exit
+does not test retention, and retained predictions do not test whether a hidden
+state can be held or reused for continuation. Supervised positions, exit distributions, and
+gradient propagation all change retention, and poor late accuracy can conceal
+a coherent earlier counterfactual computation. Retained answers need not
+reside in reusable states: freezing a position when its answer first becomes
+readable disrupts later computation, including under sampled-position
+training, and the state becomes reusable only a few loops later; a
+transplanted source likewise needs the downstream position reset before it
+takes effect. We have not tested downstream resets on the new training controls or
+stochastic-budget models, so their retention gains do not establish the same
+downstream mechanism.
+These full-vector, post-block interventions do not identify a unique
+encoding, microscopic cause of forgetting, or general repair; they can change
+nonsymbolic features or restart computation, and downstream recovery concerns
+one step at one site and age. The scope is one synthetic execution family and one principal
+architecture, plus a limited external maze check. Original training
+comparisons use six paired seeds; new controls use three. Re-evaluating
+overlapping checkpoints is not independent model replication. Sampled
+supervision still needs intermediate labels. Budget controls match expected
+loops, and progressive controls match forward work but differ in backward
+work; neither matches measured total FLOPs. Finite-window retention does
+not establish hidden-state convergence or uniform length extrapolation.
+AI use statement
+The core idea of this work is the authors’ own. Generative AI tools assisted with code
+implementation, experiment and control iteration, literature search, translation, manuscript
+editing, and figure code. The authors verified the analyses, citations, and final artifacts and
+take full responsibility for the work.
+Ethics statement
+Machines and traces are procedurally generated; the work uses no personal or
+human-subject data. The objectives studied here do not ensure the reliability
+of deployed systems.
+Reproducibility statement
+Appendix A specifies machine generation, the network,
+optimization, curriculum, and scoring. Appendices B–E
+give every training and intervention protocol with per-seed results, and
+Appendix B.8 records the checkpoints, evaluation streams,
+pair identities, and hashes behind the principal quantities.
+References
+Anil et al. (2022)
+C. Anil, A. Pokle, K. Liang, J. Treutlein, Y. Wu, S. Bai, J. Z. Kolter, and R. B. Grosse
+Path independent equilibrium models can better exploit test-time computation.
+In Advances in Neural Information Processing Systems,
+Vol. 35, pp. 7796–7809.
+Cited by: §1,
+§6.
+Bansal et al. (2022)
+A. Bansal, A. Schwarzschild, E. Borgnia, Z. Emam, F. Huang, M. Goldblum, and T. Goldstein
+End-to-end algorithm synthesis with recurrent networks: extrapolation without overthinking.
+In Advances in Neural Information Processing Systems,
+Vol. 35, pp. 20232–20242.
+Cited by: §B.1,
+§D.4,
+§1,
+§3,
+§5,
+§5,
+§6.
+Dehghani et al. (2019)
+M. Dehghani, S. Gouws, O. Vinyals, J. Uszkoreit, and Ł. Kaiser
+Universal transformers.
+In International Conference on Learning Representations (ICLR),
+Cited by: §1,
+§5,
+§6.
+Fan et al. (2025)
+Y. Fan, Y. Du, K. Ramchandran, and K. Lee
+Looped transformers for length generalization.
+In International Conference on Learning Representations (ICLR),
+Cited by: §6.
+Geiger et al. (2021)
+A. Geiger, H. Lu, T. Icard, and C. Potts
+Causal abstractions of neural networks.
+In Advances in Neural Information Processing Systems (NeurIPS),
+Cited by: §4,
+§6.
+Geiger et al. (2024)
+A. Geiger, Z. Wu, C. Potts, T. Icard, and N. D. Goodman
+Finding alignments between interpretable causal variables and distributed neural representations.
+In Causal Learning and Reasoning (CLeaR),
+pp. 160–187.
+Cited by: §1,
+§4,
+§6.
+Geiping et al. (2025)
+J. Geiping, S. McLeish, N. Jain, J. Kirchenbauer, S. Singh, B. R. Bartoldson, B. Kailkhura, A. Bhatele, and T. Goldstein
+Scaling up test-time compute with latent reasoning: a recurrent depth approach.
+In Advances in Neural Information Processing Systems (NeurIPS),
+Cited by: §1,
+§5,
+§6.
+Giannou et al. (2023)
+A. Giannou, S. Rajput, J. Sohn, K. Lee, J. D. Lee, and D. Papailiopoulos
+Looped transformers as programmable computers.
+In International Conference on Machine Learning (ICML),
+pp. 11398–11442.
+Cited by: §1,
+§6.
+Kuo et al. (2026)
+H. Kuo, E. M. Chayti, P. Reizinger, W. Brendel, and M. Jaggi
+Stabilizing extrapolation in looped transformers via learned stochastic stopping.
+Note: arXiv preprint arXiv:2606.29983
+Cited by: §1,
+§6.
+Li et al. (2025)
+B. Z. Li, Z. C. Guo, and J. Andreas
+(How) do language models track state?.
+In International Conference on Machine Learning (ICML),
+Cited by: §6.
+Liu et al. (2023)
+B. Liu, J. T. Ash, S. Goel, A. Krishnamurthy, and C. Zhang
+Transformers learn shortcuts to automata.
+In International Conference on Learning Representations (ICLR),
+Cited by: §6.
+Popescu et al. (2026)
+A. C. Popescu, H. Sáez de Ocáriz Borde, and P. Liò
+Adaptive depth in looped transformers: diagnosing learned halting gates and trajectory readouts.
+Note: arXiv preprint arXiv:2607.20519
+Cited by: §1,
+§6.
+Schwarzschild et al. (2021)
+A. Schwarzschild, E. Borgnia, A. Gupta, F. Huang, U. Vishkin, M. Goldblum, and T. Goldstein
+Can you learn an algorithm? Generalizing from easy to hard problems with recurrent networks.
+In Advances in Neural Information Processing Systems,
+Vol. 34, pp. 6695–6706.
+Cited by: §1,
+§6.
+Wang and Reid (2026)
+W. Wang and F. Reid
+Looped transformers under the Jacobian lens: does the global workspace survive recurrence?.
+Note: arXiv preprint arXiv:2609.01924
+External Links: Link
+Cited by: §1,
+§6.
+Zhang et al. (2026)
+T. Zhang, J. Hu, Y. Peng, and T. Xie
+When does recurrence become an algorithm? convergence selection in weight-tied looped transformers.
+Note: arXiv preprint arXiv:2607.20594
+Cited by: §1,
+§6.
+Zhang et al. (2025)
+Y. Zhang, W. Du, D. Jin, J. Fu, and Z. Jin
+Finite state automata inside transformers with chain-of-thought: a mechanistic study on state tracking.
+In Annual Meeting of the Association for Computational Linguistics (ACL, Long Papers),
+pp. 13603–13621.
+Cited by: §6.
+Appendix A Experimental methods and scoring
+A.1 Machine generation and input encoding
+At each stage, the data generator samples the state count and input-alphabet
+size independently and uniformly from the active lists in
+Table A1; the output alphabet has two symbols. Generation
+fixes an internal initial state S0S_{0} and first makes every state reachable.
+In a random order of the other states, each is attached through a uniformly
+sampled unused state–input cell of an already reachable state. Remaining
+transition destinations are sampled uniformly from QQ, and each cell’s
+output is sampled uniformly from Γ\Gamma. Candidates are resampled until
+behaviorally minimal and covering both output symbols. These construction
+and acceptance rules make the accepted transition-table entries dependent.
+Each sampled machine contributes up to 32 action traces, all starting at
+S0S_{0}, with actions drawn independently and uniformly from its input alphabet.
+A training batch contains 256 examples of the same sampled horizon. The
+online stream, including machine generation, action traces, and presentation
+randomization, is reproducible from its generator state.
+The initial state is one token. Every transition is represented by one
+factorized token containing its source state, input symbol, destination state,
+and output symbol. Action tokens follow the table and contain only their
+input symbol. Token embeddings sum a kind embedding and the embeddings of the
+present symbolic fields. The global namespaces contain 16 state IDs, 8 input
+IDs, and 4 output IDs, although an individual machine uses only 4/6/8 states,
+2/4 inputs, and 2 outputs. Each presentation assigns local symbols to randomly
+selected namespace IDs and shuffles the transition rows. Training does not
+force traces from one machine to share the same presentation; source–base pairs
+explicitly share a presentation to control that variable.
+The attention mask lets initial-state and table tokens attend within the
+prefix, and action kk attend to the prefix and actions up to and including
+kk. It blocks all access to future actions. Padded positions are masked and
+zeroed through the computation. A causal action prefix therefore has the same
+unmodified computation when followed by additional actions of the same
+presented machine. This structural property helps explain why endpoint
+training at shorter lengths constrains earlier positions in longer examples;
+it does not prove a particular internal algorithm.
+Training uses data seed 20260901. The original six-seed budget comparisons use
+evaluation seed 20260909; the five-condition, three-seed comparison uses
+20260923, with the old baselines re-evaluated on that same stream. Both use
+four batches of 128 examples per model and length: 16 sampled machines with
+32 traces each, not 512 independent machines. The new six-model freeze
+follow-up uses stream 20260924. Actual generator seeds add 1009​H1009H to the
+specified stream. The original training logs use evaluation seed 20260902.
+These are separate evaluation streams. We do not
+combine their metrics as if they came from one paired sample set. Randomized
+presentations and independently drawn evaluation streams do not guarantee
+that every machine graph is structurally absent from training.
+A.2 Network, optimization, and curriculum
+The shared block contains two pre-normalized transformer layers, each with
+four attention heads, width 128, a width-512 feed-forward network, and residual
+connections. Dropout is zero. The recurrence begins with a zero hidden matrix
+and adds the same input embedding before every block application. There is no
+learned recurrent gate, loop embedding, positional embedding, or enabled
+layer scaling. State and output linear heads follow a shared final layer
+normalization. The heads have 16 and 4 classes, respectively. All reported
+hidden-vector replacements occur after the shared block and before this
+final normalization, exactly as in Equation 5.
+Figure A1 summarizes the input sequence, one layer, the
+attention mask, and the two per-loop scores.
+Figure A1: Network details. (a) An example is one sequence: the
+initial state q0q_{0}, one factorized token (q,a,q′,y)(q,a,q^{\prime},y) per transition, and
+the HH action symbols. It is embedded once as E⁡(x)E(x), with T=P+HT=P+H rows of
+width dd, and added before every application of BθB_{\theta}. (b) BθB_{\theta}
+stacks LL pre-normalized layers with distinct weights: L=2L=2, d=128d=128, four
+heads, and MLP width 512 in the main models; L=4L=4 and d=512d=512 in the larger
+models. There is no dropout, recurrent gate, layer scaling, or positional or
+loop embedding. (c) Rows are queries and columns keys; filled cells are
+visible. Prefix tokens attend within the prefix, and action position kk
+attends to the prefix and positions 1:k1{:}k. Schematic with three prefix
+tokens and five actions; padding is masked. (d) At loop rr, endpoint
+accuracy scores position HH; whole-trajectory exactness requires all HH
+positions of an example to be correct at that same loop. A position is
+correct when its state and output are both correct.
+AdamW uses initial learning rate 3×10−43\times 10^{-4} with cosine decay to zero,
+weight decay .01, gradient norm clipping at 1, and batch size 256. Both task
+losses have weight 1 and use mean
+cross-entropy over the selected valid positions. Training runs for the fixed
+132,000-step curriculum in Table A1; stage checks are audits,
+not a rule for selecting a checkpoint or stopping a failing seed. Checkpoints
+are saved at fixed steps, and all main comparisons use step 132,000.
+Table A1: The 35-stage curriculum. A maximum horizon is sampled with
+probability .5 after the first stage; the remaining draws come from shorter
+horizons. All stages include the shorter-length range from 1. Rows grouping
+several stages retain their individual training allocations below.
+Maximum horizon
+Stages
+Steps
+Machine distribution
+1
+1
+2,000
+4 states, 2 inputs, 2 outputs
+2
+4
+7,000
+2,000 steps each with 4, then 4/6, then 4/6/8 states;
+1,000 steps adding the 4-input cases
+3
+1
+3,000
+4/6/8 states, 2/4 inputs, 2 outputs
+4
+1
+8,000
+Same full distribution
+5–32
+28
+112,000
+4,000 steps per successive maximum horizon
+A.3 Readouts, thresholds, and exactness
+Let Qi,krQ_{i,k}^{r} and Yi,krY_{i,k}^{r} be indicators of correct state and output for
+sample ii, position kk, and loop rr. The endpoint curve reports
+N−1​∑iQi,Hr​Yi,HrN^{-1}\sum_{i}Q_{i,H}^{r}Y_{i,H}^{r}. The grid criterion instead requires both
+N−1​∑iQi,kr≥.99N^{-1}\sum_{i}Q_{i,k}^{r}\geq.99 and
+N−1​∑iYi,kr≥.99N^{-1}\sum_{i}Y_{i,k}^{r}\geq.99. Passing this criterion is not the same as a
+per-sample guarantee that every state and output is correct. The first loop
+passing it on the clean grid defines τ⁡(k)\tau(k) for that model, horizon, and
+evaluation set. This measured quantity is distinct from a prescribed
+readout or capture schedule s⁡(k)s(k). Hold includes consecutive passing loops
+from τ⁡(k)\tau(k), including the first. If the measured window ends while the
+criterion still holds, the observed hold is a right-censored lower bound.
+For the whole-trajectory metric in Figure 2, an example is
+trajectory-exact at readout loop rr when every one of its HH state–output pairs
+is correct at that same readout:
+Eir=∏k=1HQi,kr​Yi,kr,TrajExact⁡(r)=N−1​∑iEir.E_{i}^{r}=\prod_{k=1}^{H}Q_{i,k}^{r}Y_{i,k}^{r},\qquad\operatorname{TrajExact}(r)=N^{-1}\sum_{i}E_{i}^{r}.
+This example-level conjunction is stricter than either the endpoint event or
+the grid’s two marginal population thresholds.
+For a target sequence (q¯i,k,y¯i,k)(\bar{q}_{i,k},\bar{y}_{i,k}) and readout schedule s⁡(k)s(k),
+suffix exactness on an eligible set ℰ\mathcal{E} is
+Exactℰ(s)=1|ℰ|∑i∈ℰ∏k=c+1H𝟏[q^i,ks⁡(k)=q¯i,k]𝟏[y^i,ks⁡(k)=y¯i,k].\operatorname{Exact}_{\mathcal{E}}(s)=\frac{1}{|\mathcal{E}|}\sum_{i\in\mathcal{E}}\prod_{k=c+1}^{H}\mathbf{1}[\hat{q}_{i,k}^{s(k)}=\bar{q}_{i,k}]\mathbf{1}[\hat{y}_{i,k}^{s(k)}=\bar{y}_{i,k}].
+(6)
+The ordinary target is the base run’s factual trajectory. The source target
+is the simulated counterfactual. Changing this target changes the estimand;
+changing s⁡(k)s(k) changes when it is observed. A wrong prediction that differs
+from both trajectories is not successful transport.
+A.4 Position-8 transport audit
+The position-8 audit uses ten serial final-only models, seeds 9–18, with
+H=32H=32 and a single replacement at loop 8. On a separate clean grid
+(evaluation stream 20260903, 512 examples per model), all ten models have
+τ⁡(k)=k\tau(k)=k at every position k=1,…,32k=1,\ldots,32, with state and output
+accuracy 1.000 on the diagonal. The same 256 different-state pairs
+are reused across seeds. A pair is eligible for suffix scoring if at least
+one state or output in positions 9–32 differs between its factual and source
+targets; there are 237 such pairs. Conditional exactness uses that denominator,
+not 256 or ten times 237 independent task samples. The matched-frontier
+schedule is s⁡(k)=ks(k)=k and the common-exit schedule is s⁡(k)=32s(k)=32.
+Eligibility requires a difference somewhere in the suffix, not at every
+suffix position. Factual and counterfactual states may later merge. Complete
+suffix agreement consequently does not establish that their distinction
+remains causally active at every later position.
+At the common exit s⁡(k)=32s(k)=32, no eligible suffix is exact in seven models and
+one is exact in three. The clean base run is not jointly readable there
+either (mean per-position agreement 38.1% over positions 9–32), so this
+contrast concerns readout time; it shows neither erased information nor a
+unique state code.
+Localization and intervention controls.
+Independent patch scans replace a width-one window of positions at loop
+ll. The maximal damage falls on position ll, the observed loop–position
+frontier, in 320/320 tested loop–seed cells. Prefix replacements that
+overwrite positions before an anchor are predominantly safe until the
+anchor passes this boundary: the first damaging anchor is l+1l+1 in 309/310
+testable cases; the exception (seed 15, loop 31) is retained. Identical
+self-replacements do not change any predictions. Sources with the same
+symbolic state but a different history can still cause damage; they are not
+equivalent to self-replacement controls. Together, these results support a
+localized, causally sufficient computation under the specified
+intervention. They do not establish a pure or unique symbolic state code,
+nor use independent of machine context or execution phase.
+The saved clean readouts in this position-8 audit include per-position
+accuracy, not clean whole-suffix exactness. In particular, a saved field for
+the base-target exactness of a patched run is not a clean
+baseline. We use explicit unpatched suffix metrics from the separate
+position-16 experiment when making clean-suffix comparisons.
+A.5 Paired delayed and phase-crossing cohorts
+The paired retention experiment freezes six models per supervision condition,
+seeds 9–14. It samples 256 different-state pairs and 256 same-state pairs per
+checkpoint, in sixteen batches of sixteen per pair kind. Pair identities are
+matched across conditions and seeds. The site stays at position c=16c=16; patch
+age a∈{0,1,2,4,8,16}a\in\{0,1,2,4,8,16\} means taking and inserting the source at loop
+16+a16+a, rather than holding a loop-16 vector and inserting it later.
+Shifted-frontier scoring uses s⁡(k)=k+as(k)=k+a. Fixed-exit scoring uses s⁡(k)=32s(k)=32 or
+48. At fixed exit 32, increasing age reduces the remaining update count, and
+age 16 leaves no post-patch update. Shifted-frontier scoring fixes the update
+count to each target but still changes both source representation and base-run
+context. Neither age curve by itself identifies information decay.
+The 242 different-state pairs with distinct complete suffix targets are the
+fixed denominator for source suffix exactness across all these schedules.
+Ordinary clean suffix exactness uses all 256 pairs. For a single target at
+distance d=1,2,4,8,16d=1,2,4,8,16, factual and source trajectories can have merged;
+single-target eligible counts are respectively 242, 207, 143, 90, and 35.
+Rates for an empty eligible set are undefined and stored as null, not zero.
+The subsequent compatibility experiment reuses the pair identities and
+checkpoint configurations. It crosses source collection at cc or c+ac+a with
+base insertion at those same two loops, reading position c+dc+d after exactly
+dd further updates. The main descriptive slice is a=4,d=1a=4,d=1, with 242
+eligible pairs. Its extent comparison instead inserts at loop p=c+ap=c+a and
+reads the unpatched position p+dp+d at loop p+dp+d. This latter slice has 121
+eligible pairs, and the old site is five positions from the target while the
+current frontier is one position away. The two experiments are not interchangeable
+scoring slices. All 384 batches across twelve checkpoint conditions were
+validated for the compatibility cohort; the separate pilot is excluded.
+A.6 Controls and statistical interpretation
+True self-replacement copies the base run’s own vector at the same site and
+time, and must preserve predictions exactly. Same-symbolic-state sources come
+from another history and are a substantive intervention, not an identity
+control. A positive source score is interpreted alongside the clean base run’s
+agreement with its own target and with the source target. Chance coincidence
+with a source target is not causal transfer. A clean factual score is a
+reference level, not a formal upper bound on intervention performance.
+Means first aggregate the specified pair/sample population within each model,
+then average models with equal weight. Model seeds are independent parameter
+initializations, whereas reused machine/pair samples are paired observations.
+We preserve per-seed outcomes rather than converting task pairs into a larger
+number of independent training runs. All intervals and differences in the
+main text are descriptive; no null-hypothesis significance claim is based on
+treating those repeated pairs as independent models.
+Appendix B Additional results and their scope
+B.1 Common-stream training controls
+We compare five training conditions on the same three model seeds 9–11,
+checkpoint step 132,000, and held-out stream 20260923. The existing
+final-only and all-prefix checkpoints are re-evaluated; no baseline is
+retrained or selected by its score. Each model receives four batches of 128
+examples at each horizon. The generator seed is 20260923+1009​H20260923+1009H, with
+identical generator configuration and batch layout across conditions. The
+H32 sweep covers r=1,…,96r=1,\ldots,96 and the H64 sweep r=1,…,192r=1,\ldots,192.
+Pairing rests on this deterministic generator specification; the original
+training-control evaluations did not save raw input hashes.
+Model seeds, rather than examples or loop counts, are the replication unit.
+The historical six-seed stream-20260909 results below remain a separate
+cohort and are not pooled into these comparisons.
+One supervised position per example.
+The new runs retain the original width 128, four attention heads, two shared
+layers, additive input injection, batch size 256, AdamW optimizer, and
+35-stage, 132,000-update curriculum. Stage progression and the cosine
+learning-rate schedule are fixed, with no accuracy gate. Under
+sampled-prefix, the training budget is R=HR=H, as for the two serial
+baselines. Each example independently selects one position uniformly from
+1,…,H1,\ldots,H and applies the original state and output cross-entropies there.
+If ℓb,k\ell_{b,k} denotes their weighted sum, the mean loss satisfies
+𝔼⁡[1B​∑b=1Bℓb,Jb]=1B​H​∑b=1B∑k=1Hℓb,k,Jb∼U⁡{1,…,H}.\mathbb{E}\!\left[\frac{1}{B}\sum_{b=1}^{B}\ell_{b,J_{b}}\right]=\frac{1}{BH}\sum_{b=1}^{B}\sum_{k=1}^{H}\ell_{b,k},\qquad J_{b}\sim U\{1,\ldots,H\}.
+Thus it is an unbiased estimator of the mean all-prefix loss. It changes
+position coverage while retaining one supervised position per example;
+it still requires intermediate trajectory labels and is not label-free.
+The saved control protocol, rather than the legacy configuration field
+supervision=final_only, identifies this objective.
+Progressive and matched random exits.
+We adapt the progressive loss of Bansal et al. (2022) to the same FSM
+Transformer. At horizon HH, set m=H+8m=H+8. Propose
+n∼U​{0,…,m−1}n\sim U\{0,\ldots,m-1\} and k|n∼U⁡{1,…,m−n}k\mid n\sim U\{1,\ldots,m-n\};
+reject and redraw the complete pair when n+k<Hn+k<H.
+The accepted joint law is proportional to [m⁡(m−n)]−1[m(m-n)]^{-1} on
+H≤n+k≤mH\leq n+k\leq m, so neither accepted nn nor the exit is uniform.
+Both conditions optimize 12​Lm+12​Ln+k\tfrac{1}{2}L_{m}+\tfrac{1}{2}L_{n+k} using endpoint
+labels. The mm-loop branch has full gradients. For the random-exit branch,
+progressive runs nn loops without a gradient graph, detaches the hidden
+state, and differentiates through the remaining kk loops. Input embeddings
+are recomputed with gradients for injection into this continuation and
+absolute loop indices are preserved. The n=0n=0 case starts normally with
+gradients. matched random exit uses the same examples, draws, exits, and loss
+weights, but differentiates through all n+kn+k loops. At fixed weights and
+zero dropout, the two losses have equal values but different gradients.
+This is an FSM adaptation, not a reproduction of the original convolutional
+architecture, concatenated recall, or exit support; it is also distinct
+from the uniform Jitter-8 contract below.
+Compute accounting.
+Per update, both exit conditions execute F=m+n+kF=m+n+k forward blocks.
+The numbers of differentiable blocks are Bprog=m+kB_{\rm prog}=m+k and
+Bmatched=m+n+kB_{\rm matched}=m+n+k. Using a shape-aware matrix-multiply proxy with
+forward block cost b​N​L​(12​d2+2​N​d)bNL(12d^{2}+2Nd) and backward cost twice that amount
+(bb batch size, NN padded sequence length, LL shared layers), total work
+is 5.919×10165.919\times 10^{16} MACs for progressive and
+7.438×10167.438\times 10^{16} for matched random exit per run. These exclude heads,
+embeddings, normalization, optimizer, and evaluation; they are proxies,
+not measured total FLOPs. Examples, updates, supervised exits, and forward
+work are matched, but backward work is not. The removed gradient path is
+the experimental intervention.
+Table A2: Common-stream H32 training comparison. Three-seed means
+in percent, all seeds 9–11, 512 examples per model, stream 20260923.
+ArA_{r} is endpoint joint accuracy and TrT_{r} is whole-trajectory exactness
+at loop rr. The serial conditions train at R=32R=32; the two exit controls
+supervise exits in 32–40. All rows use the same evaluated inputs.
+Condition
+A32A_{32}
+A40A_{40}
+A64A_{64}
+A96A_{96}
+T32T_{32}
+T64T_{64}
+T96T_{96}
+final-only
+100.00
+28.39
+22.33
+22.07
+0.00
+0.00
+0.00
+all-prefix
+100.00
+100.00
+94.27
+82.16
+100.00
+74.28
+67.45
+sampled-prefix
+100.00
+100.00
+99.80
+96.61
+100.00
+96.03
+74.09
+matched random exit
+100.00
+100.00
+97.85
+86.26
+74.09
+29.56
+11.52
+progressive
+69.27
+70.31
+58.53
+38.09
+12.37
+0.00
+0.00
+Table A3: Every model in the H32 training comparison. Same metric,
+stream, and population as Table A2; no seed is excluded.
+Peak AA is the maximum endpoint accuracy over the complete r=1r=1–96
+sweep and is reported to distinguish failure to learn from later loss.
+Condition
+Seed
+Peak AA
+A32A_{32}
+A40A_{40}
+A64A_{64}
+A96A_{96}
+T32T_{32}
+T64T_{64}
+T96T_{96}
+final-only
+9
+100.00
+100.00
+27.15
+24.02
+23.24
+0.00
+0.00
+0.00
+final-only
+10
+100.00
+100.00
+33.59
+20.51
+19.14
+0.00
+0.00
+0.00
+final-only
+11
+100.00
+100.00
+24.41
+22.46
+23.83
+0.00
+0.00
+0.00
+all-prefix
+9
+100.00
+100.00
+100.00
+100.00
+100.00
+100.00
+100.00
+100.00
+all-prefix
+10
+100.00
+100.00
+100.00
+100.00
+100.00
+100.00
+100.00
+100.00
+all-prefix
+11
+100.00
+100.00
+100.00
+82.81
+46.48
+100.00
+22.85
+2.34
+sampled-prefix
+9
+100.00
+100.00
+100.00
+100.00
+99.22
+100.00
+100.00
+98.05
+sampled-prefix
+10
+100.00
+100.00
+100.00
+100.00
+96.68
+100.00
+94.92
+60.55
+sampled-prefix
+11
+100.00
+100.00
+100.00
+99.41
+93.95
+100.00
+93.16
+63.67
+matched random exit
+9
+100.00
+100.00
+100.00
+100.00
+95.51
+99.41
+75.39
+32.23
+matched random exit
+10
+100.00
+100.00
+100.00
+94.14
+74.41
+38.48
+1.17
+0.20
+matched random exit
+11
+100.00
+100.00
+100.00
+99.41
+88.87
+84.38
+12.11
+2.15
+progressive
+9
+59.38
+58.98
+59.38
+52.93
+44.14
+0.78
+0.00
+0.00
+progressive
+10
+100.00
+96.88
+100.00
+76.95
+26.56
+36.33
+0.00
+0.00
+progressive
+11
+52.73
+51.95
+51.56
+45.70
+43.55
+0.00
+0.00
+0.00
+Attainment and retention.
+The first four conditions reach 100% endpoint accuracy at r=32r=32 for all
+three seeds. sampled-prefix retains 99.80% endpoint accuracy and 96.03%
+whole-trajectory exactness at r=64r=64. The comparison supports an effect of
+supervision coverage without increasing the number of supervised positions
+per example. The small seed cohort and point estimates do not establish
+uniform or statistically demonstrated superiority over all-prefix.
+In contrast, progressive seeds 9 and 11 peak at only 59.38% and
+52.73% endpoint accuracy: their low scores cannot be treated solely as
+forgetting. Seed 10 reaches 100% at r=40r=40 and 4848, then falls to 76.95%
+at r=64r=64 and 26.56% at r=96r=96. This fixed recipe provides no evidence
+of an additional progressive advantage, but does not establish a general
+ranking of progressive methods. The different outcomes under matched exits
+also show that supervision support alone does not determine retention;
+the gradient path matters in this comparison.
+Table A4: H64 extrapolation of all five training conditions.
+Every seed and its condition mean, 512 examples per model, stream 20260923.
+ArA_{r} and TrT_{r} are endpoint and whole-trajectory accuracy in percent.
+H64 exceeds the trained horizon range for every condition. These scores
+are length extrapolation, not H32 over-budget retention.
+Condition
+Seed
+A64A_{64}
+A72A_{72}
+A128A_{128}
+A192A_{192}
+T64T_{64}
+T128T_{128}
+final-only
+9
+100.00
+21.68
+18.16
+17.97
+0.00
+0.00
+final-only
+10
+93.36
+33.59
+13.67
+13.48
+0.00
+0.00
+final-only
+11
+100.00
+27.34
+20.31
+19.92
+0.00
+0.00
+final-only
+Mean
+97.79
+27.54
+17.38
+17.12
+0.00
+0.00
+all-prefix
+9
+100.00
+100.00
+99.61
+96.29
+100.00
+97.85
+all-prefix
+10
+100.00
+100.00
+100.00
+99.22
+100.00
+100.00
+all-prefix
+11
+30.08
+27.73
+24.80
+22.66
+0.20
+0.00
+all-prefix
+Mean
+76.69
+75.91
+74.80
+72.72
+66.73
+65.95
+sampled-prefix
+9
+100.00
+99.80
+89.45
+73.83
+98.83
+60.55
+sampled-prefix
+10
+82.03
+81.45
+76.95
+66.41
+73.44
+17.77
+sampled-prefix
+11
+75.59
+75.00
+57.62
+41.60
+65.43
+14.26
+sampled-prefix
+Mean
+85.87
+85.42
+74.67
+60.61
+79.23
+30.86
+matched random exit
+9
+61.13
+89.26
+68.75
+46.68
+45.70
+3.71
+matched random exit
+10
+99.61
+100.00
+72.66
+48.83
+1.37
+0.00
+matched random exit
+11
+97.46
+99.61
+89.84
+65.62
+11.33
+0.20
+matched random exit
+Mean
+86.07
+96.29
+77.08
+53.71
+19.47
+1.30
+progressive
+9
+44.92
+43.55
+39.26
+31.84
+0.00
+0.00
+progressive
+10
+27.54
+24.41
+5.47
+3.32
+0.00
+0.00
+progressive
+11
+29.30
+29.69
+19.53
+16.41
+0.00
+0.00
+progressive
+Mean
+33.92
+32.55
+21.42
+17.19
+0.00
+0.00
+Length boundary.
+No condition improves all H64 readouts. At r=64r=64, mean endpoint accuracy
+is 97.79%, 76.69%, 85.87%, 86.07%, and 33.92% for
+final-only, all-prefix, sampled-prefix, matched random exit, and
+progressive, respectively. At r=192r=192, the corresponding means are
+17.12%, 72.72%, 60.61%, 53.71%, and 17.19%.
+These readout-dependent differences and the seed variation in
+Table A4 limit any inference from H32 retention to length
+generalization. This follow-up evaluates H64 only; it does not establish a
+new sampled length boundary over a range of longer horizons.
+B.2 Historical six-seed endpoint accuracy
+This subsection preserves the original seeds 9–14 on stream 20260909.
+Its results describe a different evaluation cohort from
+Tables A2–A4, even where model seeds
+overlap.
+Table A5: Paired endpoint accuracy beyond the training exit.
+A⁡(32,r)A(32,r) in percent, averaged over six model seeds 9–14, 512 examples per
+seed, evaluation stream 20260909.
+The input length, sample stream, and metric are fixed across columns.
+Inference loops rr
+32
+33
+36
+40
+48
+64
+final-only
+100.00
+74.90
+52.41
+39.78
+33.01
+30.50
+all-prefix
+100.00
+100.00
+100.00
+100.00
+100.00
+97.85
+Table A6 gives the two over-budget slices that bracket
+the main comparison. All twelve models have endpoint joint accuracy 1.000 at
+the trained exit 32. The table makes clear that the six-seed mean at loop 64
+does not imply identical behavior in every retained model.
+Table A6: Endpoint joint accuracy by model seed. Entries are
+percentages on 512 length-32 examples per model, evaluation seed 20260909.
+The model is frozen while the inference budget changes.
+Model seed
+9
+10
+11
+12
+13
+14
+final-only, r=33r=33
+56.25
+73.44
+51.56
+94.14
+88.48
+85.55
+all-prefix, r=33r=33
+100.00
+100.00
+100.00
+100.00
+100.00
+100.00
+final-only, r=64r=64
+33.40
+23.83
+26.37
+31.05
+36.52
+31.84
+all-prefix, r=64r=64
+100.00
+100.00
+87.30
+99.80
+100.00
+100.00
+Figure A2: Original readability grids for the serial baselines.
+This historical view uses seeds 9–14 and evaluation stream 20260909;
+each cell counts models whose state and output marginal accuracies at that
+position and loop are both at least 99%. This criterion differs from sample-level
+whole-trajectory exactness in Figure 2.
+It is retained separately from the common-stream training comparison.
+B.3 Budget contracts and training support
+A training contract assigns the number of repeated blocks to a sampled trace
+length. All examples in a training batch share that sampled horizon and loop
+count. Table A7 specifies the relevant contracts. Stochastic
+counts are drawn during training; their midpoint is used for a single-budget
+evaluation when no count is explicitly requested. Budget sweeps instead
+specify every evaluated loop count.
+Table A7: Training budget functions. UU is discrete uniform.
+Slack-4 and Jitter-8 have the same conditional expected budget; the other
+rows do not form an equal-compute comparison.
+Contract
+Training budget
+Interpretation at H=32H=32
+Serial
+R=HR=H
+Trained exit 32
+Double
+R=2​HR=2H
+Trained exit 64
+Slack-4
+R=H+4R=H+4
+Trained exit 36
+Slack-8
+R=H+8R=H+8
+Trained exit 40
+Jitter-8
+R=H+U​{0,…,8}R=H+U\{0,\ldots,8\}
+Trained support 32–40
+Random-2x
+R=H+U​{0,…,H}R=H+U\{0,\ldots,H\}
+Trained support 32–64
+Matching recurrent work.
+The Slack-4/Jitter-8 comparison fixes the architecture, final-only supervision,
+optimizer, curriculum, data seed, batch size 256, and 132,000 training steps.
+Each condition contains all six model seeds 9–14. Both have
+𝔼⁡[R∣H]=H+4\mathbb{E}[R\mid H]=H+4. Replaying the training functions with their recorded
+random seeds gives the same sampled horizon sequence for both conditions.
+Define Cbatch=∑t=1132000RtC_{\mathrm{batch}}=\sum_{t=1}^{132000}R_{t}: this counts applications of
+the shared block to a complete batch, accumulated over the entire training
+run. It is not the loop count of one batch. The realized totals are
+2,123,041 for Slack-4 and 2,121,730 for Jitter-8, a 0.06175% reduction for
+Jitter-8. The budget schedule is shared across model seeds. These counts
+measure recurrent block work, not complete training FLOPs: they are not
+weighted by actual padded sequence lengths and do not include embedding,
+readout, or optimizer costs. For comparison, Serial and Double accumulate
+1,595,041 and 3,190,082 batch block applications under this curriculum;
+matching their optimizer steps does not match their recurrent work.
+Endpoint retention and its tradeoffs.
+Table A8 evaluates the frozen Slack-4/Jitter-8 models
+on the same length-32 stream, evaluation seed 20260909, with 512 examples per
+model. Every trained seed is included, including those that did not master
+the training length range. Jitter-8 has lower mean accuracy at the common
+exit 36 but retains much higher accuracy with further updates. Loops 48, 64,
+and 96 are outside both conditions’ H32 training support. The per-seed
+loop-64 slice in Table A9 shows that the retention
+advantage occurs in all six pairs, rather than arising from selection of
+successful Jitter-8 runs.
+Table A8: Endpoint retention at nearly matched recurrent work.
+H32 endpoint joint accuracy in percent, averaged over all six paired seeds;
+512 examples per model, evaluation seed 20260909.
+Inference loops rr
+36
+48
+64
+96
+Slack-4
+93.98
+38.15
+30.01
+26.79
+Jitter-8
+87.27
+87.17
+85.55
+79.79
+Table A9: The loop-64 retention comparison by seed.
+H32 endpoint joint accuracy in percent, using the same evaluation stream
+and population size as Table A8.
+Model seed
+9
+10
+11
+12
+13
+14
+Slack-4
+32.23
+31.25
+33.79
+34.96
+15.04
+32.81
+Jitter-8
+95.51
+100.00
+100.00
+57.23
+60.55
+100.00
+The wider valid-readout window does not imply uniformly better learning or
+length generalization. On the separate training-log evaluation stream
+(seed 20260902), five of six Slack-4 models and four of six Jitter-8 models
+reach .99 endpoint joint accuracy at every evaluated horizon 1–32. On the
+budget-sweep stream (seed 20260909), mean H64 endpoint joint accuracy at the
+common readout r=68r=68 is 74.32% for Slack-4 and 64.36% for Jitter-8. These
+length-OOD scores and the ID success counts use distinct evaluation streams;
+they are not pooled with the H32 retention measurements as one sample set.
+The additional contracts provide different controls. The six audited Double
+models have τ⁡(k)=2​k−1\tau(k)=2k-1 and observed holds of two to five loops, but this
+comparison includes twice the recurrent work of Serial. Slack-8 does not
+match Jitter-8’s expected budget. Random-2x successes at H32 exits 32–64 are
+inside its training support and do not establish generalization to unseen
+loop counts; a deterministic mean-budget control for Random-2x is absent.
+These observations delimit what the budget experiments can attribute to the
+training exit distribution.
+B.4 Whole-trajectory exactness and complementary contracts
+Endpoint joint accuracy asks whether the final readout is correct. A stricter
+sample-level quantity asks whether every one of the H=32H=32 action positions has
+both its state and output correct. We call a sample satisfying this condition
+trajectory exact. This is not the same as the per-position marginal
+threshold used by the readability grids in Figure A2: one
+incorrect position makes a sample trajectory-inexact.
+Table A10: Whole-trajectory exactness after the H32 exit.
+Percent of 512 length-32 examples, averaged over six model seeds 9–14;
+evaluation stream 20260909. Every action position must have correct state
+and output. The endpoint means at r=64r=64 are shown in
+Tables A5 and A8; the two metrics measure different
+failure modes.
+Condition
+r=64r=64
+r=96r=96
+final-only
+0.07
+0.07
+all-prefix
+86.39
+72.46
+Slack-4
+0.00
+0.00
+Jitter-8
+54.46
+47.40
+The same separation already appears at the trained exit: both Serial
+conditions have 100% endpoint accuracy at r=R=32r=R=32, whereas trajectory exactness
+is 0.10% for final-only and 100% for all-prefix. Thus the all-prefix result
+is not only a more reliable final readout; it preserves a substantially larger
+fraction of complete recurrent trajectories. For the matched-budget contracts,
+Jitter-8 similarly retains complete trajectories after the nominal support,
+while Slack-4 does not. These figures are descriptive paired-cohort means and
+do not establish that randomization is uniformly better inside the training
+support.
+For context, two additional contracts delimit the interpretation of the
+retention comparison. Slack-8 is a deterministic extra-slack dose control: its
+H32 endpoint means are 100.00% at its trained exit R=40R=40, then 92.74%,
+57.94%, and 44.21% at r=48,64,96r=48,64,96, respectively (six seeds, same stream
+and model recipe). It does not match Jitter-8’s expected budget. The audited
+Double cohort instead trains at R=2​HR=2H: on H32 it reaches 100% at its trained
+exit R=64R=64, but only 2.93% when forced to read at r=32r=32 (ten seeds). This
+positive control shows that long loops can be learned when they are the
+training contract; it is not a matched-compute estimate of the retention
+effect.
+B.5 Length extrapolation
+The sampled length boundary BfinalB_{\mathrm{final}} is the largest evaluated
+horizon whose last-position joint accuracy is at least .99, under the model’s
+own serial contract R=HR=H. It is a maximum over sampled horizons, not a proof
+of correctness at every intermediate or greater length. Table A11
+reports the six paired values. The retention objective improves this metric
+in three seeds and reduces it in three, despite improving H32 answer
+retention. This does not establish that retention and length generalization
+are unrelated; it establishes that the observed retention gain does not
+provide a seed-wise guarantee of an improved sampled boundary.
+Table A11: The paired sampled length boundary has mixed changes.
+BfinalB_{\mathrm{final}} is defined by final-position joint accuracy, not by
+all-position trajectory exactness.
+Seed
+9
+10
+11
+12
+13
+14
+final-only
+88
+56
+72
+56
+48
+56
+all-prefix
+72
+88
+48
+48
+64
+80
+B.6 Delayed swaps with their clean controls
+The six paired final-only and all-prefix models of the original cohort
+receive interventions at position 16 of H32 inputs. The 256 different-state
+pairs are shared across models; 242 have distinguishable counterfactual
+targets. This population is fixed throughout, without selection on neural
+success.
+At position 16 and loop 16, clean suffix exactness is 1.000 along the
+frontier in both conditions; source suffix exactness is 1.000 versus .939
+(final-only versus all-prefix). At exit 32, clean exactness is .007 versus
+1.000 and source exactness is .002 versus .722. Thus all-prefix supervision
+improves the common-exit readout of an early intervention, without improving
+frontier transport. Delaying both source collection and insertion by aa
+loops, and reading position kk at k+ak+a, holds the number of
+post-intervention updates fixed. Under all-prefix, clean suffix exactness
+stays at 1.000, but source exactness falls from .939 to .177, .102, and .000
+at ages 1, 2, and 4. Even inserting the original loop-16 source at loop 20
+fails: joint agreement with the position-17 counterfactual at loop 21 is 0%,
+compared with 94.63% when inserted at loop 16 and read at loop 17, while the
+late clean base run remains correct (Appendix B.7).
+Figure A3: Retention training changes the two readouts of an early
+swap differently, but does not protect a delayed swap. Swap at position 16;
+six paired models per condition. Exact suffix requires every state and
+output at positions 17–32 to match the target. (a) Unswapped runs scored
+against their own trajectory, all 256 pairs. (b) Swapped runs scored
+against the source continuation, 242 eligible pairs. Frontier reads position
+kk at loop kk; exit reads every position at loop 32. Lines join the two
+readouts of one model; bars are means. (c) The source vector is taken and
+inserted aa loops after the frontier, and position kk is read at loop
+k+ak+a (solid), next to the matching unswapped run (dashed); means over six
+models. final-only is faded because its unswapped runs are no longer
+readable at k+ak+a. Clean and source scores use different targets and
+denominators and are not subtracted.
+Table A12 places clean and source suffix exactness next to each
+other for the main delayed ages. Clean results score the unmodified
+base run’s own suffix over all 256 pairs; swap results score the source
+counterfactual on the fixed 242 eligible pairs. The two columns should not
+be subtracted as an effect estimate for a common target and denominator.
+Exit-48 values differ from exit-32 values by less than .036 across the reported
+condition/age entries. Unlike the shifted-frontier and exit-32 schedules,
+all-prefix clean suffix exactness at exit 48 is slightly below 1.000
+(six-seed mean .9961; seed 11, .9766). This additional fixed exit does not remove the
+source-phase and base-phase changes inherent in delayed insertion.
+Table A12: Ordinary retention is essential to interpreting a delayed
+swap. Exactness of positions 17–32, averaged over six paired models. The
+shifted-frontier schedule reads position kk at k+ak+a; the exit schedule reads
+every position at loop 32.
+final-only
+all-prefix
+Readout
+aa
+No swap
+Swap
+No swap
+Swap
+Frontier
+0
+1.000
+1.000
+1.000
+.939
+1
+.249
+.169
+1.000
+.177
+2
+.133
+.021
+1.000
+.102
+4
+.031
+.002
+1.000
+.000
+Exit
+0
+.007
+.002
+1.000
+.722
+1
+.007
+.001
+1.000
+.074
+2
+.007
+.001
+1.000
+.105
+4
+.007
+.001
+1.000
+.000
+B.7 Crossed times and replacement extent
+Table A13 records the primary time-crossing slice from
+Appendix B.6. Each entry scores one target position and should not
+be compared as if it were complete-suffix exactness. At the early readout,
+clean factual correctness is 1.000 under both conditions; at the late readout
+it is .385 for final-only and 1.000 for all-prefix. The late final-only base run’s unmodified agreement with the source target is .167. These
+baselines prevent a raw late score from being mistaken for transferred
+information.
+Table A13: Source collection and base insertion at crossed times.
+All vectors are at position 16. Position 17 is read one update after insertion,
+using the same 242 eligible pairs and six model seeds. Entries are joint
+state–output agreement with the source target.
+Source loop
+Base loop
+final-only
+all-prefix
+16
+16
+1.000
+.946
+20
+16
+.196
+.260
+16
+20
+.267
+.000
+20
+20
+.169
+.000
+The extent comparison in Table A14 asks where an effective
+replacement can be made at the common loop 20. Its scored target, position 21,
+is never directly replaced. The downstream-only block includes position 20,
+which is the current frontier. Therefore its success supplies a localized
+positive reference, but neither it nor the larger block demonstrates that
+position 16’s old vector alone is sufficient. The old site’s extra distance to
+the target also prevents an equal-distance inference of state erasure.
+Table A14: Replacement extent at loop 20. Position 21 is read at loop
+21, on 121 eligible pairs. Both clean base runs are correct on every pair.
+Unless specified, all source vectors are collected at loop 20.
+Recipient vectors replaced at loop 20
+final-only
+all-prefix
+Cycle 16, donor vector from loop 16
+.163
+.161
+Cycle 16
+.000
+.000
+Cycle 20 (current frontier)
+1.000
+.935
+Cycles 16–20
+1.000
+.934
+Cycles 17–20
+1.000
+.934
+B.8 Provenance of the principal quantities
+The supplementary provenance index records each paired budget curve and
+original swap summary with its model seed, evaluation seed, checkpoint step,
+exact source path, SHA256 hash, and per-seed output. Twelve
+paired budget-sweep files and ten original swap files matched byte-for-byte
+between the local and remote evidence stores. The paired retention tables
+derive from the completed P1 result set, and the phase/extent tables from
+the validated compatibility follow-up. These later experiments use distinct
+pair populations and scoring slices from the original position-8 audit. They
+are not pooled into its numerator or denominator.
+Low-dimensional alignment and bounded automaton extraction were explored in
+the wider project, but do not enter the present paper’s claims. The reported
+conclusions depend on the fixed-checkpoint behavioral evaluations, full-vector
+interventions, and paired training comparison described above.
+Appendix C Local downstream recovery and source-phase controls
+The phase-crossing experiment changes the base run’s entire execution
+phase. Here we keep the late background fixed and test whether changing one
+local downstream vector can restore the response to a fresh source. The
+protocol was fixed before inspecting this follow-up’s outputs; it did not
+retrospectively preregister the preceding experiments.
+C.1 Population, interventions, and scoring
+We evaluated all twelve frozen step-132,000 checkpoints: six final-only and
+six all-prefix models, with paired seeds 9–14. The experiment used H=32H=32
+and the position-16 pair population, with 256 different-state pairs and 256
+same-state/different-history controls per model. Source and base runs shared
+the machine, presentation, and future actions. The primary population was
+the fixed set of 242 different-state pairs whose symbolic state–output
+targets at position 17 differ. This selection used no neural predictions and
+was identical across arms and models. Same-state pairs had no distinguishable
+counterfactual target and were scored separately against their factual target.
+Let hk,Srh_{k,S}^{r} and hk,Brh_{k,B}^{r} denote source and base vectors from
+unmodified runs. After loop 20, a single post-block,
+pre-final-normalization hook performed a 2×22\times 2 intervention:
+i=1\displaystyle i=1
+:h1620←h16,S16,\displaystyle:\quad h_{16}^{20}\leftarrow h_{16,S}^{16},
+(7)
+j=1\displaystyle j=1
+:h1720←h17,B16.\displaystyle:\quad h_{17}^{20}\leftarrow h_{17,B}^{16}.
+An index of zero left the corresponding late base vector unchanged.
+Thus (i,j)=(0,0)(i,j)=(0,0) was clean, (1,0)(1,0) inserted a fresh source, (0,1)(0,1) reset
+only the downstream position, and (1,1)(1,1) combined both changes. Both replacements in
+the combined arm were simultaneous. All other positions, including the
+table and remaining action positions, retained their loop-20 vectors.
+The reset therefore changed the scored position’s pre-update hidden
+state, using the base run’s own earlier vector; it did not insert a source
+position-17 vector or a symbolic answer. We ran one further shared-block update
+and read position 17 at loop 21.
+The primary outcome was joint counterfactual accuracy: both predicted state
+and output at that position had to match the symbolic source continuation.
+It was neither factual accuracy nor suffix exactness. A fresh positive
+reference inserted h16,S16h_{16,S}^{16} at position 16 and loop 16 of the base run and read position
+17 at loop 17. Secondary arms substituted the aged source h16,S20h_{16,S}^{20} at
+loop 20, with and without the same downstream reset.
+Figure A4: Resetting the downstream position restores the use of a fresh source,
+but not of an equally readable aged source. (a) The base run is held at
+loop 20 (gray band). Position 16 may receive the source’s position-16 vector
+from loop 16 (fresh, solid) or loop 20 (aged, dashed), and position 17 may be
+reset to the base run’s own loop-16 vector; other positions keep their
+loop-20 vectors. After one update, position 17 is scored at loop 21
+(⊙\odot). Shaded cells are readable under all-prefix; both source vectors
+decode the correct state and output on every pair. (b) Rows name the
+replacements at loop 20 (none: unmodified run). Percentage of the 242
+eligible pairs whose position-17 state and output both match the
+counterfactual target, not factual accuracy or suffix exactness; dots are six
+all-prefix models, bars their means, and the dashed line the early swap.
+final-only results are in Table A15 and controls in
+Table A17.
+C.2 Joint restoration recovers the fresh response
+Table A15: Single-step counterfactual accuracy after downstream recovery.
+All values are percentages, reported as mean ±\pm sample standard deviation
+over six model seeds. Each model uses the same 242 eligible pairs. Late arms
+intervene at loop 20 and read position 17 at loop 21; the fresh reference
+intervenes at loop 16 and reads at loop 17.
+Intervention
+final-only
+all-prefix
+Fresh source reference
+100.00±0.00100.00\pm 0.00
+94.63±8.1494.63\pm 8.14
+Late clean (A00A_{00})
+16.67±3.6416.67\pm 3.64
+0.00±0.000.00\pm 0.00
+Late fresh source only (A10A_{10})
+26.72±26.1726.72\pm 26.17
+0.00±0.000.00\pm 0.00
+Late downstream reset only (A01A_{01})
+19.63±2.9719.63\pm 2.97
+26.17±3.4026.17\pm 3.40
+Late fresh source + reset (A11A_{11})
+100.00±0.00100.00\pm 0.00
+94.56±8.1094.56\pm 8.10
+Late aged source only
+16.87±3.7716.87\pm 3.77
+0.00±0.000.00\pm 0.00
+Late aged source + reset
+19.70±3.0219.70\pm 3.02
+26.31±3.2926.31\pm 3.29
+Table A15 and Figure A4 show that the combined intervention closely
+recovers the fresh reference under both supervision conditions. The
+all-prefix late clean arm has zero counterfactual accuracy because it
+correctly retains the distinct factual answer; its factual joint accuracy
+on these pairs is 100%. Neither a fresh source alone nor a downstream reset
+alone explains the combined result. For each model, we computed the paired
+interaction on the same eligible population,
+I=A11−A10−A01+A00.I=A_{11}-A_{10}-A_{01}+A_{00}.
+(8)
+The mean II was +70.32±22.39+70.32\pm 22.39 percentage points under final-only and
++68.39±10.54+68.39\pm 10.54 under all-prefix, and was positive in all six models of
+each condition. These are descriptive within-model contrasts, with model
+seeds as the replication unit, rather than significance tests that pool
+reused task pairs as independent replications. Table A16
+also exposes the substantial seed variation in final-only source-only
+performance.
+Table A16: Per-seed primary outcomes. Entries are successful joint
+counterfactual predictions out of 242 eligible pairs for every cell.
+“Source” means the fresh loop-16 source inserted at loop 20.
+Condition
+Late intervention
+9
+10
+11
+12
+13
+14
+final-only
+Clean
+53
+37
+35
+34
+33
+50
+Source only
+193
+35
+45
+33
+31
+51
+Reset only
+41
+57
+52
+51
+38
+46
+Source + reset
+242
+242
+242
+242
+242
+242
+all-prefix
+Clean
+0
+0
+0
+0
+0
+0
+Source only
+0
+0
+0
+0
+0
+0
+Reset only
+69
+70
+64
+50
+70
+57
+Source + reset
+242
+195
+237
+242
+215
+242
+Recovery extends beyond matching aggregate rates. Comparing the predicted
+state–output pair under the fresh reference and late combined intervention
+gives identical predictions for all 3,072 final-only model–pair evaluations
+(66 seeds, 22 pair kinds, 256256 pairs), and all but one of the 3,072
+all-prefix evaluations. The exception is a different-state pair in seed 11
+that succeeds under the fresh reference and fails after late restoration.
+This establishes agreement of discrete single-step behavior; it does not
+establish equality of the hidden states.
+C.3 A readable aged source does not provide the same recovery
+Source readability was measured at the actual source position used in the
+intervention, with the original state and output heads. Fresh sources were
+jointly correct on all different-state pairs in both conditions. Under
+all-prefix, aged sources were also 100% correct for both heads in every
+seed, over both the full 256-pair population and the 242 eligible pairs.
+Nevertheless, aged source plus reset reached only 26.31%, almost identical
+to reset alone at 26.17%. Its net gain was two successful model–pair
+evaluations across six sets of 242; the corresponding aged-source
+interaction was +0.14±0.34+0.14\pm 0.34 percentage points. The 26.31% level is
+therefore largely the reset baseline, not evidence of effective aged-source
+transport. Under final-only, the aged-source interaction was
+−0.14±0.34-0.14\pm 0.34 points, but aged source joint readability was only 39.88%
+on the eligible pairs. The cleaner evidence for readable yet
+non-interchangeable sources comes from all-prefix.
+C.4 Controls, reproducibility, and interpretation
+Table A17: Same-state/different-history controls. Factual joint
+accuracy in percent, mean ±\pm sample standard deviation over six seeds,
+using 256 pairs per model. Source and factual symbolic continuations coincide,
+so distinguishable counterfactual accuracy is undefined for this population.
+Intervention
+final-only
+all-prefix
+Fresh clean
+100.00±0.00100.00\pm 0.00
+100.00±0.00100.00\pm 0.00
+Fresh source reference
+100.00±0.00100.00\pm 0.00
+95.18±6.4995.18\pm 6.49
+Late clean
+47.27±15.7847.27\pm 15.78
+100.00±0.00100.00\pm 0.00
+Late fresh source only
+57.23±18.0557.23\pm 18.05
+100.00±0.00100.00\pm 0.00
+Late downstream reset only
+33.46±8.6633.46\pm 8.66
+25.13±1.1825.13\pm 1.18
+Late fresh source + reset
+100.00±0.00100.00\pm 0.00
+95.18±6.4995.18\pm 6.49
+Late aged source only
+47.20±15.7947.20\pm 15.79
+100.00±0.00100.00\pm 0.00
+Late aged source + reset
+33.53±8.6633.53\pm 8.66
+25.20±1.1825.20\pm 1.18
+Same-state controls show that the downstream reset is a strong intervention:
+all-prefix factual accuracy falls from 100% to 25.13% with reset alone
+(Table A17). Fresh source plus reset restores 95.18%,
+matching the fresh reference and its roughly 4.8% substitution damage.
+For different-state eligible pairs, reset alone yields 26.17% source-correct,
+20.94% factual-correct, and 52.89% matching neither target. Thus resetting
+does not itself provide a general accuracy repair, and complete-vector
+substitution cannot be interpreted as exchanging only a pure symbolic state.
+True same-phase self-replacements were separately tested at position 16
+with the fresh source, position 16 with the late source, late position 17, and both late positions. All preserved
+the corresponding clean predictions; saved pre-intervention invariants
+also passed. The evaluation reused stream 2026091001 in batches of 16,
+with batch streams formed by adding
+10000019⋅kind index+1000003⋅batch index10000019\cdot\text{kind index}+1000003\cdot\text{batch index}.
+The separate 16-pair-per-kind execution pilot was excluded from all reported
+statistics. The experiment records contain the frozen protocol, checkpoint
+identities, pair identities, raw predicted and symbolic labels, and aggregate
+results. An independent scoring audit recomputed source rates and denominators
+from the recorded labels, without importing the aggregation implementation,
+and reproduced the reported results.
+The positive result localizes a causal contribution of the downstream state:
+while the remaining network stays at its late phase, restoring one downstream
+vector together with a fresh source nearly reproduces the earlier
+single-step response. The aged-source comparison shows that downstream
+restoration alone does not make every readable source interchangeable.
+These conclusions are restricted to H=32H=32, insertion at position 16, reset of position 17, insertion
+at loop 20, and one subsequent update. Full-vector replacements can restore
+readiness, representation format, or other aspects of local compatibility;
+they do not identify a particular attention head, gate, or minimal state
+code. The experiment establishes neither information erasure nor necessity
+in unmodified execution, and does not demonstrate recovery of a whole
+suffix, length extrapolation, or the cause of natural endpoint deterioration
+from loop 32 to 33. That failure is localized by a separate experiment
+(Appendix E).
+Appendix D Frontier freezing
+D.1 Original cohort and protocol
+The original freezing cohort uses the frozen checkpoints of Section 5 on a new
+evaluation stream (20260923), 512 inputs per model and horizon, with the
+same inputs for every arm of a given model. The schedule is fixed before
+scoring: models trained at R=HR=H use s⁡(k)=ks(k)=k. Frontier freezing captures
+position kk’s post-block hidden vector at loop s⁡(k)s(k) on the arm’s own
+ongoing trajectory and restores it after every later block. One loop
+later captures at s⁡(k)+1s(k)+1. Positions 1–8 freezes only those
+positions, so every later position must still compute. Readout cache
+runs the clean forward pass and delivers each position’s prediction saved at
+s⁡(k)s(k), without modifying any hidden state. No vector comes from a
+separate run, no label enters an intervention, and table and presentation
+tokens are never frozen. Frozen positions remain available to attention.
+All layers of a block still execute; freezing acts at recurrent block
+boundaries, not on individual layers or key–value caches. The protocol was
+written before the results were inspected but is exploratory, not an
+independent confirmation.
+Table A18: Endpoint joint accuracy (%) at loop 32 for H=32H=32, 512 inputs per
+model. The larger models use d=512d=512 and four layers per block and a batch
+size of 32, so they are not paired input by input with the other rows.
+Condition
+Seed
+Clean
+Readout cache
+Frontier freeze
+Positions 1–8
+One loop later
+final-only
+9
+100.0
+100.0
+11.5
+11.9
+100.0
+final-only
+10
+100.0
+100.0
+6.2
+8.0
+100.0
+final-only
+11
+100.0
+100.0
+1.6
+5.1
+100.0
+final-only
+12
+100.0
+100.0
+1.6
+1.8
+100.0
+final-only
+13
+100.0
+100.0
+2.7
+5.5
+77.1
+final-only
+14
+100.0
+100.0
+1.6
+1.6
+100.0
+all-prefix
+9
+100.0
+100.0
+3.7
+3.7
+100.0
+all-prefix
+10
+100.0
+100.0
+0.8
+0.6
+94.1
+all-prefix
+11
+100.0
+100.0
+16.0
+29.9
+75.0
+final-only, d=512d{=}512
+9
+100.0
+100.0
+8.2
+7.8
+100.0
+final-only, d=512d{=}512
+10
+100.0
+100.0
+3.1
+3.3
+99.0
+final-only, d=512d{=}512
+11
+100.0
+100.0
+12.9
+18.0
+74.4
+D.2 Additional observations and limits
+Table A18 reports every evaluated model. Under frontier
+freezing, positions 1 and 2 remain correct and accuracy at each position’s
+scheduled capture loop falls from position 3 onward in all three groups. Capturing one
+loop later is not uniformly harmless. It lowers the endpoint to 74–77% in
+three of the twelve models at H=32H=32. On the separate H=64H=64 length
+evaluation at readout r=H=64r=H=64, it lowers the endpoint
+relative to clean in several final-only models (seed 12: 44.1% versus
+99.2%; seed 14: 46.3% versus 95.7%). One-loop-later freezing is therefore
+a timing contrast, not a safe schedule. double models, whose observed clean frontier is
+τ⁡(k)=2​k−1\tau(k)=2k-1, collapse under both schedules; their clean endpoint at r=Hr=H
+is already low because they need about 2​H2H loops, so they are not
+interpreted. The readout cache preserves the captured predictions by
+construction and is correct on every original H32 example. It is the
+baseline any freezing schedule would have to beat; we propose no such
+schedule.
+Figure A5: Where continuing computation fails in the original
+freezing cohort. Joint state–output accuracy at each position’s
+scheduled readout on H32, stream 20260923. Thick curves are means within
+the three original model groups and thin curves show individual seeds.
+Positions that remain readable early in the sequence do not prevent
+failure at later positions under immediate freezing.
+D.3 Freezing the new training controls
+This follow-up evaluates all three sampled-prefix and all three
+matched random exit checkpoints from Appendix B.1,
+at step 132,000, without retraining. It was specified after inspecting
+their clean retention results and before inspecting their freeze results;
+it is exploratory. The fresh stream is 20260924, distinct from the
+20260923 training-control evaluation. Each model uses 512 H32 examples in
+four batches of 128, evaluated for 64 loops. Saved input hashes match
+across all six models. Every model and all 512 examples are retained,
+without filtering on clean correctness. The two runtime pilots use a
+different stream and are excluded. progressive is outside this bounded
+follow-up: two models had not learned H32 and the successful model had a
+shifted clean frontier, requiring a separately specified schedule analysis.
+Fixed schedules and eight arms.
+The reference schedule s⁡(k)=ks(k)=k is fixed before evaluation and is not
+estimated from the new labels. The evaluator and its interventions are
+unchanged. Besides clean computation and readout caching, all-position
+freezing captures at sd​(k)=k+ds_{d}(k)=k+d for each d∈{0,1,2,4}d\in\{0,1,2,4\}; two prefix arms
+capture only positions 1–8 or 1–16 at kk. Each capture uses the arm’s
+own current vector after a whole block and restoration first affects the
+next loop. All remaining positions and presentation tokens stay live;
+attention can still use the held vectors. These interventions do not save
+FLOPs, use hidden states from another run, or establish layerwise or
+key–value cache freezing.
+Table A19: Clean diagnostics for every new freeze model. H32,
+stream 20260924, 512 inputs per model; percentages. A32A_{32} and T32T_{32}
+denote endpoint and whole-trajectory accuracy at loop 32. “Min.
+diagonal” is the minimum over positions of clean joint accuracy at
+r=kr=k. Cache T32T_{32} requires every saved prediction to be correct.
+Condition
+Seed
+Clean A32A_{32}
+Clean T32T_{32}
+Min. diagonal
+Cache T32T_{32}
+sampled-prefix
+9
+100.00
+100.00
+100.00
+100.00
+sampled-prefix
+10
+100.00
+100.00
+100.00
+100.00
+sampled-prefix
+11
+100.00
+100.00
+100.00
+100.00
+matched random exit
+9
+99.80
+99.02
+96.48
+94.92
+matched random exit
+10
+100.00
+32.03
+99.80
+99.80
+matched random exit
+11
+100.00
+73.83
+100.00
+100.00
+Clean eligibility.
+All three sampled-prefix models have exact clean and cached H32
+trajectories on this stream, including every diagonal readout at r=kr=k.
+For matched random exit, seed 11 also has exact diagonal reads; seed 10 has
+99.80% minimum diagonal accuracy and 99.80% cached trajectory exactness.
+Seed 9 has 96.48% minimum diagonal accuracy, 94.92% cached trajectory
+exactness, and 99.80% clean endpoint accuracy. Thus the reference schedule
+s⁡(k)=ks(k)=k does not give perfectly correct clean readouts across this entire
+cohort; it is prescribed independently of the measured threshold-crossing
+loop τ⁡(k)\tau(k).
+The observed clean errors are reported as such;
+they are not evidence of a correct state failing under freezing.
+Even when the clean diagonal is exact, later vectors on an online-freeze
+trajectory may already be incorrect because earlier positions have been
+held. Clean readability at the reference schedule therefore does not imply
+that every vector actually captured under intervention is correct.
+Table A20: Endpoint accuracy at the scheduled capture readout.
+Three-seed means in percent on all 512 H32 examples per model, stream
+20260924. The +d+d columns read the endpoint at r=32+dr=32+d; clean, cache,
+P8, and P16 use r=32r=32. P8/P16 freeze only the indicated prefix.
+Clean endpoint accuracy at r=33,34,36r=33,34,36 is 100% for every model;
+the clean r=32r=32 exception is reported in
+Table A19.
+Condition
+Clean
+Cache
++0+0
++1+1
++2+2
++4+4
+P8
+P16
+sampled-prefix
+100.00
+100.00
+4.10
+80.21
+99.80
+100.00
+7.49
+4.36
+matched random exit
+99.93
+99.93
+6.25
+20.18
+87.24
+99.80
+7.42
+6.25
+Capture-aligned and common readouts.
+For a delayed arm, the endpoint has not yet been captured at r=32r=32.
+We therefore use r=32+dr=32+d for the endpoint comparison in the main figure
+and Table A20, with clean evaluated at the
+same loop. Common-loop scores at r=32,33,64r=32,33,64 are retained in full below.
+For example, sampled-prefix seed 10 scores 100% at r=32r=32 under
+delay 1 but only 82.81% when its endpoint is captured at r=33r=33; clean
+is 100% at both loops. Scoring only r=32r=32 would overstate the recovery.
+Scheduled whole-trajectory exactness reads each position at its own
+k+dk+d on the intervened trajectory. It differs from scoring every
+position simultaneously at a common loop. For prefix arms, the scheduled
+readout remains r=kr=k, including positions that are never frozen.
+Results and limits.
+Immediate freezing reduces mean endpoint accuracy to 4.10% for
+sampled-prefix and 6.25% for matched random exit, with zero
+whole-trajectory exactness in every model. Thus the failure to hold
+position states extends across these training objectives, including three
+models with fully correct clean scheduled reads. Delaying capture helps,
+but the required delay depends on the model and training condition.
+At delay 2, sampled-prefix reaches 99.80% mean endpoint accuracy and
+99.54% scheduled trajectory exactness. matched random exit reaches only
+87.24% endpoint accuracy at delay 2, and needs delay 4 to reach 99.80%
+endpoint accuracy and 99.74% scheduled trajectory exactness. All fixed
+delays and all seeds are reported; one loop is not a generally safe
+schedule. Prefix-only freezing also damages the never-frozen endpoint
+and suffix, so the collapse is not limited to scoring held positions.
+The two objectives differ in losses and training work, precluding a unique
+attribution of their delay difference to one training factor. These
+results concern holding a state on its own evolving trajectory; they do
+not demonstrate arbitrary vector interchangeability, convergence, or a
+particular microscopic circuit.
+Table A21: Every sampled-prefix endpoint score under freezing.
+Percent of 512 H32 examples, stream 20260924. Numerical readouts are
+common loops. “Sched.” reads the endpoint at 32+d32+d for +d+d and at
+32 for clean/cache/P8/P16. Cache leaves the hidden computation live;
+P8/P16 freeze only positions 1–8/1–16. All eight arms and all seeds
+are included.
+Seed
+Readout
+Clean
+Cache
++0+0
++1+1
++2+2
++4+4
+P8
+P16
+9
+3232
+100.00
+100.00
+3.91
+100.00
+100.00
+100.00
+3.91
+3.71
+9
+3333
+100.00
+100.00
+3.91
+100.00
+100.00
+100.00
+3.91
+3.91
+9
+6464
+100.00
+100.00
+3.91
+100.00
+100.00
+100.00
+4.10
+4.10
+9
+Sched.
+100.00
+100.00
+3.91
+100.00
+100.00
+100.00
+3.91
+3.71
+10
+3232
+100.00
+100.00
+2.54
+100.00
+100.00
+100.00
+5.66
+2.54
+10
+3333
+100.00
+100.00
+2.54
+82.81
+100.00
+100.00
+6.45
+2.54
+10
+6464
+99.61
+100.00
+2.54
+82.81
+100.00
+100.00
+11.91
+4.88
+10
+Sched.
+100.00
+100.00
+2.54
+82.81
+100.00
+100.00
+5.66
+2.54
+11
+3232
+100.00
+100.00
+5.86
+98.83
+100.00
+100.00
+12.89
+6.84
+11
+3333
+100.00
+100.00
+5.86
+57.81
+99.61
+100.00
+12.50
+6.84
+11
+6464
+99.41
+100.00
+5.86
+57.81
+99.41
+100.00
+16.41
+7.23
+11
+Sched.
+100.00
+100.00
+5.86
+57.81
+99.41
+100.00
+12.89
+6.84
+Table A22: Every matched random exit endpoint score under freezing.
+Same complete reporting and readout definitions as
+Table A21; 512 H32 examples per
+model, stream 20260924.
+Seed
+Readout
+Clean
+Cache
++0+0
++1+1
++2+2
++4+4
+P8
+P16
+9
+3232
+99.80
+99.80
+3.91
+12.30
+96.09
+99.80
+7.42
+4.30
+9
+3333
+100.00
+99.80
+3.91
+9.18
+93.75
+100.00
+9.38
+4.30
+9
+6464
+100.00
+99.80
+3.91
+9.18
+90.23
+100.00
+7.81
+5.08
+9
+Sched.
+99.80
+99.80
+3.91
+9.18
+90.23
+100.00
+7.42
+4.30
+10
+3232
+100.00
+100.00
+13.28
+12.89
+97.66
+92.77
+13.09
+12.70
+10
+3333
+100.00
+100.00
+13.28
+13.28
+73.44
+97.85
+14.26
+12.89
+10
+6464
+93.95
+100.00
+13.28
+13.28
+72.27
+99.41
+24.22
+23.05
+10
+Sched.
+100.00
+100.00
+13.28
+13.28
+72.27
+99.41
+13.09
+12.70
+11
+3232
+100.00
+100.00
+1.56
+53.12
+100.00
+100.00
+1.76
+1.76
+11
+3333
+100.00
+100.00
+1.56
+38.09
+100.00
+100.00
+1.76
+1.56
+11
+6464
+99.22
+100.00
+1.56
+38.09
+99.22
+100.00
+5.66
+1.56
+11
+Sched.
+100.00
+100.00
+1.56
+38.09
+99.22
+100.00
+1.76
+1.76
+Table A23: Every sampled-prefix whole-trajectory score under
+freezing. Percent of 512 H32 examples, stream 20260924. Numerical
+readouts require all positions to be correct simultaneously.
+“Sched.” instead reads each position at its own k+dk+d for +d+d, or
+at kk for clean/cache/P8/P16, on that arm’s trajectory.
+Seed
+Readout
+Clean
+Cache
++0+0
++1+1
++2+2
++4+4
+P8
+P16
+9
+3232
+100.00
+100.00
+0.00
+100.00
+100.00
+100.00
+0.00
+0.00
+9
+3333
+100.00
+100.00
+0.00
+100.00
+100.00
+100.00
+0.00
+0.00
+9
+6464
+100.00
+100.00
+0.00
+100.00
+100.00
+100.00
+0.00
+0.00
+9
+Sched.
+100.00
+100.00
+0.00
+100.00
+100.00
+100.00
+0.00
+0.00
+10
+3232
+100.00
+100.00
+0.00
+1.56
+100.00
+100.00
+0.00
+0.00
+10
+3333
+100.00
+100.00
+0.00
+1.56
+100.00
+100.00
+0.00
+0.00
+10
+6464
+95.70
+100.00
+0.00
+1.56
+100.00
+100.00
+0.00
+0.00
+10
+Sched.
+100.00
+100.00
+0.00
+1.56
+100.00
+100.00
+0.00
+0.00
+11
+3232
+100.00
+100.00
+0.00
+0.39
+99.22
+100.00
+0.00
+0.00
+11
+3333
+100.00
+100.00
+0.00
+0.39
+98.83
+100.00
+0.00
+0.00
+11
+6464
+94.14
+100.00
+0.00
+0.39
+98.63
+100.00
+0.00
+0.00
+11
+Sched.
+100.00
+100.00
+0.00
+0.39
+98.63
+100.00
+0.00
+0.00
+Table A24: Every matched random exit whole-trajectory score under
+freezing. Same readout definitions as
+Table A23; 512 H32 examples per
+model, stream 20260924. Clean scheduled exactness and common-loop
+exactness differ because clean position states continue to evolve.
+Seed
+Readout
+Clean
+Cache
++0+0
++1+1
++2+2
++4+4
+P8
+P16
+9
+3232
+99.02
+94.92
+0.00
+0.00
+85.74
+99.80
+0.00
+0.00
+9
+3333
+99.22
+94.92
+0.00
+0.00
+83.40
+100.00
+0.00
+0.00
+9
+6464
+71.88
+94.92
+0.00
+0.00
+82.62
+100.00
+0.00
+0.00
+9
+Sched.
+94.92
+94.92
+0.00
+0.00
+82.62
+100.00
+0.00
+0.00
+10
+3232
+32.03
+99.80
+0.00
+0.00
+14.06
+91.99
+0.00
+0.00
+10
+3333
+27.54
+99.80
+0.00
+0.00
+13.28
+97.66
+0.00
+0.00
+10
+6464
+0.20
+99.80
+0.00
+0.00
+12.30
+99.22
+0.00
+0.00
+10
+Sched.
+99.80
+99.80
+0.00
+0.00
+12.30
+99.22
+0.00
+0.00
+11
+3232
+73.83
+100.00
+0.00
+0.00
+25.00
+100.00
+0.00
+0.00
+11
+3333
+72.07
+100.00
+0.00
+0.00
+24.61
+100.00
+0.00
+0.00
+11
+6464
+8.79
+100.00
+0.00
+0.00
+24.61
+100.00
+0.00
+0.00
+11
+Sched.
+100.00
+100.00
+0.00
+0.00
+24.61
+100.00
+0.00
+0.00
+Table A25: Exactness of the never-frozen suffix. Percent of all
+512 H32 examples per model, stream 20260924. Freezing prefix 1–8
+leaves suffix 9–32 live; freezing 1–16 leaves 17–32 live. Every
+position in that suffix must have both labels correct. The endpoint
+scores for these same arms appear in
+Tables A21
+and A22.
+Condition
+Seed
+Frozen prefix
+r=32r=32
+r=33r=33
+r=64r=64
+sampled-prefix
+9
+8
+0.00
+0.00
+0.00
+sampled-prefix
+9
+16
+0.00
+0.00
+0.00
+sampled-prefix
+10
+8
+0.00
+0.00
+0.00
+sampled-prefix
+10
+16
+0.00
+0.00
+0.00
+sampled-prefix
+11
+8
+0.00
+0.00
+0.00
+sampled-prefix
+11
+16
+0.00
+0.00
+0.00
+matched random exit
+9
+8
+0.00
+0.20
+0.00
+matched random exit
+9
+16
+0.00
+0.00
+0.00
+matched random exit
+10
+8
+0.00
+0.00
+0.00
+matched random exit
+10
+16
+0.00
+0.00
+0.00
+matched random exit
+11
+8
+0.00
+0.00
+0.00
+matched random exit
+11
+16
+0.00
+0.00
+0.00
+D.4 External maze network
+We evaluated the released dt_net_recall_2d checkpoint (width 128,
+trained on 9×99\times 9 mazes for 30 iterations with the progressive loss of
+Bansal et al., 2022) without modification, on 32 pre-selected mazes
+per size for iterations 1–120. The recurrence was replayed by an external
+loop that reproduces the released forward pass exactly; a never-triggering
+hook reproduced the clean arm, and every arm matched clean before its first
+capture. Because there is no per-position frontier, a pixel’s capture time
+is its answer arrival: the last iteration at which its clean
+prediction changes (mean 6.2 at 9×99\times 9, 19.7 at 33×3333\times 33).
+Table A26 gives whole-maze solved counts.
+Table A26: Solved mazes out of 32 for the released recall network. “Capture
++d+d” freezes each pixel dd iterations after its answer arrival. Freezing
+every pixel at iteration 30 is harmless where the maze is already solved and
+fatal where computation is still running.
+Arm
+9×99\times 9 @30
+9×99\times 9 @120
+33×3333\times 33 @120
+Clean
+32
+32
+19
+Answer cache (state untouched)
+32
+32
+19
+Capture +0+0
+0
+0
+0
+Capture +1+1
+3
+3
+0
+Capture +2+2
+28
+28
+2
+Capture +4+4
+32
+32
+18
+All pixels at iteration 30
+32
+32
+0
+The clean network solves every 9×99\times 9 maze from iteration 25 through
+120, so it does not forget answers, yet freezing at answer arrival solves
+none. The limits are substantial. There is one checkpoint, no training
+seeds, and 32 mazes per size. Architecture, task, and objective differ from
+our models at once, so the check does not isolate any of them. The
+network’s output head is a 3×33\times 3 convolution stack, so holding a
+pixel’s state does not pin its prediction (2.9% of frozen pixels drift at
+capture +0+0, 0.3% at +4+4, 9×99\times 9); its frozen-readout quantities are
+not comparable with those of our per-position readout. The
+33×3333\times 33 size lies outside the training distribution and its clean
+accuracy is still rising at iteration 120, so those comparisons are
+descriptive.
+Appendix E Local recovery of the first natural failure
+Protocol.
+The evaluation uses the step-132000 final-only checkpoints (seeds 9–14,
+d=128d=128; stream 20260909) and three final-only models with d=512d=512 and
+four layers per block (seeds 9–11; stream 20260923), with H=32H=32 and 512
+inputs per model. The primary cohort EE is fixed before any intervention:
+inputs whose endpoint is jointly correct at loop 32 and jointly wrong at
+loop 33. After loop 32, the listed positions are replaced by the model’s own
+vectors from an earlier loop of the same input, and loop 33 runs without
+further intervention. Every batch passed a whole-state replay check, a
+pre-patch invariance check, and a same-phase sham. The six all-prefix models have no member of EE, because their loop-33 endpoint accuracy is
+100%; they have an empty rescue denominator, not a zero rescue rate.
+Table A27: Recovered members of EE at loop 33. Columns: position 31 reset to
+its loop-31 vector (31), position 32 reset to its loop-31 vector
+(32), both, position 30 reset to its loop-31 vector (adjacent),
+position 32 reset to its loop-30 vector (earlier), and a same-phase
+self-replacement of both positions (sham). The last column counts inputs
+correct at both loops that each arm breaks at loop 33, for 31 /
+32 / both.
+dd
+Seed
+|E||E|
+31
+32
+Both
+Adjacent
+Earlier
+Sham
+Broken
+128128
+9
+224
+165
+61
+224
+0
+52
+0
+1 / 148 / 0
+128128
+10
+136
+95
+4
+136
+18
+12
+0
+2 / 201 / 0
+128128
+11
+248
+195
+53
+248
+15
+46
+0
+10 / 130 / 0
+128128
+12
+30
+18
+3
+30
+5
+2
+0
+90 / 350 / 0
+128128
+13
+59
+54
+13
+59
+13
+11
+0
+32 / 291 / 0
+128128
+14
+74
+58
+9
+74
+2
+10
+0
+2 / 242 / 0
+512512
+9
+22
+21
+2
+22
+0
+4
+0
+0 / 301 / 0
+512512
+10
+20
+16
+20
+20
+4
+9
+0
+0 / 0 / 0
+512512
+11
+37
+4
+37
+37
+2
+0
+0
+34 / 0 / 0
+Results and limits.
+Pooled over the d=128d=128 models, the position-31, position-32, and combined resets
+recover 585, 143, and 771 of 771 members of EE. Loop-33 accuracy on all
+inputs is 89.5%, 35.2%, and 100%, against 74.9% clean. For d=512d=512 the
+counts are 41, 59, and 79 of 79, with all-input accuracy of 95.3%, 79.1%,
+and 100% against 94.9% clean. Single resets are not ranked: the position-31
+reset leads in d=512d=512 seed 9, the position-32 reset in seeds 10 and 11, and a position-32
+reset alone breaks between 130 and 350 correct inputs in every d=128d=128
+model. The factorial interaction varies in sign across seeds, so we do not
+claim superadditivity.
+The combined reset leaves positions 1–30 one loop ahead but otherwise
+approximately replays loop 32 at the endpoint, which was correct. Its
+success therefore localizes the first failure to the last two positions; it
+does not show that a restored state persists. Without a second
+intervention, d=128d=128 all-input accuracy at loop 34 is 63.7% after the
+combined reset versus 65.5% clean, whereas for d=512d=512 it is 93.4% versus
+76.8%. We report the relapse as a d=128d=128 observation only. The experiment
+identifies joint sufficiency at one horizon and loop; it does not identify a
+circuit, show that either reset is necessary, or establish a repair method.
+ Experimental support, please
+ view the build logs
+ for errors. Generated by
+ L
+ A
+ T
+ E
+ xml
+ .
+Instructions for reporting errors
+We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+ support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+ methods listed below:
+Click the "Report Issue" (
+ ) button, located in the page header.
+Tip: You can select the relevant text first, to include it in your report.
+Our team has already identified the following issues. We appreciate your time reviewing and reporting rendering errors we
+ may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+ should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+ all.
+Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion, and welcome developer contributions.
+ We gratefully acknowledge support from our major funders,
+ member institutions, ,
+ and all contributors.
+ About ·
+ Help ·
+ Contact ·
+ Subscribe ·
+ Copyright ·
+ Privacy ·
+ Accessibility ·
+ Operational Status (opens in new tab)

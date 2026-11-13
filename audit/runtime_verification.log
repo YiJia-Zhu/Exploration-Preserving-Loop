@@ -1,0 +1,83 @@
+🚨 Config not found for ouro. You can manually add it to HARDCODED_CONFIG_FOR_MODELS in utils/auto_docstring.py
+🚨 Config not found for ouro. You can manually add it to HARDCODED_CONFIG_FOR_MODELS in utils/auto_docstring.py
+🚨 Config not found for ouro. You can manually add it to HARDCODED_CONFIG_FOR_MODELS in utils/auto_docstring.py
+🚨 Config not found for ouro. You can manually add it to HARDCODED_CONFIG_FOR_MODELS in utils/auto_docstring.py
+🚨 Config not found for ouro. You can manually add it to HARDCODED_CONFIG_FOR_MODELS in utils/auto_docstring.py
+`torch_dtype` is deprecated! Use `dtype` instead!
+{
+  "checked_at": "2026-11-07T16:42:13.477386+00:00",
+  "status": "PASS",
+  "experiments_run": true,
+  "training_implementation_included": true,
+  "diagnostic_scenes": 64,
+  "diagnostic_questions": 192,
+  "engineering_checks": 14,
+  "diagnostic_metrics_recomputed": true,
+  "rescue_targets": 25,
+  "composition_selective_damage_loop4": {
+    "mean": 0.28125,
+    "ci95": [
+      0.15625,
+      0.40625
+    ]
+  },
+  "training": {
+    "loopopd": {
+      "steps": 12,
+      "response_tokens": 172,
+      "teacher_unchanged_exact": true,
+      "initial_adapter_identity_exact": true,
+      "after": {
+        "n": 64,
+        "accuracy": [
+          0.46875,
+          0.75,
+          0.8125,
+          0.890625
+        ],
+        "mean_entropy": [
+          4.314708066291644,
+          2.4404343543102827,
+          2.295281492338803,
+          2.22048268652611
+        ],
+        "mean_gold_probability": [
+          0.028165625617991675,
+          0.02215146950199612,
+          0.06342527735681751,
+          0.043944336844291346
+        ]
+      },
+      "checkpoint_replay_exact": true
+    },
+    "middle": {
+      "steps": 12,
+      "response_tokens": 172,
+      "teacher_unchanged_exact": true,
+      "initial_adapter_identity_exact": true,
+      "after": {
+        "n": 64,
+        "accuracy": [
+          0.46875,
+          0.75,
+          0.828125,
+          0.890625
+        ],
+        "mean_entropy": [
+          4.274789313918557,
+          2.4322084477597814,
+          2.2791183120085683,
+          2.215037725311566
+        ],
+        "mean_gold_probability": [
+          0.026188342032820108,
+          0.02142869873820532,
+          0.060937506834002945,
+          0.04235957266120045
+        ]
+      },
+      "checkpoint_replay_exact": true
+    }
+  },
+  "claimed_scope": "Local candidate-ranking and objective pilot; not complete EP or original-paper reproduction"
+}

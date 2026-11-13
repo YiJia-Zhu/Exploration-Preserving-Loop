@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "family": "ouro",
+  "world_size": 2,
+  "all_reduced_gradients_match_exactly": true,
+  "backbone_and_readout_checkpointing": true,
+  "all_target_stages_kept": true
+}

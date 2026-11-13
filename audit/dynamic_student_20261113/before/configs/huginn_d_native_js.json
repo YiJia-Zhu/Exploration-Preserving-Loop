@@ -1,0 +1,12 @@
+{
+  "extends": "huginn_math_base.json",
+  "run_name": "huginn_d_native_js",
+  "algorithm": {
+    "teacher_update": "frozen",
+    "teacher_endpoint": "native",
+    "stage_selection": "js"
+  },
+  "optimization": {
+    "warmup_steps": 0
+  }
+}

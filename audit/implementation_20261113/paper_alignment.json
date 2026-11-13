@@ -1,0 +1,47 @@
+{
+  "checked_at": "2026-11-13",
+  "paper_version": "2610.10623v2",
+  "training_code_public_entry": "https://github.com/wanglne/LoopOPD-page",
+  "code_link_status_observed": "Coming soon; repository search returned project page only",
+  "primary_source_text": "papers/sources/2610.10623v2.txt",
+  "primary_source_sha256": "00831b687bc87adc908af36564fdb77170762d0ac784653b4dc8f26d12249e9c",
+  "reported": {
+    "student_loops": 2,
+    "teacher_loops": 4,
+    "prompts_per_rollout_batch": 32,
+    "responses_per_prompt": 8,
+    "global_batch_size": 256,
+    "learning_rate": 1e-06,
+    "weight_decay": 0.01,
+    "loopopd_warmup_steps": 0,
+    "d_loopopd_warmup_steps": 10,
+    "prompt_max_length": 1024,
+    "response_max_length": 31744,
+    "rollout_temperature": 1.0,
+    "rollout_top_p": 1.0,
+    "validation_temperature": 1.0,
+    "validation_top_p": 0.7,
+    "aime_samples": 16,
+    "dataset_examples": 17398,
+    "hardware": "4 NVIDIA H200"
+  },
+  "updates_choice": {
+    "value": 100,
+    "basis": "Appendix C Table 4 reports validation through step 100"
+  },
+  "thresholds": {
+    "native_exit_initial": 0.9,
+    "js_nats_initial": 0.01,
+    "status": "development starting values, not paper values; not calibrated"
+  },
+  "packages": {
+    "torch": "2.8.0",
+    "transformers": "4.57.1",
+    "accelerate": "1.10.1",
+    "tokenizers": "0.22.2",
+    "safetensors": "0.8.0",
+    "pyarrow": "25.0.0"
+  },
+  "full_paper_run_completed": false,
+  "huginn_native_backend_implemented": false
+}

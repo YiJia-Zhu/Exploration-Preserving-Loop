@@ -1,0 +1,111 @@
+Scaling up Test-Time Compute with Latent Reasoning:
+A Recurrent Depth Approach
+
+Scaling up Test-Time Compute with Recurrent Depth
+
+Abstract
+We study a novel language model architecture
+that is capable of scaling test-time computation by
+implicitly reasoning in latent space. Our model
+works by iterating a recurrent block, thereby unrolling to arbitrary depth at test-time. This stands
+in contrast to mainstream reasoning models that
+scale up compute by producing more tokens. Unlike approaches based on chain-of-thought, our
+approach does not require any specialized training data, can work with small context windows,
+and can capture types of reasoning that are not
+easily represented in words. We scale a proof-ofconcept model to 3.5 billion parameters and 800
+billion tokens. We show that the resulting model
+can improve its performance on reasoning benchmarks, sometimes dramatically, up to a computation load equivalent to 50 billion parameters.
+
+50
+
+3.6B
+
+Materialized Parameters
+
+8.3B 11.5B14.6B 21.0B
+
+33.6B
+
+52.6B 77.9B103B
+
+20
+
+ARC challenge
+GSM8K CoT
+OpenBookQA
+32
+48 64
+
+40
+
+Accuracy (%)
+
+arXiv:2502.05171v2 [cs.LG] 17 Feb 2025
+
+Jonas Geiping 1 Sean McLeish 2 Neel Jain 2 John Kirchenbauer 2 Siddharth Singh 2 Brian R. Bartoldson 3
+Bhavya Kailkhura 3 Abhinav Bhatele 2 Tom Goldstein 2
+
+30
+20
+10
+0
+
+1
+
+4
+
+6
+
+8
+
+12
+
+Test-Time Compute Recurrence
+
+Figure 1: We train a 3.5B parameter language model with depth
+recurrence. At test time, the model can iterate longer to use more
+compute and improve its performance. Instead of scaling test-time
+reasoning by “verbalizing” in long Chains-of-Thought, the model
+improves entirely by reasoning in latent space. Tasks that require
+less reasoning like OpenBookQA converge quicker than tasks like
+GSM8k, which effectively make use of more compute.
+
+Model: huggingface.co/tomg-group-umd/huginncapability of models by scaling test time computation. The
+mainstream approach involves post-training on long chainof-thought examples to develop the model’s ability to verbalize intermediate calculations in its context window and
+thereby externalize thoughts.
+
+0125
+
+Code and Data: github.com/seal-rg/recurrentpretraining
+
+1. Scaling by Thinking in Continuous Space
+
+However, the constraint that expensive internal reasoning
+must always be projected down to a single verbalized next
+token appears wasteful; it is plausible that models could
+be more competent if they were able to natively “think” in
+their continuous latent space. One way to unlock this untapped dimension of additional compute involves adding a
+recurrent unit to a model. This unit runs in a loop, iteratively processing and updating its hidden state and enabling
+computations to be carried on indefinitely. While this is not
+currently the dominant paradigm, this idea is foundational
+to machine learning and has been (re-)discovered in every
+decade, for example as recurrent neural networks, diffusion
+models, and as universal or looped transformers.
+
+Humans naturally expend more mental effort solving some
+problems than others. While humans are capable of thinking over long time spans by verbalizing intermediate results
+and writing them down, a substantial amount of thought
+happens through complex, recurrent firing patterns in the
+brain, before the first word of an answer is uttered.
+Early attempts at increasing the power of language models focused on scaling model size, a practice that requires
+extreme amounts of data and computation. More recently,
+researchers have explored ways to enhance the reasoning
+1
+
+ELLIS Institute Tübingen, Max-Planck Institute for Intelligent Systems, Tübingen AI Center 2 University of Maryland, College Park 3 Lawrence Livermore National Laboratory. Correspondence to: Jonas Geiping, Tom Goldstein <jonas@tue.ellis.eu,
+tomg@umd.edu>.
+
+In this work, we show that depth-recurrent language models can learn effectively, be trained in an efficient manner,
+and demonstrate significant performance improvements under the scaling of test-time compute. Our proposed trans1
+
+

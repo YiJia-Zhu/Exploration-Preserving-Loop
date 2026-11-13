@@ -1,0 +1,44 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+{
+  "settings": {
+    "max_new_tokens": 4,
+    "temperature": 1.0,
+    "top_p": 0.7,
+    "samples_per_problem": 1,
+    "student_loops": [
+      4
+    ],
+    "scope": "AIME integer math; symbolic mathematics and code use external official evaluators",
+    "student_policy": "learned"
+  },
+  "results": {
+    "fixed_2": {
+      "avg": 0.0,
+      "pass_at_n": 0.0,
+      "problems": 2,
+      "completions": 2,
+      "samples_per_problem": [
+        1
+      ],
+      "actual_depth_hist": [
+        0,
+        8
+      ],
+      "mean_actual_depth": 2.0,
+      "selected_exit_depth_hist": [
+        0,
+        8
+      ],
+      "actual_depth_p50": 2,
+      "actual_depth_p90": 2,
+      "actual_depth_p99": 2,
+      "max_depth_fraction": 1.0,
+      "executed_token_loops": 388,
+      "generation_seconds_sum": 0.020052117062732577,
+      "mean_response_seconds": 0.010026058531366289
+    }
+  },
+  "verifier": "strict_boxed_integer_v1",
+  "smoke": true,
+  "scope": "Measured generated-token depths and generation latency; excludes external tokenization, validation and model loading. No teacher labels are used at student deployment."
+}

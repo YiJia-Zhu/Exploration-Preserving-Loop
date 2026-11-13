@@ -1,0 +1,11 @@
+{
+  "extends": "huginn_dynamic_student_base.json",
+  "run_name": "huginn_c_dynamic_endpoint",
+  "algorithm": {
+    "teacher_update": "frozen",
+    "stage_selection": "threshold_endpoint"
+  },
+  "optimization": {
+    "warmup_steps": 0
+  }
+}

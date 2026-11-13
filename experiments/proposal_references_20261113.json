@@ -1,0 +1,218 @@
+{
+  "proposal": "docs/loop_distillation_research_proposal_zh.md",
+  "proposal_sha256": "12941d3c4655b5312a45aa32a95b8893fc47cb6261e68194d7f72b73fbba17b6",
+  "scope": "Citation registration only. Unarchived items do not count as downloaded or independently verified papers.",
+  "references": [
+    {
+      "label": "R1",
+      "title": "Recurrent Self-Improvement: Dynamic Cross-Loop On-Policy Distillation for Looped Language Models.",
+      "version": "2610.10623v2",
+      "url": "https://arxiv.org/abs/2610.10623v2",
+      "material_status": "archived_version_with_manifest_reading_scope"
+    },
+    {
+      "label": "R2",
+      "title": "Scaling Latent Reasoning via Looped Language Models.",
+      "version": "2510.25741v5",
+      "url": "https://arxiv.org/abs/2510.25741v5",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R3",
+      "title": "Scaling up Test-Time Compute with Latent Reasoning: A Recurrent Depth Approach.",
+      "version": "2502.05171v2",
+      "url": "https://arxiv.org/abs/2502.05171v2",
+      "material_status": "archived_version_with_manifest_reading_scope"
+    },
+    {
+      "label": "R4",
+      "title": "Cross-Loop Query Handoff: How Later Loops Redirect Two-Hop Retrieval in the Ouro Looped Language Models.",
+      "version": "2610.34639v1",
+      "url": "https://arxiv.org/abs/2610.34639v1",
+      "material_status": "archived_version_with_manifest_reading_scope"
+    },
+    {
+      "label": "R5",
+      "title": "Monitoring latent reasoning in looped language models.",
+      "version": "2610.18127v1",
+      "url": "https://arxiv.org/abs/2610.18127v1",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R10",
+      "title": "Less is More: Task-aware Layer-wise Distillation for Language Model Compression.",
+      "version": "2210.01351v3",
+      "url": "https://arxiv.org/abs/2210.01351v3",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R11",
+      "title": "Improved Knowledge Distillation via Teacher Assistant.",
+      "version": "1902.03393v2",
+      "url": "https://arxiv.org/abs/1902.03393v2",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R12",
+      "title": "BERT-EMD: Many-to-Many Layer Mapping for BERT Compression with Earth Mover’s Distance.",
+      "version": "2010.06133v1",
+      "url": "https://arxiv.org/abs/2010.06133v1",
+      "material_status": "archived_version_with_manifest_reading_scope"
+    },
+    {
+      "label": "R13",
+      "title": "ALP-KD: Attention-Based Layer Projection for Knowledge Distillation.",
+      "version": "2012.14022v1",
+      "url": "https://arxiv.org/abs/2012.14022v1",
+      "material_status": "archived_version_with_manifest_reading_scope"
+    },
+    {
+      "label": "R14",
+      "title": "U-Space: Uncovering When and Why Uncertainty Arises in Language Models.",
+      "version": "2610.09087v1",
+      "url": "https://arxiv.org/abs/2610.09087v1",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R15",
+      "title": "LoopRPT: Reinforcement Pre-Training for Looped Language Models.",
+      "version": "2603.19714v2",
+      "url": "https://arxiv.org/abs/2603.19714v2",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R18",
+      "title": "Rethinking On-Policy Distillation of Large Language Models: Phenomenology, Mechanism, and Recipe.",
+      "version": "2604.13016v2",
+      "url": "https://arxiv.org/abs/2604.13016v2",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R19",
+      "title": "Outcome-Guided On-Policy Self-Distillation.",
+      "version": "2610.05070v1",
+      "url": "https://arxiv.org/abs/2610.05070v1",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R20",
+      "title": "PHF: Privileged Hidden Flow for On-Policy Self-Distillation.",
+      "version": "2606.29340v1",
+      "url": "https://arxiv.org/abs/2606.29340v1",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R23",
+      "title": "Patient Knowledge Distillation for BERT Model Compression.",
+      "version": "1908.09355v1",
+      "url": "https://arxiv.org/abs/1908.09355v1",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R26",
+      "title": "Think-at-Hard: Dynamic Looped Transformers for Improved Reasoning.",
+      "version": "2511.08577v4",
+      "url": "https://arxiv.org/abs/2511.08577v4",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R27",
+      "title": "Adaptive Depth in Looped Transformers: Diagnosing Learned Halting Gates and Trajectory Readouts.",
+      "version": "2607.20519v1",
+      "url": "https://arxiv.org/abs/2607.20519v1",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R28",
+      "title": "Prediction Dynamics in Depth-Recurrent Language Models.",
+      "version": "2609.21383v1",
+      "url": "https://arxiv.org/abs/2609.21383v1",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R29",
+      "title": "RAIL-KD: RAndom Intermediate Layer Mapping for Knowledge Distillation.",
+      "version": "2109.10164v2",
+      "url": "https://arxiv.org/abs/2109.10164v2",
+      "material_status": "archived_version_with_manifest_reading_scope"
+    },
+    {
+      "label": "R30",
+      "title": "Improving Reasoning Capabilities in Small Models through Mixture-of-Layers Distillation with Stepwise Attention on Key Information.",
+      "version": "2604.15701v1",
+      "url": "https://arxiv.org/abs/2604.15701v1",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R31",
+      "title": "Align-to-Distill: Trainable Attention Alignment for Knowledge Distillation in Neural Machine Translation.",
+      "version": "2403.01479v3",
+      "url": "https://arxiv.org/abs/2403.01479v3",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R32",
+      "title": "Revisiting Intermediate-Layer Matching in Knowledge Distillation: Layer-Selection Strategy Doesn’t Matter (Much).",
+      "version": "2502.04499v2",
+      "url": "https://arxiv.org/abs/2502.04499v2",
+      "material_status": "archived_version_with_manifest_reading_scope"
+    },
+    {
+      "label": "R33",
+      "title": "Two-Scale Latent Dynamics for Recurrent-Depth Transformers.",
+      "version": "2509.23314v2",
+      "url": "https://arxiv.org/abs/2509.23314v2",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R34",
+      "title": "BERT Loses Patience: Fast and Robust Inference with Early Exit.",
+      "version": "2006.04152v3",
+      "url": "https://arxiv.org/abs/2006.04152v3",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R35",
+      "title": "F-PABEE: Flexible-patience-based Early Exiting for Single-label and Multi-label text Classification Tasks.",
+      "version": "2305.11916v1",
+      "url": "https://arxiv.org/abs/2305.11916v1",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R36",
+      "title": "Confident Adaptive Language Modeling.",
+      "version": "2207.07061v2",
+      "url": "https://arxiv.org/abs/2207.07061v2",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R37",
+      "title": "Consistent Accelerated Inference via Confident Adaptive Transformers.",
+      "version": "2104.08803v2",
+      "url": "https://arxiv.org/abs/2104.08803v2",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R38",
+      "title": "DeeBERT: Dynamic Early Exiting for Accelerating BERT Inference.",
+      "version": "2004.12993v1",
+      "url": "https://arxiv.org/abs/2004.12993v1",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R39",
+      "title": "FastBERT: a Self-distilling BERT with Adaptive Inference Time.",
+      "version": "2004.02178v2",
+      "url": "https://arxiv.org/abs/2004.02178v2",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    },
+    {
+      "label": "R40",
+      "title": "Depth-adaptive Inference of Looped Language Models via Continuous Depth Batching.",
+      "version": "2608.09444v2",
+      "url": "https://arxiv.org/abs/2608.09444v2",
+      "material_status": "proposal_citation_only_not_independently_reverified_in_this_change"
+    }
+  ],
+  "current_method": "JS-threshold-only stages with learned dynamic student stopping; fixed Top-(S-1) is control F"
+}

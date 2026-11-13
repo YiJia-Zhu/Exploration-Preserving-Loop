@@ -1,0 +1,55 @@
+TIP: Token Importance in On-Policy Distillation
+
+Yuanda Xu∗† Hejian Sang∗ Zhengze Zhou∗ Ran He∗ Zhipeng Wang
+
+Alborz Geramifard
+
+arXiv:2604.14084v4 [cs.LG] 21 May 2026
+
+Abstract
+On-policy knowledge distillation (OPD) trains a student on its own rollouts under
+token-level supervision from a teacher, but not all token positions matter equally,
+and existing views of token importance are incomplete. We ask: which tokens
+carry the most useful learning signal in OPD? Our answer is that informative
+tokens come from two regions: positions with high student entropy, and positions
+with low student entropy plus high teacher–student divergence—where the student is overconfident and wrong. Empirically, student entropy is an effective but
+structurally incomplete proxy. Retaining 50% of tokens with entropy-based sampling matches or exceeds all-token training while cutting end-to-end peak training
+memory by up to 47%; under more aggressive retention, memory savings reach
+up to 58%. But entropy alone misses a second important region. When we isolate
+low-entropy, high-divergence tokens, training on fewer than 10% of all tokens
+nearly matches full-token baselines, showing that overconfident tokens carry dense
+corrective signal despite being nearly invisible to entropy-only rules. We organize
+these findings with TIP(Token Importance in on-Policy distillation), a two-axis
+taxonomy over student entropy and teacher–student divergence that explains why
+entropy is useful yet structurally incomplete and motivates type-aware selection
+rules that combine uncertainty and disagreement. We validate this picture across
+three teacher–student pairs spanning Qwen3, Llama, and Qwen2.5 on MATH-500
+and AIME 2024/2025, and on the DeepPlanning benchmark for long-horizon
+agentic planning, where Q3-only training with 20% of tokens surpasses full-token
+OPD. Our experiments are implemented by extending the open-source OPD repository https://github.com/HJSang/OPSD_OnPolicyDistillation, which
+provides the practical training base for reproducing this work and supports memoryefficient distillation of larger models under limited GPU budgets.
+
+1
+
+Introduction
+
+Knowledge distillation transfers capability from a large teacher to a smaller student by training on
+the teacher’s output distributions [Hinton et al., 2015], and is a primary driver of the rapid growth in
+small-model capacity [Xiao et al., 2025]. In on-policy distillation (OPD), the student generates its
+own responses and learns from the teacher’s corrections at each token [Agarwal et al., 2024, Gu et al.,
+2025]. Since the student generates the context, token importance is a property of the student–teacher
+state at each position. This raises a direct question: which tokens carry the most useful learning
+signal?
+Our central claim is simple. In OPD, informative tokens come from two regions of the token state
+space: (1) positions with high student entropy, where the student is uncertain and still forming its
+prediction; and (2) positions with low student entropy but high teacher–student divergence, where the
+student is confident but misaligned with the teacher. The first region is easy to detect with entropy
+alone: retaining 50% of tokens by entropy-based sampling already matches or improves all-token
+training while substantially reducing end-to-end training memory. The second is easy to miss: under
+more aggressive retention, entropy-only selection discards overconfident tokens—positions where the
+∗ Equal contribution.
+† Correspondence to yuanda@math.princeton.edu
+
+Preprint.
+
+

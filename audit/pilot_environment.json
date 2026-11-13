@@ -1,0 +1,37 @@
+{
+  "checked_at": "2026-11-07T16:40:29.753207+00:00",
+  "python": "3.10.20 (main, Jun 11 2026, 15:17:37) [GCC 14.3.0]",
+  "executable": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python",
+  "packages": {
+    "torch": "2.8.0",
+    "transformers": "4.57.1",
+    "tokenizers": "0.22.2",
+    "accelerate": "1.10.1",
+    "huggingface_hub": "0.36.2",
+    "numpy": "2.2.6",
+    "safetensors": "0.8.0"
+  },
+  "cuda": "12.8",
+  "physical_gpu_index": 4,
+  "gpu_name": "NVIDIA RTX PRO 5000 72GB Blackwell",
+  "gpu_memory_bytes": 76366151680,
+  "external_repositories": [
+    {
+      "path": "external/cql-handoff",
+      "commit": "75b52dbfdb160eb5da59b7e7897bbeb0bb16ec91",
+      "remote": "https://github.com/Muuzzziiy/cql-handoff.git",
+      "working_tree_changes": ""
+    },
+    {
+      "path": "external/loopopd-page",
+      "commit": "4994c802abfae6dd891bbd700b4f2bd8c530360d",
+      "remote": "https://github.com/wanglne/LoopOPD-page.git",
+      "working_tree_changes": ""
+    }
+  ],
+  "upstream_availability": {
+    "loopopd": "project README and resource buttons say coming soon; no official training code used",
+    "ouro_github": "model-card link https://github.com/Ouro-LLM/Ouro returned 404; official HF source used",
+    "ouro_hf": "pinned snapshot, official weights SHA256 matched"
+  }
+}

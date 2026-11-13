@@ -1,0 +1,56 @@
+LoopGR: Parameter-Efficient Scaling for
+Generative Recommendation via Recurrent
+Depth
+
+arXiv:2610.34157v1 [cs.IR] 25 Oct 2026
+
+Huizhe Zhang1,2,* , Yudong Li2,† , Liang Chen1,† , Chengxiang Zhuo2 , Zang Li2
+1
+Sun Yat-sen University 2 Platform and Content Group, Tencent
+zhanghzh33@mail2.sysu.edu.cn, chenliang6@mail.sysu.edu.cn
+{elsonli,felixzhuo,gavinzli}@tencent.com
+
+Abstract
+Generative recommendation formulates item recommendation as autoregressive generation rather than a discriminative scoring problem. Although
+empirical studies exhibit favorable scaling behavior in recommendation, unleashing the benefits of scaling remains challenging under the strict model
+size and inference cost constraints of real-world systems. A central challenge
+is to combine expressive modeling of user-item interaction histories with
+flexible computational depth without proportionally increasing model size.
+We introduce LoopGR, a parameter-efficient scaling framework for generative recommendation via recurrent depth. LoopGR employs a tailored
+hierarchical recurrent depth mechanism that alternates between a shared
+generative decoder and a lightweight context updater. For efficient inference, we further develop recurrent trajectory self-distillation that distills a
+low-budget student from a high-budget teacher by aligning both predictive
+distributions and evolution directions. Extensive experiments show that
+LoopGR consistently outperforms strong generative recommendation baselines. Compared with a representative encoder–decoder baseline, LoopGR
+achieves superior performance while reducing model size by up to 52%.
+These results establish recurrent depth as a new scaling dimension, offering
+a flexible and resource-efficient scaling path for generative recommendation.
+
+1
+
+Introduction
+
+Generative recommendation, which reconceptualizes the traditional discriminative matching
+paradigm as a generative task, has been a promising paradigm for large-scale recommender
+systems (Wang et al., 2023; Zhou et al., 2025a; Cheng et al., 2026). Inspired by tokenization
+in LLMs and computer vision, recent methods represent each item as a short sequence
+of discrete semantic IDs (SIDs) and formulate next-item recommendation as autoregressive
+generation of the target SIDs (Rajput et al., 2023; Ju et al., 2026; He et al., 2026). Empirical
+studies further suggest that increasing model capacity and training computation can improve
+recommendation performance, suggesting that generative recommenders also benefit from
+predictable scaling laws (Guo et al., 2024; Liu et al., 2026; Hou et al., 2026). However, unlike
+LLMs, recommender systems are deployed under much tighter computational and serving
+constraints. The key challenge is not simply to increase computation, but to effectively
+allocate a limited computational budget between interaction history modeling and target
+SID generation.
+Existing generative recommenders allocate computation differently between history modeling and target generation, as illustrated in Figure 1. This architectural evolution progressively shifts computation from dedicated history modeling toward shared and ultimately
+target-centric computation (Rajput et al., 2023; Zhou et al., 2025b; Yang et al., 2025b).
+∗
+†
+
+Work done during internship at Platform and Content Group, Tencent.
+Corresponding author.
+
+1
+
+

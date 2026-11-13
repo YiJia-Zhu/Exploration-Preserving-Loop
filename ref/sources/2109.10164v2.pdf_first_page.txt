@@ -1,0 +1,99 @@
+RAIL-KD: RAndom Intermediate Layer Mapping for Knowledge
+Distillation
+Md Akmal Haidar1∗ Nithin Anchuri1,2† Mehdi Rezagholizadeh1
+Abbas Ghaddar1 Philippe Langlais2 Pascal Poupart3
+1
+Huawei Noah’s Ark Lab
+2
+RALI/DIRO, Université de Montréal, Canada
+3
+David R. Cheriton School of Computer Science, University of Waterloo
+{mehdi.rezagholizadeh,abbas.ghaddar}@huawei.com
+felipe@iro.umontreal.ca, ppoupart@uwaterloo.ca
+
+arXiv:2109.10164v2 [cs.CL] 1 Oct 2021
+
+Abstract
+Intermediate layer knowledge distillation
+(KD) can improve the standard KD technique
+(which only targets the output of teacher
+and student models) especially over large
+pre-trained language models.
+However,
+intermediate layer distillation suffers from
+excessive computational burdens and engineering efforts required for setting up a proper
+layer mapping. To address these problems,
+we propose a RAndom Intermediate Layer
+Knowledge Distillation (RAIL-KD) approach
+in which, intermediate layers from the teacher
+model are selected randomly to be distilled
+into the intermediate layers of the student
+model. This randomized selection enforce
+that: all teacher layers are taken into account
+in the training process, while reducing the
+computational cost of intermediate layer
+distillation. Also, we show that it act as a
+regularizer for improving the generalizability
+of the student model. We perform extensive
+experiments on GLUE tasks as well as on
+out-of-domain test sets. We show that our
+proposed RAIL-KD approach outperforms
+other state-of-the-art intermediate layer KD
+methods considerably in both performance
+and training-time.
+
+1
+
+Introduction
+
+Pre-trained Language Models (PLMs), such as
+BERT (Devlin et al., 2019), RoBERTa (Liu et al.,
+2020) and XLNet (Yang et al., 2019) have shown
+remarkable abilities to match and even surpass human performances on many Natural Languages Understanding (NLU) tasks (Rajpurkar et al., 2018;
+Wang et al., 2018, 2019). However, the deployment of these models in real world applications
+(e.g. edge devices) come with challenges, mainly
+due to large model size and inference time.
+∗
+This work has been done while Md Akmal Haidar was
+at Huawei.
+†
+This work has been done while Nithin Anchuri was at
+Huawei.
+
+In this regard, several model compression techniques such as quantization (Shen et al., 2019;
+Zafrir et al., 2019), pruning (Guo et al., 2019;
+Gordon et al., 2020; Michel et al., 2019), optimizing the Transformer architecture (Fan et al., 2019;
+Ghaddar and Langlais, 2019; Wu et al., 2020b;
+Lu et al., 2020), and knowledge distillation (Sanh
+et al., 2019a; Jiao et al., 2019; Sun et al., 2020b;
+Wang et al., 2020a; Rashid et al., 2021; Passban
+et al., 2021; Jafari et al., 2021; Kamalloo et al.,
+2021) have been developed to reduce the model
+size and latency, while maintaining comparable
+performance to the original model.
+KD, which is the main focus of this work, is a
+neural model compression approach that involves
+training a small student model with the guidance
+of a large pre-trained teacher model. In the original KD technique (Buciluǎ et al., 2006; Hinton
+et al., 2014; Turc et al., 2019), the teacher output
+predictions are used as soft labels for supervising
+the training of the student. There has been several attempts in the literature to reduce the teacherstudent performance gap by leveraging data augmentation (Fu et al., 2020; Li et al., 2021; Jiao
+et al., 2019), adversarial training (Zaharia et al.,
+2021; Rashid et al., 2020, 2021), and intermediate
+layer distillation (ILD) (Wang et al., 2020b,a; Ji
+et al., 2021; Passban et al., 2021).
+When it comes to B ERT compression, ILD leads
+to clear gains in performances (Sanh et al., 2019a;
+Jiao et al., 2019; Wang et al., 2020a) due to its ability to enhance the knowledge transfer beyond logits
+matching. This is done by mapping intermediate
+layer representations of both models to a common
+space1 , and then matching them via regression (Sun
+et al., 2019) or cosine similarity (Sanh et al., 2019a)
+losses. On major problem with ILD is the absence
+of an appropriate strategy to select layers to be
+matched on both sides, reacting to the skip and
+1
+In some cases, the representations are directly matched if
+the teacher and student have the same hidden size.
+
+

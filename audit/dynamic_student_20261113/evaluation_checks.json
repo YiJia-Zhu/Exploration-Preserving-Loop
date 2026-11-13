@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "family": "ouro",
+      "policy": "learned",
+      "report": "audit/dynamic_student_20261113/ouro_learned_eval.summary.json"
+    },
+    {
+      "family": "ouro",
+      "policy": "native",
+      "report": "audit/dynamic_student_20261113/ouro_native_eval.summary.json"
+    },
+    {
+      "family": "ouro",
+      "policy": "fixed",
+      "report": "audit/dynamic_student_20261113/ouro_fixed_eval.summary.json"
+    },
+    {
+      "family": "huginn",
+      "policy": "learned",
+      "report": "audit/dynamic_student_20261113/huginn_learned_eval.summary.json"
+    },
+    {
+      "family": "huginn",
+      "policy": "native",
+      "report": "audit/dynamic_student_20261113/huginn_native_eval.summary.json"
+    },
+    {
+      "family": "huginn",
+      "policy": "fixed",
+      "report": "audit/dynamic_student_20261113/huginn_fixed_eval.summary.json"
+    }
+  ]
+}

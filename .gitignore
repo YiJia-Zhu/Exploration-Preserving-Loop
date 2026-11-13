@@ -1,0 +1,69 @@
+# Local Python environments and build/test caches.
+.venv/
+venv/
+env/
+.conda/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+.ipynb_checkpoints/
+
+# Shared model links, local datasets, and downloaded third-party repositories.
+/models/
+/data/
+/datasets/
+/external/
+.cache/
+.huggingface/
+
+# Model weights, adapters, optimizer/RNG state, and large dataset shards.
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.gguf
+*.onnx
+*.parquet
+*.arrow
+
+# Generated checkpoints and local monitoring/output directories.
+# Keep lightweight experiment metrics, rollout records, and source snapshots.
+/experiments/runs/**/checkpoints/
+/experiments/runs/**/run.lock
+events.out.tfevents.*
+/checkpoints/
+/outputs/
+/logs/
+/wandb/
+/tensorboard/
+nohup.out
+
+# Local credentials; retain example environment files.
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# Editor and operating-system temporary files.
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Research Markdown, PDF/source references, configs, audit reports, and small
+# JSON/JSONL/CSV experiment records are intentionally kept in version control.

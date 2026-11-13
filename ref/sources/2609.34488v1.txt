@@ -1,0 +1,813 @@
+FlexLoop: Depth-Elastic Looped Policies for Adaptive Test-Time Computation in Deep RL
+Skip to main content
+ Report GitHub Issue
+ ×
+ Title:
+Content selection saved. Describe the issue below:
+ Description:
+ Submit without GitHub
+ Submit in GitHub
+ Why HTML?
+ Report Issue
+ Back to Abstract
+ Download PDF
+ Contents
+ Reading mode
+ Colour theme
+Abstract
+1 Introduction
+2 Related Work
+Computation Scaling in DRL.
+Looped Architectures and Elastic Depth.
+3 Preliminary
+Goal-Conditioned RL.
+Looped Policies and IRU.
+4 Method: FlexLoop
+4.1 Elastic Post-Training
+Full-Depth RL Objective.
+Progressive Depth-Wise Policy Distillation.
+4.2 Instantiating FlexLoop across RL Algorithms
+Goal-Conditioned DQN (GC-DQN).
+Goal-Conditioned PPO (GC-PPO).
+Goal-Conditioned IQL (GC-IQL).
+4.3 State-Wise Adaptive Inference
+State-Wise Adaptive Inference.
+5 Experiments
+5.1 Experimental Setup
+Benchmarks.
+Baselines and Implementation.
+5.2 Analysis of Learned Depth Elasticity
+5.3 State-wise Adaptive Inference
+Adaptive Inference Performance.
+Computation-Performance Trade-off.
+Wall-Clock Time Saving.
+5.4 Ablation Study
+Contribution of Key Components.
+Sensitivity to λdepth\lambda_{\rm depth}.
+Generality across Architectures.
+5.5 Visualization of Adaptive Inference
+6 Conclusion and Future Directions
+References
+A Proofs of the Propositions
+A.1 Proof of Proposition 
+A.2 Proof of Proposition 
+B Experiment Details
+B.1 Environments
+BoxPick.
+LightsOut.
+OGBench.
+B.2 Implementation Details
+C Extended Results
+C.1 Full training curves for Figure 
+C.2 Elasticity Curves
+C.3 Full results for Table 
+C.4 Pareto Curve
+C.5 Visualized Trajectory Segments of Scene
+D Additional Ablations
+D.1 FlexLoop from Scratch
+D.2 FlexLoop on Policies with Different Pretraining Depths
+ License: CC BY 4.0
+arXiv:2609.34488v1 [cs.LG] 28 Sep 2026
+FlexLoop: Depth-Elastic Looped Policies for Adaptive Test-Time Computation in Deep RL
+Xun Wang
+Affiliation: Institute for Interdisciplinary Information Sciences, Tsinghua University
+ Correspondence: longbohuang@tsinghua.edu.cn
+Ruishuo Chen
+Affiliation: Institute for Interdisciplinary Information Sciences, Tsinghua University
+ Correspondence: longbohuang@tsinghua.edu.cn
+Yu Chen
+Affiliation: Institute for Interdisciplinary Information Sciences, Tsinghua University
+ Correspondence: longbohuang@tsinghua.edu.cn
+Zhuoran Li
+Affiliation: Institute for Interdisciplinary Information Sciences, Tsinghua University
+ Correspondence: longbohuang@tsinghua.edu.cn
+Longbo Huang
+arXiv preprint, September 2026
+Abstract
+Looped architectures scale computation by reusing the same parameters across recurrent steps, and recent work shows that they substantially improve deep reinforcement learning policies on long-horizon tasks. Since recurrent depth directly controls computation, one may expect looped policies to naturally support elastic inference across recurrent depths. Surprisingly, we find that pretrained looped policies exhibit severe recurrent-depth specialization: reliable decisions are concentrated near the full trained depth, tying deployment computation to this depth even when less computation may suffice. Achieving depth elasticity, i.e., reliable decisions across recurrent depths with adaptive computation at deployment, therefore remains a key challenge. To address this, we propose FlexLoop, a novel post-training framework that converts pretrained fixed-depth looped policies into depth-elastic policies. FlexLoop keeps training on the original RL objective to preserve full-depth capability while performing adjacent-depth policy distillation to progressively transfer decision quality from deeper to shallower recurrent steps. The resulting policy supports reliable inference across recurrent depths and enables state-wise adaptive inference through recurrent-depth consistency.
+Experiments on 3030 online and offline long-horizon goal-conditioned environments show that FlexLoop preserves full-depth performance while making shallower depths effective. Keeping competitive performance, FlexLoop reduces average recurrent depth by up to 𝟒𝟑\bf{43}% and achieves up to 1.34×\bf{1.34\times} wall-clock speedup in a stress test.
+1. Introduction
+Figure 1: Fixed-depth training induces recurrent-depth specialization. Each IRU-KK is trained at the KK-th recurrent depth. Reliable decisions are concentrated near the full trained depth.
+Scaling model capacity has been a central driver of progress in modern machine learning, with larger models enabling increasingly capable behavior across language modeling (Kaplan et al., 2020; Wei et al., 2022), robotics (Zitkovich et al., 2023; Kim et al., 2024), and deep reinforcement learning (DRL) (Wang et al., 2025). Beyond increasing parameter count, a complementary line of work has explored looped architectures (Dehghani et al., 2019; Yang et al., 2024; Goyal et al., 2026), which repeatedly apply a shared computation block to increase effective computational depth while keeping the number of trainable parameters fixed. By scaling computation rather than model size, such architectures provide a parameter-efficient way to expand computational capacity.
+Recent work on looped recurrent policies, such as IRU (Ghugare et al., 2026), has shown that recurrent computation provides an effective scaling dimension for DRL, with additional recurrent steps substantially improving planning and decision making on long-horizon tasks without increasing policy parameter count. This naturally suggests recurrent depth as a deployment-time computation budget, analogous to recent looped language models that support budget-aware or adaptive inference (Jeddi et al., 2026; Popescu et al., 2026; Schwethelm et al., 2026).
+Ideally, such policies shall exhibit depth elasticity, namely, the ability of a single policy to maintain reliable decision quality across multiple recurrent depths and flexibly adjust its inference computation at
+deployment.
+Surprisingly, as shown in Figure 1, standard RL training does not yield such elasticity. Instead, looped policies trained with a fixed recurrent depth exhibit severe recurrent-depth specialization, with reliable decision-making concentrated at the full training depth and performance deteriorating sharply at shallower depths.
+This specialization ties deployment to the full recurrent depth. Although the full-depth policy itself is strong, always executing the maximum recurrent depth may use more computation than necessary for some decisions and limit adaptation to deployment resource constraints.
+This motivates a key question:
+Can we preserve the full-depth capability of a looped RL
+policy while making its shallower recurrent depths reliable for decision making?
+Addressing this question is nontrivial. Empirically, we find that looped architectures have sufficient capacity to support useful policies across multiple recurrent depths, yet naively training these depths jointly suppresses full-depth performance, while relying on distillation alone can degrade generalization to unseen tasks.
+To resolve this dilemma, we propose FlexLoop, a novel post-training framework that converts a pretrained fixed-depth looped policy, which is reliable primarily at its training depth, into an elastic-depth policy that remains effective across recurrent depths.
+Starting from the pretrained policy, FlexLoop keeps training on the original RL objective to preserve full-depth performance and out-of-distribution generalization, while introducing adjacent-depth policy distillation to progressively propagate decision quality toward shallower recurrent steps. The resulting consistency across successive depths further provides a natural signal for state-wise adaptive inference, allowing computation to terminate once the policy has sufficiently stabilized.
+Across 30 online and offline long-horizon goal-conditioned environments with
+discrete and continuous action spaces, FlexLoop preserves full-depth performance while making shallower recurrent depths reliable, improving the deployment-time computation–performance trade-off.
+With state-wise adaptive inference, FlexLoop automatically allocates recurrent computation according to state difficulty. It reduces the average recurrent depth by up to 43% and achieves up to 1.34×1.34\times wall-clock speedup in a large-scale stress test, while maintaining competitive or better task performance.
+In summary, our main contributions are:
+• 
+We identify recurrent-depth specialization in existing looped RL policies: despite their capacity to operate across recurrent depths, fixed-depth training fails to induce depth elasticity, concentrating reliable decisions at the training depth and limiting adaptation to deployment computation constraints.
+• 
+We propose FlexLoop, a novel post-training framework that induces depth elasticity in pretrained looped RL policies. It keeps training on the original RL objective to preserve full-depth capability and performs adjacent-depth policy distillation to transfer decision quality from deeper to shallower recurrent depths, enabling state-wise adaptive inference at deployment without retraining.
+• 
+Across 30 online and offline long-horizon goal-conditioned environments, FlexLoop preserves full-depth performance while enabling reliable decisions at shallower recurrent depths. State-wise adaptive inference reduces average recurrent computation by up to 43% and achieves up to 1.34×1.34\times wall-clock speedup, while maintaining competitive or better task performance.
+2. Related Work
+Computation Scaling in DRL.
+Prior work has incorporated additional computation into DRL through planning and iterative value estimation
+(Tamar et al., 2016; Silver et al., 2017; Farquhar et al., 2018), while recent studies show that increasing network depth can substantially improve long-horizon decision making (Wang et al., 2025). More recently, Ghugare et al. (2026) showed that recurrent computation can scale RL capability without increasing policy parameter count. We build on this direction by investigating whether recurrent policies can remain effective across inference depths. We find that standard fixed-depth training instead leads to recurrent-depth specialization, highlighting the need for
+elastic recurrent policies.
+Looped Architectures and Elastic Depth.
+Looped architectures, which reuse the same parameters across multiple computation steps, have been studied for iterative reasoning and parameter-efficient computation (Dehghani et al., 2019; Yang et al., 2024; Zhu et al., 2025; Du et al., 2026). Recent work extends looped models to variable inference budgets. For example, LoopFormer trains language models across different recurrent depths (Jeddi et al., 2026), while ELT uses intra-loop self-distillation to transfer behavior from high-compute to intermediate depths in visual generation (Goyal et al., 2026). Others study adaptive stopping and efficient depth-adaptive inference in looped language models (Popescu et al., 2026; Schwethelm et al., 2026). However, directly extending such depth elasticity to RL is challenging. Unlike settings with explicit targets, RL provides no ground-truth intermediate decisions, as policy quality is ultimately determined by long-horizon return rather than local output agreement. Achieving reliable depth elasticity for looped RL policies therefore remains underexplored.
+3. Preliminary
+Goal-Conditioned RL.
+We consider a goal-conditioned Markov decision process ℳ\mathcal{M} == (𝒮,𝒜,𝒢,P,rCLOSE,(\mathcal{S},\mathcal{A},\mathcal{G},P,r, OPENp0,γ)p_{0},\gamma), where 𝒮\mathcal{S}, 𝒜\mathcal{A}, and 𝒢\mathcal{G} denote the state, action, and goal spaces, respectively; P(⋅∣s,a)P(\cdot\mid s,a) is the transition kernel; r⁡(s,a,g)r(s,a,g) is the goal-conditioned reward; p0​(s,g)p_{0}(s,g) is a joint distribution over initial states and goals; and γ∈[0,1)\gamma\in[0,1) is the discount factor. At the beginning of each episode, (s0,g)∼p0(s_{0},g)\sim p_{0}, and a goal-conditioned policy π⁡(a∣s,g)\pi(a\mid s,g) induces trajectories according to at∼π(⋅∣st,g)a_{t}\sim\pi(\cdot\mid s_{t},g) and st+1∼P(⋅∣st,at)s_{t+1}\sim P(\cdot\mid s_{t},a_{t}). The objective is to maximize
+J⁡(π)=𝔼⁡[∑t=0H−1γt​r​(st,at,g)].J(\pi)=\mathbb{E}\left[\sum_{t=0}^{H-1}\gamma^{t}r(s_{t},a_{t},g)\right].
+We consider both online and offline settings. In the latter, the agent learns from a fixed dataset 𝒟\mathcal{D} without further environment interaction.
+Looped Policies and IRU.
+Looped architecture (Jeddi et al., 2026; Zhu et al., 2025; Du et al., 2026) increase computational depth by repeatedly applying a
+shared computation block, without introducing depth-specific parameters.
+Let xx denote the network input and hkh_{k} the representation after kk
+recurrent steps. We write a looped computation abstractly as
+hk+1=Fθ​(hk,x),h_{k+1}=F_{\theta}(h_{k},x),
+where FθF_{\theta} is the computation block whose parameters
+θ\theta are shared across recurrent depth.
+Recent work (Ghugare et al., 2026) introduced the Interpolation Recurrent
+Unit (IRU) as a minimal instantiation of this architecture and demonstrated
+that scaling its recurrent depth can substantially improve long-horizon
+decision making in DRL. We therefore focus primarily on IRU-based policies.
+Given recurrent state ckc_{k}, IRU computes
+fk\displaystyle f_{k}
+=σ⁡(FORGETθ​([x,tanh⁡(ck)])),\displaystyle=\sigma\!\left(\mathrm{FORGET}_{\theta}([x,\tanh(c_{k})])\right),
+Ik\displaystyle I_{k}
+=tanh⁡(INPUTθ​([x,tanh⁡(ck)])),\displaystyle=\tanh\!\left(\mathrm{INPUT}_{\theta}([x,\tanh(c_{k})])\right),
+ck+1\displaystyle c_{k+1}
+=fk⊙ck+(1−fk)⊙Ik.\displaystyle=f_{k}\odot c_{k}+(1-f_{k})\odot I_{k}.
+At each depth kk, an output head produces zk=Gθ​(ck)z_{k}=G_{\theta}(c_{k}), which may
+correspond to action values Qk(s,g,⋅)Q_{k}(s,g,\cdot), a policy
+πk(⋅∣s,g)\pi_{k}(\cdot\mid s,g), or a value estimate Vk​(s,g)V_{k}(s,g) depending on the
+RL algorithm. We denote the full recurrent depth by KK. While standard IRU policies are
+optimized through zKz_{K}, we aim to make zkz_{k} reliable for k<Kk<K while
+preserving full-depth capability.
+4. Method: FlexLoop
+Figure 2: Framework of FlexLoop.(a) Starting from a depth-specialized looped policy, FlexLoop preserves full-depth capability with the original RL objective while propagating decision quality to shallower depths via adjacent-depth policy distillation. (b) The resulting policy supports reliable decisions across recurrent depths. (c) Adjacent-depth policy discrepancy serves as a stopping signal for state-wise adaptive inference, allocating more computation to harder states.
+As shown in Figure 2, we propose FlexLoop, a novel post-training framework for converting a depth-specialized looped RL policy into an elastic one. Starting from a pretrained loop policy, FlexLoop keeps training on the original RL training while introducing adjacent-depth policy self-distillation. The RL objective preserves the task capability acquired at full depth, while depth-wise distillation progressively makes shallower recurrent depths reliable for decision making, and induces a natural policy-consistency signal for state-wise adaptive-depth inference.
+4.1. Elastic Post-Training
+FlexLoop starts from a pretrained looped policy with full recurrent
+depth KK, inheriting all pretrained model parameters. During post-training,
+it continues optimization with the original algorithm-specific RL objective
+ℒRL\mathcal{L}_{\mathrm{RL}}. We denote the policy induced after kk
+recurrent steps by πk(⋅∣s,g)\pi_{k}(\cdot\mid s,g).
+Full-Depth RL Objective.
+FlexLoop inherits all parameters from the pretrained depth-specialized model
+and continues to optimize its full-depth value functions and policy under
+the same algorithm-specific RL objective ℒRL\mathcal{L}_{\mathrm{RL}} as in
+pretraining. This retains the capability acquired at depth KK and
+preserves the out-of-distribution generalization of the pretrained policy
+while shallower recurrent depths are elasticized.
+Progressive Depth-Wise Policy Distillation.
+To make shallower recurrent depths directly executable, FlexLoop
+progressively transfers decision quality from deeper to shallower recurrent
+policies. Let πk(⋅∣s,g)\pi_{k}(\cdot\mid s,g) denote the policy induced after kk
+recurrent steps. We optimize
+ℒdepth=1K−1​∑k=1K−1D⁡(sg⁡[πk+1],πk),\mathcal{L}_{\mathrm{depth}}=\frac{1}{K-1}\sum_{k=1}^{K-1}D\!\left(\operatorname{sg}[\pi_{k+1}],\pi_{k}\right),
+(1)
+where DD is an algorithm-specific policy discrepancy and sg⁡[⋅]\operatorname{sg}[\cdot] denotes stop-gradient. This progressive distillation propagates full-depth decision quality toward shallower recurrent steps, while explicitly controlling policy variation across adjacent depths. The resulting discrepancy between successive policies provides a natural signal for state-wise adaptive inference, allowing computation to stop once the policy has sufficiently stabilized.
+The full FlexLoop objective is
+ℒFlexLoop=ℒRL+λdepth​ℒdepth\mathcal{L}_{\mathrm{FlexLoop}}=\mathcal{L}_{\mathrm{RL}}+\lambda_{\mathrm{depth}}\mathcal{L}_{\mathrm{depth}}
+(2)
+4.2. Instantiating FlexLoop across RL Algorithms
+Following the setting of Ghugare et al. (2026), we instantiate FlexLoop on three representative DRL algorithms for goal-conditioned long-horizon tasks, spanning online and offline settings as well as discrete and continuous action spaces.
+Goal-Conditioned DQN (GC-DQN).
+We first instantiate FlexLoop with a goal-conditioned variant of DQN
+(Mnih et al., 2015).
+Since a discrete-action policy is induced directly by its action values,
+we convert each depth-kk value output into a soft policy
+πkQ​(a∣s,g)=exp⁡(Qk​(s,g,a)/τ)∑a′exp⁡(Qk​(s,g,a′)/τ),\pi_{k}^{Q}(a\mid s,g)=\frac{\exp\!\left(Q_{k}(s,g,a)/\tau\right)}{\sum_{a^{\prime}}\exp\!\left(Q_{k}(s,g,a^{\prime})/\tau\right)},
+(3)
+where τ\tau is a temperature parameter.
+We then apply progressive policy distillation between adjacent depths,
+ℒdepthDQN=1K−1∑k=1K−1𝔼(s,g)∼𝒟[DKL(sg[πk+1Q]∥πkQ)],\mathcal{L}_{\mathrm{depth}}^{\mathrm{DQN}}=\frac{1}{K-1}\sum_{k=1}^{K-1}\mathbb{E}_{(s,g)\sim\mathcal{D}}\left[D_{\mathrm{KL}}\left(\operatorname{sg}[\pi_{k+1}^{Q}]\,\|\,\pi_{k}^{Q}\right)\right],
+(4)
+where 𝒟\mathcal{D} denotes the sampled transition batch from the replay buffer.
+Goal-Conditioned PPO (GC-PPO).
+We next instantiate FlexLoop with a goal-conditioned variant of PPO
+(Schulman et al., 2017).
+We transfer decision quality across recurrent depth by distilling adjacent policies:
+ℒdepthPPO=1K−1∑k=1K−1𝔼(s,g)∼ℬ[DKL(sg[πk+1(⋅∣s,g)]∥πk(⋅∣s,g))],\mathcal{L}_{\mathrm{depth}}^{\mathrm{PPO}}=\frac{1}{K-1}\sum_{k=1}^{K-1}\mathbb{E}_{(s,g)\sim\mathcal{B}}\left[D_{\mathrm{KL}}\left(\operatorname{sg}[\pi_{k+1}(\cdot\mid s,g)]\,\|\,\pi_{k}(\cdot\mid s,g)\right)\right],
+(5)
+where ℬ\mathcal{B} denotes the on-policy rollout batch.
+Goal-Conditioned IQL (GC-IQL).
+We finally instantiate FlexLoop with a goal-conditioned variant of IQL
+(Kostrikov et al., 2022), where learning is restricted to a fixed
+offline dataset 𝒟\mathcal{D}.
+We distill the Gaussian policy across adjacent recurrent steps,
+ℒdepthIQL=1K−1∑k=1K−1𝔼(s,g)∼𝒟[D~KL(sg[πk+1(⋅∣s,g)]∥πk(⋅∣s,g))],\mathcal{L}_{\mathrm{depth}}^{\mathrm{IQL}}=\frac{1}{K-1}\sum_{k=1}^{K-1}\mathbb{E}_{(s,g)\sim\mathcal{D}}\left[\widetilde{D}_{\mathrm{KL}}\left(\operatorname{sg}[\pi_{k+1}(\cdot\mid s,g)]\,\|\,\pi_{k}(\cdot\mid s,g)\right)\right],
+(6)
+where D~KL\widetilde{D}_{\mathrm{KL}} denotes the normalized policy KL used
+for continuous-action distillation, avoiding the scale-inflation degeneracy
+of the raw KL objective.
+4.3. State-Wise Adaptive Inference
+Once a policy produces meaningful decisions at multiple recurrent depths,
+the remaining question is when additional computation is useful.
+We first observe that good endpoint performance alone does not, in general, guarantee good shallower decisions.
+Proposition 4.1 (No Shallow-Depth Guarantee).
+For any MDP ℳ\mathcal{M} with bounded returns, recurrent depth K≥2K\geq 2,
+and ϵ>0\epsilon>0, there exists a shared-weight recurrent policy Π\Pi such
+that
+J⁡(ΠK)≥supπJ⁡(π)−ϵ,J⁡(Πk)≤infπJ⁡(π)+ϵ,∀1≤k<K,J(\Pi_{K})\geq\sup_{\pi}J(\pi)-\epsilon,\qquad J(\Pi_{k})\leq\inf_{\pi}J(\pi)+\epsilon,\quad\forall 1\leq k<K,
+where supπ\sup_{\pi} and infπ\inf_{\pi} are taken over all stationary goal-conditioned Markov policies.
+Proposition 4.1 shows that strong full-depth
+performance alone does not imply useful intermediate decisions. The
+recurrent states may instead serve purely as internal computation.
+The proof is given in Appendix A.1.
+Through ℒdepth\mathcal{L}_{\mathrm{depth}}, FlexLoop explicitly controls how the policy evolves across recurrent depth.
+Define the adjacent-depth discrepancy
+ϵj=sups,gDTV(πj(⋅∣s,g),πj+1(⋅∣s,g)),\epsilon_{j}=\sup_{s,g}D_{\mathrm{TV}}\left(\pi_{j}(\cdot\mid s,g),\pi_{j+1}(\cdot\mid s,g)\right),
+(7)
+then we have the following proposition.
+Proposition 4.2 (Shallow-Depth Performance Bound).
+Assume ∀(s,a,g)∈𝒮×𝒜×𝒢,|r⁡(s,a,g)|≤Rmax\forall(s,a,g)\in{\mathcal{S}}\times{\mathcal{A}}\times{\mathcal{G}},|r(s,a,g)|\leq R_{\max} and γ<1\gamma<1. Define δmax=max1≤j<Ksup(s,g)DKL(πj+1(⋅∣s,g)∥πj(⋅∣s,g))\delta_{\max}=\max_{1\leq j<K}\sup_{(s,g)}D_{\mathrm{KL}}\left(\pi_{j+1}(\cdot\mid s,g)\,\|\,\pi_{j}(\cdot\mid s,g)\right). Then, for any 1≤k<K1\leq k<K,
+|J⁡(πk)−J⁡(πK)|≤2​Rmax(1−γ)2​(K−k)​δmax2.\left|J(\pi_{k})-J(\pi_{K})\right|\leq\frac{2R_{\max}}{(1-\gamma)^{2}}(K-k)\sqrt{\frac{\delta_{\max}}{2}}.
+Proposition 4.2 shows that controlling the largest adjacent-depth policy discrepancy directly bounds the performance gap between any shallow policy and the full-depth policy. Thus, when FlexLoop keeps neighboring recurrent policies close, shallow-depth performance cannot drift arbitrarily far from the full-depth endpoint. The proof is given in Appendix A.2.
+State-Wise Adaptive Inference.
+(a) Reduction of adjacent-depth policy discrepancy.
+(b) Local-to-endpoint policy consistency.
+Figure 3: (a) FlexLoop reduces adjacent-depth policy discrepancy during post-training and across depths. (b) Smaller δk\delta_{k} corresponds to smaller DKL(πk∥πK)D_{\mathrm{KL}}(\pi_{k}\|\pi_{K}) on both training and unseen tasks. Marker size denotes the sample fraction in each pooled quantile bin.
+Motivated by Proposition 4.2, we monitor the depth-wise change in the policy output,
+δk(s,g)=D(πk−1(⋅∣s,g),πk(⋅∣s,g)),k>1\delta_{k}(s,g)=D\left(\pi_{k-1}(\cdot\mid s,g),\pi_{k}(\cdot\mid s,g)\right),\quad k>1
+(8)
+where DD is a policy-space divergence.
+Figure 3(a) shows that FlexLoop reduces adjacent-depth policy divergence during training and across recurrent depths, while Figure 3(b) shows that smaller local discrepancies are consistently associated with smaller divergence to the full-depth policy on both training and unseen tasks. This suggests that δk\delta_{k} is informative of endpoint proximity, motivating its use as a practical stopping signal for state-wise adaptive inference.
+Accordingly, given a threshold ε\varepsilon, minimum depth kmink_{\min}, inference terminates at
+k⋆​(s,g)=min⁡({k>kmin:δk​(s,g)<ε}∪{K}).k^{\star}(s,g)=\min\left(\left\{k>k_{\min}:\delta_{k}(s,g)<\varepsilon\right\}\cup\{K\}\right).
+(9)
+Varying ε\varepsilon yields different computation–performance trade-offs from a single trained policy.
+5. Experiments
+(a) Depth-wise decision performance on training tasks.
+(b) Depth-wise decision performance on unseen tasks.
+Figure 4: 
+Depth-wise decision performance of pretrained IRU-55 and FlexLoop on training and unseen tasks. Solid lines denote mean success rates and shading indicates one standard deviation.
+In this section, we evaluate FlexLoop across diverse online and offline goal-conditioned RL settings to answer three questions:
+(i) can it preserve full-depth capability while enabling reliable shallow-depth decisions?
+(ii) how does it trade off performance and inference compute? and
+(iii) how do training design choices and recurrent architectures affect depth elasticity?
+5.1. Experimental Setup
+Benchmarks.
+Following Ghugare et al. (2026), we evaluate FlexLoop on 3030 long-horizon goal-conditioned environments spanning online and offline RL, discrete and continuous action spaces, as well as in-distribution learning and out-of-distribution generalization. Specifically, we consider four environments from the BoxPick stitching benchmark (Bortkiewicz et al., 2025), where an agent moves boxes on 2-D maps to designated goal locations; one LightsOut environment (Anderson and Feil, 1998), formulated as a 4×54\times 5 binary switch puzzle; and 25 environments from OGBench (Park et al., 2025), covering three manipulation scenarios and two navigation scenarios. For BoxPick and LightsOut, we additionally evaluate generalization to unseen instances. Detailed environment descriptions are provided in Appendix B.1. We use goal-conditioned DQN for BoxPick, PPO for LightsOut, and goal-conditioned IQL for OGBench as the underlying RL algorithms.
+Baselines and Implementation.
+We use IRU as the common looped-policy backbone and denote a pretrained depth-KK IRU policy as IRU-KK. Following the results reported by Ghugare et al. (2026), we choose K=5K=5 as the default setting, as it provides strong performance while maintaining a practical computational cost. FlexLoop is initialized from the corresponding IRU-55 checkpoint and post-trained for a fixed number of optimization steps to acquire depth elasticity. Our implementation builds on the codebase of Ghugare et al. (2026), retaining the same environment configurations, RL algorithms, and evaluation protocols unless otherwise stated. We report results over three random seeds. Additional implementation details and hyperparameters are provided in Appendix B.2.
+5.2. Analysis of Learned Depth Elasticity
+We evaluate FlexLoop on 3030 long-horizon goal-conditioned environments using pretrained IRU-55 policies. Figure 4 tracks the evolution of the recurrent-depth performance during IRU pretraining and FlexLoop post-training, showing the emergence of reliable shallow-depth policies and their generalization to unseen tasks in the BoxPick and LightsOut environments. Full environment-wise curves are provided in Appendix C.1. We further compare the depth-wise performance curves of the final pretrained and post-trained policies in Appendix C.2, providing a direct characterization of their depth elasticity. These results reveal several key observations:
+FlexLoop improves shallow-depth decisions while preserving full-depth capability.
+Across almost all tasks in Figure 4(a), pretrained IRU policies concentrate reliable decision performance at the full depth, whereas shallower recurrent depths remain ineffective. After post-training, FlexLoop maintains or further improves the full-depth performance while rapidly increasing the performance of shallow recurrent depths. This shows that FlexLoop successfully converts a depth-specialized policy into an elastic policy without sacrificing the capability acquired by the pretrained model.
+FlexLoop generalizes depth elasticity beyond the training distribution.
+We evaluate the post-trained policies on unseen tasks to examine whether the learned depth elasticity generalizes beyond the training environments. As shown in Figure 4(b), FlexLoop improves shallow-depth performance on unseen tasks while preserving the full-depth capability of the pretrained policy. This suggests that the improved shallow policies retain the general decision capability of the pretrained policy rather than simply overfitting to the training environments.
+Shallower recurrent depths are more challenging to elasticize.
+In Figure 4, the improvement speed during post-training decreases monotonically with shallower recurrent depths. A possible explanation is that a reliable elastic policy needs to simultaneously support effective standalone decision making at shallow depths, maintain consistency across recurrent depths, and preserve robustness under distribution shifts. With fewer recurrent steps available, shallow policies have less computation capacity to refine intermediate representations and satisfy these requirements, making the shallowest depths harder to elasticize.
+The underlying RL formulation influences how FlexLoop acquires depth elasticity.
+FlexLoop achieves the largest improvements on the GC-DQN-based BoxPick benchmark, while gains are smaller on PPO and offline IQL tasks. We hypothesize that this difference arises from the coupling between value learning and policy execution. In value-based methods, improved value estimation directly determines action selection across recurrent depths. In contrast, methods with separately parameterized policies, such as PPO and IQL, rely on indirect policy updates from value learning, making depth-wise adaptation more challenging.
+5.3. State-wise Adaptive Inference
+FlexLoop’s learned depth elasticity enables adaptive recurrent computation during deployment. We first evaluate whether adaptive inference can reduce computation while preserving performance, and then analyze the computation-performance trade-offs induced by different stopping thresholds.
+Adaptive Inference Performance.
+Table 1: State-wise adaptive inference results across environments. ±\pm indicates one standard deviation.
+Environment
+FlexLoop
+IRU-5
+Avg. Depth
+Succ.
+Succ.
+OGBench
+4.19 ±\pm 0.08
+0.410 ±\pm 0.020
+0.385 ±\pm 0.029
+BoxPick (Train)
+4.50 ±\pm 0.02
+0.989 ±\pm 0.002
+0.989 ±\pm 0.003
+BoxPick (Unseen)
+4.46 ±\pm 0.02
+0.778 ±\pm 0.055
+0.760 ±\pm 0.043
+LightsOut-4x5 (Train)
+2.84 ±\pm 0.08
+0.747 ±\pm 0.081
+0.732 ±\pm 0.076
+LightsOut-4x5 (Unseen)
+2.93 ±\pm 0.21
+0.053 ±\pm 0.031
+0.013 ±\pm 0.004
+By tuning the stopping threshold ε\varepsilon in Equation 9, we select adaptive inference policies for each environment. Table 1 summarizes the resulting performance and average recurrent depth. FlexLoop maintains the performance of the full-depth policy while reducing the average recurrent depth by up to 43%, demonstrating that learned depth elasticity enables effective inference computation reduction without sacrificing performance. Full environment-wise results are provided in Appendix C.3.
+Computation-Performance Trade-off.
+We further analyze how the stopping threshold controls the trade-off between computation and performance. By varying ε\varepsilon, we obtain the Pareto curves ( See Figure 11 in Appendix C.4). In general, smaller thresholds allocate deeper recurrent computation and tend to achieve higher performance, while larger thresholds reduce the average inference depth with controllable performance trade-offs. The resulting Pareto curves show that FlexLoop often matches
+Table 2: Wall-clock comparison on BoxPick-Exact-4. ±\pm indicates one standard deviation. Bold numbers indicate the shortest wall-clock latency.
+Model
+Success
+Avg. Depth
+Wall-clock (ms)
+Train
+IRU-5
+0.995±0.0010.995\pm 0.001
+55
+170.1±17.2170.1\pm 17.2
+FlexLoop
+0.993±0.0010.993\pm 0.001
+3.85±0.043.85\pm 0.04
+133.0±7.7\textbf{133.0}\pm 7.7
+IRU-10
+0.997±0.0000.997\pm 0.000
+1010
+333.2±36.5333.2\pm 36.5
+FlexLoop
+0.996±0.0010.996\pm 0.001
+9.35±0.049.35\pm 0.04
+319.9±22.2\textbf{319.9}\pm 22.2
+Unseen
+IRU-5
+0.511±0.0850.511\pm 0.085
+55
+170.1±17.2170.1\pm 17.2
+FlexLoop
+0.543±0.0930.543\pm 0.093
+3.80±0.053.80\pm 0.05
+127.4±6.3\textbf{127.4}\pm 6.3
+IRU-10
+0.664±0.0800.664\pm 0.080
+1010
+333.2±36.5333.2\pm 36.5
+FlexLoop
+0.675±0.0660.675\pm 0.066
+9.37±0.049.37\pm 0.04
+321.1±22.7\textbf{321.1}\pm 22.7
+the pretrained IRU policy performance with reduced average recurrent depth. In addition, this favorable trade-off is preserved on unseen tasks, demonstrating that FlexLoop’s learned depth elasticity enables generalizable adaptive computation beyond the training distribution.
+Wall-Clock Time Saving.
+To evaluate the practical inference speedup enabled by adaptive recurrent depth, we additionally train an IRU-1010 policy and apply FlexLoop post-training to obtain the corresponding elastic variant. We evaluate both IRU-55 and IRU-1010 fixed-depth policies and their FlexLoop variants on BoxPick-Exact-4 with a batch of 32,76832,768 parallel environments. As shown in Table 2, FlexLoop maintains competitive performance relative to the pretrained policies while using fewer recurrent steps, achieving up to 1.34×1.34\times wall-clock speedup compared with fixed-depth inference.
+5.4. Ablation Study
+(a) Component Ablation.
+(b) Sensitivity to λdepth\lambda_{\rm depth}.
+(c) Architectural Generality.
+Figure 5: Ablation studies of FlexLoop. Solid lines denote mean performance, while shaded regions indicate one standard deviation.
+Based on BoxPick-Exact-4, we study FlexLoop’s key components, λdepth\lambda_{\rm depth} sensitivity, and architectural generality. Additional results on from-scratch training and pretraining recurrent depth are provided in
+Appendix D.
+Contribution of Key Components.
+We ablate the key components of FlexLoop, including Distill Only, which performs depth-wise distillation from the pretrained full-depth policy, Self-TD Only, which solely keeps the original RL training, and AnyK-TD, which jointly optimizes all recurrent depths with TD learning. As shown in Figure 5(a), Self-TD Only preserves the pretrained policy’s generalization but provides limited shallow-depth improvement, showing that depth elasticity does not emerge solely from the original RL objective. Meanwhile, AnyK-TD and Distill Only each suffer from limitations in full-depth capability or unseen-task generalization. These highlight the distinct roles of the two objectives. Continued RL optimization preserves full-depth capability and generalization, while depth-wise policy distillation transfers decision quality to shallower depths.
+Sensitivity to λdepth\lambda_{\rm depth}.
+We further study the effect of the depth distillation weight λdepth\lambda_{\rm depth}. As shown in Figure 5(b), FlexLoop remains effective across a broad range of λdepth\lambda_{\rm depth} values. Increasing λdepth\lambda_{\rm depth} strengthens depth-wise distillation and consistently improves shallow-depth performance on training tasks. However, excessive distillation can hurt generalization to unseen tasks, where a moderate λdepth\lambda_{\rm depth} achieves a better balance between shallow-depth adaptation and generalization.
+Generality across Architectures.
+We further apply FlexLoop to LSTM-based policies (Hochreiter and Schmidhuber, 1997) to evaluate its architectural generality. LSTM-256 and LSTM-184 denote backbones with hidden sizes of 256 and 184, respectively, where LSTM-184 has a comparable parameter count to IRU. As shown in Figure 5(c), both LSTM variants exhibit depth specialization during pretraining, while FlexLoop consistently improves shallow-depth performance and preserves
+full-depth capability across architectures. Moreover, LSTM-256 benefits more from FlexLoop than LSTM-184, suggesting that larger capacity allows a policy
+to acquire stronger depth elasticity.
+5.5. Visualization of Adaptive Inference
+(a) Scene.
+(b) AntMaze.
+(c) PointMaze.
+Figure 6: 
+State-wise adaptive recurrent-depth allocation across OGBench tasks. FlexLoop allocates more recurrent computation to states requiring more complex decisions.
+To qualitatively understand how FlexLoop utilizes its learned depth elasticity, we visualize the recurrent computation allocated during successful trajectories on three OGBench tasks. Figure 6 shows the recurrent depth selected by FlexLoop at each environment step, with representative trajectory segments visualized frame by frame in
+Appendix C.5. The allocated computation appears to track state-level decision difficulty. In Scene, FlexLoop increases recurrent depth at skill boundaries, such as goal switching, while using only three or two recurrent steps during simpler execution phases such as button pressing. Similarly, deeper computation is concentrated near turns and goals in AntMaze, whereas straight navigation uses shallower inference. On the simpler PointMaze task, FlexLoop consistently terminates after two recurrent steps. These trajectories suggest that FlexLoop reallocates recurrent computation toward challenging decisions and terminates earlier once adjacent-depth policies have stabilized, rather than uniformly reducing computation.
+6. Conclusion and Future Directions
+In this work, we identify recurrent-depth specialization in pretrained looped RL policies and propose FlexLoop, a post-training framework that induces depth elasticity through continued RL optimization and adjacent-depth policy distillation. Across 30 online and offline long-horizon goal-conditioned environments, FlexLoop preserves full-depth capability while enabling reliable shallower-depth inference, reducing average recurrent computation by up to 43% and achieving up to 1.34×1.34\times wall-clock speedup, while maintaining competitive or better task performance. Future work includes extending depth elasticity beyond the trained depth, developing learning-based adaptive inference mechanisms beyond the current depth-consistency criterion, and studying depth elasticity in larger-scale looped architectures such as transformer-based models.
+References
+Anderson and Feil (1998)
+M. Anderson and T. Feil
+Turning lights out with linear algebra.
+Mathematics magazine 71 (4), pp. 300–303.
+Cited by: §B.1,
+§5.1.
+Bortkiewicz et al. (2025)
+M. Bortkiewicz, W. Pałucki, M. Ostaszewski, and B. Eysenbach
+Is temporal difference learning the gold standard for stitching in rl?.
+External Links: 2510.21995,
+Link
+Cited by: §B.1,
+§5.1.
+Dehghani et al. (2019)
+M. Dehghani, S. Gouws, O. Vinyals, J. Uszkoreit, and L. Kaiser
+Universal transformers.
+In International Conference on Learning Representations,
+External Links: Link
+Cited by: §1,
+§2.
+Du et al. (2026)
+H. Du, Y. Dong, and X. Ning
+Latent thinking optimization: your latent reasoning language model secretly encodes reward signals in its latent thoughts.
+In International Conference on Learning Representations, C. Vondrick, B. Hariharan, C. Raffel, L. Pinto, D. Yang, and A. Faust (Eds.),
+Vol. 2026, pp. 101000–101032.
+External Links: Link
+Cited by: §2,
+§3.
+Farquhar et al. (2018)
+G. Farquhar, T. Rocktaeschel, M. Igl, and S. Whiteson
+TreeQN and ATreec: differentiable tree planning for deep reinforcement learning.
+In International Conference on Learning Representations,
+External Links: Link
+Cited by: §2.
+Ghugare et al. (2026)
+R. Ghugare, M. Bortkiewicz, A. Ziarko, and B. Eysenbach
+On the role of computation in reinforcement learning.
+In Forty-third International Conference on Machine Learning,
+External Links: Link
+Cited by: §B.1,
+§B.1,
+§B.2,
+§1,
+§2,
+§3,
+§4.2,
+§5.1,
+§5.1.
+Goyal et al. (2026)
+S. Goyal, S. Agrawal, G. G. Anil, P. Jain, S. Paul, and A. Kusupati
+ELT: elastic looped transformers for visual generation.
+In Computer Vision – ECCV 2026, P. Favaro, Z. Kukelova, A. Maki, A. Rohrbach, K. Schindler, and F. Tombari (Eds.),
+Cham, pp. 308–326.
+External Links: ISBN 978-3-032-37324-3
+Cited by: §1,
+§2.
+Hochreiter and Schmidhuber (1997)
+S. Hochreiter and J. Schmidhuber
+Long short-term memory.
+Neural Computation 9 (8), pp. 1735–1780.
+External Links: Document
+Cited by: §5.4.
+Jeddi et al. (2026)
+A. Jeddi, M. Ciccone, and B. Taati
+LoopFormer: elastic-depth looped transformers for latent reasoning via shortcut modulation.
+In The Fourteenth International Conference on Learning Representations,
+External Links: Link
+Cited by: §1,
+§2,
+§3.
+Kakade and Langford (2002)
+S. Kakade and J. Langford
+Approximately optimal approximate reinforcement learning.
+In Proceedings of the Nineteenth International Conference on Machine Learning,
+ICML ’02, San Francisco, CA, USA, pp. 267–274.
+External Links: ISBN 1558608737
+Cited by: §A.2.
+Kaplan et al. (2020)
+J. Kaplan, S. McCandlish, T. Henighan, T. B. Brown, B. Chess, R. Child, S. Gray, A. Radford, J. Wu, and D. Amodei
+Scaling laws for neural language models.
+External Links: 2001.08361,
+Link
+Cited by: §1.
+Kim et al. (2024)
+M. J. Kim, K. Pertsch, S. Karamcheti, T. Xiao, A. Balakrishna, S. Nair, R. Rafailov, E. P. Foster, P. R. Sanketi, Q. Vuong, T. Kollar, B. Burchfiel, R. Tedrake, D. Sadigh, S. Levine, P. Liang, and C. Finn
+OpenVLA: an open-source vision-language-action model.
+In 8th Annual Conference on Robot Learning,
+External Links: Link
+Cited by: §1.
+Kostrikov et al. (2022)
+I. Kostrikov, A. Nair, and S. Levine
+Offline reinforcement learning with implicit q-learning.
+In International Conference on Learning Representations,
+External Links: Link
+Cited by: §4.2.
+Mnih et al. (2015)
+V. Mnih, K. Kavukcuoglu, D. Silver, A. A. Rusu, J. Veness, M. G. Bellemare, A. Graves, M. Riedmiller, A. K. Fidjeland, G. Ostrovski, et al.
+Human-level control through deep reinforcement learning.
+nature 518 (7540), pp. 529–533.
+Cited by: §4.2.
+Park et al. (2025)
+S. Park, K. Frans, B. Eysenbach, and S. Levine
+OGBench: benchmarking offline goal-conditioned rl.
+In International Conference on Learning Representations, Y. Yue, A. Garg, N. Peng, F. Sha, and R. Yu (Eds.),
+Vol. 2025, pp. 94937–94982.
+External Links: Link
+Cited by: §B.1,
+§5.1.
+Popescu et al. (2026)
+A. C. Popescu, H. S. de Ocáriz Borde, and P. Liò
+Adaptive depth in looped transformers: diagnosing learned halting gates and trajectory readouts.
+External Links: 2607.20519,
+Link
+Cited by: §1,
+§2.
+Schulman et al. (2017)
+J. Schulman, F. Wolski, P. Dhariwal, A. Radford, and O. Klimov
+Proximal policy optimization algorithms.
+arXiv preprint arXiv:1707.06347.
+Cited by: §4.2.
+Schwethelm et al. (2026)
+K. Schwethelm, D. Rueckert, and G. Kaissis
+Depth-adaptive inference of looped language models via continuous depth batching.
+External Links: 2608.09444,
+Link
+Cited by: §1,
+§2.
+Silver et al. (2017)
+D. Silver, H. van Hasselt, M. Hessel, T. Schaul, A. Guez, T. Harley, G. Dulac-Arnold, D. Reichert, N. Rabinowitz, A. Barreto, and T. Degris
+The predictron: end-to-end learning and planning.
+In Proceedings of the 34th International Conference on Machine Learning, D. Precup and Y. W. Teh (Eds.),
+Proceedings of Machine Learning Research, Vol. 70, pp. 3191–3199.
+External Links: Link
+Cited by: §2.
+Tamar et al. (2016)
+A. Tamar, Y. WU, G. Thomas, S. Levine, and P. Abbeel
+Value iteration networks.
+In Advances in Neural Information Processing Systems, D. Lee, M. Sugiyama, U. Luxburg, I. Guyon, and R. Garnett (Eds.),
+Vol. 29, pp. .
+External Links: Link
+Cited by: §2.
+Wang et al. (2025)
+K. Wang, I. Javali, M. Bortkiewicz, T. Trzcinski, and B. Eysenbach
+1000 layer networks for self-supervised rl: scaling depth can enable new goal-reaching capabilities.
+In Advances in Neural Information Processing Systems, D. Belgrave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz, M. Ghassemi, and N. Chen (Eds.),
+Vol. 38, Main Conference, pp. 157643–157670.
+External Links: Document,
+Link
+Cited by: §1,
+§2.
+Wei et al. (2022)
+J. Wei, Y. Tay, R. Bommasani, C. Raffel, B. Zoph, S. Borgeaud, D. Yogatama, M. Bosma, D. Zhou, D. Metzler, E. H. Chi, T. Hashimoto, O. Vinyals, P. Liang, J. Dean, and W. Fedus
+Emergent abilities of large language models.
+Transactions on Machine Learning Research.
+Note: Survey Certification
+External Links: ISSN 2835-8856,
+Link
+Cited by: §1.
+Yang et al. (2024)
+L. Yang, K. Lee, R. Nowak, and D. Papailiopoulos
+Looped transformers are better at learning learning algorithms.
+In International Conference on Learning Representations, B. Kim, Y. Yue, S. Chaudhuri, K. Fragkiadaki, M. Khan, and Y. Sun (Eds.),
+Vol. 2024, pp. 42195–42214.
+External Links: Link
+Cited by: §1,
+§2.
+Zhu et al. (2025)
+R. Zhu, Z. Wang, K. Hua, T. Zhang, Z. Li, H. Que, B. Wei, Z. Wen, F. Yin, H. Xing, L. Li, J. Shi, K. Ma, S. Li, T. Kergan, A. Smith, X. Qu, M. Hui, B. Wu, Q. Min, H. Huang, X. Zhou, W. Ye, J. Liu, J. Yang, Y. Shi, C. Lin, E. Zhao, T. Cai, G. Zhang, W. Huang, Y. Bengio, and J. Eshraghian
+Scaling latent reasoning via looped language models.
+External Links: 2510.25741,
+Link
+Cited by: §2,
+§3.
+Zitkovich et al. (2023)
+B. Zitkovich, T. Yu, S. Xu, P. Xu, T. Xiao, F. Xia, J. Wu, P. Wohlhart, S. Welker, A. Wahid, Q. Vuong, V. Vanhoucke, H. Tran, R. Soricut, A. Singh, J. Singh, P. Sermanet, P. R. Sanketi, G. Salazar, M. S. Ryoo, K. Reymann, K. Rao, K. Pertsch, I. Mordatch, H. Michalewski, Y. Lu, S. Levine, L. Lee, T. E. Lee, I. Leal, Y. Kuang, D. Kalashnikov, R. Julian, N. J. Joshi, A. Irpan, brian ichter, J. Hsu, A. Herzog, K. Hausman, K. Gopalakrishnan, C. Fu, P. Florence, C. Finn, K. A. Dubey, D. Driess, T. Ding, K. M. Choromanski, X. Chen, Y. Chebotar, J. Carbajal, N. Brown, A. Brohan, M. G. Arenas, and K. Han
+RT-2: vision-language-action models transfer web knowledge to robotic control.
+In 7th Annual Conference on Robot Learning,
+External Links: Link
+Cited by: §1.
+Appendix
+Appendix A Proofs of the Propositions
+A.1. Proof of Proposition 4.1
+Proof.
+Since the return is bounded, supπJ⁡(π)\sup_{\pi}J(\pi) and infπJ⁡(π)\inf_{\pi}J(\pi) are both finite, where supπ\sup_{\pi} and infπ\inf_{\pi} are taken over all stationary goal-conditioned Markov policies. Hence, for any ϵ>0\epsilon>0 there exist policies π+\pi^{+} and π−\pi^{-} such that
+J⁡(π+)≥supπJ⁡(π)−ϵ,J⁡(π−)≤infπJ⁡(π)+ϵ.J(\pi^{+})\geq\sup_{\pi}J(\pi)-\epsilon,\qquad J(\pi^{-})\leq\inf_{\pi}J(\pi)+\epsilon.
+(10)
+We construct a shared-weight recurrent policy Π=(F,G)\Pi=(F,G), where FF
+denotes the shared recurrent block and GG the policy output head.
+Let the recurrent state contain a scalar hkh_{k}, initialized as h0=0h_{0}=0,
+and define
+hk+1=F⁡(hk,s,g)=hk+1,h_{k+1}=F(h_{k},s,g)=h_{k}+1,
+(11)
+where FF simply ignores (s,g)(s,g), yielding hk=kh_{k}=k at recurrent depth kk.
+Define the shared policy output head as
+G(⋅∣s,g,h)={π−(⋅∣s,g),h<K,π+(⋅∣s,g),h≥K.G(\cdot\mid s,g,h)=\begin{cases}\pi^{-}(\cdot\mid s,g),&h<K,\\
+\pi^{+}(\cdot\mid s,g),&h\geq K.\end{cases}
+(12)
+The depth-kk policy induced by Π\Pi is
+Πk(⋅∣s,g):=G(⋅∣s,g,hk).\Pi_{k}(\cdot\mid s,g):=G(\cdot\mid s,g,h_{k}).
+(13)
+Therefore, the policy obtained after kk recurrent steps is
+Πk=π−,∀k<K,\Pi_{k}=\pi^{-},\qquad\forall k<K,
+while at the full recurrent depth,
+ΠK=π+.\Pi_{K}=\pi^{+}.
+Using Equation 10,
+J⁡(ΠK)=J⁡(π+)≥supπJ⁡(π)−ϵ,J(\Pi_{K})=J(\pi^{+})\geq\sup_{\pi}J(\pi)-\epsilon,
+and, for every k<Kk<K,
+J⁡(Πk)=J⁡(π−)≤infπJ⁡(π)+ϵ.J(\Pi_{k})=J(\pi^{-})\leq\inf_{\pi}J(\pi)+\epsilon.
+Thus, a shared-weight recurrent policy can be arbitrarily close to optimal
+at its full depth while all of its shallower policies are arbitrarily close
+to the minimum achievable return.
+∎
+A.2. Proof of Proposition 4.2
+Proof.
+For analysis, we use the equivalent discounted infinite-horizon formulation
+with a zero-reward absorbing terminal state, augmenting the state with time
+when needed, and write x=(s,g)x=(s,g) for compactness. Define the worst-case total-variation discrepancy between adjacent depths as
+αj=supxDTV(πj(⋅∣x),πj+1(⋅∣x)),1≤j<K.\alpha_{j}=\sup_{x}D_{\mathrm{TV}}\left(\pi_{j}(\cdot\mid x),\pi_{j+1}(\cdot\mid x)\right),\quad 1\leq j<K.
+By Pinsker’s inequality,
+αj≤supx12DKL(πj+1(⋅∣x)∥πj(⋅∣x))≤δmax2.\alpha_{j}\leq\sup_{x}\sqrt{\frac{1}{2}D_{\mathrm{KL}}\left(\pi_{j+1}(\cdot\mid x)\,\|\,\pi_{j}(\cdot\mid x)\right)}\leq\sqrt{\frac{\delta_{\max}}{2}}.
+For any 1≤k<K1\leq k<K, the triangle inequality across recurrent depths gives
+DTV(πk(⋅∣x),πK(⋅∣x))≤∑j=kK−1αj≤(K−k)δmax2.D_{\mathrm{TV}}\left(\pi_{k}(\cdot\mid x),\pi_{K}(\cdot\mid x)\right)\leq\sum_{j=k}^{K-1}\alpha_{j}\leq(K-k)\sqrt{\frac{\delta_{\max}}{2}}.
+(14)
+We next relate this policy discrepancy to return. By the performance
+difference lemma (Kakade and Langford, 2002), for any two policies
+π\pi and π′\pi^{\prime},
+J(π)−J(π′)=11−γ𝔼x∼dπ[𝔼a∼π(⋅∣x)Aπ′(x,a)],J(\pi)-J(\pi^{\prime})=\frac{1}{1-\gamma}\mathbb{E}_{x\sim d_{\pi}}\left[\mathbb{E}_{a\sim\pi(\cdot\mid x)}A^{\pi^{\prime}}(x,a)\right],
+(15)
+where dπd_{\pi} denotes the normalized discounted state–goal occupancy
+measure under π\pi, and Aπ′A^{\pi^{\prime}} is the advantage of π′\pi^{\prime}.
+Taking π=πk\pi=\pi_{k} and π′=πK\pi^{\prime}=\pi_{K}, and using
+𝔼a∼πK(⋅∣x)AπK(x,a)=0\mathbb{E}_{a\sim\pi_{K}(\cdot\mid x)}A^{\pi_{K}}(x,a)=0, we have
+|𝔼a∼πk(⋅∣x)AπK(x,a)|\displaystyle\left|\mathbb{E}_{a\sim\pi_{k}(\cdot\mid x)}A^{\pi_{K}}(x,a)\right|
+=|𝔼a∼πk(⋅∣x)AπK(x,a)−𝔼a∼πK(⋅∣x)AπK(x,a)|\displaystyle=\left|\mathbb{E}_{a\sim\pi_{k}(\cdot\mid x)}A^{\pi_{K}}(x,a)-\mathbb{E}_{a\sim\pi_{K}(\cdot\mid x)}A^{\pi_{K}}(x,a)\right|
+=|𝔼a∼πk(⋅∣x)QπK(x,a)−𝔼a∼πK(⋅∣x)QπK(x,a)|.\displaystyle=\left|\mathbb{E}_{a\sim\pi_{k}(\cdot\mid x)}Q^{\pi_{K}}(x,a)-\mathbb{E}_{a\sim\pi_{K}(\cdot\mid x)}Q^{\pi_{K}}(x,a)\right|.
+Since |r|≤Rmax|r|\leq R_{\max}, γ<1\gamma<1,
+|QπK​(x,a)|≤Rmax1−γ,|Q^{\pi_{K}}(x,a)|\leq\frac{R_{\max}}{1-\gamma},
+and hence
+|𝔼a∼πk(⋅∣x)QπK(x,a)−𝔼a∼πK(⋅∣x)QπK(x,a)|≤2​Rmax1−γDTV(πk(⋅∣x),πK(⋅∣x)).\left|\mathbb{E}_{a\sim\pi_{k}(\cdot\mid x)}Q^{\pi_{K}}(x,a)-\mathbb{E}_{a\sim\pi_{K}(\cdot\mid x)}Q^{\pi_{K}}(x,a)\right|\leq\frac{2R_{\max}}{1-\gamma}D_{\rm TV}\left(\pi_{k}(\cdot\mid x),\pi_{K}(\cdot\mid x)\right).
+Therefore,
+|𝔼a∼πk(⋅∣x)AπK(x,a)|≤2​Rmax1−γDTV(πk(⋅∣x),πK(⋅∣x)).\left|\mathbb{E}_{a\sim\pi_{k}(\cdot\mid x)}A^{\pi_{K}}(x,a)\right|\leq\frac{2R_{\max}}{1-\gamma}D_{\mathrm{TV}}\left(\pi_{k}(\cdot\mid x),\pi_{K}(\cdot\mid x)\right).
+(16)
+Substituting this into Equation 15 yields
+|J(πk)−J(πK)|≤2​Rmax(1−γ)2supxDTV(πk(⋅∣x),πK(⋅∣x)).\left|J(\pi_{k})-J(\pi_{K})\right|\leq\frac{2R_{\max}}{(1-\gamma)^{2}}\sup_{x}D_{\mathrm{TV}}\left(\pi_{k}(\cdot\mid x),\pi_{K}(\cdot\mid x)\right).
+(17)
+Combining with Equation 14 gives
+|J⁡(πk)−J⁡(πK)|≤2​Rmax(1−γ)2​(K−k)​δmax2,\left|J(\pi_{k})-J(\pi_{K})\right|\leq\frac{2R_{\max}}{(1-\gamma)^{2}}(K-k)\sqrt{\frac{\delta_{\max}}{2}},
+which proves the claim.
+∎
+Appendix B Experiment Details
+B.1. Environments
+Following Ghugare et al. (2026), we evaluate FlexLoop on 3030 long-horizon goal-conditioned environments from BoxPick (Bortkiewicz et al., 2025), LightsOut (Anderson and Feil, 1998), and OGBench (Park et al., 2025).
+BoxPick.
+BoxPick is a discrete-action benchmark, where an agent navigates in a 6×66\times 6 grid, picks up boxes, and places them at designated goal locations. An episode is successful only when all boxes are correctly placed. We consider two types of configurations. (i) BoxPick-Exact-nn requires the agent to transport nn boxes. The training tasks involve moving boxes between two adjacent quadrants of the map, while the unseen tasks require transportation between diagonal quadrants. We evaluate n∈{3,4}n\in\{3,4\}. (ii) BoxPick-Generalize-nn-mm requires transporting nn boxes in total, where training tasks only require moving mm boxes and unseen tasks require moving all nn boxes to their target locations. We evaluate (n,m)∈{(4,1),(4,2)}(n,m)\in\{(4,1),(4,2)\}. These four environments provide a challenging test of long-horizon planning and generalization. We use goal-conditioned DQN as the underlying RL algorithm for this environment.
+LightsOut.
+LightsOut-4x5 is a large discrete-action decision-making benchmark with a 4×54\times 5 grid of 20 binary switches. At each step, the agent selects one switch, which toggles its own state and the states of all adjacent switches. An episode is successful when all switches are turned on. The training tasks consist of initial configurations that can be solved with relatively fewer steps, while the unseen tasks contain configurations requiring longer solution sequences. We use goal-conditioned PPO as the underlying RL algorithm for this environment.
+Table 3: Adjacent-depth policy distillation weight used for each environment.
+Environment
+λdepth\bf{\lambda_{\rm depth}}
+BoxPick-Exact-3
+1.0
+BoxPick-Exact-4
+1.0
+BoxPick-Generalize-4-1
+1.0
+BoxPick-Generalize-4-2
+1.0
+LightsOut
+0.05
+Scene
+0.05
+Cube
+0.02
+Puzzle
+0.2
+AntMaze
+0.03
+PointMaze
+0.3
+OGBench.
+OGBench is a continuous-action offline RL benchmark, where agents learn to achieve diverse test goals solely from static offline datasets. We evaluate five scenarios, including two navigation scenarios, AntMaze-Medium-Stitch and PointMaze-Large-Stitch, which test the ability to compose experiences through trajectory stitching, and three manipulation scenarios, Scene-Play, Cube-Double-Play, and Puzzle-4x4-Play, which evaluate fine-grained control and compositional generalization. Following the evaluation protocol of Ghugare et al. (2026), we report the average success rate over five task environments for each scenario. We use goal-conditioned IQL as the underlying RL algorithm for these environments.
+B.2. Implementation Details
+We build our implementation upon the official codebase by Ghugare et al. (2026) and reproduce the IRU baseline before implementing FlexLoop. Unless otherwise stated, we use the same training steps, environment configurations, and hyperparameters as reported in the IRU paper. For BoxPick, the temperature τ\tau used in Equation 3 is set to 0.250.25. For OGBench, we use a hidden size of 256 instead of the hidden size of 64 reported in the original paper, as the former produces results closer to those reported for the benchmark. For on-policy GC-PPO, we additionally replace the GAE-based value targets used in the value loss with value estimates from the pretrained IRU model to stabilize FlexLoop training. The policy optimization objective remains unchanged and continues to use standard on-policy PPO updates.
+The key hyperparameter of FlexLoop is the adjacent-depth policy distillation weight λdepth\lambda_{\rm depth}. The selected values for each environment are reported in Table 3.
+Appendix C Extended Results
+In this section, we provide detailed environment-wise evaluation results, complementing the aggregated results reported in the main paper.
+C.1. Full training curves for Figure 4
+Figure 7: Depth-wise decision performance of pretrained IRU-55 and FlexLoop on unseen tasks. Solid lines denote mean success rates and shading indicates one standard deviation. FlexLoop improves shallow-depth decision elasticity while maintaining out-of-distribution generalization.
+Figure 8: Depth-wise decision performance during IRU pretraining and FlexLoop post-training. Solid lines denote mean success rates and shading indicates one standard deviation. FlexLoop rapidly improves shallow-depth performance while preserving the full-depth capability of pretrained policies.
+C.2. Elasticity Curves
+We evaluate the depth-wise decision performance of the pretrained IRU-55 checkpoint and the corresponding FlexLoop post-trained checkpoint at each recurrent depth, and visualize the resulting depth-performance curves for comparison. Figure 9 presents the curves on training tasks, while Figure 10 presents the corresponding results on unseen tasks. These curves provide a direct characterization of the depth elasticity learned by FlexLoop.
+Figure 9: 
+Depth-wise decision performance on training tasks before and after FlexLoop post-training. Markers denote mean success rates and shading indicates one standard deviation.
+Figure 10: 
+Depth-wise decision performance on unseen tasks before and after FlexLoop post-training. Markers denote mean success rates and shading indicates one standard deviation.
+C.3. Full results for Table 1
+Table 4: Full state-wise adaptive inference results on all environments. ±\pm indicates one standard deviation.
+Task
+FlexLoop
+IRU-5
+Avg. Depth
+Succ.
+Succ.
+Scene
+4.66 ±\pm 0.06
+0.496 ±\pm 0.064
+0.489±\pm0.087
+Cube
+4.75 ±\pm 0.03
+0.569 ±\pm 0.056
+0.492±\pm0.114
+Puzzle
+3.45 ±\pm 0.03
+0.296 ±\pm 0.029
+0.293±\pm0.01
+AntMaze
+4.80 ±\pm 0.03
+0.292 ±\pm 0.059
+0.253±\pm0.034
+PointMaze
+3.28 ±\pm 0.30
+0.395 ±\pm 0.004
+0.396±\pm0.003
+LightsOut-4x5 (Train)
+2.84 ±\pm 0.08
+0.747 ±\pm 0.081
+0.732 ±\pm 0.076
+LightsOut-4x5 (Unseen)
+2.93 ±\pm 0.21
+0.053 ±\pm 0.031
+0.013 ±\pm 0.004
+BoxPick-Exact-3(Train)
+4.47 ±\pm 0.02
+0.992 ±\pm 0.004
+0.992 ±\pm 0.003
+BoxPick-Exact-3(Unseen)
+4.45 ±\pm 0.05
+0.768 ±\pm 0.101
+0.766 ±\pm 0.091
+BoxPick-Exact-4(Train)
+4.21 ±\pm 0.04
+0.993 ±\pm 0.002
+0.994±\pm0.003
+BoxPick-Exact-4(Unseen)
+4.25 ±\pm 0.04
+0.567 ±\pm 0.098
+0.506±\pm0.077
+BoxPick-Gen-4-1(Train)
+4.68 ±\pm 0.03
+0.982 ±\pm 0.007
+0.98 ±\pm 0.007
+BoxPick-Gen-4-1(Unseen)
+4.57 ±\pm 0.02
+0.82 ±\pm 0.033
+0.82±\pm0.022
+BoxPick-Gen-4-2(Train)
+4.66 ±\pm 0.01
+0.991 ±\pm 0.004
+0.989±\pm0.004
+BoxPick-Gen-4-2(Unseen)
+4.57 ±\pm 0.01
+0.956 ±\pm 0.017
+0.948±\pm0.019
+-Gen means -Generalize
+C.4. Pareto Curve
+Each Pareto curve is obtained by sweeping the stopping threshold ε\varepsilon in Equation 9, where each threshold corresponds to one computation–performance point. The ε\varepsilon grids are selected according to the characteristics of different environment families. For BoxPick, we use a 7-point grid {0,0.005,0.01,0.02,0.03,0.05,0.1}\{0,0.005,0.01,0.02,0.03,0.05,0.1\}. For LightsOut, we use an 11-point uniformly spaced grid over [0,0.05][0,0.05]. For OGBench, we use an 11-point uniformly spaced grid for all environments: manipulation tasks (Scene, Cube, and Puzzle) use a finer grid over [0,0.005][0,0.005], while navigation tasks (AntMaze and PointMaze) use a grid over [0,0.05][0,0.05].
+(a) Pareto trade-offs on training tasks.
+(b) Pareto trade-offs on unseen tasks.
+Figure 11: 
+Pareto trade-offs between task performance and average recurrent depth under different adaptive inference thresholds. Markers denote mean success rates and error bars indicate one standard deviation.
+C.5. Visualized Trajectory Segments of Scene
+Figure 12 visualizes selected trajectory segments of FlexLoop in the Scene environment to illustrate its state-wise adaptive inference behavior. FlexLoop uses shallower recurrent depths for relatively simple and monotonic actions, such as lowering the robotic arm to press a button or rotating the gripper orientation, while allocating deeper computation to more critical decision points, such as switching goals after pressing the button and moving toward the drawer.
+(a) Lowering the arm to press the button.
+(b) Transitioning from button pressing to moving toward the drawer.
+(c) Rotating the gripper orientation.
+Figure 12: 
+Selected trajectory segments from a single episode in the Scene environment. FlexLoop adaptively uses fewer recurrent steps for simple, monotonic motions and increases computation at challenging decision points, such as goal switching.
+Appendix D Additional Ablations
+D.1. FlexLoop from Scratch
+(a) Training Tasks.
+(b) Unseen Tasks.
+Figure 13: 
+Depth-wise performance evolution of pretrained IRU-5 and FlexLoop from scratch on both training and unseen tasks. Solid lines denote mean success rates and shading indicates one standard deviation.
+In this section, we further consider a more restrictive setting where the pretrained looped policy weights are unavailable and only its outputs can be queried. We ask whether FlexLoop can still acquire depth elasticity from random initialization while recovering the teacher’s full-depth capability.
+We instantiate this setting on BoxPick-Exact-4 with GC-DQN. Since the scratch policy does not inherit the pretrained weights, we make two modifications to FlexLoop.
+First, at the full depth, we replace the standard TD target with the value estimate queried from the pretrained looped policy:
+ℒTDT=𝔼𝒟​[(QKθ​(s,g,a)−sg⁡[yT])2],yT=r+γ⁡(1−d)​maxa′​QT​(s′,g,a′).\mathcal{L}_{\mathrm{TD}}^{T}=\mathbb{E}_{\mathcal{D}}\left[\left(Q_{K}^{\theta}(s,g,a)-\operatorname{sg}[y^{T}]\right)^{2}\right],\qquad y^{T}=r+\gamma(1-d)\max_{a^{\prime}}Q^{T}(s^{\prime},g,a^{\prime}).
+(18)
+Second, we introduce an inter-depth Bellman refinement objective for shallow recurrent steps. Using the FlexLoop’s target network θ¯\bar{\theta}, we define
+yk=r+γ⁡(1−d)​maxa′​Qkθ¯​(s′,g,a′),y_{k}=r+\gamma(1-d)\max_{a^{\prime}}Q_{k}^{\bar{\theta}}(s^{\prime},g,a^{\prime}),
+(19)
+and optimize
+ℒauxDQN=1K−2​∑k=1K−2𝔼𝒟​[ρ⁡(Qk+1θ​(s,g,a)−sg⁡[yk])].\mathcal{L}_{\mathrm{aux}}^{\mathrm{DQN}}=\frac{1}{K-2}\sum_{k=1}^{K-2}\mathbb{E}_{\mathcal{D}}\left[\rho\!\left(Q_{k+1}^{\theta}(s,g,a)-\operatorname{sg}[y_{k}]\right)\right].
+(20)
+We set the weight of ℒauxDQN\mathcal{L}_{\mathrm{aux}}^{\mathrm{DQN}} to 0.10.1.
+Notably, these modifications are introduced only to compensate for the absence of pretrained initialization. We observe no additional benefit in the teacher-initialized setting.
+As shown in Figures 13 and 14, FlexLoop from scratch rapidly develops depth elasticity and recovers strong full-depth performance, while still supporting effective state-wise adaptive inference.
+Together, these results broaden the applicability of FlexLoop to settings where only output-level access to a pretrained policy is available.
+D.2. FlexLoop on Policies with Different Pretraining Depths
+We further apply FlexLoop to IRU policies pretrained with different recurrent depths, K∈{4,5,8,10}K\in\{4,5,8,10\}. Figure 15 shows that, across all pretraining depths, FlexLoop substantially improves shallow-depth performance while preserving full-depth capability, with the same trend observed on unseen tasks. The corresponding
+Pareto curves further show that state-wise adaptive inference remains effective across different pretraining depths. We note that deeper pretrained policies generally require smaller stopping thresholds ε\varepsilon, suggesting that the appropriate threshold scale depends on the pretrained recurrent depth.
+(a) Elasticity (Training).
+(b) Elasticity (Unseen).
+(c) Pareto (Training).
+(d) Pareto (Unseen).
+Figure 14: 
+Elasticity and Pareto curves of pretrained IRU-5 and FlexLoop from scratch on both training and unseen tasks. Markers denote mean success rates and the shading and error bars indicate one standard deviation.
+(a) Elasticity on Training Tasks.
+(b) Elasticity on Unseen Tasks.
+(c) Pareto on Training Tasks.
+(d) Pareto on Unseen Tasks.
+Figure 15: 
+Elasticity and Pareto Curves of the policies with different pretraining recurrent depths before and after FlexLoop post-training. Markers denote mean success rates and shading indicates one standard deviation.
+ Experimental support, please
+ view the build logs
+ for errors. Generated by
+ L
+ A
+ T
+ E
+ xml
+ .
+Instructions for reporting errors
+We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+ support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+ methods listed below:
+Click the "Report Issue" (
+ ) button, located in the page header.
+Tip: You can select the relevant text first, to include it in your report.
+Our team has already identified the following issues. We appreciate your time reviewing and reporting rendering errors we
+ may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+ should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+ all.
+Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion, and welcome developer contributions.
+ We gratefully acknowledge support from our major funders,
+ member institutions, ,
+ and all contributors.
+ About ·
+ Help ·
+ Contact ·
+ Subscribe ·
+ Copyright ·
+ Privacy ·
+ Accessibility ·
+ Operational Status (opens in new tab)

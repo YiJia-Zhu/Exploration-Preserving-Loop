@@ -1,0 +1,310 @@
+{
+  "checked_at": "2026-11-13T13:47:54.153433+00:00",
+  "root": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop",
+  "papers": 23,
+  "core_papers": 6,
+  "related_papers": 17,
+  "pdf_hashes_verified": 23,
+  "pdf_first_page_versions_and_titles_verified": 23,
+  "primary_source_snapshots_verified": 23,
+  "experiment_documents": 9,
+  "markdown_files_checked": 13,
+  "local_links_checked": 137,
+  "missing_local_links": [],
+  "links_outside_package": [],
+  "designed_groups": 8,
+  "groups_by_status": {
+    "implemented_cpu_validation": 8
+  },
+  "matrix_configuration_alignment_checked": true,
+  "huginn_designed_groups": 8,
+  "historical_implementation_artifact_hashes_verified": 72,
+  "experiments_run": true,
+  "training_implementation_included": true,
+  "runtime_artifact_hashes_verified": 29,
+  "current_implementation_artifact_hashes_verified": 370,
+  "current_proposal_benchmark_scores_reproduced": false,
+  "artifacts": [
+    {
+      "path": "papers/manifest.json",
+      "sha256": "49e6f6f2045f20ed8997142119c107a8fa3c5233b806d9ae627837569abd0152"
+    },
+    {
+      "path": "ref/manifest.json",
+      "sha256": "8d6c58b74a844ce0056b8389aa99a5a84cef2e030aa61bfef2b19585265a392c"
+    },
+    {
+      "path": "experiments/experiment_matrix.csv",
+      "sha256": "4b554ff4ccd5f88e29176fd8d244f852355b108d922f05a50350ae2201252033"
+    },
+    {
+      "path": "experiments/huginn_experiment_matrix.csv",
+      "sha256": "99a6acc929aaaa661a76a797cb03383177ed4dbdb27d4ef551e5854f78cd5521"
+    },
+    {
+      "path": "audit/implementation_20261113/validation.json",
+      "sha256": "d2bf94863ce0b30c29a05b344026b261cd6bf0f4e06048221bd0385d43b87d61"
+    },
+    {
+      "path": "README.md",
+      "sha256": "33be80471731d7f0da8e6584a620b53f6482a3a1f8e5a173170c29703836fe70"
+    },
+    {
+      "path": "docs/01_idea.md",
+      "sha256": "6a18bf223667ab4873918cf59c89a9432cb943fc106725249c2c30134addc2b1"
+    },
+    {
+      "path": "docs/02_experiment_plan.md",
+      "sha256": "bf7d3d10e1814a029bc5d9c648928968ffaca8f2672cbff61601d2ae606673e8"
+    },
+    {
+      "path": "docs/03_paper_notes.md",
+      "sha256": "1257eb9c85a385a75926464183aa669174d323ba15fa577ccbd6a9586362751d"
+    },
+    {
+      "path": "docs/04_insights.md",
+      "sha256": "66650a7ad1c9fac5fd5673c3734568496f09b6183ff28f8374db111e1ea98377"
+    },
+    {
+      "path": "docs/05_related_work.md",
+      "sha256": "1a94b8d46a259666b708e150902cf187d11674693d49769f05d6fa726d6479e9"
+    },
+    {
+      "path": "docs/06_loopopd_motivation_evidence.md",
+      "sha256": "52582adca311585ea9c895f45cb6b6c757ff3a6884f81ce18ff7fc0ca1a0904c"
+    },
+    {
+      "path": "docs/07_pilot_results_20261108.md",
+      "sha256": "cd5d7d79468a1fc5bc96291e024e4451ef0f0d4744d05b5bdf1ceb00b79d12b7"
+    },
+    {
+      "path": "docs/08_implementation_and_reproduction.md",
+      "sha256": "c293afbc4b1efebe2d6821c3bac704f01475c69c0cf72199f0e5ff0013d1f60f"
+    },
+    {
+      "path": "docs/loop_distillation_research_proposal_zh.md",
+      "sha256": "43776668d345ac50ac5136569d9c2a455437090bea38f1915ed8f61e9008be9e"
+    },
+    {
+      "path": "experiments/pilot_protocol_20261108.md",
+      "sha256": "ac881e2fb5c9182a45ac3ab07491a2ff4fde78e132619518d19117eff73e0e23"
+    },
+    {
+      "path": "experiments/run_record_template.md",
+      "sha256": "0486ccbf7c850075d73e2e572628790160d40c4501603fa7f685eeb4962bc5fc"
+    },
+    {
+      "path": "ref/README.md",
+      "sha256": "2fba3910226a9a7d8c0005ba84ed6968d69f8a519cd4c43331ab535e92adff34"
+    },
+    {
+      "path": "ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "ep_loop/config.py",
+      "sha256": "9d37e39ce0aa576f3377f734c1711cefe5bea833fe6d7753b3ff3b775397fb65"
+    },
+    {
+      "path": "ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "ep_loop/huginn.py",
+      "sha256": "76e90682561c098f967619c6528d1f390b5fe01c40c074aca1653464204632d3"
+    },
+    {
+      "path": "ep_loop/inference.py",
+      "sha256": "aa57e202c7858b1536cb66fbf87cd4af4d4f257ecda76ebf158177944c57e783"
+    },
+    {
+      "path": "ep_loop/objective.py",
+      "sha256": "1a35b92fed7363391ca8777170b0275e599e9160ec27cc13a7e5d7131261c03a"
+    },
+    {
+      "path": "ep_loop/ouro.py",
+      "sha256": "35f667255896bc7f278aa0a2dfdcb237308585100422a6dee51caa585724d3ca"
+    },
+    {
+      "path": "ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "ep_loop/selection.py",
+      "sha256": "262ec0b0abf94923ab30ed14524afa8ee702f5e30e8b58a65e4a0b6557ea5ca9"
+    },
+    {
+      "path": "ep_loop/training.py",
+      "sha256": "d23f0c8f1bbd2fe635e337af22a7a8368300e20b58ab6976ec05a602b4fbf89f"
+    },
+    {
+      "path": "scripts/build_teacher_filter.py",
+      "sha256": "1a4d3bd18ad18a9c506d6946084150671b26b58a1492efeade3ea177c09c6fd4"
+    },
+    {
+      "path": "scripts/download_pilot_model.py",
+      "sha256": "459691c85359c76f298b043118b4746e79b88f5d650516f25661935e6418f24b"
+    },
+    {
+      "path": "scripts/evaluate_stage_distillation.py",
+      "sha256": "17abfebc93a16de3168e29fa5b06ba290bc2c4d01dac730669a6df5da24e6986"
+    },
+    {
+      "path": "scripts/prepare_stage_data.py",
+      "sha256": "8995984b87e1fe5c67976d95607e2a000bfa54a5f74a9d4edd302fac43a1705d"
+    },
+    {
+      "path": "scripts/run_diagnostic.py",
+      "sha256": "71993b08b471670d5316877ad1cc089fba9c2994677c4eb10df61901534fe118"
+    },
+    {
+      "path": "scripts/run_training_pilot.py",
+      "sha256": "77cba43aaec333e250fe737b8bfada0d9f4ed8a759254b88dc1432de89fbed8b"
+    },
+    {
+      "path": "scripts/train_stage_distillation.py",
+      "sha256": "e1d8ebcbdc1c0ec804225d6e8b5a86c12ef156131c2a904548603775c9ee21b5"
+    },
+    {
+      "path": "scripts/validate_package.py",
+      "sha256": "ea3f625b54f5fddef5a26474420b959ce1edbae211f54c1c57df553c157c3f11"
+    },
+    {
+      "path": "scripts/validate_proposal_sync.py",
+      "sha256": "d0ff133cd34849b0c219ee947c39f0b3ed12618efd15c0fee2b2759838d0bbea"
+    },
+    {
+      "path": "scripts/validate_stage_implementation.py",
+      "sha256": "2ed690be71a6edbc953b5938e21d40aff2b27026ee5cde9ad3a08c576eeef09e"
+    },
+    {
+      "path": "scripts/verify_pilot.py",
+      "sha256": "e4178eabe8e9c238a44888211fdcb33c570dbc602e0ffe6c6568ee75f0e1755b"
+    },
+    {
+      "path": "tests/test_huginn_stage.py",
+      "sha256": "fedf2574f70ac9cd05abfc65f06326d263515f3538de3d22775eb574d537a9f9"
+    },
+    {
+      "path": "tests/test_losses.py",
+      "sha256": "866d56e4d1dff0f714e41b59ee84933f1ec40b8391ee0b7849bad0d01b583c36"
+    },
+    {
+      "path": "tests/test_stage_distillation.py",
+      "sha256": "c45fcdf7d6c9027e37b51c5f63d1ad8d9cd2690c820b19be666eea45974317d8"
+    },
+    {
+      "path": "requirements-pilot.txt",
+      "sha256": "91d212b3016b75eebc1702c0df21a0191b79fd28346ad565b5510515bf95c06b"
+    },
+    {
+      "path": "audit/runtime_validation.json",
+      "sha256": "e6b179c854be4c2ee92f749e773af959b8218db2d556b36c0bc85037d6e9be1e"
+    },
+    {
+      "path": "audit/model_download.json",
+      "sha256": "e0d13f52acb164ed97c98a9595dd1fcf64ce0fac0fbb8eaf5ae7ea8688470aed"
+    },
+    {
+      "path": "audit/pilot_environment.json",
+      "sha256": "838625f6e3e982920ff1c2bad473c73965c553421142376362668ed125a4610d"
+    },
+    {
+      "path": "audit/objective_tests.log",
+      "sha256": "f262e17dd2c1e7878c1205dbbc75c7494b044b80b517fc55fd15205c9fa48229"
+    },
+    {
+      "path": "experiments/proposal_references_20261113.json",
+      "sha256": "d29143d7bd6e5cf3b2108fb5d57e9157be62a1c06563362142a711c79708e7a9"
+    },
+    {
+      "path": "audit/proposal_sync_20261113/validation.json",
+      "sha256": "59c2209ca22babe069c92c794f5ff8ab7d8100b4a211b7716063738670524571"
+    },
+    {
+      "path": "configs/a_d_loopopd.json",
+      "sha256": "a355c6dafefd6922fa473aa44e4c14462b31cc35a0341e38d1c1997799e7ca61"
+    },
+    {
+      "path": "configs/a_loopopd.json",
+      "sha256": "de552044e66a4ac8c951f261c6cdfbd8529f22921e056ea5c13f4024246d2329"
+    },
+    {
+      "path": "configs/b_current_native_endpoint.json",
+      "sha256": "1bc3f24f9a10121bb71acaa4cc0fc14b1ec8a1fcca785f2ab152def5393559cf"
+    },
+    {
+      "path": "configs/b_native_endpoint.json",
+      "sha256": "eebe50ae08c48235ea31045b764e225720e20c0afb50e73a7b01ed855dadbde5"
+    },
+    {
+      "path": "configs/c_current_native_uniform.json",
+      "sha256": "29f67a6c45da2897844c9aafd9a8b85e84a75aeac11b2a488b88c07f1df618a0"
+    },
+    {
+      "path": "configs/c_native_uniform.json",
+      "sha256": "3e2ac3289ff02f19ddffa08e69e40c5fec033537427c7c3d53c82e918f60619b"
+    },
+    {
+      "path": "configs/d_current_native_js.json",
+      "sha256": "188c6da00627f5ff62795ee718e0af1af1147d159607f9a6ff525e08be6fa634"
+    },
+    {
+      "path": "configs/d_native_js.json",
+      "sha256": "037fae8318fd9dfb79a0e8782731797837d3f044ff4f604660ba6265b6fe6da9"
+    },
+    {
+      "path": "configs/huginn_a_d_loopopd.json",
+      "sha256": "0b76f4a2c683783fcee9afb8346eb965719564c0fa8d8fd02d2c74366a90817b"
+    },
+    {
+      "path": "configs/huginn_a_loopopd.json",
+      "sha256": "f9371a2d156e7fc02d54e87970e1135a79e143cbbedac3c683fb7ce1d557055c"
+    },
+    {
+      "path": "configs/huginn_b_current_native_endpoint.json",
+      "sha256": "c94d7e94ed56d74b874e4e5772b31e62cb9a2f3cb0ae510a76b4a0d4c36019be"
+    },
+    {
+      "path": "configs/huginn_b_native_endpoint.json",
+      "sha256": "727d69b946e0c0255a0d8b6be5dd112e6aeb31af9b3ad8aaf1b72990c594ac39"
+    },
+    {
+      "path": "configs/huginn_c_current_native_uniform.json",
+      "sha256": "4f0c76aadcf5c155ce144108fcb91bc14ac989cff4d16ca25088210376d93e67"
+    },
+    {
+      "path": "configs/huginn_c_native_uniform.json",
+      "sha256": "b0ca3fae998906ffdb5dff4d73996d11f9567e5598c6d607b049cf8cfbe1bd33"
+    },
+    {
+      "path": "configs/huginn_d_current_native_js.json",
+      "sha256": "72a10ed3e87fe23c71d1f14d2f34926ebc280cf0a24972c100ae4ec4bc8a9bcc"
+    },
+    {
+      "path": "configs/huginn_d_current_native_js_s16.json",
+      "sha256": "1b96289fc702aea33213ef2348bcd36b6bf0e8092d5c4bff2bf57138dcb6b892"
+    },
+    {
+      "path": "configs/huginn_d_native_js.json",
+      "sha256": "198eb6af49556742cc44ee92fba70c1508f7710e97a980cca326fac0f465dde1"
+    },
+    {
+      "path": "configs/huginn_math_base.json",
+      "sha256": "69c9a9b121e1a2dc0438cdd10de14e3456fb7d9fb85ec1de1ebc6e86ec6d9614"
+    },
+    {
+      "path": "configs/paper_ouro_base.json",
+      "sha256": "df69800de2760651132aa36b30ea368b001d00212bc4682a1f39b2f141a4eb6e"
+    },
+    {
+      "path": "requirements-stage.txt",
+      "sha256": "3b9cc3d11570341cf40518fa81d5586daadea3006d42b2e13797f2902644b610"
+    }
+  ],
+  "scope": "Material/link integrity, recorded pilot and current implementation artifact hashes; no model rerun or benchmark efficacy claim."
+}

@@ -1,0 +1,151 @@
+{
+  "n": 64,
+  "revision": "3aaa2224253a92ca45cf2e3d427c360e1ef9c93d",
+  "engineering_passed": true,
+  "candidate_ranking_only": true,
+  "accuracy": {
+    "native": {
+      "person_box": [
+        0.96875,
+        0.984375,
+        1.0,
+        1.0
+      ],
+      "box_color": [
+        0.84375,
+        0.84375,
+        0.90625,
+        0.953125
+      ],
+      "two_hop": [
+        0.390625,
+        0.75,
+        0.78125,
+        0.84375
+      ]
+    },
+    "frozen": {
+      "person_box": [
+        0.96875,
+        0.90625,
+        0.953125,
+        0.953125
+      ],
+      "box_color": [
+        0.84375,
+        0.828125,
+        0.8125,
+        0.8125
+      ],
+      "two_hop": [
+        0.390625,
+        0.390625,
+        0.375,
+        0.421875
+      ]
+    },
+    "control": {
+      "person_box": [
+        0.96875,
+        0.984375,
+        1.0,
+        1.0
+      ],
+      "box_color": [
+        0.84375,
+        0.84375,
+        0.90625,
+        0.953125
+      ],
+      "two_hop": [
+        0.390625,
+        0.734375,
+        0.78125,
+        0.84375
+      ]
+    }
+  },
+  "effects": {
+    "frozen_minus_native_loop2": {
+      "mean": -0.359375,
+      "ci95": [
+        -0.484375,
+        -0.234375
+      ],
+      "n": 64
+    },
+    "control_minus_native_loop2": {
+      "mean": -0.015625,
+      "ci95": [
+        -0.046875,
+        0.0
+      ],
+      "n": 64
+    },
+    "native_loop2_minus_loop1": {
+      "mean": 0.359375,
+      "ci95": [
+        0.234375,
+        0.484375
+      ],
+      "n": 64
+    },
+    "frozen_minus_native_loop3": {
+      "mean": -0.40625,
+      "ci95": [
+        -0.53125,
+        -0.28125
+      ],
+      "n": 64
+    },
+    "control_minus_native_loop3": {
+      "mean": 0.0,
+      "ci95": [
+        -0.046875,
+        0.046875
+      ],
+      "n": 64
+    },
+    "native_loop3_minus_loop1": {
+      "mean": 0.390625,
+      "ci95": [
+        0.28125,
+        0.515625
+      ],
+      "n": 64
+    },
+    "frozen_minus_native_loop4": {
+      "mean": -0.421875,
+      "ci95": [
+        -0.546875,
+        -0.296875
+      ],
+      "n": 64
+    },
+    "control_minus_native_loop4": {
+      "mean": 0.0,
+      "ci95": [
+        -0.046875,
+        0.046875
+      ],
+      "n": 64
+    },
+    "native_loop4_minus_loop1": {
+      "mean": 0.453125,
+      "ci95": [
+        0.328125,
+        0.578125
+      ],
+      "n": 64
+    }
+  },
+  "rescue": {
+    "targets": 25,
+    "same": 0.92,
+    "shuffled": 0.2,
+    "full_set_same": 0.734375,
+    "donor_rule": "deterministic non-self rotation within equal token length; all inputs eligible"
+  },
+  "seconds": 22.199209498008713,
+  "peak_gpu_memory_bytes": 2983782912
+}

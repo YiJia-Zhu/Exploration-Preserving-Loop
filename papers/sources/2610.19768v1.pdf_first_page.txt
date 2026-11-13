@@ -1,0 +1,67 @@
+Preprint
+
+L EARNING TO C OMPUTE I S N OT L EARNING TO R ETAIN
+OR R EUSE IN L OOPED T RANSFORMERS
+Peilong Zhou1,2,3,∗ Hongtao Zhang2,∗ Yulong Huang4
+Cangyuan Li1,2 Mingyu Chen2 Ying Wang1,2,†
+1
+
+SKLP, Institute of Computing Technology, Chinese Academy of Sciences
+University of Chinese Academy of Sciences
+3
+School of Advanced Interdisciplinary Sciences
+4
+The Hong Kong University of Science and Technology (Guangzhou)
+
+arXiv:2610.19768v1 [cs.LG] 14 Oct 2026
+
+2
+
+∗
+Equal contribution. † Corresponding author.
+wangying2009@ict.ac.cn
+
+A BSTRACT
+Looped transformers compute by applying one block repeatedly, so they can run
+for more loops than they were trained with. Recurrent reasoners are known to
+overthink: iterating past the trained depth can turn a correct answer into a wrong
+one. Such a late error can reflect failed computation, loss of retention, or a state
+that later computation cannot reuse. We separate these cases in in-context Mealymachine execution, where a simulator supplies intermediate targets and exact
+counterfactuals for hidden-state interventions. Models trained to answer at loop 32
+are fully correct there but keep only 22% of these answers at loop 64. Retention
+depends on what training asks for: supervising one randomly chosen position per
+example, instead of always the last, keeps 99.8%, and randomizing the number of
+training loops also helps; truncating gradients, as in progressive training against
+overthinking, does not. The computation itself is exact: position k is computed
+at loop k, and swapping its loop-k hidden vector for the one from another input
+redirects every later position to that input’s exact continuation (237/237 pairs in
+each of ten models). Retention, however, is not reuse. Even in models that keep
+nearly all answers, holding each position k fixed from loop k drops accuracy to
+4–6%, whereas holding it from loop k + 4 is harmless. A released recurrent maze
+network trained to avoid overthinking behaves the same way. Learning to compute
+is thus not learning to retain, and avoiding overthinking does not make a state
+reusable when its answer first appears.
+
+1
+
+I NTRODUCTION
+
+Looped transformers turn recurrent depth into a computation budget: one block is applied repeatedly,
+so a model can run for more loops than it was trained with (Dehghani et al., 2019; Giannou et al.,
+2023; Geiping et al., 2025). Whether those extra loops help depends on what happens to an answer
+after it has been computed.
+Empirically, running past the trained depth can hurt. Recurrent networks trained on small instances
+can solve larger ones by iterating longer (Schwarzschild et al., 2021), but further iteration can also
+turn a correct answer into a wrong one. Bansal et al. (2022) call this failure overthinking and prevent
+it with input recall and progressive training, which applies the loss at a random depth and blocks
+gradients to the loops before a random starting point. Later work relates extra computation to path
+independence and shows that training and stopping objectives change the learned trajectory (Anil
+et al., 2022; Zhang et al., 2026; Kuo et al., 2026; Popescu et al., 2026); analysis of recurrent language
+models separates whether content is readable from whether it is transported and can be steered (Wang
+& Reid, 2026). Much of this evidence tracks accuracy or readouts across loops. An overthinking
+curve, however, can mean three different things: the answer was never computed, it was computed
+but not retained, or the state that carries it cannot be reused by later computation. Telling these apart
+requires knowing what a correct alternative execution would be. We therefore ask: when a looped
+1
+
+

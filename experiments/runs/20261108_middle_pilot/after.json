@@ -1,0 +1,5785 @@
+{
+  "summary": {
+    "n": 64,
+    "accuracy": [
+      0.46875,
+      0.75,
+      0.828125,
+      0.890625
+    ],
+    "mean_entropy": [
+      4.274789313918557,
+      2.4322084477597814,
+      2.2791183120085683,
+      2.215037725311566
+    ],
+    "mean_gold_probability": [
+      0.026188342032820108,
+      0.02142869873820532,
+      0.060937506834002945,
+      0.04235957266120045
+    ]
+  },
+  "rows": [
+    {
+      "id": 0,
+      "fingerprint": "06e893857f0d25696ac2017d5292f905dfe0bedf668350e44cc6be5a67e81039",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.90625,
+            10.3125,
+            8.8125,
+            7.28125
+          ],
+          "candidate_probabilities": [
+            0.004333255596027208,
+            0.04806571462306236,
+            0.010724910601492634,
+            0.0023194245804674316
+          ],
+          "candidate_mass": 0.06544330540104965,
+          "candidate_entropy": 0.8211964238342838,
+          "full_entropy": 4.646062933286867,
+          "gold_probability": 0.04806571462306236,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.625,
+            13.625,
+            10.625,
+            8.6875
+          ],
+          "candidate_probabilities": [
+            0.00056231060603629,
+            0.030701118833597624,
+            0.0015285187023382403,
+            0.00022020399726385215
+          ],
+          "candidate_mass": 0.03301215213923601,
+          "candidate_entropy": 0.31255056870010334,
+          "full_entropy": 2.302687014238882,
+          "gold_probability": 0.030701118833597624,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.125,
+            13.875,
+            11.0,
+            8.6875
+          ],
+          "candidate_probabilities": [
+            0.0003628218149635052,
+            0.041936499893412436,
+            0.002365895428286899,
+            0.00023425537018708042
+          ],
+          "candidate_mass": 0.04489947250684992,
+          "candidate_entropy": 0.2852108414149687,
+          "full_entropy": 2.032686388316028,
+          "gold_probability": 0.041936499893412436,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.0625,
+            13.25,
+            10.9375,
+            7.96875
+          ],
+          "candidate_probabilities": [
+            0.00012074345894625057,
+            0.021615547379707188,
+            0.0021402290197145833,
+            0.00010993817043942592
+          ],
+          "candidate_mass": 0.02398645802880745,
+          "candidate_entropy": 0.36073170044444886,
+          "full_entropy": 2.1272720130666776,
+          "gold_probability": 0.021615547379707188,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 6
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "fingerprint": "c95d165ea13ae7c5e1017d51a8b73082b531de07da61688cebae4626fc038612",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.65625,
+            10.125,
+            11.5,
+            8.625
+          ],
+          "candidate_probabilities": [
+            0.0009548913152789896,
+            0.011275049200180718,
+            0.04459368464141901,
+            0.0025158035337177493
+          ],
+          "candidate_mass": 0.05933942869059647,
+          "candidate_entropy": 0.7306892463098458,
+          "full_entropy": 3.304679531826444,
+          "gold_probability": 0.04459368464141901,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.84375,
+            9.4375,
+            12.625,
+            8.4375
+          ],
+          "candidate_probabilities": [
+            5.475320786284204e-05,
+            0.0007325898225992905,
+            0.017749026673110922,
+            0.00026950473454571305
+          ],
+          "candidate_mass": 0.018805874438118767,
+          "candidate_entropy": 0.2588514993075927,
+          "full_entropy": 2.440502791605862,
+          "gold_probability": 0.017749026673110922,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.1875,
+            10.5,
+            13.9375,
+            9.6875
+          ],
+          "candidate_probabilities": [
+            0.0002284038771813471,
+            0.002306797442444091,
+            0.07176236498342001,
+            0.0010236351599864802
+          ],
+          "candidate_mass": 0.07532120146303192,
+          "candidate_entropy": 0.2288737474023838,
+          "full_entropy": 2.274996897960139,
+          "gold_probability": 0.07176236498342001,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.84375,
+            9.75,
+            13.4375,
+            8.25
+          ],
+          "candidate_probabilities": [
+            6.22229857545446e-05,
+            0.0011379395313439254,
+            0.04545483512669158,
+            0.00025390862986799946
+          ],
+          "candidate_mass": 0.046908906273658055,
+          "candidate_entropy": 0.157766848253803,
+          "full_entropy": 2.2152610514557365,
+          "gold_probability": 0.04545483512669158,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "fingerprint": "8c5205ddee63ed7fc87d71659adcffda10d96f3de4f93737029411585a21383e",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.8125,
+            9.75,
+            8.375,
+            7.5
+          ],
+          "candidate_probabilities": [
+            0.0289634105576588,
+            0.027208606221494413,
+            0.006879412999453158,
+            0.002867765997154629
+          ],
+          "candidate_mass": 0.065919195775761,
+          "candidate_entropy": 1.0988166429851682,
+          "full_entropy": 4.9814928338020525,
+          "gold_probability": 0.027208606221494413,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 7
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            12.6875,
+            12.3125,
+            8.875,
+            10.125
+          ],
+          "candidate_probabilities": [
+            0.015976740211702083,
+            0.010980642257531448,
+            0.00035297216698361797,
+            0.001231993917211316
+          ],
+          "candidate_mass": 0.02854234855342846,
+          "candidate_entropy": 0.8822774770903383,
+          "full_entropy": 2.717537051535061,
+          "gold_probability": 0.010980642257531448,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 9
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            14.1875,
+            12.6875,
+            9.0625,
+            10.3125
+          ],
+          "candidate_probabilities": [
+            0.08278601325018733,
+            0.018472056394564333,
+            0.0004922636288613925,
+            0.0017181688902109709
+          ],
+          "candidate_mass": 0.10346850216382403,
+          "candidate_entropy": 0.5795305282035196,
+          "full_entropy": 2.5695139988271305,
+          "gold_probability": 0.018472056394564333,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 8
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            13.875,
+            11.75,
+            7.71875,
+            7.03125
+          ],
+          "candidate_probabilities": [
+            0.060827060654053015,
+            0.0072647564048533425,
+            0.00012896487048891413,
+            6.484760933075873e-05
+          ],
+          "candidate_mass": 0.06828562953872602,
+          "candidate_entropy": 0.3598645383391383,
+          "full_entropy": 2.426082215161521,
+          "gold_probability": 0.0072647564048533425,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 10
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "fingerprint": "b40a3745d72bf70d3299ec943aaa605aed55c3ce8cec381ec2239420c6bce558",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.875,
+            8.0625,
+            8.3125,
+            8.875
+          ],
+          "candidate_probabilities": [
+            0.002785547313444894,
+            0.009133458015406508,
+            0.011727592234032335,
+            0.02058256536526988
+          ],
+          "candidate_mass": 0.04422916292815362,
+          "candidate_entropy": 1.2078332896492254,
+          "full_entropy": 5.906591536227324,
+          "gold_probability": 0.02058256536526988,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.6875,
+            9.75,
+            10.9375,
+            13.25
+          ],
+          "candidate_probabilities": [
+            4.724644868187612e-05,
+            0.0010101736148390526,
+            0.003312231766759555,
+            0.033452355812141205
+          ],
+          "candidate_mass": 0.03782200764242169,
+          "candidate_entropy": 0.42696215771983204,
+          "full_entropy": 2.567773393037383,
+          "gold_probability": 0.033452355812141205,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.90625,
+            10.3125,
+            11.6875,
+            13.8125
+          ],
+          "candidate_probabilities": [
+            6.0364170112159e-05,
+            0.0018200981712410845,
+            0.007198627910505924,
+            0.06027337354983787
+          ],
+          "candidate_mass": 0.06935246380169703,
+          "candidate_entropy": 0.45874718711370294,
+          "full_entropy": 2.414922630213377,
+          "gold_probability": 0.06027337354983787,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.5625,
+            9.9375,
+            9.3125,
+            13.625
+          ],
+          "candidate_probabilities": [
+            4.5339279566621935e-05,
+            0.001325007972491706,
+            0.0007092256601549615,
+            0.05292725779552812
+          ],
+          "candidate_mass": 0.055006830707741414,
+          "candidate_entropy": 0.18878771243339842,
+          "full_entropy": 2.3453813005716744,
+          "gold_probability": 0.05292725779552812,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "fingerprint": "c4d36be7395892db59488d126e79c27c6c620d8aaf309665c49ff320908d63b3",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            10.125,
+            9.5,
+            8.125,
+            7.9375
+          ],
+          "candidate_probabilities": [
+            0.026273350471878742,
+            0.014063111105557902,
+            0.0035557113276865012,
+            0.0029477882264960006
+          ],
+          "candidate_mass": 0.046839961131619146,
+          "candidate_entropy": 1.0553201812603676,
+          "full_entropy": 4.760840969897143,
+          "gold_probability": 0.014063111105557902,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 11
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            10.3125,
+            12.5,
+            8.625,
+            11.0
+          ],
+          "candidate_probabilities": [
+            0.001681445123539596,
+            0.014986557254318144,
+            0.0003110360728196647,
+            0.0033439529202296202
+          ],
+          "candidate_mass": 0.020322991370907022,
+          "candidate_entropy": 0.7917005015626608,
+          "full_entropy": 2.605080523902501,
+          "gold_probability": 0.014986557254318144,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 10
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            11.0,
+            12.125,
+            8.9375,
+            13.25
+          ],
+          "candidate_probabilities": [
+            0.004292273923431024,
+            0.013221134459123743,
+            0.0005457013912004671,
+            0.04072396112280375
+          ],
+          "candidate_mass": 0.05878307089655899,
+          "candidate_entropy": 0.8243922326323758,
+          "full_entropy": 2.6609220652090464,
+          "gold_probability": 0.013221134459123743,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 9
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.75,
+            12.5,
+            9.0,
+            12.9375
+          ],
+          "candidate_probabilities": [
+            0.0010822798234347826,
+            0.016929704873674473,
+            0.0005112327892970422,
+            0.026221239855280975
+          ],
+          "candidate_mass": 0.04474445734168728,
+          "candidate_entropy": 0.8220198510773894,
+          "full_entropy": 2.6001416916752214,
+          "gold_probability": 0.016929704873674473,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 8
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "fingerprint": "c5d987e6f2cbf68743ad4b8497cd291df6920e1d419dd6ae3e45624892986106",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.3125,
+            9.0,
+            7.40625,
+            7.125
+          ],
+          "candidate_probabilities": [
+            0.0019335328341298797,
+            0.028413057585129846,
+            0.0057724627754680066,
+            0.004357283503930631
+          ],
+          "candidate_mass": 0.04047633669865836,
+          "candidate_entropy": 0.9113830622892081,
+          "full_entropy": 5.9735312380069265,
+          "gold_probability": 0.028413057585129846,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.84375,
+            11.75,
+            9.625,
+            11.5625
+          ],
+          "candidate_probabilities": [
+            6.0103197912832184e-05,
+            0.008121848459053803,
+            0.0009700164692772785,
+            0.006733248866004218
+          ],
+          "candidate_mass": 0.01588521699224813,
+          "candidate_entropy": 0.8986310336549994,
+          "full_entropy": 2.7144711245638455,
+          "gold_probability": 0.008121848459053803,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 10
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.53125,
+            13.1875,
+            10.25,
+            11.1875
+          ],
+          "candidate_probabilities": [
+            0.00010337149083300314,
+            0.029571880532258548,
+            0.0015672522515456989,
+            0.004002118827672483
+          ],
+          "candidate_mass": 0.03524462310230973,
+          "candidate_entropy": 0.5498081690414438,
+          "full_entropy": 2.3934488975894115,
+          "gold_probability": 0.029571880532258548,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.9375,
+            13.25,
+            9.5,
+            10.0
+          ],
+          "candidate_probabilities": [
+            5.9720242365758604e-05,
+            0.032931042437406514,
+            0.0007744638868163771,
+            0.0012768750835832575
+          ],
+          "candidate_mass": 0.03504210165017191,
+          "candidate_entropy": 0.2741956194981127,
+          "full_entropy": 2.253170360099792,
+          "gold_probability": 0.032931042437406514,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "fingerprint": "84c8d78a233b3e59f4e400e77ca87b996184586cff3b11c15c9c84cbc262e7d2",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            7.3125,
+            9.625,
+            8.3125,
+            8.5625
+          ],
+          "candidate_probabilities": [
+            0.0023938125566940415,
+            0.024176650377471506,
+            0.006507057173598501,
+            0.008355226798740772
+          ],
+          "candidate_mass": 0.04143274690650482,
+          "candidate_entropy": 1.0926816128574908,
+          "full_entropy": 4.97952502080881,
+          "gold_probability": 0.008355226798740772,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 13
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            10.375,
+            13.6875,
+            8.875,
+            9.8125
+          ],
+          "candidate_probabilities": [
+            0.0012847695789906578,
+            0.03527164510380787,
+            0.00028667084191401625,
+            0.0007320396398456557
+          ],
+          "candidate_mass": 0.037575125164558194,
+          "candidate_entropy": 0.28873268852082923,
+          "full_entropy": 2.3270875241323443,
+          "gold_probability": 0.0007320396398456557,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 36
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            10.5,
+            14.1875,
+            9.75,
+            9.8125
+          ],
+          "candidate_probabilities": [
+            0.0017417032360002556,
+            0.06957209170729584,
+            0.0008227223534873107,
+            0.0008757833865151027
+          ],
+          "candidate_mass": 0.0730123006832985,
+          "candidate_entropy": 0.23871059943030415,
+          "full_entropy": 2.020212512609205,
+          "gold_probability": 0.0008757833865151027,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 30
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            8.3125,
+            13.6875,
+            8.5625,
+            7.78125
+          ],
+          "candidate_probabilities": [
+            0.00017203419170167417,
+            0.03714904138911922,
+            0.00022089627468428098,
+            0.0001011336840415303
+          ],
+          "candidate_mass": 0.0376431055395467,
+          "candidate_entropy": 0.08371873288186915,
+          "full_entropy": 1.9463332652519285,
+          "gold_probability": 0.0001011336840415303,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 89
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "fingerprint": "a258f5b6dabb600d19d66c95653e81f38b2d37a8174a5074b8448ae1122a7f21",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.125,
+            10.4375,
+            9.9375,
+            8.1875
+          ],
+          "candidate_probabilities": [
+            0.008343428696185616,
+            0.030999598306201845,
+            0.01880220681148724,
+            0.003267333623202956
+          ],
+          "candidate_mass": 0.06141256743707766,
+          "candidate_entropy": 1.1347426109655134,
+          "full_entropy": 4.281363819684733,
+          "gold_probability": 0.01880220681148724,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 9
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.1875,
+            9.6875,
+            12.75,
+            6.125
+          ],
+          "candidate_probabilities": [
+            2.0461251869937958e-05,
+            0.0006775836033136337,
+            0.014487376236969341,
+            1.9221567288136376e-05
+          ],
+          "candidate_mass": 0.01520464265944105,
+          "candidate_entropy": 0.20200776717057667,
+          "full_entropy": 2.1114180938635716,
+          "gold_probability": 0.014487376236969341,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.75,
+            11.25,
+            14.3125,
+            8.125
+          ],
+          "candidate_probabilities": [
+            0.0008372551369235824,
+            0.003752317196234819,
+            0.08022807918677086,
+            0.00016486531158493932
+          ],
+          "candidate_mass": 0.0849825168315142,
+          "candidate_entropy": 0.24974741728507838,
+          "full_entropy": 2.102094486441399,
+          "gold_probability": 0.08022807918677086,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.1875,
+            10.625,
+            14.0625,
+            7.28125
+          ],
+          "candidate_probabilities": [
+            0.00015408228725374802,
+            0.0017633783982571277,
+            0.05485709403489315,
+            6.225487170010083e-05
+          ],
+          "candidate_mass": 0.056836809592104125,
+          "candidate_entropy": 0.1654566573615314,
+          "full_entropy": 1.9891389530159136,
+          "gold_probability": 0.05485709403489315,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "fingerprint": "11f5ee378e2493118f74cbb0a02eebcb549bf71d363fde7ff66303909cc2e831",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            7.84375,
+            7.75,
+            8.375,
+            7.875
+          ],
+          "candidate_probabilities": [
+            0.008467555557734522,
+            0.007709797070878376,
+            0.014403797210291315,
+            0.00873634462432498
+          ],
+          "candidate_mass": 0.03931749446322919,
+          "candidate_entropy": 1.3522462821529888,
+          "full_entropy": 6.139674441670657,
+          "gold_probability": 0.00873634462432498,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 12
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.25,
+            10.875,
+            12.625,
+            12.5625
+          ],
+          "candidate_probabilities": [
+            0.0006344289697767423,
+            0.0032218961578527544,
+            0.018540732251792043,
+            0.017417406071460553
+          ],
+          "candidate_mass": 0.03981446345088209,
+          "candidate_entropy": 0.9869959331503082,
+          "full_entropy": 2.6808218715781553,
+          "gold_probability": 0.017417406071460553,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 9
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.0,
+            10.3125,
+            13.0,
+            13.4375
+          ],
+          "candidate_probabilities": [
+            0.00018629198482445663,
+            0.0018814823962015714,
+            0.027648181983286866,
+            0.04282234195786506
+          ],
+          "candidate_mass": 0.07253829832217795,
+          "candidate_entropy": 0.7888291727706631,
+          "full_entropy": 2.624454371985097,
+          "gold_probability": 0.04282234195786506,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.40625,
+            10.0,
+            11.1875,
+            13.0625
+          ],
+          "candidate_probabilities": [
+            0.00013018593693459764,
+            0.0017418685802437464,
+            0.0057113671949578,
+            0.03724279240810699
+          ],
+          "candidate_mass": 0.04482621412024313,
+          "candidate_entropy": 0.5596614028419878,
+          "full_entropy": 2.6280049291205385,
+          "gold_probability": 0.03724279240810699,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 6
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "fingerprint": "abb6eae6c9043cde5a54e5bc456b6af1cc0e7a4be280802dad08d3f670e75d4a",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            8.4375,
+            9.6875,
+            9.4375,
+            7.5
+          ],
+          "candidate_probabilities": [
+            0.0078449307624751,
+            0.027381498838580716,
+            0.021324732737155426,
+            0.00307211902747516
+          ],
+          "candidate_mass": 0.059623281365686405,
+          "candidate_entropy": 1.1447737349804004,
+          "full_entropy": 4.887329071067598,
+          "gold_probability": 0.0078449307624751,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 12
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            11.125,
+            13.5625,
+            11.5,
+            9.1875
+          ],
+          "candidate_probabilities": [
+            0.0025408469765278675,
+            0.0290784538024645,
+            0.0036969105367066616,
+            0.00036604371265546896
+          ],
+          "candidate_mass": 0.035682255028354495,
+          "candidate_entropy": 0.6367933371780911,
+          "full_entropy": 2.446495141164339,
+          "gold_probability": 0.0025408469765278675,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 20
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            11.625,
+            13.8125,
+            12.0,
+            8.5625
+          ],
+          "candidate_probabilities": [
+            0.004757839332802601,
+            0.04240616037340091,
+            0.006922615381360576,
+            0.00022252710679805782
+          ],
+          "candidate_mass": 0.05430914219436214,
+          "candidate_entropy": 0.6915834717060314,
+          "full_entropy": 2.3175558541020207,
+          "gold_probability": 0.004757839332802601,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 11
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.6875,
+            13.375,
+            11.0,
+            7.25
+          ],
+          "candidate_probabilities": [
+            0.0007086431158601226,
+            0.028306649964998445,
+            0.002632928587759376,
+            6.192054538394598e-05
+          ],
+          "candidate_mass": 0.03171014221400189,
+          "candidate_entropy": 0.40510552829955965,
+          "full_entropy": 2.16764913515844,
+          "gold_probability": 0.0007086431158601226,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 29
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "fingerprint": "d6b708f5aaf243936c8156f7cb314518e6b541c9b06423b1b94ef72847c0a30d",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.34375,
+            9.0625,
+            10.3125,
+            6.46875
+          ],
+          "candidate_probabilities": [
+            0.002028346413631066,
+            0.011313207930294538,
+            0.03948697562580498,
+            0.0008455405825939053
+          ],
+          "candidate_mass": 0.05367407055232448,
+          "candidate_entropy": 0.7431699536756878,
+          "full_entropy": 4.427791295739978,
+          "gold_probability": 0.03948697562580498,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.125,
+            10.375,
+            13.375,
+            8.25
+          ],
+          "candidate_probabilities": [
+            0.00017856797112061125,
+            0.0016942057388268591,
+            0.03402903192268332,
+            0.00020234402024260235
+          ],
+          "candidate_mass": 0.03610414965287339,
+          "candidate_entropy": 0.2546591704054718,
+          "full_entropy": 2.2868628535666566,
+          "gold_probability": 0.03402903192268332,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.59375,
+            10.25,
+            13.625,
+            7.96875
+          ],
+          "candidate_probabilities": [
+            0.0001103808083055271,
+            0.0015721293933910082,
+            0.045944355533279566,
+            0.00016060312842315936
+          ],
+          "candidate_mass": 0.047787468863399254,
+          "candidate_entropy": 0.18330496722169773,
+          "full_entropy": 2.1084447019218313,
+          "gold_probability": 0.045944355533279566,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.0,
+            9.9375,
+            13.25,
+            7.25
+          ],
+          "candidate_probabilities": [
+            6.401874197567156e-05,
+            0.0012079450437304676,
+            0.03316252936253135,
+            8.220169184113667e-05
+          ],
+          "candidate_mass": 0.034516694840078625,
+          "candidate_entropy": 0.18182766505492273,
+          "full_entropy": 2.1522040975838532,
+          "gold_probability": 0.03316252936253135,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "fingerprint": "b6dceb79e9a56cdf4a185ffcda011995096261f30a224bbb9843a9981e1c692e",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            10.3125,
+            10.25,
+            10.75,
+            7.46875
+          ],
+          "candidate_probabilities": [
+            0.019094984188501744,
+            0.01793807758089532,
+            0.029574890063091205,
+            0.0011114613629432143
+          ],
+          "candidate_mass": 0.06771941319543148,
+          "candidate_entropy": 1.1381084321684622,
+          "full_entropy": 3.9937477598169413,
+          "gold_probability": 0.019094984188501744,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 7
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            11.5625,
+            11.1875,
+            12.375,
+            7.5
+          ],
+          "candidate_probabilities": [
+            0.004307233759845166,
+            0.0029603155843881115,
+            0.009706501114470224,
+            7.411005054444938e-05
+          ],
+          "candidate_mass": 0.017048160509247953,
+          "candidate_entropy": 0.9959200133982119,
+          "full_entropy": 2.5006002194253596,
+          "gold_probability": 0.004307233759845166,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 12
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            12.6875,
+            11.75,
+            13.625,
+            8.3125
+          ],
+          "candidate_probabilities": [
+            0.01523451015655289,
+            0.005965919896970953,
+            0.03890268453452605,
+            0.0001917741808444934
+          ],
+          "candidate_mass": 0.060294888768894384,
+          "candidate_entropy": 0.8774792473995394,
+          "full_entropy": 2.438022401095477,
+          "gold_probability": 0.01523451015655289,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 9
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.0625,
+            11.4375,
+            12.9375,
+            7.96875
+          ],
+          "candidate_probabilities": [
+            0.02066779437496942,
+            0.004069730013151047,
+            0.018239264519165837,
+            0.00012679630997056878
+          ],
+          "candidate_mass": 0.04310358521725687,
+          "candidate_entropy": 0.9563356553597349,
+          "full_entropy": 2.549015476401942,
+          "gold_probability": 0.02066779437496942,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 8
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "fingerprint": "fc5cce0863caa1ea932b06de7237176ffdef9dd356ae8568b7aef67558219cb1",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            8.625,
+            10.5,
+            9.5625,
+            7.90625
+          ],
+          "candidate_probabilities": [
+            0.006739445977080422,
+            0.04394670818777787,
+            0.017209778200257167,
+            0.003284543647843183
+          ],
+          "candidate_mass": 0.07118047601295864,
+          "candidate_entropy": 1.0061192377885522,
+          "full_entropy": 4.584281227360214,
+          "gold_probability": 0.006739445977080422,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 16
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.3125,
+            11.125,
+            12.625,
+            8.375
+          ],
+          "candidate_probabilities": [
+            0.0004213433206904241,
+            0.002581040754852354,
+            0.011567422141118902,
+            0.00016500041514505703
+          ],
+          "candidate_mass": 0.014734806631806737,
+          "candidate_entropy": 0.6470819451560907,
+          "full_entropy": 2.327165564123359,
+          "gold_probability": 0.0004213433206904241,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 46
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            12.25,
+            11.0625,
+            13.1875,
+            10.75
+          ],
+          "candidate_probabilities": [
+            0.011449575190158457,
+            0.0034919231420599797,
+            0.029237514504887468,
+            0.0025547455458115455
+          ],
+          "candidate_mass": 0.04673375838291745,
+          "candidate_entropy": 0.9907249362389973,
+          "full_entropy": 2.588876991984916,
+          "gold_probability": 0.011449575190158457,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 10
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.0,
+            10.6875,
+            12.0,
+            9.375
+          ],
+          "candidate_probabilities": [
+            0.02265327701254985,
+            0.002242978167622477,
+            0.00833367488807872,
+            0.0006036893840948652
+          ],
+          "candidate_mass": 0.03383361945234591,
+          "candidate_entropy": 0.8654500427878584,
+          "full_entropy": 2.6292064089961373,
+          "gold_probability": 0.02265327701254985,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 7
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "fingerprint": "7d6d3d30a5bfd6e7843f3051116d0268a61299198e8a0cc18bedd4044c5fa92d",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            11.5,
+            10.9375,
+            9.8125,
+            10.0625
+          ],
+          "candidate_probabilities": [
+            0.027777455832302293,
+            0.01582711724796765,
+            0.005138312665722592,
+            0.006597724061676352
+          ],
+          "candidate_mass": 0.05534060980766889,
+          "candidate_entropy": 1.1782158582501807,
+          "full_entropy": 3.7507323706738296,
+          "gold_probability": 0.006597724061676352,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 15
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            10.6875,
+            10.9375,
+            9.6875,
+            12.375
+          ],
+          "candidate_probabilities": [
+            0.0016431972767923164,
+            0.002109907068033416,
+            0.0006044984959207931,
+            0.008883040552270315
+          ],
+          "candidate_mass": 0.013240643393016841,
+          "candidate_entropy": 0.9603342092294871,
+          "full_entropy": 2.5547820714364162,
+          "gold_probability": 0.008883040552270315,
+          "full_vocab_top1_id": 8363,
+          "gold_rank": 11
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            11.3125,
+            11.1875,
+            10.75,
+            13.9375
+          ],
+          "candidate_probabilities": [
+            0.0038283984963726624,
+            0.003378549814908397,
+            0.002181355709458834,
+            0.052849411057004136
+          ],
+          "candidate_mass": 0.06223771507774403,
+          "candidate_entropy": 0.5859855933730306,
+          "full_entropy": 2.5194428453928928,
+          "gold_probability": 0.052849411057004136,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.75,
+            10.4375,
+            9.5,
+            13.375
+          ],
+          "candidate_probabilities": [
+            0.0002634778339213528,
+            0.0014243477130856613,
+            0.0005577825787885759,
+            0.026875469705801007
+          ],
+          "candidate_mass": 0.029121077831596596,
+          "candidate_entropy": 0.3399918823301166,
+          "full_entropy": 2.426724889048145,
+          "gold_probability": 0.026875469705801007,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 6
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "fingerprint": "c63e463c4dafbfcd34bf358da4a0b91ac164bdf2bda2aba63c42bb90e7fc7d4c",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            7.8125,
+            12.5,
+            9.6875,
+            7.71875
+          ],
+          "candidate_probabilities": [
+            0.0004112136384476602,
+            0.044650147109372616,
+            0.0026814497561300165,
+            0.00037441427854737776
+          ],
+          "candidate_mass": 0.04811722478249767,
+          "candidate_entropy": 0.30878010068402106,
+          "full_entropy": 2.3175357034294812,
+          "gold_probability": 0.00037441427854737776,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 65
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            8.5,
+            12.6875,
+            10.9375,
+            10.625
+          ],
+          "candidate_probabilities": [
+            0.00023011292201273974,
+            0.015154763041607481,
+            0.0026335029357971943,
+            0.001926711906706092
+          ],
+          "candidate_mass": 0.01994509080612351,
+          "candidate_entropy": 0.7532857540551474,
+          "full_entropy": 2.6252606162648013,
+          "gold_probability": 0.001926711906706092,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 27
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.8125,
+            11.875,
+            10.5,
+            12.5
+          ],
+          "candidate_probabilities": [
+            0.0011419353102091695,
+            0.00898201696622638,
+            0.002271009539252053,
+            0.016780616886740072
+          ],
+          "candidate_mass": 0.029175578702427676,
+          "candidate_entropy": 1.006388390191967,
+          "full_entropy": 2.8169659642109597,
+          "gold_probability": 0.016780616886740072,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 9
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            10.5625,
+            10.5625,
+            9.375,
+            12.75
+          ],
+          "candidate_probabilities": [
+            0.0019760100533705157,
+            0.0019760100533705157,
+            0.000602649017077828,
+            0.017611985895564748
+          ],
+          "candidate_mass": 0.022166655019383606,
+          "candidate_entropy": 0.7117683951021159,
+          "full_entropy": 2.7200618037911792,
+          "gold_probability": 0.017611985895564748,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 9
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "fingerprint": "f8491bcc8bdde1e397cfde6bae3a2d80ece46a014260dbd2fff4136fecc3150c",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.4375,
+            9.8125,
+            9.625,
+            9.8125
+          ],
+          "candidate_probabilities": [
+            0.015563261806447373,
+            0.022644412311836278,
+            0.018772877170595028,
+            0.022644412311836278
+          ],
+          "candidate_mass": 0.07962496360071496,
+          "candidate_entropy": 1.3749170996464923,
+          "full_entropy": 4.749959133004541,
+          "gold_probability": 0.022644412311836278,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.1875,
+            10.5625,
+            10.8125,
+            13.5625
+          ],
+          "candidate_probabilities": [
+            0.0003771485550861892,
+            0.001491651471304516,
+            0.0019153184019946637,
+            0.029960620703414067
+          ],
+          "candidate_mass": 0.033744739131799435,
+          "candidate_entropy": 0.45653712544851194,
+          "full_entropy": 2.4186516210087454,
+          "gold_probability": 0.029960620703414067,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.84375,
+            9.3125,
+            9.6875,
+            13.75
+          ],
+          "candidate_probabilities": [
+            0.00013491961858633577,
+            0.0005860641081858207,
+            0.0008527182458262419,
+            0.0495594968438977
+          ],
+          "candidate_mass": 0.051133198816496105,
+          "candidate_entropy": 0.16545265466019754,
+          "full_entropy": 2.2072603234455856,
+          "gold_probability": 0.0495594968438977,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.8125,
+            9.625,
+            9.5625,
+            13.6875
+          ],
+          "candidate_probabilities": [
+            0.00012145166336426959,
+            0.0007439816356270356,
+            0.0006989060670013729,
+            0.043239787237165775
+          ],
+          "candidate_mass": 0.04480412660315845,
+          "candidate_entropy": 0.18326979553879588,
+          "full_entropy": 2.1838327320059854,
+          "gold_probability": 0.043239787237165775,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "fingerprint": "637fd3209f863d8cd299ab183b90af4342221c55dbc022c6fb82053c048e4152",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            7.4375,
+            9.5625,
+            8.625,
+            6.59375
+          ],
+          "candidate_probabilities": [
+            0.004042306065428574,
+            0.03384581430146851,
+            0.013254211319913141,
+            0.0017385741745676463
+          ],
+          "candidate_mass": 0.05288090586137787,
+          "candidate_entropy": 0.9412471693431937,
+          "full_entropy": 5.362456512214317,
+          "gold_probability": 0.013254211319913141,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 9
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            7.09375,
+            12.375,
+            10.9375,
+            6.65625
+          ],
+          "candidate_probabilities": [
+            6.099703923679483e-05,
+            0.011992962829695813,
+            0.0028485783546907326,
+            3.938264849970089e-05
+          ],
+          "candidate_mass": 0.014941920872123041,
+          "candidate_entropy": 0.5305330756962964,
+          "full_entropy": 2.4983467032741817,
+          "gold_probability": 0.0028485783546907326,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 20
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.125,
+            12.9375,
+            12.8125,
+            7.71875
+          ],
+          "candidate_probabilities": [
+            0.0005544622889254644,
+            0.025096879516165894,
+            0.022147918437555182,
+            0.0001358768275153829
+          ],
+          "candidate_mass": 0.04793513707016192,
+          "candidate_entropy": 0.7637521557983268,
+          "full_entropy": 2.5073831071331854,
+          "gold_probability": 0.022147918437555182,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 7
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            8.5,
+            12.5625,
+            12.25,
+            6.875
+          ],
+          "candidate_probabilities": [
+            0.00024293386790566688,
+            0.014119177487613042,
+            0.010329810917809282,
+            4.783651489313926e-05
+          ],
+          "candidate_mass": 0.024739758788221128,
+          "candidate_entropy": 0.7422478354049393,
+          "full_entropy": 2.395634703013378,
+          "gold_probability": 0.010329810917809282,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 11
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "fingerprint": "10482d34abf903d2337e6e353d9f1f00be9054a042b81cf1c439476e6264e816",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            7.8125,
+            9.0625,
+            8.1875,
+            8.125
+          ],
+          "candidate_probabilities": [
+            0.005857573229533402,
+            0.020444939469518926,
+            0.008522718759468511,
+            0.00800635333333018
+          ],
+          "candidate_mass": 0.04283158479185102,
+          "candidate_entropy": 1.2598410565486926,
+          "full_entropy": 5.570371641273341,
+          "gold_probability": 0.00800635333333018,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 16
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.40625,
+            11.0,
+            9.4375,
+            12.875
+          ],
+          "candidate_probabilities": [
+            0.00010033389783791056,
+            0.0036491648141638946,
+            0.0007649064986398721,
+            0.023795543693435808
+          ],
+          "candidate_mass": 0.028309948904077484,
+          "candidate_entropy": 0.5276630176699301,
+          "full_entropy": 2.643312263032575,
+          "gold_probability": 0.023795543693435808,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.125,
+            10.8125,
+            9.875,
+            13.8125
+          ],
+          "candidate_probabilities": [
+            0.00022956824216179185,
+            0.003373480692504174,
+            0.0013210740206701789,
+            0.06775817100895326
+          ],
+          "candidate_mass": 0.07268229396428941,
+          "candidate_entropy": 0.29892704071228904,
+          "full_entropy": 2.4097165429903344,
+          "gold_probability": 0.06775817100895326,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.5,
+            10.8125,
+            9.4375,
+            13.6875
+          ],
+          "candidate_probabilities": [
+            0.00011752929637334757,
+            0.003226610980497937,
+            0.0008158150161282552,
+            0.057193048104291135
+          ],
+          "candidate_mass": 0.061353003397290676,
+          "candidate_entropy": 0.28977613046408346,
+          "full_entropy": 2.4122998964769744,
+          "gold_probability": 0.057193048104291135,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "fingerprint": "3e611c0d27b0fa5712dae66da29fd39a78ea92f864b7ddf6ab9f2f0db7d5b36a",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.9375,
+            10.1875,
+            9.4375,
+            8.5625
+          ],
+          "candidate_probabilities": [
+            0.009579341846259191,
+            0.033435188350210296,
+            0.015793664661235367,
+            0.00658377894880766
+          ],
+          "candidate_mass": 0.06539197380651252,
+          "candidate_entropy": 1.198654602795966,
+          "full_entropy": 4.69117963829971,
+          "gold_probability": 0.033435188350210296,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.375,
+            12.75,
+            11.0625,
+            9.9375
+          ],
+          "candidate_probabilities": [
+            0.0001769371775723696,
+            0.014055860997179013,
+            0.0026000728441606517,
+            0.0008441200641681975
+          ],
+          "candidate_mass": 0.017676991083080233,
+          "candidate_entropy": 0.6555305856235294,
+          "full_entropy": 2.5358729102535045,
+          "gold_probability": 0.014055860997179013,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 8
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.375,
+            13.875,
+            10.125,
+            9.25
+          ],
+          "candidate_probabilities": [
+            0.0002024058455731314,
+            0.04952707745486293,
+            0.0011647652205743447,
+            0.0004855463822999046
+          ],
+          "candidate_mass": 0.0513797949033103,
+          "candidate_entropy": 0.18711052462973907,
+          "full_entropy": 2.2177299539013435,
+          "gold_probability": 0.04952707745486293,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.25,
+            13.75,
+            9.5625,
+            8.9375
+          ],
+          "candidate_probabilities": [
+            0.00015362190465344083,
+            0.03759004068776027,
+            0.0005707746190085447,
+            0.00030551363793289606
+          ],
+          "candidate_mass": 0.03861995084935515,
+          "candidate_entropy": 0.14886646619529692,
+          "full_entropy": 2.1469544928361075,
+          "gold_probability": 0.03759004068776027,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "fingerprint": "5cf673090541bcc3de0cff8aeb532bd4b6e4ae720acd617524529957092839c6",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            8.0,
+            8.5625,
+            8.75,
+            8.375
+          ],
+          "candidate_probabilities": [
+            0.009004327385825708,
+            0.01580308671128856,
+            0.019062161225378984,
+            0.013101219040787957
+          ],
+          "candidate_mass": 0.0569707943632812,
+          "candidate_entropy": 1.3516191065389997,
+          "full_entropy": 5.863273730291306,
+          "gold_probability": 0.013101219040787957,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 9
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.84375,
+            9.125,
+            9.625,
+            13.25
+          ],
+          "candidate_probabilities": [
+            9.615980543020777e-05,
+            0.00034628476174319454,
+            0.0005709270524053308,
+            0.02142387958583705
+          ],
+          "candidate_mass": 0.022437251205415783,
+          "candidate_entropy": 0.22528910950213432,
+          "full_entropy": 2.2272181069137154,
+          "gold_probability": 0.02142387958583705,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.0625,
+            8.9375,
+            9.1875,
+            13.75
+          ],
+          "candidate_probabilities": [
+            0.00015830762935619837,
+            0.00037976026090908436,
+            0.0004876218272552325,
+            0.04672525834117557
+          ],
+          "candidate_mass": 0.04775094805869609,
+          "candidate_entropy": 0.1254343982572647,
+          "full_entropy": 2.1247086705249747,
+          "gold_probability": 0.04672525834117557,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.8125,
+            9.5,
+            9.4375,
+            13.6875
+          ],
+          "candidate_probabilities": [
+            0.00010291422994713482,
+            0.0005563490707644438,
+            0.0005226415845602574,
+            0.03664000379512317
+          ],
+          "candidate_mass": 0.037821908680395006,
+          "candidate_entropy": 0.16805934545040302,
+          "full_entropy": 2.166374195336398,
+          "gold_probability": 0.03664000379512317,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "fingerprint": "b2b2a93265eccca4a5583b7ccd0da31434429a1cd10c5035e365b9ca28d486af",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            11.375,
+            10.5,
+            10.75,
+            8.6875
+          ],
+          "candidate_probabilities": [
+            0.037377680691500444,
+            0.015581335463957261,
+            0.020006830761659208,
+            0.002543583092530739
+          ],
+          "candidate_mass": 0.07550943000964765,
+          "candidate_entropy": 1.1398685558754444,
+          "full_entropy": 3.880035640564885,
+          "gold_probability": 0.020006830761659208,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 8
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            10.125,
+            9.8125,
+            13.125,
+            8.5
+          ],
+          "candidate_probabilities": [
+            0.0007383484899798822,
+            0.0005401872948784347,
+            0.014830125857670783,
+            0.00014538943804642582
+          ],
+          "candidate_mass": 0.016254051080575524,
+          "candidate_entropy": 0.3794154645859952,
+          "full_entropy": 2.0810248772905506,
+          "gold_probability": 0.014830125857670783,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.4375,
+            9.0,
+            13.8125,
+            7.84375
+          ],
+          "candidate_probabilities": [
+            6.112846400933152e-05,
+            0.00029162759161203023,
+            0.035881517789322206,
+            9.176469311891498e-05
+          ],
+          "candidate_mass": 0.03632603853806249,
+          "candidate_entropy": 0.07675307585278476,
+          "full_entropy": 1.948669608092541,
+          "gold_probability": 0.035881517789322206,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.5625,
+            9.625,
+            13.75,
+            8.3125
+          ],
+          "candidate_probabilities": [
+            6.437740315078081e-05,
+            0.0005063674992552711,
+            0.03132784785451091,
+            0.00013628696353968383
+          ],
+          "candidate_mass": 0.03203487972045665,
+          "candidate_entropy": 0.12308809827721039,
+          "full_entropy": 1.9400919830377275,
+          "gold_probability": 0.03132784785451091,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "fingerprint": "a545dbf84a7a27b8d8a03c6e7d4605bf52abcde33cf6ff968a386616fb4589c5",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            7.9375,
+            10.5,
+            11.125,
+            8.5625
+          ],
+          "candidate_probabilities": [
+            0.0016798908303208022,
+            0.02178515575856729,
+            0.04070002917797464,
+            0.0031384492526742983
+          ],
+          "candidate_mass": 0.06730352501953703,
+          "candidate_entropy": 0.904339461792413,
+          "full_entropy": 3.7226331664011614,
+          "gold_probability": 0.0031384492526742983,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 22
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            8.1875,
+            12.25,
+            13.125,
+            11.9375
+          ],
+          "candidate_probabilities": [
+            0.00011419334450069568,
+            0.006636851884050763,
+            0.015920980014368362,
+            0.004855624565375504
+          ],
+          "candidate_mass": 0.027527649808295324,
+          "candidate_entropy": 0.9884600542255706,
+          "full_entropy": 2.4045251327961736,
+          "gold_probability": 0.004855624565375504,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 11
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            8.0625,
+            12.25,
+            14.125,
+            11.25
+          ],
+          "candidate_probabilities": [
+            0.00011645689996976813,
+            0.007669611546214316,
+            0.05001214961605891,
+            0.002821492409623364
+          ],
+          "candidate_mass": 0.06061971047186636,
+          "candidate_entropy": 0.575040420265702,
+          "full_entropy": 2.269371477352658,
+          "gold_probability": 0.002821492409623364,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 13
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            6.9375,
+            11.5,
+            13.9375,
+            9.1875
+          ],
+          "candidate_probabilities": [
+            4.03655896918932e-05,
+            0.003867941304154086,
+            0.04426624411564807,
+            0.0003829780518755194
+          ],
+          "candidate_mass": 0.048557529061369564,
+          "candidate_entropy": 0.3299732859546176,
+          "full_entropy": 2.1254086607663423,
+          "gold_probability": 0.0003829780518755194,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 45
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "fingerprint": "c9f61ba91f7a075eb08c5d40af66c4906790fdb82cc5d020dc6dd886b67be78a",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.0,
+            10.0,
+            7.75,
+            7.96875
+          ],
+          "candidate_probabilities": [
+            0.0141419169907979,
+            0.03844171597566215,
+            0.004051727054662223,
+            0.005042455790707033
+          ],
+          "candidate_mass": 0.06167781581182931,
+          "candidate_entropy": 1.0159389655892213,
+          "full_entropy": 4.804988093553105,
+          "gold_probability": 0.005042455790707033,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 19
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            11.1875,
+            13.3125,
+            10.5,
+            12.0625
+          ],
+          "candidate_probabilities": [
+            0.0031918112196817764,
+            0.026724708143849966,
+            0.0016049434721779412,
+            0.007656757077901603
+          ],
+          "candidate_mass": 0.039178219913611284,
+          "candidate_entropy": 0.9151612531852242,
+          "full_entropy": 2.636380012411625,
+          "gold_probability": 0.007656757077901603,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 11
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            12.4375,
+            13.625,
+            10.8125,
+            12.8125
+          ],
+          "candidate_probabilities": [
+            0.012276027470046337,
+            0.0402515444460295,
+            0.0024172931339795285,
+            0.01786151457453462
+          ],
+          "candidate_mass": 0.07280637962458998,
+          "candidate_entropy": 1.0855914097137562,
+          "full_entropy": 2.6227301721483793,
+          "gold_probability": 0.01786151457453462,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 9
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            11.625,
+            12.125,
+            10.0625,
+            13.875
+          ],
+          "candidate_probabilities": [
+            0.005266734371767062,
+            0.008683376985859833,
+            0.0011039674974224597,
+            0.04996938443959556
+          ],
+          "candidate_mass": 0.06502346329464491,
+          "candidate_entropy": 0.7440093642139541,
+          "full_entropy": 2.602277922202769,
+          "gold_probability": 0.04996938443959556,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 6
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "fingerprint": "3764e7a1ef317a3b7a10062901022671e65376d9c3db282e643d074fb2cef3d6",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            8.25,
+            9.5625,
+            8.75,
+            7.875
+          ],
+          "candidate_probabilities": [
+            0.008147980858116693,
+            0.030273421492019656,
+            0.013433749354034474,
+            0.005600019887577668
+          ],
+          "candidate_mass": 0.05745517159174849,
+          "candidate_entropy": 1.1813159688875887,
+          "full_entropy": 5.298374711921222,
+          "gold_probability": 0.005600019887577668,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 21
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            10.4375,
+            11.3125,
+            9.4375,
+            13.75
+          ],
+          "candidate_probabilities": [
+            0.0015818564917351,
+            0.0037946764566248003,
+            0.0005819324821929269,
+            0.043427772336786276
+          ],
+          "candidate_mass": 0.0493862377673391,
+          "candidate_entropy": 0.47277799695910994,
+          "full_entropy": 2.54272864594756,
+          "gold_probability": 0.043427772336786276,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            10.1875,
+            10.75,
+            8.625,
+            14.4375
+          ],
+          "candidate_probabilities": [
+            0.001386868309201896,
+            0.002434029684655443,
+            0.0002907033900877068,
+            0.0972269746871527
+          ],
+          "candidate_mass": 0.10133857607109775,
+          "candidate_entropy": 0.204825519805359,
+          "full_entropy": 2.34588571454576,
+          "gold_probability": 0.0972269746871527,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.9375,
+            11.3125,
+            8.875,
+            14.4375
+          ],
+          "candidate_probabilities": [
+            0.001114408188122085,
+            0.0044075698846737545,
+            0.000385129164411054,
+            0.10031582819256235
+          ],
+          "candidate_mass": 0.10622293542976924,
+          "candidate_entropy": 0.25426226881342606,
+          "full_entropy": 2.358231242696157,
+          "gold_probability": 0.10031582819256235,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 4
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "fingerprint": "4ef8c77b9c7d387e512fc30edfec5b607d0665f5a9ebf02ed347ba9c599ff674",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.3125,
+            9.9375,
+            10.875,
+            7.65625
+          ],
+          "candidate_probabilities": [
+            0.009154084940107393,
+            0.017102082183346825,
+            0.04367169677432026,
+            0.001747087684221136
+          ],
+          "candidate_mass": 0.0716749515819956,
+          "candidate_entropy": 0.9971491379401631,
+          "full_entropy": 3.9264920782137724,
+          "gold_probability": 0.04367169677432026,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.5625,
+            8.5625,
+            13.8125,
+            6.75
+          ],
+          "candidate_probabilities": [
+            5.727916295426584e-05,
+            0.00015570090780792537,
+            0.029671340996577516,
+            2.5417474484651308e-05
+          ],
+          "candidate_mass": 0.02990973854182436,
+          "candidate_entropy": 0.053303312950671214,
+          "full_entropy": 1.9110111507907905,
+          "gold_probability": 0.029671340996577516,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.3125,
+            9.75,
+            14.625,
+            7.375
+          ],
+          "candidate_probabilities": [
+            0.00036886082720097307,
+            0.0005713028251481165,
+            0.07482590375072293,
+            5.3139440465761054e-05
+          ],
+          "candidate_mass": 0.07581920684353777,
+          "candidate_entropy": 0.08084762034207373,
+          "full_entropy": 1.776493669423836,
+          "gold_probability": 0.07482590375072293,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.71875,
+            9.0,
+            14.125,
+            6.375
+          ],
+          "candidate_probabilities": [
+            5.744857823203445e-05,
+            0.00020688027743571047,
+            0.034791913082446224,
+            1.49863570326214e-05
+          ],
+          "candidate_mass": 0.03507122829514659,
+          "candidate_entropy": 0.05203322354135202,
+          "full_entropy": 1.7829528353162367,
+          "gold_probability": 0.034791913082446224,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "fingerprint": "c14d169e9c56ec4b89d9060c7c2748409ce12b3eb3e3fdb0dbf31102899e1713",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            11.3125,
+            10.125,
+            10.8125,
+            8.125
+          ],
+          "candidate_probabilities": [
+            0.029514948297917752,
+            0.009001550650262723,
+            0.01790172106252032,
+            0.0012182274068220208
+          ],
+          "candidate_mass": 0.057636447417522815,
+          "candidate_entropy": 1.0773906813337621,
+          "full_entropy": 3.602762447795463,
+          "gold_probability": 0.01790172106252032,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.34375,
+            10.75,
+            12.625,
+            6.09375
+          ],
+          "candidate_probabilities": [
+            6.501430377048336e-05,
+            0.0019603088252071192,
+            0.012782819269162443,
+            1.8626909894769025e-05
+          ],
+          "candidate_mass": 0.014826769308034815,
+          "candidate_entropy": 0.4275969297194022,
+          "full_entropy": 2.2957528663996865,
+          "gold_probability": 0.012782819269162443,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 8
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.25,
+            11.8125,
+            13.6875,
+            6.90625
+          ],
+          "candidate_probabilities": [
+            0.0001805011694946131,
+            0.006362885554289414,
+            0.041491225782882675,
+            4.7086543376692155e-05
+          ],
+          "candidate_mass": 0.04808169905004339,
+          "candidate_entropy": 0.4226010888574556,
+          "full_entropy": 2.057478992554047,
+          "gold_probability": 0.041491225782882675,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.625,
+            10.5,
+            13.3125,
+            6.15625
+          ],
+          "candidate_probabilities": [
+            3.446744342521984e-05,
+            0.0016607344274228867,
+            0.027653710954126172,
+            2.1569174947453476e-05
+          ],
+          "candidate_mass": 0.029370481999921733,
+          "candidate_entropy": 0.23236465008670654,
+          "full_entropy": 2.0333629861578766,
+          "gold_probability": 0.027653710954126172,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "fingerprint": "17d261a776ca2e09c5397a92921c8b77f4b3f5a8f24622f3cafd0b0f011a4ac7",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.8125,
+            8.25,
+            8.0625,
+            7.8125
+          ],
+          "candidate_probabilities": [
+            0.018319525533519343,
+            0.010438151006218921,
+            0.008653531124119531,
+            0.006739376815797065
+          ],
+          "candidate_mass": 0.044150584479654864,
+          "candidate_entropy": 1.3122713720763757,
+          "full_entropy": 5.928473846866907,
+          "gold_probability": 0.018319525533519343,
+          "full_vocab_top1_id": 378,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            12.75,
+            10.5,
+            10.125,
+            11.8125
+          ],
+          "candidate_probabilities": [
+            0.012238249032901447,
+            0.0012899019580627986,
+            0.0008865357864680437,
+            0.0047925671819561005
+          ],
+          "candidate_mass": 0.01920725395938839,
+          "candidate_entropy": 0.9569090809708061,
+          "full_entropy": 2.4831864242820627,
+          "gold_probability": 0.012238249032901447,
+          "full_vocab_top1_id": 8590,
+          "gold_rank": 10
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.75,
+            10.125,
+            11.0,
+            12.875
+          ],
+          "candidate_probabilities": [
+            0.03961775921217378,
+            0.0010557775214935132,
+            0.0025326786122366056,
+            0.016515139120323593
+          ],
+          "candidate_mass": 0.05972135446622749,
+          "candidate_entropy": 0.8330885586293904,
+          "full_entropy": 2.5675903528114,
+          "gold_probability": 0.03961775921217378,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.125,
+            10.0625,
+            10.75,
+            11.25
+          ],
+          "candidate_probabilities": [
+            0.04497072474862776,
+            0.000773764060639497,
+            0.0015388135800099125,
+            0.002537074681004556
+          ],
+          "candidate_mass": 0.04982037707028173,
+          "candidate_entropy": 0.41615952596890016,
+          "full_entropy": 2.2989023145395677,
+          "gold_probability": 0.04497072474862776,
+          "full_vocab_top1_id": 8590,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "fingerprint": "6e8c432258fc9846b3053a149f3584fda45ea4e52a6fff98ef85c42752f0fc72",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.75,
+            12.3125,
+            9.5625,
+            8.9375
+          ],
+          "candidate_probabilities": [
+            0.006085256595983242,
+            0.0789148082610986,
+            0.005044854909669452,
+            0.0027003162456207125
+          ],
+          "candidate_mass": 0.09274523601237201,
+          "candidate_entropy": 0.5774698691390273,
+          "full_entropy": 2.8734374872149204,
+          "gold_probability": 0.0789148082610986,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 2
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.0,
+            13.5625,
+            7.375,
+            6.625
+          ],
+          "candidate_probabilities": [
+            4.761337586865499e-05,
+            0.03371215478437552,
+            6.927705310988245e-05,
+            3.2724162761571365e-05
+          ],
+          "candidate_mass": 0.03386176937611563,
+          "candidate_entropy": 0.03301908144781221,
+          "full_entropy": 2.1777020992423957,
+          "gold_probability": 0.03371215478437552,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.625,
+            14.9375,
+            10.25,
+            8.3125
+          ],
+          "candidate_probabilities": [
+            0.0006573454825530754,
+            0.1333469595612271,
+            0.0012280830404161167,
+            0.00017692213648278353
+          ],
+          "candidate_mass": 0.1354093102206791,
+          "candidate_entropy": 0.09230616078919733,
+          "full_entropy": 1.7343283324778012,
+          "gold_probability": 0.1333469595612271,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 2
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.375,
+            14.0625,
+            8.125,
+            6.46875
+          ],
+          "candidate_probabilities": [
+            6.652246969244158e-05,
+            0.05337190595004689,
+            0.00014082806944401495,
+            2.687750740003413e-05
+          ],
+          "candidate_mass": 0.053606133996583386,
+          "candidate_entropy": 0.0320836047132128,
+          "full_entropy": 1.8823181745266502,
+          "gold_probability": 0.05337190595004689,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "fingerprint": "080ee6d6165cb84f0008a2a03e0433e3683eab13f0a06ab91d648418ba70b141",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            10.25,
+            9.6875,
+            8.875,
+            9.1875
+          ],
+          "candidate_probabilities": [
+            0.02627897782311684,
+            0.01497331021509679,
+            0.006644366130958756,
+            0.009081771722844568
+          ],
+          "candidate_mass": 0.05697842589201696,
+          "candidate_entropy": 1.2514152439573967,
+          "full_entropy": 4.547805362169096,
+          "gold_probability": 0.009081771722844568,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 15
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.90625,
+            8.25,
+            8.3125,
+            13.5625
+          ],
+          "candidate_probabilities": [
+            0.00012409914099449423,
+            0.00017500783954235233,
+            0.0001862948754600199,
+            0.03550151924938118
+          ],
+          "candidate_mass": 0.035986921105378045,
+          "candidate_entropy": 0.08609845266551264,
+          "full_entropy": 2.3178911229513655,
+          "gold_probability": 0.03550151924938118,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.1875,
+            9.5625,
+            9.5625,
+            14.5
+          ],
+          "candidate_probabilities": [
+            0.0004956070040824287,
+            0.0007211039359645817,
+            0.0007211039359645817,
+            0.10053721959868257
+          ],
+          "candidate_mass": 0.10247503447469417,
+          "candidate_entropy": 0.11427353964536535,
+          "full_entropy": 2.0921950808808263,
+          "gold_probability": 0.10053721959868257,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.375,
+            9.5625,
+            9.125,
+            14.4375
+          ],
+          "candidate_probabilities": [
+            0.0001845747274108772,
+            0.0006051972319319565,
+            0.0003907447009951069,
+            0.07926519497781935
+          ],
+          "candidate_mass": 0.0804457116381573,
+          "candidate_entropy": 0.09117224614289315,
+          "full_entropy": 2.0749548266610622,
+          "gold_probability": 0.07926519497781935,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 4
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "fingerprint": "c4f21bf69fe87a1d121943e50f2926d3c122dafe44297227d3b1027219f92663",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            7.96875,
+            12.25,
+            10.5,
+            8.125
+          ],
+          "candidate_probabilities": [
+            0.0007423620639030631,
+            0.053695639758556686,
+            0.009330903066938902,
+            0.0008679091826455353
+          ],
+          "candidate_mass": 0.06463681407204419,
+          "candidate_entropy": 0.5426395346035675,
+          "full_entropy": 2.6004300292957785,
+          "gold_probability": 0.009330903066938902,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 9
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            6.65625,
+            12.5625,
+            12.5625,
+            8.0625
+          ],
+          "candidate_probabilities": [
+            3.347935664062685e-05,
+            0.012297841389946761,
+            0.012297841389946761,
+            0.00013661667742877166
+          ],
+          "candidate_mass": 0.02476577881396292,
+          "candidate_entropy": 0.7328469353824715,
+          "full_entropy": 2.467783429862133,
+          "gold_probability": 0.012297841389946761,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 8
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            7.9375,
+            13.875,
+            13.0625,
+            8.4375
+          ],
+          "candidate_probabilities": [
+            0.0001506207508745519,
+            0.05708319784215917,
+            0.025330515493284238,
+            0.0002483316357756986
+          ],
+          "candidate_mass": 0.08281266572209367,
+          "candidate_entropy": 0.6477012358140001,
+          "full_entropy": 2.3448801936329446,
+          "gold_probability": 0.025330515493284238,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 7
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            6.96875,
+            13.75,
+            12.1875,
+            7.78125
+          ],
+          "candidate_probabilities": [
+            5.295766876155348e-05,
+            0.04666468239009405,
+            0.009781448806753022,
+            0.00011934194880387501
+          ],
+          "candidate_mass": 0.05661843081441251,
+          "candidate_entropy": 0.482209694776256,
+          "full_entropy": 2.1824855751704457,
+          "gold_probability": 0.009781448806753022,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 9
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "fingerprint": "5efc11cac6124d18b4d4d50194e199ce41cb8fba26108b26ba694c364c46c593",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.28125,
+            9.25,
+            8.25,
+            6.8125
+          ],
+          "candidate_probabilities": [
+            0.005564650141231927,
+            0.03985245921188097,
+            0.01466090042417447,
+            0.0034822690774268697
+          ],
+          "candidate_mass": 0.06356027885471424,
+          "candidate_entropy": 1.0033714269959726,
+          "full_entropy": 6.0327170579125005,
+          "gold_probability": 0.03985245921188097,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.375,
+            13.5,
+            9.6875,
+            8.625
+          ],
+          "candidate_probabilities": [
+            8.92547425743574e-05,
+            0.04080233370204489,
+            0.0009014409669283322,
+            0.00031152966216447793
+          ],
+          "candidate_mass": 0.042104559073712064,
+          "candidate_entropy": 0.16209466528819239,
+          "full_entropy": 2.3278766041488597,
+          "gold_probability": 0.04080233370204489,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.28125,
+            14.3125,
+            9.0625,
+            8.6875
+          ],
+          "candidate_probabilities": [
+            6.973598654270516e-05,
+            0.0789023657652113,
+            0.00041404161609188565,
+            0.00028456636371324045
+          ],
+          "candidate_mass": 0.07967070973155914,
+          "candidate_entropy": 0.06322032734417858,
+          "full_entropy": 1.9463382845891288,
+          "gold_probability": 0.0789023657652113,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.96875,
+            13.875,
+            8.625,
+            7.4375
+          ],
+          "candidate_probabilities": [
+            4.634498632064729e-05,
+            0.04627527666621291,
+            0.00024283036573316143,
+            7.40590772684187e-05
+          ],
+          "candidate_mass": 0.046638511095535136,
+          "candidate_entropy": 0.052238826660408445,
+          "full_entropy": 1.873362412936115,
+          "gold_probability": 0.04627527666621291,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "fingerprint": "4d248ba3f15d406c555de7c21f4fd82d75adeed0f6afa97283c1eb8b2300ef07",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.75,
+            9.75,
+            9.3125,
+            9.25
+          ],
+          "candidate_probabilities": [
+            0.02167968349094795,
+            0.02167968349094795,
+            0.013997455699353643,
+            0.013149392730125747
+          ],
+          "candidate_mass": 0.07050621541137529,
+          "candidate_entropy": 1.3594311599810678,
+          "full_entropy": 4.876864076168636,
+          "gold_probability": 0.013149392730125747,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 11
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.6875,
+            10.125,
+            10.4375,
+            13.75
+          ],
+          "candidate_probabilities": [
+            0.0006582275222745229,
+            0.001019482729893655,
+            0.0013934676755900848,
+            0.038255807205253685
+          ],
+          "candidate_mass": 0.041326985133011945,
+          "candidate_entropy": 0.34304022850763816,
+          "full_entropy": 2.3773983466931687,
+          "gold_probability": 0.038255807205253685,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.5,
+            9.75,
+            10.125,
+            14.0625
+          ],
+          "candidate_probabilities": [
+            0.00026525811022895686,
+            0.0009258417769472764,
+            0.001347091836753147,
+            0.06909263039869655
+          ],
+          "candidate_mass": 0.07163082212262593,
+          "candidate_entropy": 0.18646467112783777,
+          "full_entropy": 2.2515599182819406,
+          "gold_probability": 0.06909263039869655,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.5,
+            9.875,
+            9.5,
+            13.75
+          ],
+          "candidate_probabilities": [
+            0.0002356570855481035,
+            0.0009320418536426073,
+            0.0006405823733930284,
+            0.04490829142873821
+          ],
+          "candidate_mass": 0.046716572741321946,
+          "candidate_entropy": 0.201546151598907,
+          "full_entropy": 2.2879700381652293,
+          "gold_probability": 0.04490829142873821,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "fingerprint": "6f4bca0cec6eb4a43a0c8897b52a8f5bbf79bfca2d16dae43aa94ec3739fdeae",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            12.8125,
+            11.6875,
+            10.625,
+            8.875
+          ],
+          "candidate_probabilities": [
+            0.050616150070364685,
+            0.01643265800852441,
+            0.0056789746480059985,
+            0.000986857819339106
+          ],
+          "candidate_mass": 0.0737146405462342,
+          "candidate_entropy": 0.8479570459615214,
+          "full_entropy": 2.9950631447971934,
+          "gold_probability": 0.050616150070364685,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.8125,
+            11.6875,
+            8.125,
+            7.65625
+          ],
+          "candidate_probabilities": [
+            0.03755238021095067,
+            0.004484992234074263,
+            0.0001272294364746074,
+            7.961814689681243e-05
+          ],
+          "candidate_mass": 0.04224422002839635,
+          "candidate_entropy": 0.37207030799169355,
+          "full_entropy": 2.4396911648698096,
+          "gold_probability": 0.03755238021095067,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.875,
+            12.4375,
+            10.25,
+            8.8125
+          ],
+          "candidate_probabilities": [
+            0.1430177337831541,
+            0.012496750306647875,
+            0.0014020965260150436,
+            0.0003330271153099895
+          ],
+          "candidate_mass": 0.15724960773112703,
+          "candidate_entropy": 0.3426533614737385,
+          "full_entropy": 2.2666382901719704,
+          "gold_probability": 0.1430177337831541,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 3
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.6875,
+            11.4375,
+            8.875,
+            7.1875
+          ],
+          "candidate_probabilities": [
+            0.09867779581266514,
+            0.0038261533632165043,
+            0.00029504126670018425,
+            5.4577146544624406e-05
+          ],
+          "candidate_mass": 0.10285356758912646,
+          "candidate_entropy": 0.18299957502448655,
+          "full_entropy": 2.192187816896635,
+          "gold_probability": 0.09867779581266514,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "fingerprint": "bd21bc179328950b72686d9e77436ccd6d054cb1f5854efa9aea49a5c25391db",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.5,
+            8.5,
+            8.8125,
+            8.0
+          ],
+          "candidate_probabilities": [
+            0.027239623696332795,
+            0.010020897543127287,
+            0.013696942966561654,
+            0.006077981597745701
+          ],
+          "candidate_mass": 0.05703544580376744,
+          "candidate_entropy": 1.239645394841577,
+          "full_entropy": 5.385153161892986,
+          "gold_probability": 0.006077981597745701,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 20
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            12.3125,
+            10.0625,
+            10.5625,
+            11.625
+          ],
+          "candidate_probabilities": [
+            0.011519907603704346,
+            0.0012141893284547628,
+            0.002001859772480472,
+            0.0057925733184500975
+          ],
+          "candidate_mass": 0.02052853002308968,
+          "candidate_entropy": 1.0754645837832448,
+          "full_entropy": 2.751833815134434,
+          "gold_probability": 0.0057925733184500975,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 14
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            13.0625,
+            10.3125,
+            11.3125,
+            13.0
+          ],
+          "candidate_probabilities": [
+            0.023455910561854303,
+            0.0014994861948751683,
+            0.004076026075554368,
+            0.022034788781990507
+          ],
+          "candidate_mass": 0.05106621161427435,
+          "candidate_entropy": 1.0254010582981907,
+          "full_entropy": 2.716226693405268,
+          "gold_probability": 0.022034788781990507,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 9
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.6875,
+            10.4375,
+            11.625,
+            13.375
+          ],
+          "candidate_probabilities": [
+            0.00072259354028911,
+            0.0015297305367962574,
+            0.005015793329115994,
+            0.02886389771402259
+          ],
+          "candidate_mass": 0.03613201512022395,
+          "candidate_entropy": 0.6656310805243608,
+          "full_entropy": 2.4970214059687823,
+          "gold_probability": 0.02886389771402259,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 6
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "fingerprint": "099308affa5a2acbfa8ff2ed9bf387039008b2c528ab94b7891532a7265a6033",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.8125,
+            12.75,
+            10.1875,
+            7.71875
+          ],
+          "candidate_probabilities": [
+            0.001156049676021053,
+            0.05929403683447045,
+            0.004572265164170742,
+            0.00038722813700443323
+          ],
+          "candidate_mass": 0.06540957981166669,
+          "candidate_entropy": 0.37666073044274484,
+          "full_entropy": 2.1589773810509763,
+          "gold_probability": 0.05929403683447045,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 2
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.4375,
+            13.625,
+            11.0,
+            6.75
+          ],
+          "candidate_probabilities": [
+            5.9022248787144435e-05,
+            0.02872187972080892,
+            0.0020806059885423913,
+            2.9678250493033294e-05
+          ],
+          "candidate_mass": 0.030891186208631488,
+          "candidate_entropy": 0.26803985631068034,
+          "full_entropy": 2.2771985336538227,
+          "gold_probability": 0.02872187972080892,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.75,
+            14.125,
+            11.25,
+            6.40625
+          ],
+          "candidate_probabilities": [
+            9.666443380624152e-05,
+            0.05674061433449292,
+            0.0032010864138247814,
+            2.521642418243067e-05
+          ],
+          "candidate_mass": 0.06006358160630638,
+          "candidate_entropy": 0.22363673714534618,
+          "full_entropy": 2.1263470599454473,
+          "gold_probability": 0.05674061433449292,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.5625,
+            13.75,
+            11.375,
+            6.3125
+          ],
+          "candidate_probabilities": [
+            6.445796468078237e-05,
+            0.03136705135187633,
+            0.0029175902595394284,
+            1.8467516076888863e-05
+          ],
+          "candidate_mass": 0.03436756709217343,
+          "candidate_entropy": 0.30857934690290656,
+          "full_entropy": 2.150313884057709,
+          "gold_probability": 0.03136705135187633,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 6
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "fingerprint": "53a4fb95c95ae6d2f25e630758899dd43cae0470ee713961591615214eaf3ceb",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.6875,
+            12.625,
+            10.375,
+            7.34375
+          ],
+          "candidate_probabilities": [
+            0.0024999589923225766,
+            0.04717076564005373,
+            0.004971762120451097,
+            0.0002399137797251886
+          ],
+          "candidate_mass": 0.05488240053255259,
+          "candidate_entropy": 0.5121376562406046,
+          "full_entropy": 2.364100695766249,
+          "gold_probability": 0.04717076564005373,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.75,
+            13.25,
+            9.4375,
+            6.625
+          ],
+          "candidate_probabilities": [
+            3.6196230560250596e-05,
+            0.024075619904895318,
+            0.0005318997252693946,
+            3.1943061354659027e-05
+          ],
+          "candidate_mass": 0.024675658922079624,
+          "candidate_entropy": 0.12490937192935989,
+          "full_entropy": 2.2941986608162215,
+          "gold_probability": 0.024075619904895318,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            10.5,
+            14.8125,
+            12.0625,
+            8.9375
+          ],
+          "candidate_probabilities": [
+            0.0015161820012402365,
+            0.11314784581687043,
+            0.007233299783218841,
+            0.00031780901245349316
+          ],
+          "candidate_mass": 0.122215136613783,
+          "candidate_entropy": 0.3086238459792778,
+          "full_entropy": 2.06246711381644,
+          "gold_probability": 0.11314784581687043,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 3
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.90625,
+            13.9375,
+            8.8125,
+            6.28125
+          ],
+          "candidate_probabilities": [
+            4.209705362035827e-05,
+            0.04763046006895098,
+            0.0002832210683587471,
+            2.25329290572735e-05
+          ],
+          "candidate_mass": 0.04797831111998736,
+          "candidate_entropy": 0.0472950951829257,
+          "full_entropy": 1.9005938962779874,
+          "gold_probability": 0.04763046006895098,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "fingerprint": "bcb3c3801397cfa361c35d02cd8b72c3e84019430e57c8544910c105981d525e",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            7.46875,
+            12.125,
+            10.3125,
+            7.90625
+          ],
+          "candidate_probabilities": [
+            0.0003412210100219772,
+            0.0359103340849904,
+            0.005862200890097104,
+            0.0005284934388525795
+          ],
+          "candidate_mass": 0.04264224942396206,
+          "candidate_entropy": 0.5105368658295126,
+          "full_entropy": 2.6010937222851265,
+          "gold_probability": 0.005862200890097104,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 13
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            7.21875,
+            12.6875,
+            11.5,
+            7.25
+          ],
+          "candidate_probabilities": [
+            6.911527150353278e-05,
+            0.016391623353484187,
+            0.004999162674014466,
+            7.130922573128054e-05
+          ],
+          "candidate_mass": 0.021531210524733467,
+          "candidate_entropy": 0.584012568388465,
+          "full_entropy": 2.5065087594973976,
+          "gold_probability": 0.004999162674014466,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 13
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.875,
+            12.0625,
+            13.9375,
+            7.5
+          ],
+          "candidate_probabilities": [
+            0.00030704143528989807,
+            0.00743893302445113,
+            0.048507936700696044,
+            7.763223239400705e-05
+          ],
+          "candidate_mass": 0.05633154339283108,
+          "candidate_entropy": 0.4335981584603209,
+          "full_entropy": 2.0987475210706275,
+          "gold_probability": 0.048507936700696044,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.59375,
+            11.9375,
+            13.6875,
+            6.5625
+          ],
+          "candidate_probabilities": [
+            7.839518409682041e-05,
+            0.006036094634631159,
+            0.034735326337072284,
+            2.795266372089295e-05
+          ],
+          "candidate_mass": 0.04087776881952116,
+          "candidate_entropy": 0.4377964286272509,
+          "full_entropy": 2.088514093046603,
+          "gold_probability": 0.034735326337072284,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 6
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "fingerprint": "621e2e0ff37e0e1ddaaf677a292a03fbea5d58d703cb115e48cd6b3792f6af78",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            8.625,
+            10.8125,
+            10.125,
+            8.3125
+          ],
+          "candidate_probabilities": [
+            0.004856456244332479,
+            0.04328512333817217,
+            0.021765126870799918,
+            0.0035530592896491527
+          ],
+          "candidate_mass": 0.07345976574295372,
+          "candidate_entropy": 0.9981608226406524,
+          "full_entropy": 3.9658332606172846,
+          "gold_probability": 0.021765126870799918,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 8
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.90625,
+            10.3125,
+            13.1875,
+            6.96875
+          ],
+          "candidate_probabilities": [
+            3.5170891458964255e-05,
+            0.0010604713873550843,
+            0.018797305109543704,
+            3.743921907326892e-05
+          ],
+          "candidate_mass": 0.019930386607431023,
+          "candidate_entropy": 0.23427359355436678,
+          "full_entropy": 2.0416534189892848,
+          "gold_probability": 0.018797305109543704,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.4375,
+            11.5,
+            14.375,
+            7.9375
+          ],
+          "candidate_probabilities": [
+            0.0001873975013822827,
+            0.004006735250257321,
+            0.0710210816532218,
+            0.00011366233014189507
+          ],
+          "candidate_mass": 0.0753288767350033,
+          "candidate_entropy": 0.23629203683228298,
+          "full_entropy": 1.978027356911936,
+          "gold_probability": 0.0710210816532218,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.78125,
+            10.9375,
+            14.0625,
+            6.875
+          ],
+          "candidate_probabilities": [
+            3.328341888317419e-05,
+            0.002124537353258257,
+            0.04835424728243686,
+            3.655468437803111e-05
+          ],
+          "candidate_mass": 0.05054862273895633,
+          "candidate_entropy": 0.18571606967786836,
+          "full_entropy": 1.9503578512940207,
+          "gold_probability": 0.04835424728243686,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "fingerprint": "c95466c98d79aa68d800d347162348cd5f3cc55e38c01228a5581e76d1fd5866",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            12.4375,
+            10.625,
+            9.125,
+            7.625
+          ],
+          "candidate_probabilities": [
+            0.055427692366561115,
+            0.009048322044519627,
+            0.0020189535468682325,
+            0.0004504894282449491
+          ],
+          "candidate_mass": 0.06694545738619392,
+          "candidate_entropy": 0.5660589543842987,
+          "full_entropy": 3.1557053569146403,
+          "gold_probability": 0.055427692366561115,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.3125,
+            11.5,
+            8.375,
+            7.15625
+          ],
+          "candidate_probabilities": [
+            0.03145401104088428,
+            0.00513472615110162,
+            0.00022560412207532632,
+            6.668845110427389e-05
+          ],
+          "candidate_mass": 0.036881029765165496,
+          "candidate_entropy": 0.45284922092299884,
+          "full_entropy": 2.585175902185217,
+          "gold_probability": 0.03145401104088428,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.375,
+            12.0,
+            9.0625,
+            7.8125
+          ],
+          "candidate_probabilities": [
+            0.10041779319105465,
+            0.009340309741327995,
+            0.0004950182811763342,
+            0.00014182511209050608
+          ],
+          "candidate_mass": 0.11039494632564947,
+          "candidate_entropy": 0.32792173614522246,
+          "full_entropy": 2.309651190053464,
+          "gold_probability": 0.10041779319105465,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 3
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.3125,
+            11.1875,
+            7.875,
+            6.46875
+          ],
+          "candidate_probabilities": [
+            0.07289031431153618,
+            0.0032025769016952674,
+            0.0001166538551169543,
+            2.8587256640030275e-05
+          ],
+          "candidate_mass": 0.07623813232498844,
+          "candidate_entropy": 0.1889709518602195,
+          "full_entropy": 2.2094828171559002,
+          "gold_probability": 0.07289031431153618,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "fingerprint": "86ed4c63f39f70c08e9e250c904c991ed222df2ff38f3504bf04a3a7fb4aa3aa",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.6875,
+            9.5625,
+            9.25,
+            6.5
+          ],
+          "candidate_probabilities": [
+            0.023368234357818554,
+            0.020622394439645798,
+            0.01508766607834718,
+            0.0009645222229897286
+          ],
+          "candidate_mass": 0.06004281709880126,
+          "candidate_entropy": 1.147752499020791,
+          "full_entropy": 4.798091272577565,
+          "gold_probability": 0.01508766607834718,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 9
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.1875,
+            9.875,
+            13.25,
+            7.1875
+          ],
+          "candidate_probabilities": [
+            0.0001334357112674316,
+            0.0007213466399016189,
+            0.0210808389091252,
+            4.908825489337666e-05
+          ],
+          "candidate_mass": 0.021984709515187627,
+          "candidate_entropy": 0.1969840698884145,
+          "full_entropy": 2.165895594364546,
+          "gold_probability": 0.0210808389091252,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.125,
+            9.3125,
+            14.0625,
+            6.875
+          ],
+          "candidate_probabilities": [
+            0.0001527897706139282,
+            0.000500978370875376,
+            0.0579052265612264,
+            4.3775002192058547e-05
+          ],
+          "candidate_mass": 0.05860276970490777,
+          "candidate_entropy": 0.07342992749620689,
+          "full_entropy": 2.0183370105484677,
+          "gold_probability": 0.0579052265612264,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.3125,
+            9.875,
+            13.9375,
+            6.625
+          ],
+          "candidate_probabilities": [
+            0.0001509383876334926,
+            0.0007200867743157908,
+            0.041851031561376824,
+            2.7920794244194803e-05
+          ],
+          "candidate_mass": 0.0427499775175703,
+          "candidate_entropy": 0.11431781099479614,
+          "full_entropy": 1.9415695658383838,
+          "gold_probability": 0.041851031561376824,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 4
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "fingerprint": "111e83212539e9425dd678bb5a74abfcf0e169c27450661922f77cbcf4d68125",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            8.4375,
+            8.3125,
+            8.1875,
+            6.3125
+          ],
+          "candidate_probabilities": [
+            0.019808920894888893,
+            0.01748131133328272,
+            0.015427203104738984,
+            0.002365838220637224
+          ],
+          "candidate_mass": 0.05508327355354782,
+          "candidate_entropy": 1.2236707457024656,
+          "full_entropy": 6.420020733632645,
+          "gold_probability": 0.015427203104738984,
+          "full_vocab_top1_id": 378,
+          "gold_rank": 8
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.5,
+            9.8125,
+            12.8125,
+            8.75
+          ],
+          "candidate_probabilities": [
+            0.00045368630309975793,
+            0.0006201156524676241,
+            0.012455355834285075,
+            0.00021430623502104778
+          ],
+          "candidate_mass": 0.013743464024873503,
+          "candidate_entropy": 0.4064719502193346,
+          "full_entropy": 2.212198390589095,
+          "gold_probability": 0.012455355834285075,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.5,
+            10.375,
+            13.9375,
+            9.375
+          ],
+          "candidate_probabilities": [
+            0.000585276781493825,
+            0.0014040060112581164,
+            0.04949291792503526,
+            0.0005165049468229815
+          ],
+          "candidate_mass": 0.051998705664610186,
+          "candidate_entropy": 0.2408457547392815,
+          "full_entropy": 2.1603590145161524,
+          "gold_probability": 0.04949291792503526,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.9375,
+            10.0625,
+            13.4375,
+            8.6875
+          ],
+          "candidate_probabilities": [
+            0.00010026571892187517,
+            0.0008395145861062423,
+            0.02453421250285483,
+            0.00021226252862329152
+          ],
+          "candidate_mass": 0.02568625533650624,
+          "candidate_entropy": 0.2169155161025218,
+          "full_entropy": 2.002614807005698,
+          "gold_probability": 0.02453421250285483,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "fingerprint": "0e2b955e2b51e32e281e57728a9841dc2e2e704eb314e05df72a5c09cf53fe01",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            8.375,
+            10.0625,
+            7.75,
+            5.75
+          ],
+          "candidate_probabilities": [
+            0.005996618162434917,
+            0.03241741150969704,
+            0.003209758403907836,
+            0.0004343935627139649
+          ],
+          "candidate_mass": 0.04205818163875376,
+          "candidate_entropy": 0.721985015973825,
+          "full_entropy": 4.711085343179859,
+          "gold_probability": 0.005996618162434917,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 18
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.1875,
+            10.8125,
+            8.8125,
+            9.8125
+          ],
+          "candidate_probabilities": [
+            0.03679039518872714,
+            0.003422039816337905,
+            0.0004631227277910564,
+            0.0012588980953008135
+          ],
+          "candidate_mass": 0.04193445582815691,
+          "candidate_entropy": 0.47431859768630924,
+          "full_entropy": 2.6890619316530113,
+          "gold_probability": 0.03679039518872714,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.1875,
+            10.3125,
+            8.25,
+            9.0
+          ],
+          "candidate_probabilities": [
+            0.09401434087396048,
+            0.0019512053954713563,
+            0.0002480679280541932,
+            0.0005251598078117989
+          ],
+          "candidate_mass": 0.09673877400529783,
+          "candidate_entropy": 0.15011171763037354,
+          "full_entropy": 2.4362659914291176,
+          "gold_probability": 0.09401434087396048,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.3125,
+            10.9375,
+            8.5,
+            8.0625
+          ],
+          "candidate_probabilities": [
+            0.09971533498553445,
+            0.003412071130022429,
+            0.0002981434526508677,
+            0.00019249588086815676
+          ],
+          "candidate_mass": 0.1036180454490759,
+          "candidate_entropy": 0.17786384937752545,
+          "full_entropy": 2.3968297036818123,
+          "gold_probability": 0.09971533498553445,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 4
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "fingerprint": "b802773e44facc62522d0c6f01b3940b645fdb460fe998e3f3fefba5cc17029b",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.625,
+            10.6875,
+            8.625,
+            7.3125
+          ],
+          "candidate_probabilities": [
+            0.003954001858928637,
+            0.03110063369078443,
+            0.003954001858928637,
+            0.0010642051631990482
+          ],
+          "candidate_mass": 0.04007284257184075,
+          "candidate_entropy": 0.7501149984833764,
+          "full_entropy": 3.8668212628056318,
+          "gold_probability": 0.03110063369078443,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.6875,
+            13.0625,
+            8.5625,
+            7.28125
+          ],
+          "candidate_probabilities": [
+            0.0008602601016503883,
+            0.02514048533630496,
+            0.0002792855645707433,
+            7.755480031346254e-05
+          ],
+          "candidate_mass": 0.026357585802839555,
+          "candidate_entropy": 0.22212291977952825,
+          "full_entropy": 2.517483133129828,
+          "gold_probability": 0.02514048533630496,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.5625,
+            14.0,
+            9.1875,
+            7.3125
+          ],
+          "candidate_probabilities": [
+            0.00019409906889111665,
+            0.04461693137034753,
+            0.0003626248007971871,
+            5.561031430340142e-05
+          ],
+          "candidate_mass": 0.04522926555433923,
+          "candidate_entropy": 0.0837722319613611,
+          "full_entropy": 1.8741359114460727,
+          "gold_probability": 0.04461693137034753,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.125,
+            13.9375,
+            8.4375,
+            7.1875
+          ],
+          "candidate_probabilities": [
+            0.00012821989921412523,
+            0.042883685984947816,
+            0.00017525582305934662,
+            5.021163398418352e-05
+          ],
+          "candidate_mass": 0.043237373341205476,
+          "candidate_entropy": 0.05558283107807675,
+          "full_entropy": 1.7863234748661507,
+          "gold_probability": 0.042883685984947816,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "fingerprint": "ab21879fc07082447932f4db7294952a894a1a8f1a1a1930741a6293da331e5d",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            12.5,
+            11.5,
+            10.0,
+            7.9375
+          ],
+          "candidate_probabilities": [
+            0.04495275569109586,
+            0.016537194642756717,
+            0.0036899468890440627,
+            0.00046912410221890144
+          ],
+          "candidate_mass": 0.06564902132511553,
+          "candidate_entropy": 0.8037350997652162,
+          "full_entropy": 2.972885082877051,
+          "gold_probability": 0.04495275569109586,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.9375,
+            13.0625,
+            9.875,
+            7.8125
+          ],
+          "candidate_probabilities": [
+            0.03909170703026148,
+            0.016295847945315346,
+            0.0006726099732245849,
+            8.551276192330451e-05
+          ],
+          "candidate_mass": 0.056145677710724706,
+          "candidate_entropy": 0.6739976608586355,
+          "full_entropy": 2.5346206895146994,
+          "gold_probability": 0.03909170703026148,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.4375,
+            13.1875,
+            9.9375,
+            7.34375
+          ],
+          "candidate_probabilities": [
+            0.07861938395548816,
+            0.022524830629440426,
+            0.0008733824642002612,
+            6.527594314161635e-05
+          ],
+          "candidate_mass": 0.10208287299227047,
+          "candidate_entropy": 0.5800185068526374,
+          "full_entropy": 2.427613719202723,
+          "gold_probability": 0.07861938395548816,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.125,
+            13.125,
+            9.3125,
+            6.65625
+          ],
+          "candidate_probabilities": [
+            0.04630626284893212,
+            0.01703512209960307,
+            0.0003763548685559323,
+            2.6424259208918757e-05
+          ],
+          "candidate_mass": 0.06374416407630004,
+          "candidate_entropy": 0.6183522538895402,
+          "full_entropy": 2.3078251700418675,
+          "gold_probability": 0.04630626284893212,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 6
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "fingerprint": "69bcb710371775571925fa828d5960ac62753844e9bebe846460c7ebe02cbddd",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.75,
+            10.3125,
+            8.9375,
+            7.84375
+          ],
+          "candidate_probabilities": [
+            0.014429989947635884,
+            0.025325421057488664,
+            0.006403269223760446,
+            0.002144826527514572
+          ],
+          "candidate_mass": 0.04830350675639956,
+          "candidate_entropy": 1.1056290702598657,
+          "full_entropy": 4.412425886317799,
+          "gold_probability": 0.006403269223760446,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 18
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            12.8125,
+            12.625,
+            10.9375,
+            8.5625
+          ],
+          "candidate_probabilities": [
+            0.014697300830648847,
+            0.01218449034726488,
+            0.0022539040815940936,
+            0.00020964573687930421
+          ],
+          "candidate_mass": 0.029345340996387127,
+          "candidate_entropy": 0.9436958830070964,
+          "full_entropy": 2.6723910777109166,
+          "gold_probability": 0.0022539040815940936,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 20
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            12.0,
+            11.6875,
+            13.9375,
+            8.875
+          ],
+          "candidate_probabilities": [
+            0.006138834447700241,
+            0.004491267225453522,
+            0.04261195700559789,
+            0.0002697215616536924
+          ],
+          "candidate_mass": 0.05351178024040534,
+          "candidate_entropy": 0.6643961750469122,
+          "full_entropy": 2.3476667972628578,
+          "gold_probability": 0.04261195700559789,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            11.5,
+            11.875,
+            13.4375,
+            9.125
+          ],
+          "candidate_probabilities": [
+            0.0037370264729641983,
+            0.005437341434363846,
+            0.025940105202606922,
+            0.00034759760854949226
+          ],
+          "candidate_mass": 0.035462070718484465,
+          "candidate_entropy": 0.7986955430999422,
+          "full_entropy": 2.4506536726734507,
+          "gold_probability": 0.025940105202606922,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 7
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "fingerprint": "525d7346d90d0abdacded6a7375adf0679e922cd84de06c9cf156c62f419be3e",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.0625,
+            12.5625,
+            9.0,
+            7.875
+          ],
+          "candidate_probabilities": [
+            0.002083097139732318,
+            0.06898270325609498,
+            0.001956888664173928,
+            0.0006353087331696508
+          ],
+          "candidate_mass": 0.07365799779317088,
+          "candidate_entropy": 0.29963523042945456,
+          "full_entropy": 2.3410117817572753,
+          "gold_probability": 0.06898270325609498,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 3
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.1875,
+            13.9375,
+            10.0625,
+            7.4375
+          ],
+          "candidate_probabilities": [
+            0.00038227146479294155,
+            0.04418457375325215,
+            0.0009170215724804007,
+            6.642881990564745e-05
+          ],
+          "candidate_mass": 0.04555029561043115,
+          "candidate_entropy": 0.15779590109615219,
+          "full_entropy": 2.2595091147843163,
+          "gold_probability": 0.04418457375325215,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.875,
+            14.375,
+            9.625,
+            7.625
+          ],
+          "candidate_probabilities": [
+            0.00033395105821088563,
+            0.08171512971530279,
+            0.0007069743957802652,
+            9.567858009395531e-05
+          ],
+          "candidate_mass": 0.0828517337493879,
+          "candidate_entropy": 0.08430918275651168,
+          "full_entropy": 1.8689796296860235,
+          "gold_probability": 0.08171512971530279,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.71875,
+            13.9375,
+            8.5,
+            6.96875
+          ],
+          "candidate_probabilities": [
+            9.31576066375605e-05,
+            0.04677212822773179,
+            0.00020347491995140204,
+            4.400453750898792e-05
+          ],
+          "candidate_mass": 0.04711276529182974,
+          "candidate_entropy": 0.04954601640566073,
+          "full_entropy": 1.7939846111993616,
+          "gold_probability": 0.04677212822773179,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "fingerprint": "27f6ebe5027491148cb7392dd3b3e3e9c8b5c85802da689b1bf8412a84a0b768",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            12.5625,
+            11.4375,
+            9.875,
+            8.6875
+          ],
+          "candidate_probabilities": [
+            0.059807266374980864,
+            0.0194165765945956,
+            0.004069935553718723,
+            0.0012412602136487143
+          ],
+          "candidate_mass": 0.0845350387369439,
+          "candidate_entropy": 0.7907241808944745,
+          "full_entropy": 3.153256548578649,
+          "gold_probability": 0.059807266374980864,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.125,
+            11.4375,
+            8.25,
+            7.9375
+          ],
+          "candidate_probabilities": [
+            0.05690642471974006,
+            0.0038725308016882647,
+            0.0001598384353840091,
+            0.00011694029743331897
+          ],
+          "candidate_mass": 0.06105573425424565,
+          "candidate_entropy": 0.2680678495398893,
+          "full_entropy": 2.398547542629475,
+          "gold_probability": 0.05690642471974006,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.75,
+            12.1875,
+            8.375,
+            7.125
+          ],
+          "candidate_probabilities": [
+            0.1185478197981633,
+            0.009141426283130437,
+            0.0002019604125573872,
+            5.786262697355441e-05
+          ],
+          "candidate_mass": 0.12794906912082465,
+          "candidate_entropy": 0.27290662759142714,
+          "full_entropy": 2.256351565995249,
+          "gold_probability": 0.1185478197981633,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.5,
+            12.125,
+            8.125,
+            6.59375
+          ],
+          "candidate_probabilities": [
+            0.06719936353419281,
+            0.006250514474414628,
+            0.00011448216598218444,
+            2.4758504725183966e-05
+          ],
+          "candidate_mass": 0.07358911867931481,
+          "candidate_entropy": 0.30513875508036586,
+          "full_entropy": 2.227544094208493,
+          "gold_probability": 0.06719936353419281,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "fingerprint": "152a3dfbc1aa1115d6ded3d21edde59ead467c077f335e533e8edf0ea36e9ab4",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            12.0625,
+            10.75,
+            10.0,
+            8.75
+          ],
+          "candidate_probabilities": [
+            0.048187161469202065,
+            0.012969398565059352,
+            0.006126310091301349,
+            0.0017552172282108256
+          ],
+          "candidate_mass": 0.06903808735377359,
+          "candidate_entropy": 0.8733691638048273,
+          "full_entropy": 3.311323841779978,
+          "gold_probability": 0.048187161469202065,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.75,
+            12.5625,
+            9.625,
+            11.5625
+          ],
+          "candidate_probabilities": [
+            0.03926097190588849,
+            0.011973919914144985,
+            0.000634594506926961,
+            0.004404958966647262
+          ],
+          "candidate_mass": 0.0562744452936077,
+          "candidate_entropy": 0.8304287933856322,
+          "full_entropy": 2.6804753976488978,
+          "gold_probability": 0.03926097190588849,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.875,
+            12.875,
+            10.375,
+            10.25
+          ],
+          "candidate_probabilities": [
+            0.14068675785600682,
+            0.019039882222083426,
+            0.001562888705998913,
+            0.0013792444421284872
+          ],
+          "candidate_mass": 0.16266877322621762,
+          "candidate_entropy": 0.4617238857082084,
+          "full_entropy": 2.5306180280488824,
+          "gold_probability": 0.14068675785600682,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 3
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.375,
+            12.4375,
+            9.125,
+            8.8125
+          ],
+          "candidate_probabilities": [
+            0.07255707678465878,
+            0.010452837975303053,
+            0.0003807445954183135,
+            0.0002785586966450043
+          ],
+          "candidate_mass": 0.08366921805202515,
+          "candidate_entropy": 0.42696025217010725,
+          "full_entropy": 2.354433649683561,
+          "gold_probability": 0.07255707678465878,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 6
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "fingerprint": "c96821c908b6bb4537a37df7e5ed04feee3b66e3a9a196e3fa301a81f4ac3201",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.9375,
+            10.0625,
+            9.8125,
+            10.6875
+          ],
+          "candidate_probabilities": [
+            0.015007970876583943,
+            0.01700625898247308,
+            0.013244487812665144,
+            0.03177187459505074
+          ],
+          "candidate_mass": 0.07703059226677292,
+          "candidate_entropy": 1.320173439085787,
+          "full_entropy": 4.25875111039479,
+          "gold_probability": 0.015007970876583943,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 9
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.625,
+            10.9375,
+            9.1875,
+            9.125
+          ],
+          "candidate_probabilities": [
+            0.03460429573842367,
+            0.002354851877933751,
+            0.0004092118970702342,
+            0.0003844190015664615
+          ],
+          "candidate_mass": 0.03775277851499412,
+          "candidate_entropy": 0.34863624043943814,
+          "full_entropy": 2.487693978660936,
+          "gold_probability": 0.03460429573842367,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.375,
+            10.25,
+            8.875,
+            7.75
+          ],
+          "candidate_probabilities": [
+            0.09978921719063348,
+            0.0016129424720181134,
+            0.0004078157226813684,
+            0.00013239838059603487
+          ],
+          "candidate_mass": 0.10194237376592899,
+          "candidate_entropy": 0.11722048116522477,
+          "full_entropy": 2.3487421764087757,
+          "gold_probability": 0.09978921719063348,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.125,
+            10.75,
+            9.3125,
+            8.125
+          ],
+          "candidate_probabilities": [
+            0.06269998799197776,
+            0.0021454756072495336,
+            0.0005095951235832347,
+            0.00015541773171206936
+          ],
+          "candidate_mass": 0.0655104764545226,
+          "candidate_entropy": 0.20605055697034363,
+          "full_entropy": 2.3297939636997413,
+          "gold_probability": 0.06269998799197776,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "fingerprint": "03f5596296bd3d67dd4751eb5a18cfd2128de32ee20937fe19f7fea6205cc913",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            9.375,
+            11.0,
+            11.3125,
+            7.75
+          ],
+          "candidate_probabilities": [
+            0.0059209385628082355,
+            0.03006900711533903,
+            0.04109945977867023,
+            0.001165901931183683
+          ],
+          "candidate_mass": 0.07825530738800118,
+          "candidate_entropy": 0.9637287914347346,
+          "full_entropy": 3.5289602999698073,
+          "gold_probability": 0.03006900711533903,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            8.0,
+            12.5625,
+            13.375,
+            8.3125
+          ],
+          "candidate_probabilities": [
+            0.00012068305570190217,
+            0.011564180764456033,
+            0.02606028363832351,
+            0.00016495417939015053
+          ],
+          "candidate_mass": 0.03791010163787159,
+          "candidate_entropy": 0.6617906378568902,
+          "full_entropy": 2.3492489278564137,
+          "gold_probability": 0.011564180764456033,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 9
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.6875,
+            13.3125,
+            13.3125,
+            8.1875
+          ],
+          "candidate_probabilities": [
+            0.0002886881667311745,
+            0.02944699356274055,
+            0.02944699356274055,
+            0.00017509822421868997
+          ],
+          "candidate_mass": 0.05935777351643096,
+          "candidate_entropy": 0.7386032138757932,
+          "full_entropy": 2.340294914544966,
+          "gold_probability": 0.02944699356274055,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.4375,
+            13.0,
+            12.75,
+            7.34375
+          ],
+          "candidate_probabilities": [
+            7.97643758977708e-05,
+            0.020776482717646056,
+            0.016180741009972258,
+            7.262629072393217e-05
+          ],
+          "candidate_mass": 0.037109614394240015,
+          "candidate_entropy": 0.7120866570540849,
+          "full_entropy": 2.29399939392866,
+          "gold_probability": 0.020776482717646056,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 6
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "fingerprint": "20b0a65098df6240106b1ab22784411620c824f242f54e1a95c3d693cbdaaa02",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            12.0625,
+            11.4375,
+            9.9375,
+            8.375
+          ],
+          "candidate_probabilities": [
+            0.048585275245686274,
+            0.02600582383299437,
+            0.005802683636647889,
+            0.001216308566276741
+          ],
+          "candidate_mass": 0.08161009128160528,
+          "candidate_entropy": 0.9238455446645046,
+          "full_entropy": 3.4059387595156125,
+          "gold_probability": 0.048585275245686274,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.1875,
+            11.1875,
+            8.375,
+            6.53125
+          ],
+          "candidate_probabilities": [
+            0.026857520740245777,
+            0.0036347701764143617,
+            0.00021828491582033416,
+            3.453768900780751e-05
+          ],
+          "candidate_mass": 0.03074511352148828,
+          "candidate_entropy": 0.41327581842084077,
+          "full_entropy": 2.4812297700129395,
+          "gold_probability": 0.026857520740245777,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.5,
+            12.6875,
+            9.8125,
+            8.0625
+          ],
+          "candidate_probabilities": [
+            0.11436404676399188,
+            0.018669417420296316,
+            0.001053256457637688,
+            0.00018302852810834775
+          ],
+          "candidate_mass": 0.1342697491700342,
+          "candidate_entropy": 0.4580270434317241,
+          "full_entropy": 2.3898942651917188,
+          "gold_probability": 0.11436404676399188,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 3
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.125,
+            10.75,
+            8.125,
+            6.15625
+          ],
+          "candidate_probabilities": [
+            0.06638919054952305,
+            0.0022717131768393213,
+            0.0001645623505817478,
+            2.2978052685219972e-05
+          ],
+          "candidate_mass": 0.06884844412962934,
+          "candidate_entropy": 0.16473520884690798,
+          "full_entropy": 2.118207911760247,
+          "gold_probability": 0.06638919054952305,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 4
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "fingerprint": "88e1bdb1b58d9fe1fc155cd1a7631a3089df533b2ced6725c665c2335c2cde81",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            11.9375,
+            10.5625,
+            9.5625,
+            8.6875
+          ],
+          "candidate_probabilities": [
+            0.04628613697657335,
+            0.011702968164519935,
+            0.004305281388410773,
+            0.001794708294857208
+          ],
+          "candidate_mass": 0.06408909482436127,
+          "candidate_entropy": 0.8270681803454323,
+          "full_entropy": 3.6099521632662546,
+          "gold_probability": 0.011702968164519935,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 11
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            12.125,
+            12.875,
+            9.125,
+            7.15625
+          ],
+          "candidate_probabilities": [
+            0.009268919811119452,
+            0.019622303394121427,
+            0.0004614723443324527,
+            6.443597702243308e-05
+          ],
+          "candidate_mass": 0.029417131526595766,
+          "candidate_entropy": 0.7125781707032324,
+          "full_entropy": 2.591442917872442,
+          "gold_probability": 0.019622303394121427,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            10.6875,
+            13.8125,
+            9.125,
+            6.53125
+          ],
+          "candidate_probabilities": [
+            0.002133327629965682,
+            0.048554313058140945,
+            0.0004471697637648705,
+            3.342112908219869e-05
+          ],
+          "candidate_mass": 0.051168231580953696,
+          "candidate_entropy": 0.22844552681639232,
+          "full_entropy": 2.0377254605170934,
+          "gold_probability": 0.048554313058140945,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.125,
+            13.75,
+            9.0,
+            6.375
+          ],
+          "candidate_probabilities": [
+            0.0003972817641450922,
+            0.040523841637986474,
+            0.0003505999263113876,
+            2.539737347822341e-05
+          ],
+          "candidate_mass": 0.04129712070192118,
+          "candidate_entropy": 0.10825679432417974,
+          "full_entropy": 1.9451870808864207,
+          "gold_probability": 0.040523841637986474,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "fingerprint": "af6cc6b0340217d7f77e952295913fd269ce9086433deb3efb31c4f51d56de0a",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.1875,
+            7.875,
+            7.90625,
+            6.5625
+          ],
+          "candidate_probabilities": [
+            0.018745970707124922,
+            0.013714845149108522,
+            0.014150201067463767,
+            0.003691300495268718
+          ],
+          "candidate_mass": 0.050302317418965924,
+          "candidate_entropy": 1.2706377084104714,
+          "full_entropy": 6.763037733966566,
+          "gold_probability": 0.018745970707124922,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            12.125,
+            11.25,
+            11.0625,
+            7.875
+          ],
+          "candidate_probabilities": [
+            0.012697838822817767,
+            0.005293246737231988,
+            0.004388255674878716,
+            0.0001811249431074444
+          ],
+          "candidate_mass": 0.022560466178035914,
+          "candidate_entropy": 1.0208526375116591,
+          "full_entropy": 2.8780222327513454,
+          "gold_probability": 0.012697838822817767,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 10
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.0,
+            12.125,
+            12.125,
+            8.0625
+          ],
+          "candidate_probabilities": [
+            0.08663544708822096,
+            0.013285976115809674,
+            0.013285976115809674,
+            0.00022859784640766675
+          ],
+          "candidate_mass": 0.11343599716624797,
+          "candidate_entropy": 0.7207067004960881,
+          "full_entropy": 2.7803452761028016,
+          "gold_probability": 0.08663544708822096,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.625,
+            10.9375,
+            11.1875,
+            7.3125
+          ],
+          "candidate_probabilities": [
+            0.05873377429251842,
+            0.003996883500718067,
+            0.005132100002461876,
+            0.00010651333745270905
+          ],
+          "candidate_mass": 0.06796927113315107,
+          "candidate_entropy": 0.4980157664850557,
+          "full_entropy": 2.6127920369623125,
+          "gold_probability": 0.05873377429251842,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "fingerprint": "9a6b46dc3657d7b101d48bfa77f166acfae312a604378af83ea49493765b43f8",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            11.4375,
+            11.25,
+            9.625,
+            8.0625
+          ],
+          "candidate_probabilities": [
+            0.03540383317560254,
+            0.029350808597775776,
+            0.00577951688958569,
+            0.0012114525522892547
+          ],
+          "candidate_mass": 0.07174561121525327,
+          "candidate_entropy": 0.9860073678471412,
+          "full_entropy": 3.576936510400898,
+          "gold_probability": 0.03540383317560254,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.625,
+            9.9375,
+            9.5625,
+            7.625
+          ],
+          "candidate_probabilities": [
+            0.03333328305537202,
+            0.0008344824129812053,
+            0.0005735308157816028,
+            8.262494792893931e-05
+          ],
+          "candidate_mass": 0.034823921232063765,
+          "candidate_entropy": 0.2132544098767938,
+          "full_entropy": 2.4459561030786583,
+          "gold_probability": 0.03333328305537202,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.625,
+            10.75,
+            11.25,
+            8.9375
+          ],
+          "candidate_probabilities": [
+            0.11573312943265888,
+            0.0024019644714260266,
+            0.00396016991550608,
+            0.000392109921034143
+          ],
+          "candidate_mass": 0.12248737374062513,
+          "candidate_entropy": 0.2600343111008241,
+          "full_entropy": 2.3426648341415284,
+          "gold_probability": 0.11573312943265888,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.375,
+            9.5,
+            10.8125,
+            8.0625
+          ],
+          "candidate_probabilities": [
+            0.05747012201312215,
+            0.00043878979633956555,
+            0.0016303018726108655,
+            0.00010422171183730277
+          ],
+          "candidate_mass": 0.059643435393909885,
+          "candidate_entropy": 0.1813921107686914,
+          "full_entropy": 2.2220128347469537,
+          "gold_probability": 0.05747012201312215,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "fingerprint": "0e15ac7815eba90c58c17f41fabf77fbbeb7228b39614aa3e13f0c6e5ffa0752",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.5,
+            10.3125,
+            8.75,
+            7.46875
+          ],
+          "candidate_probabilities": [
+            0.02089816687720089,
+            0.047094746046759034,
+            0.009871595046389845,
+            0.002741242941699573
+          ],
+          "candidate_mass": 0.08060575091204934,
+          "candidate_entropy": 1.0361265347151403,
+          "full_entropy": 4.790797228186472,
+          "gold_probability": 0.047094746046759034,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.9375,
+            13.0,
+            8.9375,
+            7.875
+          ],
+          "candidate_probabilities": [
+            0.00012550737126844648,
+            0.019828280229384626,
+            0.00034116440665668096,
+            0.00011790326404895935
+          ],
+          "candidate_mass": 0.020412855271358714,
+          "candidate_entropy": 0.15768124674937264,
+          "full_entropy": 2.3648192130555925,
+          "gold_probability": 0.019828280229384626,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.4375,
+            13.9375,
+            10.0,
+            8.5
+          ],
+          "candidate_probabilities": [
+            0.0007368696101674992,
+            0.06633088844981207,
+            0.0012932464408969893,
+            0.0002885622854687321
+          ],
+          "candidate_mass": 0.06864956678634529,
+          "candidate_entropy": 0.17969332443930866,
+          "full_entropy": 2.247737681988854,
+          "gold_probability": 0.06633088844981207,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.5625,
+            13.75,
+            9.625,
+            7.9375
+          ],
+          "candidate_probabilities": [
+            0.0002684074394610573,
+            0.04805041842737879,
+            0.0007766626782100428,
+            0.0001436681494710499
+          ],
+          "candidate_mass": 0.04923915669452094,
+          "candidate_entropy": 0.1347401442877356,
+          "full_entropy": 2.1733989345995055,
+          "gold_probability": 0.04805041842737879,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "fingerprint": "a38e69ce110623c51dd67623567a4482ac6b0bde8cf635a4f997e26f69395441",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.1875,
+            11.0,
+            9.6875,
+            7.96875
+          ],
+          "candidate_probabilities": [
+            0.0034655953984307326,
+            0.057707344322879835,
+            0.015531721019360905,
+            0.002784684133912028
+          ],
+          "candidate_mass": 0.0794893448745835,
+          "candidate_entropy": 0.8055041364415156,
+          "full_entropy": 3.9973462297376847,
+          "gold_probability": 0.057707344322879835,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.4375,
+            13.8125,
+            9.875,
+            8.9375
+          ],
+          "candidate_probabilities": [
+            0.00045969994304242707,
+            0.03651848971747408,
+            0.0007119972000644962,
+            0.0002788221097233833
+          ],
+          "candidate_mass": 0.03796900897030439,
+          "candidate_entropy": 0.2015561340014913,
+          "full_entropy": 2.2935301216407984,
+          "gold_probability": 0.03651848971747408,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            10.5,
+            14.125,
+            10.0625,
+            9.5625
+          ],
+          "candidate_probabilities": [
+            0.001642990207446927,
+            0.06165275268838138,
+            0.001060794206373565,
+            0.0006434042098110978
+          ],
+          "candidate_mass": 0.06499994131201296,
+          "candidate_entropy": 0.2559586356950757,
+          "full_entropy": 2.078696023027548,
+          "gold_probability": 0.06165275268838138,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.6875,
+            13.1875,
+            9.625,
+            9.375
+          ],
+          "candidate_probabilities": [
+            0.0002530183499507995,
+            0.022775986028962494,
+            0.0006461049911308381,
+            0.0005031870730390398
+          ],
+          "candidate_mass": 0.02417829644308317,
+          "candidate_entropy": 0.2813826433954085,
+          "full_entropy": 2.1391645860376824,
+          "gold_probability": 0.022775986028962494,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "fingerprint": "21ed9735967cb805f820564d150f553907a3f3f40a8956f5d937c3e35e1cfa27",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.8125,
+            9.375,
+            8.75,
+            9.4375
+          ],
+          "candidate_probabilities": [
+            0.008568520884470045,
+            0.015038222481550729,
+            0.008049380447861238,
+            0.01600810450358473
+          ],
+          "candidate_mass": 0.04766422831746674,
+          "candidate_entropy": 1.3392630254853217,
+          "full_entropy": 4.953185929567438,
+          "gold_probability": 0.01600810450358473,
+          "full_vocab_top1_id": 378,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.25,
+            10.5625,
+            8.25,
+            12.25
+          ],
+          "candidate_probabilities": [
+            0.00022690391708941827,
+            0.002291648382163114,
+            0.00022690391708941827,
+            0.01238853410835618
+          ],
+          "candidate_mass": 0.01513399032469813,
+          "candidate_entropy": 0.575643744861832,
+          "full_entropy": 2.636118754320805,
+          "gold_probability": 0.01238853410835618,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 8
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            11.5,
+            11.625,
+            9.625,
+            13.5
+          ],
+          "candidate_probabilities": [
+            0.006559498291607197,
+            0.0074328853420291855,
+            0.0010059316430287865,
+            0.04846850085752534
+          ],
+          "candidate_mass": 0.06346681613419052,
+          "candidate_entropy": 0.757316863063739,
+          "full_entropy": 2.5451061695119876,
+          "gold_probability": 0.04846850085752534,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            6.25,
+            9.4375,
+            7.5,
+            12.8125
+          ],
+          "candidate_probabilities": [
+            3.367751402190692e-05,
+            0.0008159314751849139,
+            0.00011754607389118522,
+            0.02384501297684558
+          ],
+          "candidate_mass": 0.024812168039943586,
+          "candidate_entropy": 0.18481859341275925,
+          "full_entropy": 2.4135363251201047,
+          "gold_probability": 0.02384501297684558,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 6
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "fingerprint": "f29a94c25421b4977944d0a3ceac1d7c730c83be9927a57259da51be4faa22c4",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            8.875,
+            11.75,
+            8.875,
+            8.625
+          ],
+          "candidate_probabilities": [
+            0.0034946883362989055,
+            0.06194483293322324,
+            0.0034946883362989055,
+            0.0027216660129000926
+          ],
+          "candidate_mass": 0.07165587561872114,
+          "candidate_entropy": 0.5447561373906613,
+          "full_entropy": 3.1441917398483166,
+          "gold_probability": 0.0034946883362989055,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 19
+        },
+        {
+          "correct": false,
+          "candidate_logits": [
+            11.5625,
+            13.6875,
+            10.0,
+            11.0
+          ],
+          "candidate_probabilities": [
+            0.0046487965964802334,
+            0.03892389734548392,
+            0.0009744407031715241,
+            0.0026488044563420083
+          ],
+          "candidate_mass": 0.04719593910147769,
+          "candidate_entropy": 0.6289786268626946,
+          "full_entropy": 2.5288698494696327,
+          "gold_probability": 0.0046487965964802334,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 12
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.25,
+            13.125,
+            9.8125,
+            11.375
+          ],
+          "candidate_probabilities": [
+            0.07425303652767101,
+            0.024106431517558063,
+            0.0008780767038404056,
+            0.004189069667324163
+          ],
+          "candidate_mass": 0.10342661441639364,
+          "candidate_entropy": 0.747715328799065,
+          "full_entropy": 2.647976405139996,
+          "gold_probability": 0.07425303652767101,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.9375,
+            11.0625,
+            8.0625,
+            7.875
+          ],
+          "candidate_probabilities": [
+            0.06815305232947864,
+            0.003844932107828105,
+            0.00019142789772223326,
+            0.00015869930124379092
+          ],
+          "candidate_mass": 0.07234811163627278,
+          "candidate_entropy": 0.24136818517510936,
+          "full_entropy": 2.4474771660032197,
+          "gold_probability": 0.06815305232947864,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "fingerprint": "786d64fff4d3efd63d9b60b5fd09869d0e3449571e6fbf51d391d825c9579f1f",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            10.25,
+            10.375,
+            10.5,
+            8.5
+          ],
+          "candidate_probabilities": [
+            0.018948846786002494,
+            0.02147185642295903,
+            0.024330800890149024,
+            0.0032928158298419466
+          ],
+          "candidate_mass": 0.06804431992895249,
+          "candidate_entropy": 1.2342647444660981,
+          "full_entropy": 4.173319632467373,
+          "gold_probability": 0.024330800890149024,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.9375,
+            10.125,
+            13.0,
+            8.75
+          ],
+          "candidate_probabilities": [
+            0.00021309696404607766,
+            0.0006987180454380541,
+            0.012385073696708215,
+            0.00017666358819004024
+          ],
+          "candidate_mass": 0.013473552294382388,
+          "candidate_entropy": 0.35330757641176225,
+          "full_entropy": 2.08669013537796,
+          "gold_probability": 0.012385073696708215,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            11.25,
+            11.0625,
+            14.125,
+            9.0625
+          ],
+          "candidate_probabilities": [
+            0.0025638230454434604,
+            0.0021254839585345808,
+            0.04544485085286276,
+            0.000287652973543154
+          ],
+          "candidate_mass": 0.05042181083038396,
+          "candidate_entropy": 0.4080888972373255,
+          "full_entropy": 2.0696894771313823,
+          "gold_probability": 0.04544485085286276,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.8125,
+            9.9375,
+            13.6875,
+            7.625
+          ],
+          "candidate_probabilities": [
+            8.81407362556998e-05,
+            0.0007379933491970366,
+            0.03138027571670814,
+            7.307123685383405e-05
+          ],
+          "candidate_mass": 0.032279481039014714,
+          "candidate_entropy": 0.14375273458222834,
+          "full_entropy": 1.961771203452254,
+          "gold_probability": 0.03138027571670814,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "fingerprint": "176b21424fd84d947f75f0ef68834e80446289f5f973a8461752c41a0ca83922",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.625,
+            9.5625,
+            12.4375,
+            7.1875
+          ],
+          "candidate_probabilities": [
+            0.0010453891195019282,
+            0.0026694946351338094,
+            0.047317924597713265,
+            0.0002483016799375778
+          ],
+          "candidate_mass": 0.05128111003228658,
+          "candidate_entropy": 0.33323449443293035,
+          "full_entropy": 2.4145044014240957,
+          "gold_probability": 0.047317924597713265,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 3
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.375,
+            10.0625,
+            13.0,
+            7.65625
+          ],
+          "candidate_probabilities": [
+            0.00022610894338004204,
+            0.0012223333994301432,
+            0.02306373924356342,
+            0.00011019669810027603
+          ],
+          "candidate_mass": 0.02462237828447388,
+          "candidate_entropy": 0.2776084042367954,
+          "full_entropy": 2.2513632673806514,
+          "gold_probability": 0.02306373924356342,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.96875,
+            10.125,
+            13.5,
+            7.4375
+          ],
+          "candidate_probabilities": [
+            0.000166788093118901,
+            0.001440829261987988,
+            0.04210720323264428,
+            9.804966178250782e-05
+          ],
+          "candidate_mass": 0.043812870249533675,
+          "candidate_entropy": 0.18532288684481432,
+          "full_entropy": 2.1009774725056714,
+          "gold_probability": 0.04210720323264428,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.84375,
+            9.875,
+            13.375,
+            7.21875
+          ],
+          "candidate_probabilities": [
+            0.000139820340442473,
+            0.0010659357340952083,
+            0.03529894359348328,
+            7.484043516124965e-05
+          ],
+          "candidate_mass": 0.03657954010318221,
+          "candidate_entropy": 0.17136471529201153,
+          "full_entropy": 2.0837204014882635,
+          "gold_probability": 0.03529894359348328,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "fingerprint": "1b5e6a98b28444cfc8901bed797baaee647c8d5b7b26149e4433f19228aa4c3e",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.25,
+            8.875,
+            7.8125,
+            7.0625
+          ],
+          "candidate_probabilities": [
+            0.025680836773474502,
+            0.01765016378478996,
+            0.006099733385492423,
+            0.002881310031944335
+          ],
+          "candidate_mass": 0.05231204397570122,
+          "candidate_entropy": 1.1261096766724992,
+          "full_entropy": 5.762228508178094,
+          "gold_probability": 0.025680836773474502,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.0625,
+            11.0,
+            10.25,
+            9.125
+          ],
+          "candidate_probabilities": [
+            0.01968909992280131,
+            0.0025031881494574294,
+            0.0011824223570213658,
+            0.0003838763356666619
+          ],
+          "candidate_mass": 0.023758586764946767,
+          "candidate_entropy": 0.6087751443056322,
+          "full_entropy": 2.5229944133723463,
+          "gold_probability": 0.01968909992280131,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 8
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.1875,
+            11.0,
+            10.25,
+            9.375
+          ],
+          "candidate_probabilities": [
+            0.06252038943560266,
+            0.0025805246591270627,
+            0.0012189535374950327,
+            0.0005081354335344417
+          ],
+          "candidate_mass": 0.06682800306575919,
+          "candidate_entropy": 0.2981260385897971,
+          "full_entropy": 2.3602124706255716,
+          "gold_probability": 0.06252038943560266,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.0625,
+            10.375,
+            9.4375,
+            8.125
+          ],
+          "candidate_probabilities": [
+            0.05364141240698627,
+            0.0013428864833608966,
+            0.0005258819028723467,
+            0.00014153919402084742
+          ],
+          "candidate_mass": 0.055651719987240354,
+          "candidate_entropy": 0.18457654548325986,
+          "full_entropy": 2.255855591208295,
+          "gold_probability": 0.05364141240698627,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "fingerprint": "529b94fce678762651b9cebf0a11cc5c27e4601571b58b7d7b66dfdaa239418b",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.9375,
+            9.625,
+            10.0,
+            10.3125
+          ],
+          "candidate_probabilities": [
+            0.007009980012293602,
+            0.01394100991147122,
+            0.020284049732297867,
+            0.02772500877476091
+          ],
+          "candidate_mass": 0.0689600484308236,
+          "candidate_entropy": 1.2818698922147473,
+          "full_entropy": 4.5665985918015,
+          "gold_probability": 0.02772500877476091,
+          "full_vocab_top1_id": 4910,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.25,
+            11.25,
+            9.3125,
+            13.375
+          ],
+          "candidate_probabilities": [
+            0.00016633055555778943,
+            0.003340838515110297,
+            0.0004812934209538552,
+            0.02797249841140584
+          ],
+          "candidate_mass": 0.03196096090302778,
+          "candidate_entropy": 0.44326465408769167,
+          "full_entropy": 2.4764060023530186,
+          "gold_probability": 0.02797249841140584,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 6
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.8125,
+            12.0625,
+            9.5,
+            14.1875
+          ],
+          "candidate_probabilities": [
+            0.00036665898999912354,
+            0.009456259985772087,
+            0.0007291884719704557,
+            0.07917629548194947
+          ],
+          "candidate_mass": 0.08972840292969114,
+          "candidate_entropy": 0.4091165272380644,
+          "full_entropy": 2.3947715373138276,
+          "gold_probability": 0.07917629548194947,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 4
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.5,
+            11.0,
+            9.0,
+            14.0
+          ],
+          "candidate_probabilities": [
+            8.529691206175276e-05,
+            0.0028246457936057763,
+            0.0003822742385207444,
+            0.05673452738239558
+          ],
+          "candidate_mass": 0.06002674432658386,
+          "candidate_entropy": 0.23865496788925106,
+          "full_entropy": 2.3326652566710218,
+          "gold_probability": 0.05673452738239558,
+          "full_vocab_top1_id": 13581,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 62,
+      "fingerprint": "62d746395540d4e1e88562b8d2a06fba6f810919ec68e2ab337afa1b422c73d3",
+      "loops": [
+        {
+          "correct": true,
+          "candidate_logits": [
+            8.4375,
+            13.1875,
+            10.625,
+            7.59375
+          ],
+          "candidate_probabilities": [
+            0.0004993338701169008,
+            0.05771514811765362,
+            0.004450514339578427,
+            0.00021476082142733973
+          ],
+          "candidate_mass": 0.06287975714877628,
+          "candidate_entropy": 0.32389887454972455,
+          "full_entropy": 1.9272451426059098,
+          "gold_probability": 0.05771514811765362,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 3
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.875,
+            13.6875,
+            9.4375,
+            7.1875
+          ],
+          "candidate_probabilities": [
+            9.156870632246703e-05,
+            0.030625539967262697,
+            0.0004368498656824405,
+            4.604363709288378e-05
+          ],
+          "candidate_mass": 0.03120000217636049,
+          "candidate_entropy": 0.10474214915658385,
+          "full_entropy": 2.160559010630739,
+          "gold_probability": 0.030625539967262697,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            9.6875,
+            14.4375,
+            10.875,
+            9.1875
+          ],
+          "candidate_probabilities": [
+            0.0007286276353317526,
+            0.08421790391655723,
+            0.0023890780400844694,
+            0.000441935000342624
+          ],
+          "candidate_mass": 0.08777754459231607,
+          "candidate_entropy": 0.20422148943243945,
+          "full_entropy": 1.954935969814664,
+          "gold_probability": 0.08421790391655723,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 3
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            7.3125,
+            13.875,
+            9.0,
+            7.0625
+          ],
+          "candidate_probabilities": [
+            6.038421166150317e-05,
+            0.04275441203078453,
+            0.00032643396412699975,
+            4.7027271327128126e-05
+          ],
+          "candidate_mass": 0.043188257477900165,
+          "candidate_entropy": 0.06353693452186265,
+          "full_entropy": 1.8878091536572879,
+          "gold_probability": 0.04275441203078453,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 5
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "fingerprint": "30fbb0fb85425151db544a43623c0b9bf75e334ba7d0dbbe2913e7bf2882630c",
+      "loops": [
+        {
+          "correct": false,
+          "candidate_logits": [
+            7.78125,
+            8.125,
+            7.5,
+            6.96875
+          ],
+          "candidate_probabilities": [
+            0.01389462004830701,
+            0.01959455493752328,
+            0.010488209467052544,
+            0.006165700271034879
+          ],
+          "candidate_mass": 0.050143084723917715,
+          "candidate_entropy": 1.3077852935279224,
+          "full_entropy": 6.833239226166301,
+          "gold_probability": 0.01389462004830701,
+          "full_vocab_top1_id": 10062,
+          "gold_rank": 8
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            13.5625,
+            11.5,
+            8.4375,
+            9.5625
+          ],
+          "candidate_probabilities": [
+            0.03822624761885514,
+            0.004859922008264628,
+            0.0002273015770640365,
+            0.0007001381474582855
+          ],
+          "candidate_mass": 0.044013609351642086,
+          "candidate_entropy": 0.45881142641709594,
+          "full_entropy": 2.524744659883135,
+          "gold_probability": 0.03822624761885514,
+          "full_vocab_top1_id": 198,
+          "gold_rank": 7
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.5625,
+            11.9375,
+            9.125,
+            10.5
+          ],
+          "candidate_probabilities": [
+            0.11937338590392244,
+            0.008647379071236076,
+            0.0005193154782879189,
+            0.002053932560028915
+          ],
+          "candidate_mass": 0.13059401301347537,
+          "candidate_entropy": 0.3491694209467321,
+          "full_entropy": 2.438487538425665,
+          "gold_probability": 0.11937338590392244,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 3
+        },
+        {
+          "correct": true,
+          "candidate_logits": [
+            14.375,
+            11.8125,
+            8.5,
+            9.9375
+          ],
+          "candidate_probabilities": [
+            0.09249585620199072,
+            0.007132514561677599,
+            0.0002598018239178179,
+            0.0010938065341270376
+          ],
+          "candidate_mass": 0.10098197912171317,
+          "candidate_entropy": 0.33195220102624823,
+          "full_entropy": 2.371709483578097,
+          "gold_probability": 0.09249585620199072,
+          "full_vocab_top1_id": 3950,
+          "gold_rank": 5
+        }
+      ]
+    }
+  ]
+}

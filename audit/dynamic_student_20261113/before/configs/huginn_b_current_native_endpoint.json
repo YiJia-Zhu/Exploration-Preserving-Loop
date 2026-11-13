@@ -1,0 +1,12 @@
+{
+  "extends": "huginn_math_base.json",
+  "run_name": "huginn_b_current_native_endpoint",
+  "algorithm": {
+    "teacher_update": "current",
+    "teacher_endpoint": "native",
+    "stage_selection": "endpoint"
+  },
+  "optimization": {
+    "warmup_steps": 10
+  }
+}

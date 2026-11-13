@@ -1,0 +1,130 @@
+Preprint
+
+R EWARD -A LIGNED D ISTILLATION
+Yilan Chen1,† Zian Su2,†
+Rui Song4
+1
+
+Manish Prajapat3
+
+Rein Houthooft3
+2
+
+UC San Diego
+
+Vijay Lingam3,∗
+3
+
+Purdue University
+
+Dingmin Wang3
+
+AWS AI Labs
+
+4
+
+Amazon
+
+Reinforcement learning with verifiable rewards improves the reasoning capabilities
+of large language models, but remains computationally expensive and sample
+inefficient. On-policy distillation (OPD) provides dense token-level supervision
+from a stronger teacher, yet standard OPD distills every token regardless of whether
+the teacher’s preference actually improves task reward. Existing token-selection
+methods rely on proxies such as uncertainty or teacher–student divergence, which
+need not identify reward-improving supervision. We introduce Reward-Aligned
+Distillation (RAD), a bilevel framework that weights distillation signals based
+on their predicted effect on the student’s post-update reward. RAD differentiates
+through a temporary optimizer step to score each token’s supervision, then updates
+the token weights by projected ascent from the initial token weights. The resulting
+weights can strengthen, suppress, or reverse individual distillation-gradient contributions. At a matched training-response budget, RAD improves mean accuracy on
+six competition-math benchmarks over the strongest baselines by 6.5 percentage
+points for Qwen3-1.7B (non-thinking) and 2.5 points for Qwen3-4B-Instruct-2507.
+RAD-Simple, a simplified variant, achieves comparable math accuracy at the
+same training-response budget. On LiveCodeBench-v6, RAD reaches 54.69% and
+58.67% pass@1 with Qwen3-1.7B (non-thinking) and OLMo3-7B-Instruct, respectively, exceeding the strongest baselines by 8.7 and 6.4 points. These results support
+reward-guided weighting of teacher supervision across model families and tasks.
+(a) Qwen3-1.7B (non-thinking)
+
+(b) Coding accuracy
+
+10
+
+20
+
+30
+
+43.44
+
+44.93
+
+Qwen3-1.7B
+(non-thinking)
+
+RAD
+
+GRPO
+
+40
+
+20
+
+40
+
+45.97
+
+OPD
+
+25
+
+52.27 +6.40
+
++8.72
+
+RAD
+
+35
+
+54.69
+
+RLAD
+
+45
+
+58.67
+
+60
+
+OPD
+
+55
+
+Code accuracy (%)
+
+Code accuracy (%)
+
+arXiv:2610.14572v1 [cs.LG] 10 Oct 2026
+
+A BSTRACT
+
+OLMo3-7BInstruct
+
+Student model
+
+Math accuracy (%)
+
+Figure 1: Reward-aligned distillation (RAD) consistently outperforms OPD and other baselines on
+mathematical reasoning and code generation tasks. The teachers are Qwen3-30B-A3B-Instruct-2507
+for the Qwen student and OLMo3.1-32B-Instruct for the OLMo student. (a) Rollout-matched Qwen31.7B (non-thinking) results on both math and coding tasks (Tables 1 and 8). (b) LiveCodeBench-v6
+pass@1 for Qwen3-1.7B (non-thinking) and OLMo3-7B-Instruct, comparing RAD at step 100 with
+baselines at step 200. The grey bars show the strongest baselines, RLAD and GRPO, respectively;
+each RAD bar gives its gain over that baseline (pp). Dashed lines mark the corresponding teachers.
+†
+
+Work done during an internship at AWS AI Labs. Yilan Chen: yic031@ucsd.edu; Zian Su:
+su284@purdue.edu.
+∗
+Corresponding author: Vijay Lingam, vlingam@amazon.com.
+
+1
+
+

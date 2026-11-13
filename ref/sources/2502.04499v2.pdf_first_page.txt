@@ -1,0 +1,86 @@
+Revisiting Intermediate-Layer Matching in Knowledge Distillation:
+Layer-Selection Strategy Doesn’t Matter (Much)
+Zony Yu,
+
+Yuqiao Wen,
+
+Lili Mou∗
+
+Dept. Computing Science & Alberta Machine Intelligence Institute (Amii), University of Alberta
+∗
+Canada CIFAR AI Chair, Amii
+zony249@gmail.com, yq.when@gmail.com, doublepower.mou@gmail.com
+
+arXiv:2502.04499v2 [cs.LG] 10 Dec 2025
+
+Abstract
+Knowledge distillation (KD) is a popular
+method of transferring knowledge from a large
+“teacher” model to a small “student” model.
+Previous work has explored various layerselection strategies (e.g., forward matching and
+in-order random matching) for intermediatelayer matching in KD, where a student layer is
+forced to resemble a certain teacher layer. In
+this work, we revisit such layer-selection strategies and observe an intriguing phenomenon
+that layer-selection strategy does not matter
+(much) in intermediate-layer matching—even
+seemingly nonsensical matching strategies such
+as reverse matching still result in surprisingly
+good student performance. We provide an interpretation for this phenomenon by examining
+the angles between teacher layers viewed from
+the student’s perspective. Our work sheds light
+on KD practice, as layer-selection strategies
+may not be the main focus of KD system design, and vanilla forward matching works well
+in most setups.1
+
+1
+
+Introduction
+
+Large language models have achieved impressive
+performance in various NLP tasks (Hurst et al.,
+2024; Guo et al., 2025). However, they need a large
+number of parameters, making the models cumbersome and difficult to run in resource-restricted scenarios. Knowledge distillation (KD; Hinton et al.,
+2015) is a widely adopted method to reduce model
+parameters by training a small “student” model
+from a large “teacher.” With KD, the student is often able to retain most of the teacher’s performance
+while using a fraction of its parameters (Gu et al.,
+2024; Guo et al., 2025; Wen et al., 2025; Yang et al.,
+2025).
+Common KD approaches can be generally divided into two categories: prediction matching and
+1
+
+The code is released at the following repo: https://
+github.com/MANGA-UOFA/Layer-Selection
+
+intermediate-layer matching. Matching the prediction is usually mandatory, as it informs the student of the task to solve. This can be achieved by
+minimizing the divergence of predicted distributions (Hinton et al., 2015; Wen et al., 2023; Cui
+et al., 2025) or using reinforcement learning (Hao
+et al., 2022; Li et al., 2024).
+Intermediate-layer matching distills the teacher’s
+hidden states (i.e., intermediate layers) to the student (Sun et al., 2019; Jiao et al., 2020; Gromov
+et al., 2025). This approach often involves minimizing the distance between the student’s and teacher’s
+hidden states (usually with a linear mapping if the
+dimensions do not match). Also, a layer-selection
+strategy is required to specify which teacher layer
+is matched to which student layer.
+Traditionally, researchers have explored various
+layer-selection strategies. Sun et al. (2019) match
+the student’s layers to evenly spaced teacher layers;
+Passban et al. (2021) and Wu et al. (2021) learn
+an attention mechanism over the teacher’s layers;
+Haidar et al. (2022) match the student’s layers to
+randomly selected layers from the teacher, albeit in
+sorted order; and Wang et al. (2021) match the last
+student layer to a teacher layer close to the end.
+Despite numerous previous efforts, we observe
+that the effectiveness of existing layer-selection
+strategies is not convincing, as previous studies often lack proper controlled comparisons. For example, Passban et al. (2021) only compare their work
+with the vanilla layer-matching baseline, and Wang
+et al. (2021) compare layer-selection strategies
+without controlling weight initializations. In addition, existing work tends to omit important distillation settings such as decoder-only model architectures. As a result, there is a lack of understanding
+about how different strategies compare against each
+other.
+In this work, we aim to better understand
+how layer-selection strategies affect student performance in KD. We conduct systematic controlled
+
+

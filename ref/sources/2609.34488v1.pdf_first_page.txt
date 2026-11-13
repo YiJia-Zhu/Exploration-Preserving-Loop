@@ -1,0 +1,74 @@
+arXiv preprint, September 2026
+
+FlexLoop: Depth-Elastic Looped Policies for Adaptive
+Test-Time Computation in Deep RL
+
+Abstract. Looped architectures scale computation by reusing the same parameters across
+recurrent steps, and recent work shows that they substantially improve deep reinforcement
+learning policies on long-horizon tasks. Since recurrent depth directly controls computation,
+one may expect looped policies to naturally support elastic inference across recurrent depths.
+Surprisingly, we find that pretrained looped policies exhibit severe recurrent-depth specialization: reliable decisions are concentrated near the full trained depth, tying deployment
+computation to this depth even when less computation may suffice. Achieving depth elasticity,
+i.e., reliable decisions across recurrent depths with adaptive computation at deployment,
+therefore remains a key challenge. To address this, we propose FlexLoop, a novel post-training
+framework that converts pretrained fixed-depth looped policies into depth-elastic policies.
+FlexLoop keeps training on the original RL objective to preserve full-depth capability while
+performing adjacent-depth policy distillation to progressively transfer decision quality from
+deeper to shallower recurrent steps. The resulting policy supports reliable inference across
+recurrent depths and enables state-wise adaptive inference through recurrent-depth consistency. Experiments on 30 online and offline long-horizon goal-conditioned environments
+show that FlexLoop preserves full-depth performance while making shallower depths effective.
+Keeping competitive performance, FlexLoop reduces average recurrent depth by up to 43%
+and achieves up to 1.34× wall-clock speedup in a stress test.
+
+1. Introduction
+Scaling model capacity has been a central driver of progress
+in modern machine learning, with larger models enabling
+increasingly capable behavior across language modeling (Kaplan et al., 2020; Wei et al., 2022), robotics (Zitkovich et al.,
+2023; Kim et al., 2024), and deep reinforcement learning
+(DRL) (Wang et al., 2025). Beyond increasing parameter
+count, a complementary line of work has explored looped
+architectures (Dehghani et al., 2019; Yang et al., 2024;
+Goyal et al., 2026), which repeatedly apply a shared computation block to increase effective computational depth while
+keeping the number of trainable parameters fixed. By scaling computation rather than model size, such architectures
+provide a parameter-efficient way to expand computational
+capacity.
+1
+
+IRU-1
+
+IRU-2
+
+IRU-5
+
+3
+
+4
+
+1.00
+
+Success Rate
+
+arXiv:2609.34488v1 [cs.LG] 28 Sep 2026
+
+Xun Wang1 , Ruishuo Chen1 , Yu Chen1 , Zhuoran Li1 , and Longbo Huang1 #
+1 Institute for Interdisciplinary Information Sciences, Tsinghua University
+# Correspondence: longbohuang@tsinghua.edu.cn
+
+0.75
+0.50
+0.25
+0.00
+1
+
+2
+
+5
+
+Recurrence Depth K
+
+Figure 1 | Fixed-depth training induces
+recurrent-depth specialization. Each IRU- 𝐾
+is trained at the 𝐾 -th recurrent depth. Reliable decisions are concentrated near the
+full trained depth.
+
+

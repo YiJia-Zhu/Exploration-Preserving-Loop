@@ -1,0 +1,133 @@
+[2010.06133] BERT-EMD: Many-to-Many Layer Mapping for BERT Compression with Earth Mover's Distance
+ Skip to main content
+ Search
+ Submit
+ Donate
+Log in 
+ Search arXiv
+ Press Enter to search · Advanced search
+Computer Science > Computation and Language
+ arXiv:2010.06133 (cs)
+ [Submitted on 13 Oct 2020]
+Title:BERT-EMD: Many-to-Many Layer Mapping for BERT Compression with Earth Mover's Distance
+Authors:Jianquan Li, Xiaokang Liu, Honghong Zhao, Ruifeng Xu, Min Yang, Yaohong Jin 
+View a PDF of the paper titled BERT-EMD: Many-to-Many Layer Mapping for BERT Compression with Earth Mover's Distance, by Jianquan Li and 4 other authors
+ View PDF
+ HTML (experimental)
+ Abstract:Pre-trained language models (e.g., BERT) have achieved significant success in various natural language processing (NLP) tasks. However, high storage and computational costs obstruct pre-trained language models to be effectively deployed on resource-constrained devices. In this paper, we propose a novel BERT distillation method based on many-to-many layer mapping, which allows each intermediate student layer to learn from any intermediate teacher layers. In this way, our model can learn from different teacher layers adaptively for various NLP tasks. %motivated by the intuition that different NLP tasks require different levels of linguistic knowledge contained in the intermediate layers of BERT. In addition, we leverage Earth Mover's Distance (EMD) to compute the minimum cumulative cost that must be paid to transform knowledge from teacher network to student network. EMD enables the effective matching for many-to-many layer mapping. %EMD can be applied to network layers with different sizes and effectively measures semantic distance between the teacher network and student network. Furthermore, we propose a cost attention mechanism to learn the layer weights used in EMD automatically, which is supposed to further improve the model's performance and accelerate convergence time. Extensive experiments on GLUE benchmark demonstrate that our model achieves competitive performance compared to strong competitors in terms of both accuracy and model compression.
+ Comments:
+ EMNLP 2020
+ Subjects:
+ Computation and Language (cs.CL); Machine Learning (cs.LG)
+ Cite as:
+ arXiv:2010.06133 [cs.CL]
+ (or 
+ arXiv:2010.06133v1 [cs.CL] for this version)
+ https://doi.org/10.48550/arXiv.2010.06133
+ Focus to learn more
+ arXiv-issued DOI via DataCite
+Submission history From: XiaoKang Liu [view email] 
+ [v1]
+ Tue, 13 Oct 2020 02:53:52 UTC (560 KB)
+ Full-text links:
+Access Paper:
+View a PDF of the paper titled BERT-EMD: Many-to-Many Layer Mapping for BERT Compression with Earth Mover's Distance, by Jianquan Li and 4 other authors
+View PDF
+HTML (experimental)
+TeX Source
+view license
+Additional Features
+Audio Summary
+Current browse context:
+cs.CL
+ < prev
+ | 
+ next >
+ new
+ | 
+ recent
+ | 2020-10
+ Change to browse by:
+ cs
+ cs.LG
+References & Citations
+SciX
+Google Scholar
+Semantic Scholar
+DBLP - CS Bibliography
+ listing | bibtex 
+Jianquan Li
+Xiaokang Liu
+Ruifeng Xu
+Min Yang 
+ export BibTeX citation
+ Loading...
+BibTeX formatted citation
+ ×
+ loading...
+ Data provided by: 
+Bookmark
+ Bibliographic Tools
+Bibliographic and Citation Tools
+ Bibliographic Explorer Toggle
+ Bibliographic Explorer (What is the Explorer?)
+ Connected Papers Toggle
+ Connected Papers (What is Connected Papers?)
+ Litmaps Toggle
+ Litmaps (What is Litmaps?)
+ scite.ai Toggle
+ scite Smart Citations (What are Smart Citations?)
+ Code, Data, Media
+Code, Data and Media Associated with this Article
+ alphaXiv Toggle
+ alphaXiv (What is alphaXiv?)
+ Links to Code Toggle
+ CatalyzeX Code Finder for Papers (What is CatalyzeX?)
+ DagsHub Toggle
+ DagsHub (What is DagsHub?)
+ GotitPub Toggle
+ Gotit.pub (What is GotitPub?)
+ Huggingface Toggle
+ Hugging Face (What is Huggingface?)
+ ScienceCast Toggle
+ ScienceCast (What is ScienceCast?)
+ Demos
+Demos
+ Replicate Toggle
+ Replicate (What is Replicate?)
+ Spaces Toggle
+ Hugging Face Spaces (What is Spaces?)
+ Spaces Toggle
+ TXYZ.AI (What is TXYZ.AI?)
+ Related Papers
+Recommenders and Search Tools
+ Link to Influence Flower
+ Influence Flower (What are Influence Flowers?)
+ Core recommender toggle
+ CORE Recommender (What is CORE?)
+Author
+Venue
+Institution
+Topic
+ About arXivLabs
+arXivLabs: experimental projects with community collaborators
+arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website.
+Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them.
+Have an idea for a project that will add value for arXiv's community? Learn more about arXivLabs.
+ Which authors of this paper are endorsers? |
+ Disable MathJax (What is MathJax?)
+ We gratefully acknowledge support from our major funders,
+ member institutions, ,
+ and all contributors.
+ About ·
+ Help ·
+ Contact ·
+ Subscribe ·
+ Copyright ·
+ Privacy ·
+ Accessibility ·
+ Operational Status (opens in new tab)
+Major funding support from
+ (opens in new tab)
+ (opens in new tab)
+ (opens in new tab)

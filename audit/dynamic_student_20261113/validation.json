@@ -1,0 +1,2706 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-11-13T15:48:05.072822+00:00",
+  "source_proposal_sha256": "12941d3c4655b5312a45aa32a95b8893fc47cb6261e68194d7f72b73fbba17b6",
+  "authoritative_proposal_modified": false,
+  "default_config": "configs/default.json",
+  "default_method": "E: all JS-threshold stage ends plus learned stopping",
+  "unit_tests_passed": 43,
+  "python_sources_compiled": 27,
+  "cpu_training_configurations": [
+    {
+      "config": "configs/c_dynamic_endpoint.json",
+      "run": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/c_dynamic_endpoint_current.json",
+      "run": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/d_dynamic_uniform.json",
+      "run": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/d_dynamic_uniform_current.json",
+      "run": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/e_dynamic_js.json",
+      "run": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/e_dynamic_js_current.json",
+      "run": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/huginn_c_dynamic_endpoint.json",
+      "run": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/huginn_c_dynamic_endpoint_current.json",
+      "run": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/huginn_d_dynamic_uniform.json",
+      "run": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/huginn_d_dynamic_uniform_current.json",
+      "run": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/huginn_e_dynamic_js.json",
+      "run": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/huginn_e_dynamic_js_current.json",
+      "run": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/a_loopopd.json",
+      "run": "experiments/runs/20261113_dynamic_a_loopopd_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/a_d_loopopd.json",
+      "run": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/d_native_js.json",
+      "run": "experiments/runs/20261113_dynamic_d_native_js_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/huginn_a_loopopd.json",
+      "run": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/huginn_a_d_loopopd.json",
+      "run": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/huginn_d_native_js.json",
+      "run": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu",
+      "updates": 2
+    },
+    {
+      "config": "audit/dynamic_student_20261113/ouro_all_stages.json",
+      "run": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu",
+      "updates": 2
+    },
+    {
+      "config": "audit/dynamic_student_20261113/ouro_one_stage.json",
+      "run": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu",
+      "updates": 2
+    },
+    {
+      "config": "audit/dynamic_student_20261113/huginn_all_stages.json",
+      "run": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu",
+      "updates": 2
+    },
+    {
+      "config": "audit/dynamic_student_20261113/huginn_one_stage.json",
+      "run": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/default.json",
+      "run": "experiments/runs/20261113_dynamic_default_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/f_fixed_top_s.json",
+      "run": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/huginn_f_fixed_top_s.json",
+      "run": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/loopopd_recompute.json",
+      "run": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu",
+      "updates": 2
+    },
+    {
+      "config": "configs/huginn_loopopd_recompute.json",
+      "run": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu",
+      "updates": 2
+    }
+  ],
+  "two_family_four_case_optimizer_rng_resume_exact": true,
+  "two_family_cpu_ddp_world_size": 2,
+  "dynamic_checkpoint_gradients_reduced_exactly": true,
+  "saved_student_and_native_evaluations_passed": 6,
+  "two_pretrained_short_cpu_forwards_passed": true,
+  "paper_benchmark_scores_reproduced": false,
+  "new_method_efficacy_established": false,
+  "bod_checkpoint_identity_confirmed": false,
+  "formal_assets_ready": {
+    "ouro": false,
+    "huginn": false
+  },
+  "scope": "Dynamic student execution/loss semantics only. Tiny CPU runs and short pretrained forwards do not prove task gain or speedup. Per-run code snapshots preserve actual executed sources.",
+  "artifacts": [
+    {
+      "path": "README.md",
+      "sha256": "78b3c0b2c8aa9880cc57dc08a779538055d691ad8052a9fa4efaa3588c8c513b"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/a_d_loopopd_cpu.log",
+      "sha256": "2d65541f6dd147ced3e4c5ddaa8bc413812549c37b22c50eb57aae3b076ecd71"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/a_loopopd_cpu.log",
+      "sha256": "bf1a7956c4b75195fb0ee1196a4219efb74fa60cbd9b5c9dcb6c5413144b8f33"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/assets_preflight.json",
+      "sha256": "6681aa05b03c89382991d8f8ee4a4d4b4e87925e94956669389f482d9bbb8ec3"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/c_dynamic_endpoint_cpu.log",
+      "sha256": "08042f051eb5f29b2d8a3f90f4f0c4e60242b141325147d37e80cc18ef31c0a2"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/c_dynamic_endpoint_current_cpu.log",
+      "sha256": "f005ed35f559288fb686a2e16dac67c7ff8cf35dfe80a60415ad3ad8eff5914c"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/cpu_matrix.json",
+      "sha256": "24565cfc9382ad43b75de34d798ae10d88d15d6bc13cfd289fb2b2a260c54f83"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/d_dynamic_uniform_cpu.log",
+      "sha256": "adecf675e77a22c0fc2fe346a7f6c0d3086abb2bfaa703c49677308a6a340fb3"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/d_dynamic_uniform_current_cpu.log",
+      "sha256": "5908a60635e60db420dcfd230decb1989b36b9b051b0312ef5d4737540b193ac"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/d_native_js_cpu.log",
+      "sha256": "c66b57db1fe99ed18456980b0bad1f52e2fe4220b1dda06b063cef3c66ef080a"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ddp_gradient.py",
+      "sha256": "6915d3d505c60b9c7ea3ad71b4b6ba127c9a801406a25ebdc7429efe9e7b23a0"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/default_config.json",
+      "sha256": "755d7de15fc94b51bd792042ed008467a8aeef566c05598a19ab53e0467c5049"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/default_cpu.log",
+      "sha256": "580a289dcc01157d3743e3c37674814978f6f31497e39d524975421e788238e5"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/e_dynamic_js_cpu.log",
+      "sha256": "c4cd279072ce9f3e6e37fb2d6d19b12da7770723f7813dbaab0fe5e26d8daf54"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/e_dynamic_js_current_cpu.log",
+      "sha256": "9943a3fda4e469bea5141ec5d87854bf8a967e3238bfb3f21e3278107fce8f85"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/e_dynamic_js_current_resume.log",
+      "sha256": "22e23a0cc2ade0089c751a049d4597482660474f6375a4b496cd213f1038eb0d"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/e_dynamic_js_resume.log",
+      "sha256": "ad24ba9f1822d3bb9786d9615394bdcff1326d655bc4fc33249394e4ec244493"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/eval_fixture.jsonl",
+      "sha256": "37e4d8d32064b7238768c89aa074f0bbc7e995e0285009ce47f10e6f5d3532d8"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/evaluation_checks.json",
+      "sha256": "64fb3a52d04bbda4588f7f8454b8fede8f364066964fb5f4515dedb86cbe764b"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/extra_checks.py",
+      "sha256": "c7a9d305e3c99924e2073fcf176238d6272fdb3e05fcf6d9d9d61c5994704b6e"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/f_fixed_top_s_cpu.log",
+      "sha256": "1bbc2d06542869b7a548c2bebeb3f371f002eb44486c85818b49988e1c4a2ffb"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_a_d_loopopd_cpu.log",
+      "sha256": "ea3bcd7d4b5f81f0443cc52113445d526693f61b45c002cc3a784203cacc0a37"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_a_loopopd_cpu.log",
+      "sha256": "8daffe9ec868dbead581bdb4af07cec8df75b1d28d18108cddd7c39883271bf4"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_all_stages.json",
+      "sha256": "a8718a7b9bbc4a591cfc86aa3b5bdc1a1ccf3c93c8741a4fc5f089ceab5480a2"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_all_stages_cpu.log",
+      "sha256": "fd70039953ab4ef743105abcd4baacc15c4c0a34f377e9caa01bd9ec26a0f168"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_c_dynamic_endpoint_cpu.log",
+      "sha256": "064b32448536b5e999e2ec5751b9814a119147dd7eafe9229c71aa5b73df908d"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_c_dynamic_endpoint_current_cpu.log",
+      "sha256": "12db61f43d386f8dfc3c8797211e965f2e2f95b812352fe49307f0eb192e5f04"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_d_dynamic_uniform_cpu.log",
+      "sha256": "98f3e2fe613f6ef657d8cb6d607e79eaf2dbb04093b9f94aeff702a872b19230"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_d_dynamic_uniform_current_cpu.log",
+      "sha256": "67b04a3e454b6be13defc1fc0654560a8910008b3b0a9c27ae5f992c1b0dd785"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_d_native_js_cpu.log",
+      "sha256": "27bfc7a04664b07c26087b451e06df5f8d8c025fa9a55ad4b3a08ba755f38016"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_ddp_gradient.json",
+      "sha256": "e1917bf8ecf3f6a8656be05f11d320b97d2b0215aceb0af07cf825287f1c8fea"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_ddp_gradient.log",
+      "sha256": "ed431ce518c8c52a7eb25144b63794de519b1dcdd7912c03b086bad292db6e25"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_ddp_training.log",
+      "sha256": "ef6d47a95817637484f50f81877233cb355265a0f0810abe7d1a2763027ebf7b"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_e_dynamic_js_cpu.log",
+      "sha256": "a5b295d718c63eae2ef2a1cbf83d98a51d5061cff4e9da471f0e33422ad4599e"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_e_dynamic_js_current_cpu.log",
+      "sha256": "b839eeefc30246801439d999367b8d5eedeb098e9164bdb988deae955af8fe88"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_e_dynamic_js_current_resume.log",
+      "sha256": "4c0cab003d16a4e7e0b56e72b1c35c0ba40c44fa94303cfab2b8a73fed236ffc"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_e_dynamic_js_resume.log",
+      "sha256": "325dc33ace576deead7b606a1d4b4e0e7ea87df8c78faf434fb284cfb9de1226"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_f_fixed_top_s_cpu.log",
+      "sha256": "b2e8cfe72f70e70e83eb0bcce61e4b925196bd9d2e42ce1b6a06db75d7e36870"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_fixed_eval.jsonl",
+      "sha256": "bdb7a2c28f6ecf01ca2c4bc6e5a7639190dcb77f84e5d5a5d9dff4c0bcba84c0"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_fixed_eval.log",
+      "sha256": "c338578176e80b74f183abc7043b1b5cfebe83633889e8e651684ea2725e7ec5"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_fixed_eval.summary.json",
+      "sha256": "4cd6ca43a5603766a267c9de54f6f3f0d2e183f7136e267821a2ad73639ec124"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_learned_eval.jsonl",
+      "sha256": "29d68f393a2c5cfc25c548ef9e4ef1230a5a8063056f907b4536aa479a17a577"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_learned_eval.log",
+      "sha256": "e8e084d58f69bdcf437d59a4bf4512c324799489682b82a38c8277389f3c2e4f"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_learned_eval.summary.json",
+      "sha256": "880781f9ac3ad466cd7b66db8c40edb95481a8ac4f7bd8307b87267da441d7f5"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_loopopd_recompute_cpu.log",
+      "sha256": "87290e4fb5f302f9e8c85f88668b70c6d1957fc5b3063c5fbffb0c8c7c91e397"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_native_eval.jsonl",
+      "sha256": "8961d4ceae7a80e76dbbb1486abe889e8521b61f5bd3077f8d085db303329c86"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_native_eval.log",
+      "sha256": "26741e04a45c39f86e0eac09bafdb945e3fb4dfa710ee8d32210155468e25c55"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_native_eval.summary.json",
+      "sha256": "af12559bf78b8bec6ea58c4eed913f8409b518d62a64230f01b7a043db30f25d"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_one_stage.json",
+      "sha256": "704b0febbf2da939a1c004902c900724ac6d7ed0c28f5b17e52ceaa3c3bc68c8"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/huginn_one_stage_cpu.log",
+      "sha256": "0c4c978a0d036c0a1423d121b8e872fe198e75e7305361015298cb077b91c1b9"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/initial_regression.log",
+      "sha256": "430cc9a988ec92a7ab174a842921c1e174ffd8799f18db549da49640bb8aec4a"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/loopopd_recompute_cpu.log",
+      "sha256": "cc4393f4d53dc96c322d7e305c92a7a07210b62d76ba31ac30b9a0b7d358acce"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_all_stages.json",
+      "sha256": "412d2f47cb4d6eaac766dda9ea31ac70361313a1744731bdc1da1fa3e2bc3ed3"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_all_stages_cpu.log",
+      "sha256": "6008f986db621e5d938bbf91e9064b97f6b834a6148492657f393f8b2acca7fa"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_ddp_gradient.json",
+      "sha256": "5559b7322d2631fc85fbfcb299cc19b59e6450389637813e4e7ba1ce8fe34d2c"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_ddp_gradient.log",
+      "sha256": "5416c8a0454ca1c619cb45c4846363c47b1729d92db559056981ef82a57251bd"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_ddp_training.log",
+      "sha256": "095bca023537c40990781f61bb33c7458926f16e5bdf48c66472eba2e42c351d"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_fixed_eval.jsonl",
+      "sha256": "cede9ca3331c5969da30c562abb73c1c4f339bcc08d78d66af5b67a20c78ebf0"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_fixed_eval.log",
+      "sha256": "f173cafcbdfc3747b1fd7174014f186cff89565e625eeb6e3c3ae556d531a19a"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_fixed_eval.summary.json",
+      "sha256": "f620368f3c528de6655974bd1d13bf62adf92bf7f1f4d35df20ea180c833fbdf"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_learned_eval.jsonl",
+      "sha256": "85bb45a2b3a1b0431903a4e7d0342730a4014c744e58c51414762997f8344843"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_learned_eval.log",
+      "sha256": "5bdbf9c65a704e06e7aa2f0e6b0c47bb988061391fd17fb8ad1e0a25ea5b1446"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_learned_eval.summary.json",
+      "sha256": "7d029c3fc5526fdcc4ff0d627be152483e101e17b1c2ff895613f903dc266fbe"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_native_eval.jsonl",
+      "sha256": "64752359c4fb894d2fd0901a74a6ab8052cf91b7f3884a97de43ab24101ee45a"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_native_eval.log",
+      "sha256": "8cc86fffcbfc64081688866b58759f0ad45a8ddeee249edff1460a876d8c10a4"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_native_eval.summary.json",
+      "sha256": "8cc86fffcbfc64081688866b58759f0ad45a8ddeee249edff1460a876d8c10a4"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_one_stage.json",
+      "sha256": "a766062196af43325390b594d9485718d40b9809b8e5f509109dc84a50525cf4"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/ouro_one_stage_cpu.log",
+      "sha256": "cc650998a9e4b73bc02e7fb5dc957b8f5a0f4893114349260506210d82a65225"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/pretrained_forward.json",
+      "sha256": "d93d35de86141f20d579ef9a60f4dbca33f7c8fd4326b296ec4bc3138e4e5df9"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/pretrained_forward.log",
+      "sha256": "fc4678ef807068e3101ccc0e8dfb07400f0ac4acc3d259f439db998432419aec"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/pretrained_forward.py",
+      "sha256": "45581d00fbd3114693ca178c1debb04380bb75547fcdfcf0719cb1601a373c72"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/resume.json",
+      "sha256": "df9603709076a7c71242a4de8bd411a05a41c4b9738f2d41665f96ddc93a02e1"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/run_cpu_matrix.py",
+      "sha256": "9c440ff67db0f0bdb7b975a55758683491d9785ebd10568bdaf79c6cef8169ac"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/unit_tests.log",
+      "sha256": "796dd2947f24f6ebf2784c695f2a8d7943e7ab2ac9bd84815e6fffcbbb4beebe"
+    },
+    {
+      "path": "audit/dynamic_student_20261113/verify_resume.py",
+      "sha256": "f45a7e81e04af34cc024d43511539432368bfe9e718c76ce6e1f1ef377fba911"
+    },
+    {
+      "path": "configs/a_d_loopopd.json",
+      "sha256": "a355c6dafefd6922fa473aa44e4c14462b31cc35a0341e38d1c1997799e7ca61"
+    },
+    {
+      "path": "configs/a_loopopd.json",
+      "sha256": "de552044e66a4ac8c951f261c6cdfbd8529f22921e056ea5c13f4024246d2329"
+    },
+    {
+      "path": "configs/b_current_native_endpoint.json",
+      "sha256": "1bc3f24f9a10121bb71acaa4cc0fc14b1ec8a1fcca785f2ab152def5393559cf"
+    },
+    {
+      "path": "configs/b_native_endpoint.json",
+      "sha256": "eebe50ae08c48235ea31045b764e225720e20c0afb50e73a7b01ed855dadbde5"
+    },
+    {
+      "path": "configs/c_current_native_uniform.json",
+      "sha256": "29f67a6c45da2897844c9aafd9a8b85e84a75aeac11b2a488b88c07f1df618a0"
+    },
+    {
+      "path": "configs/c_dynamic_endpoint.json",
+      "sha256": "3a17a66ecbe4308cc76efa40fa247f2b1530215bb1fa8fb7c655a5f9e7a728da"
+    },
+    {
+      "path": "configs/c_dynamic_endpoint_current.json",
+      "sha256": "aedca0e3f167acbd7e48836cba7ff06e0f90f10405a3fe98a9e4b2a04203d990"
+    },
+    {
+      "path": "configs/c_native_uniform.json",
+      "sha256": "3e2ac3289ff02f19ddffa08e69e40c5fec033537427c7c3d53c82e918f60619b"
+    },
+    {
+      "path": "configs/d_current_native_js.json",
+      "sha256": "188c6da00627f5ff62795ee718e0af1af1147d159607f9a6ff525e08be6fa634"
+    },
+    {
+      "path": "configs/d_dynamic_uniform.json",
+      "sha256": "17716a422de51548ee2eb5979cbc8d959218a721c1862148cc8a2c9584122ff4"
+    },
+    {
+      "path": "configs/d_dynamic_uniform_current.json",
+      "sha256": "57858fface5928db41ec273f49a4bd775d8e86c66d46edbaf6811b60220b3c4d"
+    },
+    {
+      "path": "configs/d_native_js.json",
+      "sha256": "037fae8318fd9dfb79a0e8782731797837d3f044ff4f604660ba6265b6fe6da9"
+    },
+    {
+      "path": "configs/default.json",
+      "sha256": "4b13c19fb89e92fd754775ad78443ede4aaf5fe8735f545d7f12ffff12ebd4c7"
+    },
+    {
+      "path": "configs/dynamic_student_base.json",
+      "sha256": "1e8161980236b709b800f0f1b815b36ec49bda1e7c5133ac7542e8646b600b59"
+    },
+    {
+      "path": "configs/e_dynamic_js.json",
+      "sha256": "3fbd37175487f59769604f0f824cb4e95ee7b616061159ca9d982ba985ffcf82"
+    },
+    {
+      "path": "configs/e_dynamic_js_current.json",
+      "sha256": "17b77052cb5e448276437a56ce5eb2934f74705cb92e9dbfe194c35e38b4139c"
+    },
+    {
+      "path": "configs/f_fixed_top_s.json",
+      "sha256": "6594880655d4585b2ef903a6b30b225176f9763b4f4e71ad2919df1093cad511"
+    },
+    {
+      "path": "configs/huginn_a_d_loopopd.json",
+      "sha256": "0b76f4a2c683783fcee9afb8346eb965719564c0fa8d8fd02d2c74366a90817b"
+    },
+    {
+      "path": "configs/huginn_a_loopopd.json",
+      "sha256": "f9371a2d156e7fc02d54e87970e1135a79e143cbbedac3c683fb7ce1d557055c"
+    },
+    {
+      "path": "configs/huginn_b_current_native_endpoint.json",
+      "sha256": "c94d7e94ed56d74b874e4e5772b31e62cb9a2f3cb0ae510a76b4a0d4c36019be"
+    },
+    {
+      "path": "configs/huginn_b_native_endpoint.json",
+      "sha256": "727d69b946e0c0255a0d8b6be5dd112e6aeb31af9b3ad8aaf1b72990c594ac39"
+    },
+    {
+      "path": "configs/huginn_c_current_native_uniform.json",
+      "sha256": "4f0c76aadcf5c155ce144108fcb91bc14ac989cff4d16ca25088210376d93e67"
+    },
+    {
+      "path": "configs/huginn_c_dynamic_endpoint.json",
+      "sha256": "4ed749d31c4d93979ea51a6f59a6ee566985016549e1c334624f55c548f710ae"
+    },
+    {
+      "path": "configs/huginn_c_dynamic_endpoint_current.json",
+      "sha256": "3360771c4448d1bbc3505f8175613290af2dcee3fbd295fa1157ab5849fb16c8"
+    },
+    {
+      "path": "configs/huginn_c_native_uniform.json",
+      "sha256": "b0ca3fae998906ffdb5dff4d73996d11f9567e5598c6d607b049cf8cfbe1bd33"
+    },
+    {
+      "path": "configs/huginn_d_current_native_js.json",
+      "sha256": "72a10ed3e87fe23c71d1f14d2f34926ebc280cf0a24972c100ae4ec4bc8a9bcc"
+    },
+    {
+      "path": "configs/huginn_d_current_native_js_s16.json",
+      "sha256": "1b96289fc702aea33213ef2348bcd36b6bf0e8092d5c4bff2bf57138dcb6b892"
+    },
+    {
+      "path": "configs/huginn_d_dynamic_uniform.json",
+      "sha256": "963525a3d191728dcba5794bda278a552184868034b1e12e1c050671d891ddb9"
+    },
+    {
+      "path": "configs/huginn_d_dynamic_uniform_current.json",
+      "sha256": "be1a069f4517e6ed416e9d48f076e1087606194e4a7ff34802e3de104867e31e"
+    },
+    {
+      "path": "configs/huginn_d_native_js.json",
+      "sha256": "198eb6af49556742cc44ee92fba70c1508f7710e97a980cca326fac0f465dde1"
+    },
+    {
+      "path": "configs/huginn_dynamic_student_base.json",
+      "sha256": "83d28de53a1ce7b1a287454dac54e1b8f71fbb228b1cbd22dda771742c5ffc67"
+    },
+    {
+      "path": "configs/huginn_e_dynamic_js.json",
+      "sha256": "5d8926771f0345ebac72648203f6a5a824d6b6ee7f694276e7c5946367622826"
+    },
+    {
+      "path": "configs/huginn_e_dynamic_js_current.json",
+      "sha256": "c8284378738010fc99ee0f65959884bf81b8b6c1ffb27482ec9fac4f8384c747"
+    },
+    {
+      "path": "configs/huginn_f_fixed_top_s.json",
+      "sha256": "8425d24e43f68c276b382190e6a65516aeffa7260bf634e2036eb5dca1a8b343"
+    },
+    {
+      "path": "configs/huginn_loopopd_recompute.json",
+      "sha256": "176b186987a40d2d4029b0fd5abf8db0204a889021d23dc5f96a8057cca39d26"
+    },
+    {
+      "path": "configs/huginn_loopopd_s16.json",
+      "sha256": "a0f2a16d25c4cbb730419096e033ccee23288a9d9de3ca43e8165f3e77fbbab2"
+    },
+    {
+      "path": "configs/huginn_loopopd_s32.json",
+      "sha256": "f18dd320066ec241d301caf1c7cfd37a98429275a9ddfd714a5f80d95261009e"
+    },
+    {
+      "path": "configs/huginn_loopopd_s4.json",
+      "sha256": "5182660f67d444c965fabb26a195646a1dd44d7f9581d57c099b7685bcec3c3c"
+    },
+    {
+      "path": "configs/huginn_math_base.json",
+      "sha256": "69c9a9b121e1a2dc0438cdd10de14e3456fb7d9fb85ec1de1ebc6e86ec6d9614"
+    },
+    {
+      "path": "configs/huginn_native_base.json",
+      "sha256": "d943a22d3bb7ce0a3b228c3fdd9a3d66470212cecc30e46159bbc26d93662dd2"
+    },
+    {
+      "path": "configs/loopopd_recompute.json",
+      "sha256": "8ef7bf69832b4710adccc11fc8f6357027b565d81002fc0eedb28bd63dde4e04"
+    },
+    {
+      "path": "configs/loopopd_s1.json",
+      "sha256": "9907f85d59b4feabbcf9677a9d4d81d38d659c5363ea9105b0ff21a51f15e3be"
+    },
+    {
+      "path": "configs/loopopd_s3.json",
+      "sha256": "eb75473cfcf6f3e0451d594a3e732fc81d81e9dd5bfb3f60a42c580ce2a4467b"
+    },
+    {
+      "path": "configs/loopopd_s4.json",
+      "sha256": "1c773df31d6ef95541098c475a5319240839dd36e496ee6477c9956119f99a00"
+    },
+    {
+      "path": "configs/native_base.json",
+      "sha256": "204c68d8c51e0ce17b1aac6025a6a8c24d934d0d1f20d414d5bd32011bef2cef"
+    },
+    {
+      "path": "configs/paper_ouro_base.json",
+      "sha256": "df69800de2760651132aa36b30ea368b001d00212bc4682a1f39b2f141a4eb6e"
+    },
+    {
+      "path": "docs/01_idea.md",
+      "sha256": "1acb15052520e9c0f16554b289eec72cbe6bf5e9e615bb4fd23f1bbd925dcfca"
+    },
+    {
+      "path": "docs/02_experiment_plan.md",
+      "sha256": "2b172a00bbbfdffaa42292f6ad7e5df318fb2962c7372799487736e646c6f963"
+    },
+    {
+      "path": "docs/03_paper_notes.md",
+      "sha256": "0d6454e4b1f9530a40019ffc575c09819def433ca0144c492f66d4224e57660c"
+    },
+    {
+      "path": "docs/04_insights.md",
+      "sha256": "27ce098b30047d1833a4c336dccb2c9437b308b46374a2cadc3ead3e7a49fce6"
+    },
+    {
+      "path": "docs/05_related_work.md",
+      "sha256": "51136bf506eb1c57983dd3614ca0da3b6114f3f218e746feb99068c83836099c"
+    },
+    {
+      "path": "docs/06_loopopd_motivation_evidence.md",
+      "sha256": "2682038e875db2ee8d50debb2aaf7bf7ca6086fdab679982475180eac34dc9d3"
+    },
+    {
+      "path": "docs/07_pilot_results_20261108.md",
+      "sha256": "1584c2c8bba4f4c84d4a5bbf1ee698c16b7b898df01bef4bae5f7cd3b17739a0"
+    },
+    {
+      "path": "docs/08_implementation_and_reproduction.md",
+      "sha256": "478f05e3c557f1f18dcae17bc3d7740a6b3c8d5af5964091f33c69da7a4e6e6b"
+    },
+    {
+      "path": "docs/loop_distillation_research_proposal_zh.md",
+      "sha256": "12941d3c4655b5312a45aa32a95b8893fc47cb6261e68194d7f72b73fbba17b6"
+    },
+    {
+      "path": "ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "ep_loop/config.py",
+      "sha256": "d5d2184ad8ebf375eb6537a1eec4171cd4f9e9f57e985f75de4cc6708c032b92"
+    },
+    {
+      "path": "ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/experiment_matrix.csv",
+      "sha256": "c2887da350ddb549c1a00b498b526649361f3c4e954ad758b0515dfa6412aefe"
+    },
+    {
+      "path": "experiments/huginn_experiment_matrix.csv",
+      "sha256": "12601467848b6c7888a206d62bcf33ab5f45cfa75a61fa295d71dbddf51b26ff"
+    },
+    {
+      "path": "experiments/pilot_protocol_20261108.md",
+      "sha256": "f94ba13ee12ac6b3317ac06b1e4e658537e5cce0582c21c151ca895c0b899859"
+    },
+    {
+      "path": "experiments/proposal_references_20261113.json",
+      "sha256": "9f772b01cbdddd3848e9bc23a4af0ed2e67d7051529cc4425552ed2c084aaeaa"
+    },
+    {
+      "path": "experiments/run_record_template.md",
+      "sha256": "a3356f183f5ecb77399fea3bc7d297586285817dc0dbf27e1f7d2754932c949e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/metrics.jsonl",
+      "sha256": "ced9dc4d461ae2b68c4b4f1f21c4c29ceca87979fce136afd9aa829dc7a0812d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/provenance.json",
+      "sha256": "61f63f20c0290b9070df39d6ff785fb62ba8aba3526ae759ae59df4fdad7f38a"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/resolved_config.json",
+      "sha256": "b590eda6488555f651d748b1d90afc83aa84ee7348bee2b76d423566e66a0c23"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/rollouts_rank0.jsonl",
+      "sha256": "b9377b90125c895c6d924516f795962289486e197922c2521e4e187ed6ed4fe7"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_d_loopopd_cpu/summary.json",
+      "sha256": "18a180c984da46d420ce9b158b93e470d3c98f4f5340c89e89ff3510b9b1d4c5"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/metrics.jsonl",
+      "sha256": "f9e94224bf4921a3bdee48839e243c1ba8a7e6d1c05afaf87aad2245c804a48c"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/provenance.json",
+      "sha256": "e57df55aba007d2b16e4027f60a4945b1e26c060c7d0e91075888442eb54365c"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/resolved_config.json",
+      "sha256": "2215ba4dda20bde80a2f4ed18c5bc2a01f31556976bdb237e291d8573d9be1ce"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/rollouts_rank0.jsonl",
+      "sha256": "b9377b90125c895c6d924516f795962289486e197922c2521e4e187ed6ed4fe7"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_a_loopopd_cpu/summary.json",
+      "sha256": "a24387232a58330926d036bd6e6680f1dd0173e4b0260937f647fc56a1fbf290"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/code/ep_loop/inference.py",
+      "sha256": "831ade37f30bd2aef59cccdb5c88a7ab8bdd308bc634ac65707eef38434df6ee"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/metrics.jsonl",
+      "sha256": "8d69b82b9bcfca6c7d8e29878cb69f6418b43781c084ae039a5113db196592aa"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/provenance.json",
+      "sha256": "6047ba28ebb19216af60ecfbb044550bca003c12435934ce5e6004ed4f8cf7cb"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/resolved_config.json",
+      "sha256": "43289d963dcc3cc2af6dad88b03348fb5353cd83c7c37e399763036586a61305"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/rollouts_rank0.jsonl",
+      "sha256": "88381fc0be899cece6bcc6254babb135647cc8d8495c7fadcd46e4db6aeec79b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_cpu/summary.json",
+      "sha256": "8ceb6cd6ee663461e71dca1953b34a01f62443e5dfb18fd1556bf8a4316e2c78"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/code/ep_loop/inference.py",
+      "sha256": "831ade37f30bd2aef59cccdb5c88a7ab8bdd308bc634ac65707eef38434df6ee"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/metrics.jsonl",
+      "sha256": "c9d60f1d73e8ecb6ceef5127bf627bf6f0a9b36943808d16557928a0dd9f464c"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/provenance.json",
+      "sha256": "f1a9df96ca80d2d2f16f1a69a41d1ed4340cae40ed0a6f5c93629bcdbe959a6e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/resolved_config.json",
+      "sha256": "04a6fd24c477e6ea163e43ca7bff3fa44b6f42c0a05a26777cab017624b2200d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/rollouts_rank0.jsonl",
+      "sha256": "88381fc0be899cece6bcc6254babb135647cc8d8495c7fadcd46e4db6aeec79b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_c_dynamic_endpoint_current_cpu/summary.json",
+      "sha256": "08dd32d8eed1b0e40d0929086db9c0a6e2658f2f92c6baf17ee27e022f39479e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/code/ep_loop/inference.py",
+      "sha256": "831ade37f30bd2aef59cccdb5c88a7ab8bdd308bc634ac65707eef38434df6ee"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/metrics.jsonl",
+      "sha256": "d2d6531577b4950ea02c8944f5bc788e8f269b457d315904e0144365b3303fd1"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/provenance.json",
+      "sha256": "7c85cf192f45a1db3b9c72c7a92f0ade4fa82f24ddd1c0ee0f6ebeb5d775ecdf"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/resolved_config.json",
+      "sha256": "b77070927dd082bfec8c71ab67eaf71334d6eb83646db7979785d35ddff7097d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/rollouts_rank0.jsonl",
+      "sha256": "88381fc0be899cece6bcc6254babb135647cc8d8495c7fadcd46e4db6aeec79b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_cpu/summary.json",
+      "sha256": "5234e6647902d24073d53822d291ccd4119bdc3d29fdae5bb4c7c1827069d085"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/code/ep_loop/inference.py",
+      "sha256": "831ade37f30bd2aef59cccdb5c88a7ab8bdd308bc634ac65707eef38434df6ee"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/metrics.jsonl",
+      "sha256": "e42e8b141296aff3d741b78bd95c5cc1ecb784e7d8b178e0c13b542d25502c5b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/provenance.json",
+      "sha256": "c5171912fe459e171651e27fda5763601ce0e9a00a51e14f5917d1c2cea95b34"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/resolved_config.json",
+      "sha256": "46cafb35efb90a65cc621558a43236aa9f11720c668581d6ba117329e604e74b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/rollouts_rank0.jsonl",
+      "sha256": "88381fc0be899cece6bcc6254babb135647cc8d8495c7fadcd46e4db6aeec79b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_dynamic_uniform_current_cpu/summary.json",
+      "sha256": "5d1e67d54f100fa3b68414cc17e26c3a555732b37475c7a5c33a7e0438b9c88c"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/metrics.jsonl",
+      "sha256": "2eaf15b1614770856fb21a918bd8f661843a07371da4b15ad1cca9c5d9758e72"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/provenance.json",
+      "sha256": "9470c10261e6266985e5ea6a2f01796b2cf493026a2ef785691c11dabb1d5c37"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/resolved_config.json",
+      "sha256": "365f9cf202ce144f74b0d412ae50722f334b9e6712cec3b8e1033f1653c7d8fc"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/rollouts_rank0.jsonl",
+      "sha256": "b9377b90125c895c6d924516f795962289486e197922c2521e4e187ed6ed4fe7"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_d_native_js_cpu/summary.json",
+      "sha256": "abf778e1d790733e5860d18a9c56dfffb877f4db5b407dd65326e866a5b8b7be"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/code/ep_loop/config.py",
+      "sha256": "d5d2184ad8ebf375eb6537a1eec4171cd4f9e9f57e985f75de4cc6708c032b92"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/metrics.jsonl",
+      "sha256": "b701fb1a3d2d9de138ba7cbf308f11da8010015649902c07fdea7ee0ac39a0bb"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/provenance.json",
+      "sha256": "d760e2b70d9d5449a9249dcc6f124c4324266ce017204c264aa80cba6ee4fa5a"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/resolved_config.json",
+      "sha256": "10e74962d1b37953f17e0249048bd9be7335633a651f49b0c1cfcaa1b86a5027"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/rollouts_rank0.jsonl",
+      "sha256": "88381fc0be899cece6bcc6254babb135647cc8d8495c7fadcd46e4db6aeec79b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_default_cpu/summary.json",
+      "sha256": "00926449ed71bc9d74c7f6fc64011472abe573b33e7bbc74e80150ef32c1c256"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/code/ep_loop/inference.py",
+      "sha256": "831ade37f30bd2aef59cccdb5c88a7ab8bdd308bc634ac65707eef38434df6ee"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/metrics.jsonl",
+      "sha256": "dd3c705c97c0a1d2690fe1fa4c06d5d9f4eb9162ef15986f25926aa241a81c55"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/provenance.json",
+      "sha256": "2f82e87b8322df347aa06ed61bec0f0a7929e128f456a635b822fc46f344023f"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/resolved_config.json",
+      "sha256": "10e74962d1b37953f17e0249048bd9be7335633a651f49b0c1cfcaa1b86a5027"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/rollouts_rank0.jsonl",
+      "sha256": "88381fc0be899cece6bcc6254babb135647cc8d8495c7fadcd46e4db6aeec79b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_cpu/summary.json",
+      "sha256": "f685f1dc05245e4a4eca5c009395d62ccdcb9268408802e9c174ffa868793d04"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/code/ep_loop/inference.py",
+      "sha256": "831ade37f30bd2aef59cccdb5c88a7ab8bdd308bc634ac65707eef38434df6ee"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/metrics.jsonl",
+      "sha256": "68a963cdc323d088ec5cbca5f9e4028b685f1ae2f7acb7d3d75dc4f8f223f02f"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/provenance.json",
+      "sha256": "4b080da8be0277da2029ba9bab614b0c18d0a92df93568ee75df349556a56147"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/resolved_config.json",
+      "sha256": "91149c2cb31f00d20bdf60cd1aeae75b4515fc4761391d9b19c430fe73f0080e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/rollouts_rank0.jsonl",
+      "sha256": "88381fc0be899cece6bcc6254babb135647cc8d8495c7fadcd46e4db6aeec79b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_e_dynamic_js_current_cpu/summary.json",
+      "sha256": "2dd89aaae419205761427dd482fe3641bf7fa2c8aa73efb1821d00b49d505b78"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/code/ep_loop/config.py",
+      "sha256": "d5d2184ad8ebf375eb6537a1eec4171cd4f9e9f57e985f75de4cc6708c032b92"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/metrics.jsonl",
+      "sha256": "d3d6762d16ebdc452bebac5c88df409f6f2e8b8f8d227e2f38f31fd68f0b1883"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/provenance.json",
+      "sha256": "f3e459e25ab8570b05ab868ce62406f8e085f09be3e1e5c4cb2e0cbb89086ab9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/resolved_config.json",
+      "sha256": "f4b3bfcf6e21c328b8b81dcc538e24a9d81b7ca751b7eef27ee03fa691723ab2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/rollouts_rank0.jsonl",
+      "sha256": "b9377b90125c895c6d924516f795962289486e197922c2521e4e187ed6ed4fe7"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_f_fixed_top_s_cpu/summary.json",
+      "sha256": "1dfdd37d4acda3ea7acd6a37d7085eda8ff4c1fe1e8dd45365d7b8a282577870"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/metrics.jsonl",
+      "sha256": "2a21c88ef5edeed6d758c732f2f59d359956f03e23e8856b1b9ac580b12b9773"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/provenance.json",
+      "sha256": "e23dc693e4468514dacfb908b892af746211bb8a5bb3aa8799a595d90a393cf4"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/resolved_config.json",
+      "sha256": "7c1261ca88e68052d2afcf8e8bfaef3061ea8976e5763b3c8175f6727f033516"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/rollouts_rank0.jsonl",
+      "sha256": "6323d5a77d56b2be7716151562e0055de6e8abcf111d521d0360ce20585b5c8d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_d_loopopd_cpu/summary.json",
+      "sha256": "27316dd253af2fc3e44e2a28fac995ba72bb9c7c311cb857924e6f6d4caf8925"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/metrics.jsonl",
+      "sha256": "4a10c08b35c90118f849b634139fc05eda0fd59604520bb0c8cbffc3b8799f57"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/provenance.json",
+      "sha256": "92431b38d428545db6aa42b8b0ad529a03d64b8925447960bfb2cdb30a28fe2e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/resolved_config.json",
+      "sha256": "643131291e1aebc3dc170becd42bf2b497f340649193ad28604a39f29bf5a353"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/rollouts_rank0.jsonl",
+      "sha256": "6323d5a77d56b2be7716151562e0055de6e8abcf111d521d0360ce20585b5c8d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_a_loopopd_cpu/summary.json",
+      "sha256": "5c102c4da2793c9272ab7e4d9e584b57087bf2f964c9831cc2b7ee2c853d427b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/metrics.jsonl",
+      "sha256": "33dc63fdd0b46ce32bec6212c10bf7d30e04325967e479bda4439c2b66e53c47"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/provenance.json",
+      "sha256": "424d6722c4b1e6d602bc7b447320edfb3f519852f17e92d3dcc28fde8889f392"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/resolved_config.json",
+      "sha256": "b7c9869e88f1cea19facfcd5baadd54f7fd1540684de3a992878904e1dd07892"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/rollouts_rank0.jsonl",
+      "sha256": "a6322a4e38eacedac1b4e8e9a525a867db06ac381d0b4856a34536c1971bfecf"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_all_stages_cpu/summary.json",
+      "sha256": "0ddf5bd27b66c65e1a937d3c3259545d480255f32b33927dd2a9b0c655eda37c"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/code/ep_loop/inference.py",
+      "sha256": "831ade37f30bd2aef59cccdb5c88a7ab8bdd308bc634ac65707eef38434df6ee"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/metrics.jsonl",
+      "sha256": "4c978f5b5c002977596eed24280de09fca381aca398143e584cbad99e31906c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/provenance.json",
+      "sha256": "fe2dad6ffb9603471506439c2eaf0148be64015364bcd2426171425f843a1af1"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/resolved_config.json",
+      "sha256": "b55471dbfce6fffb318ded30328dbad6a634279045983f5dd57ce48f63d26f59"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/rollouts_rank0.jsonl",
+      "sha256": "a8b373be4b3ca9cac9101baeb484eaa54c6dafda6d05401592417f6e2a85de5f"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_cpu/summary.json",
+      "sha256": "83da2e99eec865550414439c283f4d4090ef729092f3bf5dd4f16ae839feefa1"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/code/ep_loop/inference.py",
+      "sha256": "831ade37f30bd2aef59cccdb5c88a7ab8bdd308bc634ac65707eef38434df6ee"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/metrics.jsonl",
+      "sha256": "8ca104d4208fe7d1189a9b205f595c69eaafda661e44feca36e14bdd4c04c549"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/provenance.json",
+      "sha256": "e573bf1d912d8d9e74118a9faf924954de8cbb0297b47e0d80f0ff6d7a7cc917"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/resolved_config.json",
+      "sha256": "99567f6f5f566d7c145fec34b3d31e99f2647edaaa5c13800137f19c5a09338a"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/rollouts_rank0.jsonl",
+      "sha256": "a8b373be4b3ca9cac9101baeb484eaa54c6dafda6d05401592417f6e2a85de5f"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_c_dynamic_endpoint_current_cpu/summary.json",
+      "sha256": "e52c6f1afd09382a4029c15f8186435474be8bd9e7e7182c31fa7f07c98334d7"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/code/ep_loop/inference.py",
+      "sha256": "831ade37f30bd2aef59cccdb5c88a7ab8bdd308bc634ac65707eef38434df6ee"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/metrics.jsonl",
+      "sha256": "b0a4df79f1220626658eb8b795139e074868b1aaee443ad58be80c244e9ea2f4"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/provenance.json",
+      "sha256": "f4167c5deb5196206a7c85d6aa9998acc1549f389c140f750ad385ea596a0635"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/resolved_config.json",
+      "sha256": "362074b7f61cdb38a1fa73ac41d2c331f87631091ed29e8a762983e0da0126bc"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/rollouts_rank0.jsonl",
+      "sha256": "a8b373be4b3ca9cac9101baeb484eaa54c6dafda6d05401592417f6e2a85de5f"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_cpu/summary.json",
+      "sha256": "1ebf6b75cf6a60d1f8e5531dd413fed0fdf2b5938653ab13fd94c2bddc67092e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/code/ep_loop/inference.py",
+      "sha256": "831ade37f30bd2aef59cccdb5c88a7ab8bdd308bc634ac65707eef38434df6ee"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/metrics.jsonl",
+      "sha256": "5f2089ea04817688ecca079b3de1f298d8457068860917fb10208c3a353942ed"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/provenance.json",
+      "sha256": "ca096974a5a6f63cd78e41f0cef2767fa93576f90f44899c4d3ec0366f2f0e3a"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/resolved_config.json",
+      "sha256": "0a8706bf0405558a150c7d39f38e997082d33e611d66fb77785908a896db0175"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/rollouts_rank0.jsonl",
+      "sha256": "a8b373be4b3ca9cac9101baeb484eaa54c6dafda6d05401592417f6e2a85de5f"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_dynamic_uniform_current_cpu/summary.json",
+      "sha256": "9894a70204aa7778a80b3360b64408d8d51101d5fb2c65e0eec7e542a592b4e0"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/metrics.jsonl",
+      "sha256": "2efc189a037bc55c0a771aa86f16f3a07be9a86be11a9ee47a99e85f32ee5d89"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/provenance.json",
+      "sha256": "c9c223e5b7575a1482f92d369b5a4f8a684b622f44bce6c9ef1cc8e7cd272b8b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/resolved_config.json",
+      "sha256": "ef15aea2cbd4162d5c85426aca054054628981de51b8c694fb9494e96a6cbd10"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/rollouts_rank0.jsonl",
+      "sha256": "6323d5a77d56b2be7716151562e0055de6e8abcf111d521d0360ce20585b5c8d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_d_native_js_cpu/summary.json",
+      "sha256": "9c0bf6c9a8f55a91d35793ca7b4d68a02e816cc19bb8f83291ac3bcf047a6e0d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_ddp_cpu/data_report.json",
+      "sha256": "ebaa620b9df1bf4b3794487c6ad35a9eccdd3f340ec4b9303b7ceda76e5d4597"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_ddp_cpu/metrics.jsonl",
+      "sha256": "0dd300f7ee2d7e94a026ff49c22ebf7245f7582bec80ed9dc210818a3128a216"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_ddp_cpu/provenance.json",
+      "sha256": "6c363a798980d2c37371c5aa4b541126a4a478cf9c2057c21f14bc98526fb085"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_ddp_cpu/resolved_config.json",
+      "sha256": "f608181794d9d3c261116b5f19955e5d38a3e7f4000c73e0eb02852b8b663d9d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_ddp_cpu/rollouts_rank0.jsonl",
+      "sha256": "b8ffe811b8644ff01b84120cc0ec497f70bf4121105dcba242daa815dd0c9dbd"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_ddp_cpu/rollouts_rank1.jsonl",
+      "sha256": "1330c4c1e42fc89919d9fa6b7f3847a461652346c9036f6c5e28cdb89cfe39e4"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_ddp_cpu/summary.json",
+      "sha256": "0d095720722b1ce764fd42306580824e726dcbb2dfa8a183a446e6d1e6a1f567"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/code/ep_loop/inference.py",
+      "sha256": "831ade37f30bd2aef59cccdb5c88a7ab8bdd308bc634ac65707eef38434df6ee"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/metrics.jsonl",
+      "sha256": "14ffd0f1a18921d5aeef55e8d55e619fe3f20f7197d816dbaecb4bef095029dd"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/provenance.json",
+      "sha256": "9631b8bf97a0d655219c003f2668ba3f26137e9dad33e4f0a7c8f7063460416a"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/resolved_config.json",
+      "sha256": "f608181794d9d3c261116b5f19955e5d38a3e7f4000c73e0eb02852b8b663d9d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/rollouts_rank0.jsonl",
+      "sha256": "a8b373be4b3ca9cac9101baeb484eaa54c6dafda6d05401592417f6e2a85de5f"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_cpu/summary.json",
+      "sha256": "1915abf5c4fb876da06f9db8b716b48502414e163c60372d620b5aab28abde5e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/code/ep_loop/inference.py",
+      "sha256": "831ade37f30bd2aef59cccdb5c88a7ab8bdd308bc634ac65707eef38434df6ee"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/metrics.jsonl",
+      "sha256": "129e6ba600062f78516bd12151259e232f30eaffd2cad031af7b5bc1b464cdf3"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/provenance.json",
+      "sha256": "1183a6c57de642886fba36c187a439fa8de828bd121c32e42d9e5cfe94ebda72"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/resolved_config.json",
+      "sha256": "b23aab86fcb9612f85c606a629fc23b5cac0168c1780aa8ae4692d989c304215"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/rollouts_rank0.jsonl",
+      "sha256": "a8b373be4b3ca9cac9101baeb484eaa54c6dafda6d05401592417f6e2a85de5f"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_e_dynamic_js_current_cpu/summary.json",
+      "sha256": "c3de8a6289ed1ab1ac8c6ceaede949a4dbb9b213d3f7ab485aeac0bb19197d0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/code/ep_loop/config.py",
+      "sha256": "d5d2184ad8ebf375eb6537a1eec4171cd4f9e9f57e985f75de4cc6708c032b92"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/metrics.jsonl",
+      "sha256": "8d36545ea92d95ece15390b2d02628f6806a9657631f3fb519835bd5bfb5b329"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/provenance.json",
+      "sha256": "94622dcc5f9a329a267e94745000d98eb3c51dcd277cfb15ed204058a4a50386"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/resolved_config.json",
+      "sha256": "42e269b9404e6c2fb3f034203c9e59ebdd0d6e316b6f9ea460a486b528b9882e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/rollouts_rank0.jsonl",
+      "sha256": "6323d5a77d56b2be7716151562e0055de6e8abcf111d521d0360ce20585b5c8d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_f_fixed_top_s_cpu/summary.json",
+      "sha256": "430042dfd18053475d3ee41d9366cc59e4bdcc0234ad47f75fa00d9f6f8966a0"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/code/ep_loop/config.py",
+      "sha256": "d5d2184ad8ebf375eb6537a1eec4171cd4f9e9f57e985f75de4cc6708c032b92"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/metrics.jsonl",
+      "sha256": "418cf14d55139b3b161d3cf8a7a01e5e91d3bc91bf31b1dee7622ce730dd1408"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/provenance.json",
+      "sha256": "567670c3d14bf45697dfbc56188ec74838c8df3d50b634ed2fd0c794f8ea6de1"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/resolved_config.json",
+      "sha256": "e7e31f612732f87e51d511a93a0e75d611589e7aafd479950d787eb28a06381c"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/rollouts_rank0.jsonl",
+      "sha256": "604ccabe815fcb1a4a0516ead444d2e71454c5968f40ccea1b7345a45aab5ef0"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_loopopd_recompute_cpu/summary.json",
+      "sha256": "0af4c63a080acf558ee9306ccc91dbcd4d8283cf2d88ef0590af55dd29b42eff"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/metrics.jsonl",
+      "sha256": "3451fc45ca3b7cacb12300c589694e79e42928d6b5e16890d41624d64f1c54a2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/provenance.json",
+      "sha256": "7bc34391a9fdebc656489668797931e7dc6cf7aa32282e42d951bd0273fe0d46"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/resolved_config.json",
+      "sha256": "a3a3b6430c2f32ae158434caaf4bcdd29b7cd6684137346c56119636a99c6609"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/rollouts_rank0.jsonl",
+      "sha256": "a8b373be4b3ca9cac9101baeb484eaa54c6dafda6d05401592417f6e2a85de5f"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_huginn_one_stage_cpu/summary.json",
+      "sha256": "8f4bdc8eb57e1d0e6c2d19150c0429ca8c0177766ceb1dea2d5425f52f50ebbe"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/code/ep_loop/config.py",
+      "sha256": "d5d2184ad8ebf375eb6537a1eec4171cd4f9e9f57e985f75de4cc6708c032b92"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/metrics.jsonl",
+      "sha256": "82d25130375862aee4135ce0b2ffbc70170cc37ca8722594dd7cbb4375ab9b93"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/provenance.json",
+      "sha256": "7d006f5e0bf849d12c67189e33343488f27e9bde63b3ff90a82d1d5fc45a4764"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/resolved_config.json",
+      "sha256": "7150f66e49d19d5a3347b9490dcfb5a1c8551659919f50b43b06e6b22ee5135d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/rollouts_rank0.jsonl",
+      "sha256": "4c04621df7253b6b2fc01701316638aae7c96a872ea0b1d064b51ef25a076dbb"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_loopopd_recompute_cpu/summary.json",
+      "sha256": "c4e57f22ba9533ec672caa405cd826baf5d4c234d51492c3ccb90a4f4e874f9f"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/metrics.jsonl",
+      "sha256": "6714b9ff9ba63d6fcf4bfc05c684a3e00c4f435bd644f2f3bacc3c03d1ad93b8"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/provenance.json",
+      "sha256": "6622bb3e764c15a8f39dee88b09caa02328b627ad46622130a4787396bed0275"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/resolved_config.json",
+      "sha256": "47cdafff1a6fe25971d2bea087c02e47a15b7cdf59339d79e888428f950aa19b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/rollouts_rank0.jsonl",
+      "sha256": "5d62b2f1a0bb5cc4bc0bb8d7ce32279e71ba726a6b426b6c4822c57f8f809ae0"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_all_stages_cpu/summary.json",
+      "sha256": "8923009838dc756914ac4420104273fc8cc92c618370876c309fe0f187746564"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_ddp_cpu/data_report.json",
+      "sha256": "ebaa620b9df1bf4b3794487c6ad35a9eccdd3f340ec4b9303b7ceda76e5d4597"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_ddp_cpu/metrics.jsonl",
+      "sha256": "f32869c9cabbc83e9850fcb5bcdddde1504bd675b7c78ba6b0e78891d5331da7"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_ddp_cpu/provenance.json",
+      "sha256": "570fb2f94e1bfaa508d5f0fba01d5bd2a23fbedd942ed165efe63dd73f79b257"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_ddp_cpu/resolved_config.json",
+      "sha256": "10e74962d1b37953f17e0249048bd9be7335633a651f49b0c1cfcaa1b86a5027"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_ddp_cpu/rollouts_rank0.jsonl",
+      "sha256": "4c3a418e22f6b703d6a3d2ab56549975d9551b36ea0bb12fe98584b949c2bdde"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_ddp_cpu/rollouts_rank1.jsonl",
+      "sha256": "1559c3b2e55ff689db3dfc111c270e01762fd0e936af82f297da455cda5981ad"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_ddp_cpu/summary.json",
+      "sha256": "cc11ce26d0d058a2439627f1c6aea67887410a713d8dbff77698cb46656afaa4"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/code/ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/code/ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/code/ep_loop/config.py",
+      "sha256": "1a7ce607e3df0852dcf9e4173af8189c02afa95d3a26ca9a530bf7e010784b0b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/code/ep_loop/data.py",
+      "sha256": "b36705934945a16cdf08b7b99c13531dc7035e652150e1284ff140a33c00e976"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/code/ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/code/ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/code/ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/code/ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/code/ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/code/ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/code/ep_loop/training.py",
+      "sha256": "3fded5a9f16f194d6233e9e7d36283ce8861f7704b27a206ba6bc96dc7d97a7d"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/code/scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/metrics.jsonl",
+      "sha256": "0bc3e98edb607d89aece2775504645ae4d5d8f603c09334213daa863cc88fdd3"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/provenance.json",
+      "sha256": "13e86a2cccbc172523051e90975c8a8a691110a92aef5ad1d5985bf2643ce5eb"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/resolved_config.json",
+      "sha256": "7d110dbc54f06a022b91834332be247ca6e366ff65e6b9d2e6073f12ecd5c29c"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/rollouts_rank0.jsonl",
+      "sha256": "88381fc0be899cece6bcc6254babb135647cc8d8495c7fadcd46e4db6aeec79b"
+    },
+    {
+      "path": "experiments/runs/20261113_dynamic_ouro_one_stage_cpu/summary.json",
+      "sha256": "eefb2c979c48845ef45140d78ef5daaf68d1115c1fabf2c73235458a9a4e0cf3"
+    },
+    {
+      "path": "ref/README.md",
+      "sha256": "2e08c1a6d5dab6134a84e70ffdc520737c96b130191fc3c994cf2520d3b2ca65"
+    },
+    {
+      "path": "scripts/build_teacher_filter.py",
+      "sha256": "8d084d3cdcae694d39789c5023d915f55990afc3cf3a5eff5c7ced008bec0c59"
+    },
+    {
+      "path": "scripts/download_pilot_model.py",
+      "sha256": "459691c85359c76f298b043118b4746e79b88f5d650516f25661935e6418f24b"
+    },
+    {
+      "path": "scripts/evaluate_stage_distillation.py",
+      "sha256": "271475f60e957bf151015216f86d4863e830942861616c218f203e02895a4f2a"
+    },
+    {
+      "path": "scripts/prepare_stage_data.py",
+      "sha256": "8995984b87e1fe5c67976d95607e2a000bfa54a5f74a9d4edd302fac43a1705d"
+    },
+    {
+      "path": "scripts/run_diagnostic.py",
+      "sha256": "71993b08b471670d5316877ad1cc089fba9c2994677c4eb10df61901534fe118"
+    },
+    {
+      "path": "scripts/run_training_pilot.py",
+      "sha256": "77cba43aaec333e250fe737b8bfada0d9f4ed8a759254b88dc1432de89fbed8b"
+    },
+    {
+      "path": "scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "scripts/validate_dynamic_student.py",
+      "sha256": "d42c84bb865ee66d76117af177b35fda658384cfa8bb478988521e6a632318a0"
+    },
+    {
+      "path": "scripts/validate_package.py",
+      "sha256": "696386ed805240e709f9166541cbb0e14f5e44e4e5d402fd30b1189d2f089d28"
+    },
+    {
+      "path": "scripts/validate_proposal_sync.py",
+      "sha256": "badc985ce6c75aed4e3b924e827a9c8f47ba4148afce04037175b68f25ce75fe"
+    },
+    {
+      "path": "scripts/validate_stage_implementation.py",
+      "sha256": "badc985ce6c75aed4e3b924e827a9c8f47ba4148afce04037175b68f25ce75fe"
+    },
+    {
+      "path": "scripts/verify_pilot.py",
+      "sha256": "e4178eabe8e9c238a44888211fdcb33c570dbc602e0ffe6c6568ee75f0e1755b"
+    },
+    {
+      "path": "tests/test_dynamic_student.py",
+      "sha256": "38e63ce2d95c3912fd67c7aaf39cf1c1a6c9b4ef84bf79dbc88527ad90a8fa72"
+    },
+    {
+      "path": "tests/test_huginn_stage.py",
+      "sha256": "c04267f5be15f0186325dcec4ed7f2faff7b62e33aa79b7ff313617f53fa7050"
+    },
+    {
+      "path": "tests/test_losses.py",
+      "sha256": "866d56e4d1dff0f714e41b59ee84933f1ec40b8391ee0b7849bad0d01b583c36"
+    },
+    {
+      "path": "tests/test_stage_distillation.py",
+      "sha256": "c45fcdf7d6c9027e37b51c5f63d1ad8d9cd2690c820b19be666eea45974317d8"
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+2026-10-19
+
+On-Policy Transition Distillation
+Runyang You1
+
+Yongqi Li1†
+
+Tiezheng Yu2
+
+1 The Hong Kong Polytechnic University
+
+Wenjie Li1
+
+2 Huawei Technologies Ltd.
+
+arXiv:2610.28048v1 [cs.CL] 20 Oct 2026
+
+runyang.y@outlook.com, liyongqi0@gmail.com
+
+Abstract
+On-policy distillation (OPD) consolidates expert capabilities into a single student by matching teacher
+and student final-layer distributions on student-generated rollouts. We investigate whether depthwise
+prediction transitions, the changes in predictions between layers, can provide additional task-relevant
+supervision. Our diagnostic study finds that stronger teacher–student agreement in intermediate transitions
+is associated with higher answer correctness within questions, with correct responses exhibiting lower
+mean transition KL across all measured intermediate layer pairs. These observations motivate On-Policy
+Transition Distillation (OPTD), which augments final-layer distribution matching by aligning teacher and
+student layer-to-layer log-probability increments on student-generated rollouts. Evaluations across three
+backbones and eight benchmarks spanning mathematics, coding, and instruction following show that
+OPTD achieves the best or tied-best overall performance in both dual- and three-domain distillation. In
+the three-domain setting, OPTD recovers ≈ 90% of the overall teacher–student capability gap, compared
+with ≈ 75% for OPD.
+§ Project Page: https://github.com/ModalityDance/optd
+
+(a) On Policy Distillation
+
+Teacher
+
+(b) On Policy Transition Distillation
+
+Teacher
+
+···
+
+···
+−
+
+···
+
+···
+
+···
+
+···
+
+−
+
++
+
+−
+
+−
+
++
+
++
+
++
+
+0
+
+0
+
+−
+
+−
+
++
+
++
+
+0
+
+0
+
+Final-output Alignment
+
+Transition Alignment
+−
+
+···
+
+···
+
+Student
+
+···
+
+−
+
+···
+···
+
+Student
+
+−
+
++
+
+−
+
+−
+
+−
+
++
+
+···
+
+Figure 1: On-policy transition distillation. (a) Standard OPD aligns only the final-layer predictions of the student and teacher.
+(b) OPTD additionally aligns their prediction transitions across selected layer segments, transferring how predictions are refined
+with depth.
+
+in the student’s own rollouts, OPD alleviates exposure
+bias [4], mitigates catastrophic forgetting [2], and learns
+with substantially fewer samples than outcome-reward
+RL [5].
+
+1 Introduction
+On-policy distillation (OPD) has emerged as a core posttraining recipe for consolidating specialized capabilities
+from expert teachers into a unified student, as exemplified by DeepSeek-V4 and GLM-5 [1, 2]. Specifically, it
+applies dense supervision at every token position of a
+student-generated rollout by comparing the teacher’s
+and student’s distributions conditioned on the same prefix, and uses the resulting KL-derived token-level reward
+to guide policy distillation [3]. Grounding supervision
+
+OPD methods typically transfer knowledge by solely
+aligning the student’s final-layer prediction distribution with those of the teacher. The final-layer distribution, however, represents only the endpoint of the
+teacher’s decision process. Recent studies show that
+these predictions develop through successive prediction
+revisions across depth: early layers can favor statistical
+guesses that deeper layers refine as contextual infor-
+
+† Corresponding author.
+
+1
+
+

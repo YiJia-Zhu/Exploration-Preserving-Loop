@@ -1,0 +1,76 @@
+Demystifying On-Policy Distillation:
+Where Does the Teacher’s Advantage Live?
+Yiping Li, Zhibo Hou, Fan Zhao, Zhiyu An, Wan Du
+University of California, Merced, USA
+{yipingli,zhou6,fanzhao,zan7,wdu3}@ucmerced.edu
+
+arXiv:2610.19145v1 [cs.LG] 13 Oct 2026
+
+Abstract
+
+Core Team, 2026; GLM-5-Team, 2026; Kimi Team,
+2026; Yang et al., 2026b; Song and Zheng, 2026).
+Yet OPD is commonly treated as an RL method
+because it serves as a cheaper substitute for RL
+in post-training. This view captures its role in
+the pipeline, but OPD still depends on a teacher
+and remains a form of knowledge distillation (KD).
+In conventional KD, soft labels preserve similarities that hard labels discard (Hinton et al., 2015).
+For OPD, however, it remains unclear what in the
+teacher’s next-token distributions contributes to better reasoning and where that contribution appears
+along the student’s trajectory.
+Prior work suggests that distillation quality depends on both what the teacher provides and what
+the student can learn (Li et al., 2022). Therefore,
+OPD training outcomes alone do not distinguish
+the teacher’s available advantage from the student’s
+ability to acquire it. We first examine the teacher’s
+contribution through interventions that hold the student’s parameters fixed, then analyze how OPD
+checkpoints change the disagreement.
+In this paper, we focus on forks, positions at
+which the student and teacher diverge in their nexttoken preferences. We measure the teacher’s advantage over the student through single and repeated
+token flips. A single flip replaces the student’s token at one fork and lets the student continue. Dualtrack decoding repeats this one-token intervention
+at selected forks as the trajectory develops.
+We use these interventions to ask how much
+accuracy teacher corrections recover and whether
+selecting particular forks improves that recovery.
+Checkpoint analysis then asks which preferences
+OPD acquires and whether learning them produces
+better answers. Our contributions are the following.
+
+On-policy distillation (OPD) is increasingly
+studied as a cheaper alternative to reinforcement learning, yet it remains a form of knowledge distillation (KD) that relies on teacher
+supervision. We revisit OPD from the KD
+perspective by asking where the teacher’s advantage lies along student-generated trajectories. Controlled token flips at teacher–student
+disagreements directly measure the accuracy
+gained from teacher corrections. Single-token
+flips yield a modest average gain on selected
+failed trajectories, whereas repeated flips raise
+accuracy from 28.4% to 74.5%, close to the
+teacher’s 76.9%. Gains continue to accumulate
+with more flips, but mass- and KL-based selection outperform random flips by 15–18 percentage points at counts of similar magnitude. Selective intervention remains useful after OPD,
+but greater argmax agreement does not consistently improve accuracy across model pairs.
+We advocate training schedules that learn more
+valuable teacher corrections while maintaining distributional stability. Controlled flips and
+fork-resolution analysis evaluate OPD beyond
+accuracy by measuring which teacher preferences the student acquires and what further correction can recover.
+
+1
+
+Introduction
+
+Reinforcement learning improves large language
+models after pretraining, but it is expensive
+(DeepSeek-AI, 2025; Yang et al., 2025; Yu et al.,
+2025; Chen et al., 2025). On-policy distillation
+(OPD) offers a cheaper route by training the student on its own rollouts toward a teacher’s nexttoken distribution (Agarwal et al., 2024; Lu and
+Thinking Machines Lab, 2025). Reported results
+reach RL-level accuracy at about a tenth of the
+cost (Yang et al., 2025; Lu and Thinking Machines
+Lab, 2025). This efficiency has brought OPD into
+frontier post-training pipelines and attracted research interest (DeepSeek-AI, 2026; Xiaomi LLM-
+
+• We develop an intervention-based evaluation of OPD. Controlled flips measure the
+accuracy recoverable through teacher corrections, while checkpoint analysis measures
+1
+
+

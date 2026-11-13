@@ -1,0 +1,55 @@
+{
+  "model": "ByteDance/Ouro-1.4B-Thinking",
+  "revision": "3aaa2224253a92ca45cf2e3d427c360e1ef9c93d",
+  "weights": {
+    "path": "models/Ouro-1.4B-Thinking/model.safetensors",
+    "bytes": 2869336434,
+    "sha256": "6730581fd366f6d1689728c61637520228385cdfc17c0b24f19aa840b00565fb",
+    "hf_lfs_sha256": "6730581fd366f6d1689728c61637520228385cdfc17c0b24f19aa840b00565fb"
+  },
+  "source_files": [
+    {
+      "path": "models/Ouro-1.4B-Thinking/README.md",
+      "sha256": "9dd647ea5d8dfbd01536cf6024d14ed599b7e950469a6f0fe98eb01c187c0710"
+    },
+    {
+      "path": "models/Ouro-1.4B-Thinking/config.json",
+      "sha256": "44e42ec2ed97f49f20f87985688b6e1be9dd61bbfe9f8a349daac192126e2c55"
+    },
+    {
+      "path": "models/Ouro-1.4B-Thinking/configuration_ouro.py",
+      "sha256": "950443e32929047aa08d02abad2e1888bc1914b3db988d3d675f70787f65dafb"
+    },
+    {
+      "path": "models/Ouro-1.4B-Thinking/merges.txt",
+      "sha256": "0b54e8aa4e53d5383e2e4bc635a56b43f9647f7b13832d5d9ecd8f82dac4f510"
+    },
+    {
+      "path": "models/Ouro-1.4B-Thinking/modeling_ouro.py",
+      "sha256": "cb8c980b016ae8ae35b6c1193633b9b4496e89993e3a0e8c7853324f01904b30"
+    },
+    {
+      "path": "models/Ouro-1.4B-Thinking/special_tokens_map.json",
+      "sha256": "688ac94df221b18a4d2d4579dfa3c4f0fd5ca3e394da46cd0a317fb5d57d4685"
+    },
+    {
+      "path": "models/Ouro-1.4B-Thinking/tokenizer.json",
+      "sha256": "fcb808fe5e7642f5299be28aea07fc7f6d4f4364c3ac5e408e15a772cbc8fa8d"
+    },
+    {
+      "path": "models/Ouro-1.4B-Thinking/tokenizer_config.json",
+      "sha256": "e41eafc6bf7269d6f90f2531124949073a57965f5f0765238a744c1c528e2448"
+    },
+    {
+      "path": "models/Ouro-1.4B-Thinking/vocab.json",
+      "sha256": "7b9de3f47796abf8d00ab96be299fea0dc9afdf1827f34e7e0b9fb44593efe5c"
+    }
+  ],
+  "storage": {
+    "shared_directory": "/home/zhenning/data/huggingface_models/Ouro-1.4B-Thinking",
+    "project_link": "models/Ouro-1.4B-Thinking",
+    "link_target": "/home/zhenning/data/huggingface_models/Ouro-1.4B-Thinking",
+    "relocated_at": "2026-11-10T15:44:10.830162+00:00",
+    "all_recorded_file_hashes_verified": true
+  }
+}

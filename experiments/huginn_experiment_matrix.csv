@@ -1,0 +1,7 @@
+id,family,config,student_policy,stage_selection,teacher_update,teacher_max_loops,student_budget,status,run_evidence
+A,huginn,configs/huginn_native_base.json,native,endpoint,frozen,32,dynamic_1_to_32,inference_baseline,audit/dynamic_student_20261113/validation.json
+B,huginn,configs/huginn_a_loopopd.json,fixed,endpoint,frozen,32,8,cpu_verified_fixed_baseline,audit/dynamic_student_20261113/validation.json
+C,huginn,configs/huginn_c_dynamic_endpoint.json,learned,threshold_endpoint,frozen,32,dynamic_1_to_32,cpu_validation,audit/dynamic_student_20261113/validation.json
+D,huginn,configs/huginn_d_dynamic_uniform.json,learned,threshold_uniform,frozen,32,dynamic_1_to_32,cpu_validation,audit/dynamic_student_20261113/validation.json
+E,huginn,configs/huginn_e_dynamic_js.json,learned,threshold,frozen,32,dynamic_1_to_32,cpu_validation,audit/dynamic_student_20261113/validation.json
+F,huginn,configs/huginn_f_fixed_top_s.json,fixed,js,frozen,32,8,cpu_validation,audit/dynamic_student_20261113/validation.json

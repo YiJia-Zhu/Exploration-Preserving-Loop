@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "family": "huginn",
+  "revision": "bb6621b65e90b6a4b9b29ef88dc83866d450470c",
+  "device": "cpu",
+  "pretrained_weights_loaded": true,
+  "loading": {
+    "missing_keys": [],
+    "unexpected_keys": [],
+    "mismatched_keys": [],
+    "error_msgs": []
+  },
+  "fixed_depth": 2,
+  "official_fixed_logits_exact": true,
+  "native_exit_depths": [
+    2,
+    2
+  ],
+  "teacher_executed_token_loops": 8,
+  "seconds": 4.463824999984354,
+  "scope": "Short CPU forward integration only; no pretrained training, no benchmark or efficacy result"
+}

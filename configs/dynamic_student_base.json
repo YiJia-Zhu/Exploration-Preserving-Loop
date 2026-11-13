@@ -1,0 +1,34 @@
+{
+  "extends": "paper_ouro_base.json",
+  "run_name": "dynamic_student",
+  "algorithm": {
+    "student_policy": "learned",
+    "student_loops": null,
+    "student_max_loops": 4,
+    "teacher_endpoint": "native",
+    "stage_selection": "threshold",
+    "js_threshold": 0.05,
+    "stop_loss_weight": 1.0,
+    "student_stop_threshold": 0.5
+  },
+  "rollout": {
+    "use_cache": false
+  },
+  "evaluation": {
+    "student_loops": [
+      4
+    ],
+    "student_policy": "learned"
+  },
+  "paper": {
+    "status": "Current threshold-only dynamic-student proposal; not original LoopOPD replication",
+    "new_method_thresholds": "JS=0.05 nats and beta=1 are explicit uncalibrated starting choices; local student P(stop)>=0.5; teacher exit unchanged",
+    "dynamic_implementation_choices": [
+      "Keep all JS>tau boundaries; no Top-S cap or shallow-exit fallback",
+      "Mean stop BCE over 1..S_t, then response tokens, then responses",
+      "Full-prefix recomputation for learned rollout and full-prefix replay to response max(S_t); no approximate missing KV",
+      "Huginn new linear exit head starts weight=0,bias=-2; Ouro reuses original gate",
+      "First rollout already uses learned stopping; no native-policy warmup"
+    ]
+  }
+}

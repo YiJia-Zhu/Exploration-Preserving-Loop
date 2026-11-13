@@ -1,0 +1,53 @@
+D IVERGENCE CONTROLS ENTROPY IN DISTILLATION
+Nicolas Zucchet and Scott W. Linderman
+Stanford University
+{nzucchet,slinderman}@stanford.edu
+
+arXiv:2610.03529v1 [cs.LG] 2 Oct 2026
+
+A BSTRACT
+Distillation has become a core primitive of large language model training, but its
+properties are not yet well understood. We take an entropic perspective, studying
+how the entropy of the student depends on the data and the divergence that define
+the distillation objective. We prove that forward KL inflates the entropy of the
+student above that of the teacher. Since cross-entropy training is a special case,
+this yields an identity that we verify quantitatively in pretraining and supervised
+finetuning. Other divergences come with no such guarantee: reverse KL deflates
+entropy until the gap between student and teacher gets too large, and interpolating
+between the two changes entropy smoothly early in training but abruptly at convergence. The lower entropy of on-policy distillation comes from token-level reverse
+KL, not from on-policy sampling. The divergence therefore acts as an implicit
+entropy regularizer, whose role is clearest in self-distillation: as conditioning on
+privileged information deflates entropy, the divergence hyperparameters that work
+best are those that compensate for it.
+
+1
+
+I NTRODUCTION
+
+Distillation consists of training a student model to mimic the behavior of a teacher model and compress its knowledge (Hinton et al., 2015). It is used in increasingly diverse contexts for large
+language models, from pretraining lightweight, more efficient models (Muralidharan et al., 2024;
+Gemma Team, 2025), to solidifying reasoning abilities in posttraining (Ma et al., 2026; DeepSeekAI, 2026). In practice, distillation amounts to minimizing a divergence between two categorical
+probability distributions. While divergence minimization has been extensively studied elsewhere
+(Minka, 2005; Bishop, 2006; Amari, 2016), its properties are not yet well understood in the context
+of large language models.
+In this work, we study the properties of these algorithms from an entropic perspective, investigating
+how design choices affect the entropy of the student. Entropy is fundamentally a measure of uncertainty, whether in thermodynamics (Boltzmann, 1877) or information theory (Shannon, 1948), and
+it is particularly important for large language models as it relates to the diversity of the output distribution (Kirk et al., 2024; Farquhar et al., 2024) and controls exploration in reinforcement learning
+(Cui et al., 2025; Cheng et al., 2026; Wang et al., 2025). It is also easy to compute and log during
+any training run. Here, we develop intuition for how distillation shapes entropy.
+Our contributions are as follows:
+– Decoupling sampling and divergence choice (Section 2). We review distillation, decoupling
+the choice of the data generation process from that of the divergence, which enables us to study
+their effects on the student’s entropy independently.
+– From divergence to entropy (Section 3). In a toy model of language modeling, we show
+that: forward KL inflates the student’s entropy above the teacher’s by the residual divergence;
+reverse KL deflates it until mimicking the teacher gets too difficult and then suddenly inflates
+it; and interpolating between the two varies entropy smoothly early in training but abruptly at
+convergence. Top-k restrictions also shift entropy, depending on how the tail is handled.
+– At scale, the divergence implicitly controls entropy (Section 4). After pretraining and supervised finetuning, the entropy of a language model matches the cross-entropy loss it was
+trained to minimize; larger models therefore have lower entropy. When distilling from a larger
+teacher, the divergence drives entropy more than on- vs. off-policy sampling; in self-distillation,
+it counters the entropy drop that conditioning on privileged information induces.
+1
+
+

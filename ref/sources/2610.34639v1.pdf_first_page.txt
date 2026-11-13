@@ -1,0 +1,53 @@
+arXiv:2610.34639v1 [cs.LG] 25 Oct 2026
+
+Cross-Loop Query Handoff: How Later Loops Redirect
+Two-Hop Retrieval in the Ouro Looped Language Models
+Ziyu Mu
+
+Zehua Wang
+
+Faculty of Science
+The University of British Columbia
+yuzzzi06@student.ubc.ca
+
+Department of Electrical and Computer Engineering
+The University of British Columbia
+zwang@ece.ubc.ca
+
+October 23, 2026
+Abstract
+How do later loops in a pretrained looped language model repair two-hop retrieval? We study Ouro1.4B and Ouro-2.6B by transplanting attention queries between loops at the same layer, head and final
+prompt position. On synthetic in-context questions, injecting the layer-indexed collection of loop-3
+queries throughout loop 1 rescues 90% and 97% of questions answered incorrectly at loop 1 and correctly
+at loop 3, versus 24% and 21% for shuffled donors. The rescue also holds under greedy generation in
+Ouro-2.6B; in Ouro-1.4B it is limited to four-candidate ranking. Crossed donor–recipient swaps favor
+retrieval through the donor’s bridge entity over copying its answer, although a substantial positional
+component remains in Ouro-2.6B. Late keys and values rescue far fewer targets. Freezing queries at
+their loop-1 values also damages two-hop accuracy more than a matched question that supplies the
+bridge. On natural questions, rescue is smaller and replicates only in Ouro-2.6B, and crossed swaps
+do not establish bridge redirection. These results identify a transferable collection of late-loop queries
+that supports bridge-conditioned retrieval on synthetic scenes; they do not locate where the bridge is
+computed or establish a single-vector handoff.
+
+§ Code available on GitHub
+
+1
+
+Introduction
+
+Language models often fail to compose two facts they know separately. On two-hop questions about facts
+stored in the weights, if the bridge entity is resolved late, the remaining layers may no longer carry out the
+second hop [Biran et al., 2024], and evidence for latent use of the second hop is only moderate [Yang et al.,
+2024]. Patching a later-layer state back into an earlier layer repairs some of these failures, but only if the
+best layer pair is chosen for each item [Biran et al., 2024]. In models trained from scratch, reusing layers on
+a second pass improves out-of-distribution two-hop generalization [Wang et al., 2024, Zhang et al., 2026].
+Looped language models build this reuse into the architecture of pretrained models. Ouro [Zhu et al.,
+2025] applies its layer stack four times to every token and reads out a prediction after each loop; its authors
+conjecture that this recurrent structure is why small looped models manipulate synthetic knowledge better
+than non-looped models of the same size [Zhu et al., 2025, Sec. 6]. Pretrained looped models have mostly
+been analyzed through per-loop answers [Olszowiec et al., 2026], patches between runs at the same loop [Wu
+et al., 2026, Anonymous, 2026b], or interventions on whole loops [Anonymous, 2026a, Wang and Reid,
+2026], rather than by moving a later loop’s query into an earlier loop.
+1
+
+

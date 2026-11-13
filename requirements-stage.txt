@@ -1,0 +1,3 @@
+# Reference training: torch 2.8.0+cu128 / Python 3.10 verified.
+-r requirements-pilot.txt
+pyarrow==25.0.0

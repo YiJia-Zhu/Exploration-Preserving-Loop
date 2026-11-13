@@ -1,0 +1,15 @@
+{
+  "extends": "paper_ouro_base.json",
+  "run_name": "native_base",
+  "algorithm": {
+    "student_policy": "native",
+    "student_loops": null,
+    "student_max_loops": 4
+  },
+  "evaluation": {
+    "student_loops": [
+      4
+    ],
+    "student_policy": "native"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "model_dir": "models/Ouro-1.4B-Thinking",
+  "out": "experiments/runs/20261108_diagnostic_v2",
+  "n_scenes": 64,
+  "seed": 20261108,
+  "revision": "3aaa2224253a92ca45cf2e3d427c360e1ef9c93d",
+  "started_utc": "2026-11-07T16:35:33.430165+00:00",
+  "template": "raw paper two-hop completion; no chat template",
+  "protocol": "D0/D1/D3; candidate ranking, not free generation; no training",
+  "cache_acceptance": "KL(full||cached)<0.01 and identical full-vocabulary argmax",
+  "bootstrap": "5000 paired resamples over scenes; exploratory, unadjusted 95% intervals"
+}

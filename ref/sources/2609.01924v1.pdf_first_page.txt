@@ -1,0 +1,59 @@
+Looped Transformers under the Jacobian Lens:
+Does the Global Workspace Survive Recurrence?
+
+arXiv:2609.01924v1 [cs.AI] 1 Sep 2026
+
+Wenlong Wang
+Fin AI Research
+wenlong.wang@intercom.io
+
+Fergal Reid
+Fin AI Research
+fergal.reid@intercom.io
+
+Abstract
+Recent work identifies a mid-depth band of verbalisable, causally potent representations in a standard
+feedforward transformer — a functional analogue of a global workspace. Whether the same workspace
+functionality emerges when depth is implemented through recurrence rather than a stack of distinct layers
+remains unknown. Looped and depth-recurrent transformers provide a direct test of this question because
+they reuse the same weights across depth. We extend the Jacobian lens to iterated architectures using a
+virtual-unrolling adapter. We apply the full workspace suite — lens fitting, readout, and eleven causal
+experiment families — to Ouro-2.6B (48 layers looped 4 times, deeply supervised) and Huginn-0125 (a
+4-layer core recurred 16 times, trained for latent reasoning), using Qwen3.6-27B (64 untied layers) as the
+standard baseline. We find that a workspace forms in the iterated part of each architecture, but that
+recurrence changes how it can be accessed. Ouro reconstructs workspace content in every loop, and linear
+transport cannot carry that content across loop boundaries; writes and ablations must therefore span
+every remaining loop. Huginn carries content forward across all sixteen recurrences, while reads, writes,
+and ablations act only within a sliding window of roughly two recurrences. Whether newly injected
+content can be verbalised tracks explicit per-iteration supervision; whether existing content can be steered
+does not.
+
+1
+
+Introduction
+
+The global-workspace account of cognition holds that flexible behaviour depends on a limited-capacity
+workspace whose contents are broadcast widely, are reportable, and are open to directed modulation [Baars,
+1988, Dehaene and Changeux, 2011, Mashour et al., 2020]. Gurnee et al. [2026] operationalise this picture for
+language models: using a Jacobian lens — per-layer linear maps fitted to the model’s own mean input–output
+Jacobians — they identify, in a standard transformer, a mid-depth band of residual-stream representations that
+are verbalisable, causally necessary for behaviour, and selectively involved in flexible rather than automatic
+computation.
+Their discussion, however, flags a structural disanalogy with the biological theory. In the brain, workspace
+dynamics are thought to be realised by recurrent processing — ignition, sustained reverberation, broadcast
+over re-entrant loops. A standard transformer has no built-in recurrence within a forward pass: information
+transits a fixed stack of untied layers exactly once. The authors observe that a feedforward network can
+emulate a recurrent one for as many steps as it has layers — a recurrent model being the special case in which
+weights are tied across layers — but state plainly that they do not know whether depth in a transformer
+plays a role similar enough to recurrence in a brain to enable the same workspace functionality [Gurnee et al.,
+2026].
+Looped and depth-recurrent transformers allow us to test this question directly because they re-apply
+tied weights across iterations. Trained, competitive examples of both architectures are now available, so we
+apply the same J-lens and experimental suite used in the original study. We examine two architecturally
+distinct members of the weight-tied family, with a standard transformer as the baseline:
+• Ouro-2.6B [Zhu et al., 2025]: 48 unique layers applied 4 times (virtual depth 192), trained with deep
+supervision — every loop end is directly optimised to be decodable;
+
+1
+
+

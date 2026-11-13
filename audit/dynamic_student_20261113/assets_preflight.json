@@ -1,0 +1,30 @@
+{
+  "ouro": {
+    "ready": false,
+    "missing": [
+      "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/data/dapo_math17k/train.jsonl"
+    ],
+    "observed_model_revision": "3aaa2224253a92ca45cf2e3d427c360e1ef9c93d",
+    "requested_model_revision": "3aaa2224253a92ca45cf2e3d427c360e1ef9c93d",
+    "model_revision_metadata_matches": true,
+    "observed_training_rows": null,
+    "expected_training_rows": 17398,
+    "training_count_matches": false,
+    "dataset_identity_verified": false,
+    "note": "Metadata/count checks do not independently establish the original paper dataset identity"
+  },
+  "huginn": {
+    "ready": false,
+    "missing": [
+      "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/data/dapo_math17k/train.jsonl"
+    ],
+    "observed_model_revision": "bb6621b65e90b6a4b9b29ef88dc83866d450470c",
+    "requested_model_revision": "bb6621b65e90b6a4b9b29ef88dc83866d450470c",
+    "model_revision_metadata_matches": true,
+    "observed_training_rows": null,
+    "expected_training_rows": 17398,
+    "training_count_matches": false,
+    "dataset_identity_verified": false,
+    "note": "Metadata/count checks do not independently establish the original paper dataset identity"
+  }
+}

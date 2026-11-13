@@ -1,0 +1,15 @@
+{
+  "extends": "huginn_math_base.json",
+  "run_name": "huginn_native_base",
+  "algorithm": {
+    "student_policy": "native",
+    "student_loops": null,
+    "student_max_loops": 32
+  },
+  "evaluation": {
+    "student_loops": [
+      32
+    ],
+    "student_policy": "native"
+  }
+}

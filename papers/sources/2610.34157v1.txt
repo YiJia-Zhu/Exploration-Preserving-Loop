@@ -1,0 +1,1049 @@
+LoopGR: Parameter-Efficient Scaling for Generative Recommendation via Recurrent Depth
+Skip to main content
+ Report GitHub Issue
+ ×
+ Title:
+Content selection saved. Describe the issue below:
+ Description:
+ Submit without GitHub
+ Submit in GitHub
+ Why HTML?
+ Report Issue
+ Back to Abstract
+ Download PDF
+ Contents
+ Reading mode
+ Colour theme
+Abstract
+1 Introduction
+2 Related Works
+Generative Recommendation.
+Looped Transformers.
+3 Preliminaries
+Semantic ID-based Generative Recommendation.
+Recurrent Depth.
+4 Methodology
+4.1 LoopGR Architecture
+Overall Design.
+Encoder.
+Context Updater.
+Decoder.
+4.2 Recurrent Trajectory Self-Distillation
+5 Experiments
+5.1 Experimental Setup
+Datasets.
+Baselines.
+Implementation Details.
+5.2 Overall Performance
+5.3 Architecture Comparison
+Parameter Scaling.
+Computation Scaling.
+Effect of Hierarchical Recurrent Depth.
+5.4 Analysis of Loop Dynamics
+Q1: How do the latent dynamics of LoopGR differ from a conventional counterpart?
+Q2: What does trajectory distillation learn?
+5.5 Ablation Study
+6 Conclusion
+References
+A Appendix
+A.1 Experimental Details
+A.2 Efficiency under Compressed Recurrent Trajectories
+A.3 Additional Visualization of Recurrent Trajectories
+A.4 Implementation Details of the Context Updater
+Token-level Updaters.
+Item-level Updaters.
+ License: arXiv.org perpetual non-exclusive license
+arXiv:2610.34157v1 [cs.IR] 25 Oct 2026
+LoopGR: Parameter-Efficient Scaling for Generative Recommendation via Recurrent Depth
+Huizhe Zhang
+Affiliation: Sun Yat-sen University
+Affiliation: Platform and Content Group, Tencent
+Email: zhanghzh33@mail2.sysu.edu.cn
+Yudong Li
+Affiliation: Platform and Content Group, Tencent
+Email: chenliang6@mail.sysu.edu.cn
+Liang Chen
+Affiliation: Sun Yat-sen University
+Email: elsonli@tencent.com
+Chengxiang Zhuo
+Affiliation: Platform and Content Group, Tencent
+Email: felixzhuo@tencent.com
+Zang Li
+Affiliation: Platform and Content Group, Tencent
+Email: gavinzli@tencent.com
+Abstract
+Generative recommendation formulates item recommendation as autoregressive generation rather than a discriminative scoring problem. Although empirical studies exhibit favorable scaling behavior in recommendation, unleashing the benefits of scaling remains challenging under the strict model size and inference cost constraints of real-world systems. A central challenge is to combine expressive modeling of user-item interaction histories with flexible computational depth without proportionally increasing model size.
+We introduce LoopGR, a parameter-efficient scaling framework for generative recommendation via recurrent depth. LoopGR employs a tailored hierarchical recurrent depth mechanism that alternates between a shared generative decoder and a lightweight context updater. For efficient inference, we further develop recurrent trajectory self-distillation that distills a low-budget student from a high-budget teacher by aligning both predictive distributions and evolution directions.
+Extensive experiments show that LoopGR consistently outperforms strong generative recommendation baselines. Compared with a representative encoder–decoder baseline, LoopGR achieves superior performance while reducing model size by up to 52%. These results establish recurrent depth as a new scaling dimension, offering a flexible and resource-efficient scaling path for generative recommendation.
+††footnotetext: ∗*Work done during internship at Platform and Content Group, Tencent.††footnotetext: †\daggerCorresponding author.
+1 Introduction
+Generative recommendation, which reconceptualizes the traditional discriminative matching paradigm as a generative task, has been a promising paradigm for large-scale recommender systems (Wang et al., 2023; Zhou et al., 2025a; Cheng et al., 2026). Inspired by tokenization in LLMs and computer vision, recent methods represent each item as a short sequence of discrete semantic IDs (SIDs) and formulate next-item recommendation as autoregressive generation of the target SIDs (Rajput et al., 2023; Ju et al., 2026; He et al., 2026). Empirical studies further suggest that increasing model capacity and training computation can improve recommendation performance, suggesting that generative recommenders also benefit from predictable scaling laws (Guo et al., 2024; Liu et al., 2026; Hou et al., 2026). However, unlike LLMs, recommender systems are deployed under much tighter computational and serving constraints. The key challenge is not simply to increase computation, but to effectively allocate a limited computational budget between interaction history modeling and target SID generation.
+Existing generative recommenders allocate computation differently between history modeling and target generation, as illustrated in Figure 1. This architectural evolution progressively shifts computation from dedicated history modeling toward shared and ultimately target-centric computation (Rajput et al., 2023; Zhou et al., 2025b; Yang et al., 2025b).
+The above architectural designs reveal a common conflict between expressive context modeling and efficient target generation. Rich user-item context is typically obtained by deeply encoding historical interactions before generation, whereas efficient decoding often treats the resulting context as fixed conditioning. Meanwhile, computational depth remains tightly coupled with the number of network layers in existing architectures, such that deeper context refinement requires additional parameters.
+These observations motivate a central question:
+How can we design a flexible generative recommendation backbone that dynamically organizes computation between context modeling and target SID generation?
+Looped Transformers, which recursively apply a set of shared layers across recurrent steps, offer a promising way to decouple computational depth from parameter size or memory consumption (Yang et al., 2025a; Zhu et al., 2025b; Geiping et al., 2026). Early studies combined recurrent depth with adaptive computation to iteratively refine token representations (Dehghani et al., 2018; Graves, 2016), while recent work has revisited this paradigm to improve the reasoning and efficiency capabilities in modern language models (Prairie et al., 2026; Wang et al., 2025a; Saunshi et al., 2025).
+Although recurrent depth improves model efficiency via parameter sharing, it is hard to differentiate two distinct computations over long behavioral histories and target SIDs in generative recommenders. Moreover, additional recurrent steps still incur inference latency, making unrestricted looping impractical under strict serving budgets. This motivates a recommendation-specific recurrent design that separately organizes history refinement and target generation while supporting efficient low-budget inference.
+Figure 1: Backbone comparison of different generative recommendation frameworks. (a) Encoder-Decoder architectures allocate separate computation to history modeling and target generation. (b) Decoder-Only architectures unify this computation within a shared stack. (c) Lazy Decoder-Only architectures further reallocate the computational budget toward target generation.
+In this paper, we propose LoopGR, a parameter-efficient scaling framework for generative recommendation via hierarchical recurrent depth. LoopGR is part of the TGR series of generative recommendation research at Tencent Cheng et al. (2026).
+It comprises an encoder, a shared decoder and a lightweight shared context updater. After the encoder initializes the behavioral context, high-level decoder cycles and low-level updater cycles are recurrently interleaved.
+Specifically, the decoder predicts target SID representations from the current context while the updater feeds the emerging target state back to refine the context for subsequent decoding. This design allows user context to evolve during generation while scaling computational depth through shared layers. To support efficient inference under hard serving budgets, we propose a recurrent trajectory self-distillation to match predictive distributions and evolution directions from high-budget to low-budget recurrent trajectories.
+LoopGR reconciles dynamic context modeling with efficient target generation by decoupling computational depth from parameter count while retaining strong performance under limited recurrent budgets.
+Our contributions are summarized as follows:
+• 
+To the best of our knowledge, we are the first to introduce a recurrent-depth architecture for SID-based generative recommendation, which enables dynamic context refinement during target SID generation while decoupling computational depth from parameter count.
+• 
+We propose a recurrent trajectory self-distillation method that aligns both predictive distributions and their evolution directions. It avoids the entanglement between exit selection and trajectory formation and effectively transfers a high-budget teacher into a low-budget student for efficient inference.
+• 
+Extensive experiments show that LoopGR outperforms strong baselines with fewer parameters. Beyond overall comparisons, we systematically evaluate recurrent depth, model size and computation scaling. Trajectory-level analyses are conducted to characterize the evolution of predictive representations across recurrent steps.
+2 Related Works
+Generative Recommendation.
+Generative recommendation has emerged as a new paradigm that directly generates target items from user-item interaction history (Hou et al., 2026; Li et al., 2025; Wang et al., 2026). With the rise of Large Language Models (LLMs), one line of studies adapts pretrained LLMs to recommendation by aligning their rich linguistic priors with recommendation-specific objectives (Zheng et al., 2024; Team et al., 2026; Zhang et al., 2026). For example, OneRec-Think (Liu et al., 2025) introduces itemic alignment, reasoning activation and reasoning enhancement to further equip recommenders with both explicit reasoning capabilities and personalized recommendation.
+A complementary line forgoes linguistic priors in LLMs and trains a recommendation-tailored architecture from scratch (Rajput et al., 2023; Wang et al., 2025b; Wang et al., 2024). OneRec-V2 (Zhou et al., 2025b) proposes a lazy decoder-only architecture to reallocate computation toward the target SID generation and avoid repeatedly applying expensive sequence encoding. Besides, several studies have further explored latent reasoning for generative recommendation by introducing intermediate latent states (Yang et al., 2026; Chen et al., 2026; Tang et al., 2026a).
+Despite these advances, most existing methods retain fixed-depth Transformer backbones, where increasing representational capacity typically entails introducing additional layers and parameters. Such parameter-centric scaling is difficult to reconcile with the stringent memory and latency requirements of recommendation systems.
+Looped Transformers.
+Looped Transformers increase effective computational depth by repeatedly applying a set of shared layers to decouple the computational depth from model size (Bai et al., 2019; Lan et al., 2019).
+As an earlier study, Universal Transformers (Dehghani et al., 2018) proposes a self-attentive recurrent sequence model with Adaptive Computation Time (ACT) (Graves, 2016) to iteratively refine the symbol representations.
+More recently, recurrent depth has been revisited in LLMs to improve parameter-efficient scaling and reasoning (Yang et al., 2024; Giannou et al., 2023; Fan et al., 2025). As an exemplary implementation, Ouro (Zhu et al., 2025b) repeatedly reuses a Transformer stack and systematically studies the scaling behavior of looped language models. Huginn (Geiping et al., 2026) adopts a different architecture in which the iterative body is tied between prelude and coda stacks.
+In recommender systems, recurrent depth remains largely underexplored. LoopCTR (Tang et al., 2026b) uses a parameter-shared prefix-attention module as the recurrent block for CTR prediction. However, it tailors recurrence layers to discriminative CTR prediction rather than autoregressive item generation. Deeper recurrence introduces additional sequential computation, making the balance between recurrent depth and inference efficiency an important direction for recommender systems.
+3 Preliminaries
+Semantic ID-based Generative Recommendation.
+Let ℐ={1,…,N}\mathcal{I}=\{1,\ldots,N\} denote the item set and 𝒮u=(i1,…,in)\mathcal{S}_{u}=(i_{1},\ldots,i_{n}) the user-item interaction history of user uu. The goal of next-item recommendation is to predict the subsequent item in+1∈ℐi_{n+1}\in\mathcal{I}.
+Instead of assigning each item an atomic identifier, semantic ID-based generative recommendation represents an item ii by a hierarchical code sequence 𝐜i=(ci1,…,ciH)\mathbf{c}_{i}=(c_{i}^{1},\ldots,c_{i}^{H}), where HH is the length of SIDs and cihc_{i}^{h} denotes its code at hierarchy hh. Following prior work (Lee et al., 2022), each SID consists of semantic tokens generated by a Residual-Quantized Variational AutoEncoder (RQ-VAE) and an extra anti-collision token. Accordingly, next-item prediction over semantic IDs can be formulated as follows:
+pθ​(in+1∣𝒮u)≡pθ​(𝐜in+1∣𝒮u)=∏h=1Hpθ​(cin+1h∣𝐜in+1<h,𝒮u),p_{\theta}(i_{n+1}\mid\mathcal{S}_{u})\equiv p_{\theta}(\mathbf{c}_{i_{n+1}}\mid\mathcal{S}_{u})=\prod_{h=1}^{H}p_{\theta}\!\left(c_{i_{n+1}}^{h}\mid\mathbf{c}_{i_{n+1}}^{<h},\mathcal{S}_{u}\right),
+(1)
+where θ\theta denotes the parameters of the generative recommendation model.
+Recurrent Depth.
+Looped architectures increase computational depth by repeatedly applying parameter-shared transformations. Given an initial hidden representation 𝐇(0)\mathbf{H}^{(0)}, the iterative computation can be written as
+𝐇(t+1)=ℱϕ(𝐇(t);𝐄),t=0,…,T−1,\mathbf{H}^{(t+1)}=\mathcal{F}_{\phi}\!\left(\mathbf{H}^{(t)};\mathbf{E}\right),\qquad t=0,\ldots,T-1,
+(2)
+where 𝐄\mathbf{E} denotes the conditioning context. ℱ​ϕ\mathcal{F}{\phi} denotes a recurrent transformation whose parameters ϕ\phi are shared across iterations. TT denotes the number of recurrent steps, referred to as the loop budget. The intermediate states naturally form a trajectory in the latent space τ=(𝐇(1),𝐇(2),…,𝐇(T))\mathbf{\tau}=\left(\mathbf{H}^{(1)},\mathbf{H}^{(2)},\ldots,\mathbf{H}^{(T)}\right).
+4 Methodology
+Figure 2: Overview of LoopGR. LoopGR alternates a shared decoder with a shared context updater to jointly refine target SID predictions and context representations over hierarchical recurrent depth.
+In this section, we formally define LoopGR from two complementary perspectives, architectural design and training objective. As illustrated in Figure 2, LoopGR encodes the historical interactions into a contextual memory and then alternates parameter-shared decoding and lightweight context updates to progressively predict the target SID along recurrent depth. This recurrent computation naturally forms a multi-step prediction trajectory, which we further exploit through a tailored training objective that first optimizes a high-budget teacher and then distills its trajectory into a low-budget student. Consequently, LoopGR defines how a trajectory is formed, while the objective determines how this trajectory is exploited under different inference budgets for generative recommendation.
+4.1 LoopGR Architecture
+Overall Design.
+LoopGR organizes target generation as a hierarchical recurrent process consisting of an Encoder, a Context Updater and a Decoder. The hierarchical recurrent computation can be summarized as
+ℱ=DEC∘ℬ∘⋯∘ℬ⏟high-level cycles∘ENC,ℬ≔UPD∘⋯∘UPD⏟low-level cycles∘DEC.\displaystyle\mathcal{F}=\operatorname{DEC}\circ\underbrace{\mathcal{B}\circ\cdots\circ\mathcal{B}}_{\text{high-level cycles}}\circ\operatorname{ENC},\qquad\mathcal{B}\coloneqq\underbrace{\operatorname{UPD}\circ\cdots\circ\operatorname{UPD}}_{\text{low-level cycles}}\circ\operatorname{DEC}.
+(3)
+where ∘\circ denotes function composition. The high-level recurrence repeatedly revisits target prediction, while each high-level transition contains a nested low-level recurrence for progressively refining its conditioning context.
+Encoder.
+We represent each historical item by its SIDs and obtain the corresponding token sequence 𝒞u=(𝐜i1,…,𝐜in)\mathcal{C}_{u}=(\mathbf{c}_{i_{1}},\ldots,\mathbf{c}_{i_{n}}). After embedding these tokens into 𝐗u∈ℝLu×d\mathbf{X}_{u}\in\mathbb{R}^{L_{u}\times d}, a Transformer encoder constructs the initial contextual memory:
+𝐌(0)=ENC⁡(𝐗u),\mathbf{M}^{(0)}=\operatorname{ENC}\left(\mathbf{X}_{u}\right),
+(4)
+where LuL_{u} denotes the length of the historical SID token sequence and dd is the hidden dimension.
+Context Updater.
+The context updater is introduced between decoding cycles to progressively refine historical representations via the previous prediction state. Specifically, at the tHt_{H}-th high-level cycle and the tLt_{L}-th low-level cycle, the updater constructs a cycle-dependent condition and extracts a prediction-aware query from the intermediate hidden states produced by the Decoder as follows:
+𝐞(tH,tL)=MLP(Emb(tH,tL,𝝃)),𝐪(tH)=MLP(𝐳BOS(tH)),\displaystyle\mathbf{e}^{(t_{H},t_{L})}=\operatorname{MLP}\left(\operatorname{Emb}(t_{H},t_{L},\bm{\xi})\right),\qquad\mathbf{q}^{(t_{H})}=\operatorname{MLP}\left(\mathbf{z}_{\mathrm{BOS}}^{(t_{H})}\right),
+(5)
+where 𝐳BOS(tH)\mathbf{z}_{\mathrm{BOS}}^{(t_{H})} denotes the hidden state of the BOS token after the tHt_{H}-th decoding cycle. As shown in Figure 2, the initial hidden states 𝐙(0)\mathbf{Z}^{(0)} are obtained by passing the context embeddings 𝐌(0)\mathbf{M}^{(0)} through the Decoder before the first context update. 𝝃\bm{\xi} denotes the hierarchy of SID.
+These signals are injected into the context from the previous low-level step, and a lightweight sequence operator further refines the resulting conditioned representation:
+𝐌~(tH,tL+1)\displaystyle\widetilde{\mathbf{M}}^{(t_{H},t_{L}+1)}
+=UPD⁡(𝐌(tH,tL),𝐞(tH,tL),𝐪(tH)),\displaystyle=\operatorname{UPD}\left(\mathbf{M}^{(t_{H},t_{L})},\mathbf{e}^{(t_{H},t_{L})},\mathbf{q}^{(t_{H})}\right),
+(6)
+𝐌(tH,tL+1)\displaystyle\mathbf{M}^{(t_{H},t_{L}+1)}
+=Norm⁡(𝐌(0)+𝐌~(tH,tL+1)),\displaystyle=\operatorname{Norm}\left(\mathbf{M}^{(0)}+\widetilde{\mathbf{M}}^{(t_{H},t_{L}+1)}\right),
+(7)
+In our implementation, the updater UPD⁡(⋅)\operatorname{UPD}(\cdot) shares parameters across all low-level cycles and is instantiated by default as a lightweight GRU-based operator. Notably, the updater is model-agnostic and we compare different instantiations in Section 5.5.
+Besides, the initial context embedding 𝐌(0)\mathbf{M}^{(0)} provides a stable anchor for recurrent refinement to facilitate optimization over multiple low-level cycles. After TLT_{L} low-level cycles, the context embedding is passed to the Decoder in the next high-level cycle and serves as the initial context for subsequent refinement:
+𝐌(tH+1,0)=𝐌(tH,TL)=Norm⁡(𝐌(0)+𝐌~(tH,TL)),\mathbf{M}^{(t_{H}+1,0)}=\mathbf{M}^{(t_{H},T_{L})}=\operatorname{Norm}\left(\mathbf{M}^{(0)}+\widetilde{\mathbf{M}}^{(t_{H},T_{L})}\right),
+(8)
+Decoder.
+The decoder generates recurrent target SID representations from the current historical context. At each autoregressive generation step, the same decoding procedure is repeated for THT_{H} high-level cycles before the resulting prediction is used for subsequent generation. Each decoding cycle is explicitly:
+𝐙^(tH)\displaystyle\widehat{\mathbf{Z}}^{(t_{H})}
+=Norm⁡(𝐙(tH)+𝐞(tH)),\displaystyle=\operatorname{Norm}\left(\mathbf{Z}^{(t_{H})}+\mathbf{e}^{(t_{H})}\right),
+(9)
+𝐙(tH+1)\displaystyle\mathbf{Z}^{(t_{H}+1)}
+=DEC⁡(𝐙^(tH),𝐌(tH+1,0)),\displaystyle=\operatorname{DEC}\left(\widehat{\mathbf{Z}}^{(t_{H})},\mathbf{M}^{(t_{H}+1,0)}\right),
+(10)
+where 𝐙\mathbf{Z} denotes the decoder input formed by the BOS token and the target prefix. Similarly, 𝐞(tH)\mathbf{e}^{(t_{H})} is constructed using the conditioning mechanism introduced above with tHt_{H} as the only cycle index. 𝐌(tH,0)\mathbf{M}^{(t_{H},0)} denotes the contextual memory used at the tHt_{H}-th high-level cycle.
+4.2 Recurrent Trajectory Self-Distillation
+Increasing recurrent depth allows LoopGR to refine its predictions without increasing the parameter count, but deeper unrolling inevitably introduces additional sequential inference cost. Therefore, we propose recurrent trajectory self-distillation to transfer the refinement dynamics of a high-budget LoopGR to a low-budget counterpart.
+Let THt​rT^{tr}_{H} and THs​t​uT^{stu}_{H} denote the numbers of high-level cycles used by the teacher and student, where THs​t​u<THt​rT^{stu}_{H}<T^{tr}_{H}. We first train a high-budget teacher via the last step supervision.
+We initialize the student from the trained teacher, θS(0)←θT⋆\theta_{S}^{(0)}\leftarrow\theta_{T}^{\star}, and reduce the recurrent budget to THs​t​uT^{stu}_{H} cycles. The above training objective can be formulated as follows:
+θT⋆=arg⁡minθT⁡ℒtaskT⏟Stage I,θS⋆=arg⁡minθS⁡(ℒtaskS+α​ℒTraj+β​ℒDer)⏟Stage II,\displaystyle\underbrace{\theta_{T}^{\star}=\arg\min_{\theta_{T}}\mathcal{L}_{\mathrm{task}}^{T}}_{\text{Stage I}},\qquad\underbrace{\theta_{S}^{\star}=\arg\min_{\theta_{S}}\left(\mathcal{L}_{\mathrm{task}}^{S}+\alpha\mathcal{L}_{\mathrm{Traj}}+\beta\mathcal{L}_{\mathrm{Der}}\right)}_{\text{Stage II}},
+(11)
+where ℒtask\mathcal{L}_{\mathrm{task}} denotes the next-token prediction loss, and α\alpha and β\beta are loss weights. At each high-level cycle, the decoder hidden states are projected to token logits and converted into predictive distributions 𝐩\mathbf{p} via softmax. We align the student’s predictive distributions with those at the corresponding cycles along the high-budget teacher trajectory as follows:
+ℒTraj=1THstu​H∑s=1THstu∑h=1H𝒟KL(𝐩tr(a⁡(s),h)∥𝐩stu(s,h)).\mathcal{L}_{\mathrm{Traj}}=\frac{1}{T_{H}^{\mathrm{stu}}H}\sum_{s=1}^{T_{H}^{\mathrm{stu}}}\sum_{h=1}^{H}\mathcal{D}_{\mathrm{KL}}\left(\mathbf{p}_{\mathrm{tr}}^{(a(s),h)}\,\|\,\mathbf{p}_{\mathrm{stu}}^{(s,h)}\right).
+(12)
+where a⁡(s)=⌈s​THt​rTHs​t​u⌉a(s)=\left\lceil\frac{sT^{tr}_{H}}{T^{stu}_{H}}\right\rceil. It maps each student cycle to the corresponding state along the teacher trajectory. Following prior trajectory distillation (Gong et al., 2025), we further minimize the directional discrepancy based on the first-order change:
+ℒDer=1(THstu−1)​H​∑s=2THstu∑h=1H𝒟cos​(Δ​𝐳tr(a⁡(s),h),Δ​𝐳stu(s,h)),\mathcal{L}_{\mathrm{Der}}=\frac{1}{(T_{H}^{\mathrm{stu}}-1)H}\sum_{s=2}^{T_{H}^{\mathrm{stu}}}\sum_{h=1}^{H}\mathcal{D}_{\mathrm{cos}}\left(\Delta\mathbf{z}_{\mathrm{tr}}^{(a(s),h)},\Delta\mathbf{z}_{\mathrm{stu}}^{(s,h)}\right),
+(13)
+The finite differences in log-probability space are defined as Δ​𝐳S(s,h)=log⁡𝐩S(s,h)−log⁡𝐩S(s−1,h)\Delta\mathbf{z}_{S}^{(s,h)}=\log\mathbf{p}_{S}^{(s,h)}-\log\mathbf{p}_{S}^{(s-1,h)} and Δ​𝐳T(a⁡(s),h)=log⁡𝐩T(a⁡(s),h)−log⁡𝐩T(a⁡(s−1),h)\Delta\mathbf{z}_{T}^{(a(s),h)}=\log\mathbf{p}_{T}^{(a(s),h)}-\log\mathbf{p}_{T}^{(a(s-1),h)}.
+Consequently, the student learns to approximate the high-budget refinement process with substantially fewer loop steps.
+5 Experiments
+5.1 Experimental Setup
+Datasets.
+We conduct experiments on three widely used categories from the Amazon Reviews 2014 dataset (McAuley et al., 2015): Sports and Outdoors (Sports), Beauty (Beauty) and CDs and Vinyl (CDs). We treat user reviews as implicit interactions and sort them chronologically to construct user behavior sequences. For the training set, we construct next-item prediction instances using sliding windows over each user’s interaction history (Rajput et al., 2023). We also evaluate LoopGR on an industrial dataset collected from Tencent’s production recommendation system and compare it with two generative recommendation baselines deployed in Tencent’s real-world services. More details about the datasets are provided in Appendix A.1.
+Baselines.
+We compare LoopGR with representative recommendation methods from two categories. (i) Conventional recommendation methods include GRU4Rec (Hidasi et al., 2015), SASRec (Kang and McAuley, 2018), BERT4Rec (Sun et al., 2019), FDSA (Zhang et al., 2019), S3-Rec (Zhou et al., 2020) and VQ-Rec (Hou et al., 2023).
+(ii) Generative recommendation methods include TIGER (Rajput et al., 2023), HSTU (Zhai et al., 2024), ActionPiece (Hou et al., 2025b) and RPG (Hou et al., 2025a).
+We report the best-performing full-budget LoopGR, together with LoopGR-RTSD, its corresponding student operating at half of the recurrent budget.
+For the industrial dataset, we compare LoopGR with TIGER, BARGE (Zeng et al., 2026) and a plain Lazy Decoder-Only model derived from OneRec V2 (Zhou et al., 2025b). Notably, the encoder or context processor of each baseline is adapted to accommodate the industrial input format in our implementation.
+Implementation Details.
+All experiments are conducted on four NVIDIA H20 GPUs. For SID construction, we generate the semantic embedding of items using a pre-trained Sentence-T5 model (Ni et al., 2022) and quantize the resulting item embeddings with an RQ-VAE (Lee et al., 2022). The RQ-VAE produces a three-digit hierarchical SID for each item. Besides, we append a fourth anti-collision digit to ensure that every item has a unique SID.
+For the LoopGR backbone, we instantiate the Encoder with T5 Encoder (Raffel et al., 2020) and employ a plain Transformer decoder (Vaswani et al., 2017) as the parameter-shared Decoder.
+Table 1: Performance comparison among baselines and LoopGR
+Model
+Beauty
+Sports and Outdoors
+CDs and Vinyl
+R@5
+N@5
+R@10
+N@10
+R@5
+N@5
+R@10
+N@10
+R@5
+N@5
+R@10
+N@10
+GRU4Rec
+0.0164
+0.0099
+0.0283
+0.0137
+0.0129
+0.0086
+0.0204
+0.0110
+0.0195
+0.012
+0.0353
+0.0171
+BERT4Rec
+0.0203
+0.0124
+0.0347
+0.0170
+0.0115
+0.0075
+0.0191
+0.0099
+0.0326
+0.0201
+0.0547
+0.0271
+SASRec
+0.0387
+0.0249
+0.0605
+0.0318
+0.0233
+0.0154
+0.0350
+0.0192
+0.0351
+0.0177
+0.0619
+0.0263
+FDSA
+0.0267
+0.0163
+0.0407
+0.0208
+0.0182
+0.0122
+0.0288
+0.0156
+0.0226
+0.0137
+0.0378
+0.0186
+S3-Rec
+0.0387
+0.0244
+0.0647
+0.0327
+0.0251
+0.0161
+0.0385
+0.0204
+0.0213
+0.013
+0.0375
+0.0182
+VQ-Rec
+0.0434
+0.0311
+0.0741
+0.0372
+0.0181
+0.0132
+0.0251
+0.0154
+0.0314
+0.0209
+0.0485
+0.0264
+TIGER
+0.0454
+0.0321
+0.0648
+0.0384
+0.0264
+0.0181
+0.0400
+0.0225
+0.0492
+0.0329
+0.0748
+0.0411
+HSTU
+0.0469
+0.0314
+0.0704
+0.0389
+0.0258
+0.0165
+0.0414
+0.0215
+0.0417
+0.0275
+0.0638
+0.0346
+ActionPiece
+0.0511
+0.0340
+0.0775
+0.0424
+0.0316
+0.0205
+0.0500
+0.0264
+0.0544
+0.0359
+0.0830
+0.0451
+RPG
+0.0550
+0.0381
+0.0809
+0.0464
+0.0314
+0.0216
+0.0463
+0.0263
+0.0498
+0.0338
+0.0735
+0.0415
+LoopGR
+0.0563
+0.0389
+0.0799
+0.0465
+0.0333
+0.0223
+0.0495
+0.0275
+0.0537
+0.0363
+0.0799
+0.0447
+LoopGR-RTSD
+0.0561
+0.0383
+0.0813
+0.0464
+0.0325
+0.0213
+0.0484
+0.0264
+0.0516
+0.0346
+0.0789
+0.0434
+5.2 Overall Performance
+Table 1 compares LoopGR with conventional sequential recommenders and recent generative recommendation methods. Overall, generative approaches achieve stronger performance across the three datasets, though several conventional methods remain competitive on individual metrics.
+Generative methods exhibit stronger and more consistent performance, demonstrating the benefit of directly generating compositional item identifiers. LoopGR and LoopGR (RTSD) achieve the best result on 8 of the 12 evaluation settings. In particular, LoopGR improves over the strongest baseline by 2.4%2.4\% in Recall@5 and 2.1%2.1\% in NDCG@5 for Beauty, and by 5.4%5.4\% in Recall@5 and 4.2%4.2\% in NDCG@10 for Sports and Outdoors.
+For generative baselines, ActionPiece and RPG employ more elaborate identifier or decoding designs. ActionPiece constructs context-dependent action tokens, whereas RPG adopts long unordered SIDs together with parallel prediction and graph-constrained decoding.
+In contrast, LoopGR adopts a standard SID construction using RQ-VAE, while improving model capacity through a tailored hierarchical recurrent depth for generative recommendation. LoopGR outperforms RPG on 11 of 12 metrics and ActionPiece on 8 of 12 metrics. Moreover, LoopGR (RTSD) remains competitive while using fewer refinement steps and obtains the best Recall@10 on Beauty. It validates the effectiveness of trajectory self-distillation in iterative reasoning for a lower-computation model.
+Table 2: Offline performance comparison on the industrial dataset.
+Model
+R@5
+R@10
+R@20
+R@50
+R@100
+Lazy Decoder
+0.5180
+0.5796
+0.6383
+0.6948
+0.6990
+TIGER
+0.5465
+0.6125
+0.6668
+0.7137
+0.7164
+BARGE
+0.5477
+0.6277
+0.6914
+0.7469
+0.7496
+LoopGR
+0.5691
+0.6458
+0.7115
+0.7627
+0.7675
+As shown in Table 2, LoopGR consistently outperforms the generative recommendation baselines that are used in Tencent’s recommendation system. The plain Lazy Decoder-only baseline is highly dependent on a carefully designed context processor, and this architecture may lead to suboptimal performance without an additional post-training phase for preference alignment. BARGE further improves performance through several architectural enhancements, including Item Context-Aware Attention, Hierarchical Path Reranking and Dual-path Decoding. These designs are largely orthogonal to LoopGR and can be incorporated into our framework. LoopGR provides a modular Encoder-Decoder-Updater backbone in which components developed for existing generative recommenders can be integrated in a plug-and-play manner.
+(a) Model scaling under varying parameter and computation budgets on CDs.
+(b) Effect of high-level cycles THT_{H} and low-level cycles TLT_{L} on Beauty and Sports.
+Figure 3: Architectural comparison across model size, computation and recurrent depth scaling.
+5.3 Architecture Comparison
+To further investigate model size and recurrent-depth scaling, we compare LoopGR with three representative generative backbones, including Encoder-Decoder, Decoder-only and Lazy Decoder-only baselines. For parameter scaling, we fix TH=3T_{H}=3 and TL=1T_{L}=1 to compare LoopGR with the baselines at comparable parameter counts. For computation scaling, we search over encoder/decoder depths and TH/TLT_{H}/T_{L} to report the best configuration at comparable GFLOPs. Lazy Decoder-only is excluded from computation scaling because its computation is substantially lower than that of the other architectures. For hierarchical recurrence analysis, we fix both encoder and decoder to one layer and vary THT_{H} and TLT_{L}. More details about the inference latency are provided in Appendix A.2.
+Parameter Scaling.
+As shown in Figure 3 (a), LoopGR achieves higher NDCG@5 than the alternative architectures at similar parameter counts. Its performance continues to improve as the model size increases, while recurrent computation provides an additional dimension for increasing effective depth without introducing new parameters at every step. Consequently, its performance continues to improve beyond Encoder-Decoder as the parameter budget increases. In contrast, Lazy Decoder-only exhibits a flatter scaling curve because the historical context remains fixed and additional parameters are devoted primarily to target decoding.
+These results suggest that hierarchical recurrence provides a more parameter-efficient scaling strategy for SID-based generative recommendation.
+Computation Scaling.
+LoopGR achieves the highest NDCG@5 across the different computation levels while requiring substantially fewer parameters than Encoder-Decoder. At approximately 0.50.5 GFLOPs, LoopGR uses only 1.31.3M parameters, less than half of the 2.72.7M parameters required by Encoder-Decoder.
+Notably, with a parameter budget close to Decoder-only, LoopGR still outperforms the considerably larger Encoder-Decoder model. This demonstrates that additional computation can be introduced through parameter reuse rather than proportional model expansion, yielding a more favorable trade-off among accuracy, computation and model size.
+Effect of Hierarchical Recurrent Depth.
+We further vary the high-level depth THT_{H} and low-level depth TLT_{L} to examine their respective roles. Figure 3 (b) shows that removing low-level recurrence TL=0T_{L}=0 significantly degrades performance, while introducing even a small number of updater cycles improves both Recall@5 and NDCG@5. It highlights the importance of dynamically refining the historical context between successive decoding cycles.
+Increasing THT_{H} generally brings further gains, although the gains become non-monotonic at larger depths. On Sports, increasing both THT_{H} and TLT_{L} yields more pronounced performance gains. This indicates that deeper hierarchical recurrence becomes increasingly beneficial as the recommendation scale grows.
+Overall, these results support the hierarchical design of LoopGR, where high-level cycles progressively refine target prediction while low-level cycles adapt the conditioning context between decoding stages.
+5.4 Analysis of Loop Dynamics
+In this section, we visualize intermediate representation trajectories in latent space across recurrent steps. We focus on two questions: (Q1) how do the latent dynamics of LoopGR differ from those of a conventional Encoder-Decoder? and (Q2) how does trajectory distillation reshape these dynamics under a limited loop budget?
+We collect the intermediate representations at different SID positions from a 16-layer Encoder-Decoder, a 16-loop LoopGR teacher and distilled students with 8 and 4 loops. For each SID position, we project the intermediate states onto the first two principal components to trace their evolution. Figure 4 provides a visualization of these trajectories.
+Figure 4: Latent space trajectories for different SIDs.
+Q1: How do the latent dynamics of LoopGR differ from a conventional counterpart?
+As depicted in Figure 4, the Encoder-Decoder exhibits relatively smooth layer-wise evolution. Its adjacent representations progressively move along a largely continuous trajectory. In contrast, LoopGR undergoes substantially larger transitions in its early cycles and subsequently enters a more localized refinement regime.
+In the experiments, LoopGR exhibits clear position-dependent dynamics that are characterized by stronger oscillations at earlier SID positions and faster convergence at later SID positions.
+These non-monotonic patterns resemble the structured latent trajectories observed in previous Looped Transformers (Geiping et al., 2026; Wang et al., 2025a). Unlike the progressive layer-wise transformations of the Encoder-Decoder, LoopGR repeatedly revises its latent state across cycles, yielding a more dynamic and position-dependent refinement process.
+Q2: What does trajectory distillation learn?
+Figure 4 shows that reducing the loop budget through distillation does not simply truncate the teacher trajectory. The 8-loop student exhibits a much larger transition at the beginning of recurrent computation, followed by progressively smaller updates toward its terminal state. This tendency becomes even more pronounced for the 4-loop student, whose trajectory is dominated by the initial transition.
+Here, we propose an intuitive interpretation that the distillation objective encourages a low-budget model to approximate a longer refinement process with fewer recurrent transitions rather than reproducing every intermediate teacher state. Consequently, the teacher and student exhibit complementary computational behaviors. The long-budget teacher develops a richer refinement trajectory, whereas the distilled student learns a more direct trajectory toward the terminal prediction under a limited inference budget.
+5.5 Ablation Study
+We conduct ablation studies on two key design choices of LoopGR, namely the context updater and the training objective.
+For the updater, we replace the default GRU with three sequence modeling methods, including token mixing, linear attention, vanilla attention and an Identity variant that leaves the context representations unchanged. Furthermore, we compare per-step supervision, gated exit, Intra-Loop Self-Distillation (Goyal et al., 2026, ILSD;) and Recurrent Trajectory Self-Distillation (RTSD). At inference, the other alternative training objectives use the full budget and RTSD distills LoopGR into a student operating at half of the teacher’s budget.
+Table 3 shows that the Mixing baseline achieves the best Recall@5, Recall@10 and NDCG@10 on Sports. In contrast, replacing the updater with Identity consistently degrades performance, with an average drop of about 8%8\% relative to the learnable updater variants. This confirms that the gain primarily comes from dynamically updating the conditioning context rather than from a particular sequence operator, making the updater design largely architecture-agnostic.
+Averaged over the eight reported metrics, per-step supervision, gated exit and ILSD fall 9.7%9.7\%, 13.2%13.2\% and 9.4%9.4\% below the full-budget LoopGR, respectively. RTSD reduces this gap to only 3.2%3.2\%. We suggest that direct supervision at intermediate cycles can induce representation stagnation. It causes subsequent updates to diminish before the full recurrent budget is exploited. RTSD instead separates trajectory learning from compression and better preserves performance under a reduced budget.
+Table 3: Ablation study of different updater architectures and training objectives. The best and second-best results in each column are highlighted in bold and underlined, respectively.
+Model
+Sports and Outdoors
+CDs and Vinyl
+R@5
+N@5
+R@10
+N@10
+R@5
+N@5
+R@10
+N@10
+LoopGR
+0.0333
+0.0223
+0.0495
+0.0275
+0.0537
+0.0363
+0.0799
+0.0447
+w. Identity
+0.0311
+0.0197
+0.0489
+0.0254
+0.0502
+0.0324
+0.0730
+0.0400
+w. Mixing
+0.0342
+0.0222
+0.0531
+0.0283
+0.0527
+0.0352
+0.0792
+0.0436
+w. Linear Attn
+0.0338
+0.0219
+0.0516
+0.0276
+0.0537
+0.0354
+0.0789
+0.0435
+w. Vanilla Attn
+0.0333
+0.0217
+0.0520
+0.0277
+0.0533
+0.0362
+0.0768
+0.0437
+w. Per-Step Supervision
+0.0280
+0.0186
+0.0424
+0.0232
+0.0516
+0.0348
+0.0771
+0.0430
+w. Gated Exit
+0.0264
+0.0174
+0.0406
+0.0220
+0.0502
+0.0338
+0.0754
+0.0420
+w. ILSD
+0.0290
+0.0192
+0.0427
+0.0236
+0.0512
+0.0347
+0.0752
+0.0424
+w. RTSD
+0.0325
+0.0213
+0.0484
+0.0264
+0.0516
+0.0346
+0.0789
+0.0434
+Table 4: Offline performance on the industrial dataset with different context updater designs.
+Model
+R@5
+R@10
+R@20
+R@50
+R@100
+Lazy Decoder
+0.5180
+0.5796
+0.6383
+0.6948
+0.6990
+TIGER
+0.5465
+0.6125
+0.6668
+0.7137
+0.7164
+BARGE
+0.5477
+0.6277
+0.6914
+0.7469
+0.7496
+LoopGR (w. Identity)
+0.5513
+0.6188
+0.6789
+0.7334
+0.7355
+LoopGR (w. GRU)
+0.5626
+0.6383
+0.7007
+0.7563
+0.7585
+LoopGR (w. Linear Attn)
+0.5556
+0.6245
+0.6854
+0.7395
+0.7422
+LoopGR (w. Mixing)
+0.5691
+0.6458
+0.7115
+0.7627
+0.7675
+We further evaluate different LoopGR variants on the industrial dataset by varying the design of the context updater. As shown in Table 4, LoopGR achieves the best performance across all evaluation metrics, with maximum relative improvements of 11.47%, 7.13% and 3.91% over Lazy Decoder, TIGER and BARGE, respectively. Notably, its gain over TIGER becomes increasingly pronounced at larger retrieval cutoffs, suggesting that LoopGR is particularly effective at improving recall over a broader candidate set. These results further demonstrate that LoopGR can effectively incorporate different lightweight context-updating operators while retaining strong performance in large-scale industrial recommendation.
+6 Conclusion
+In this paper, we introduce LoopGR, a parameter-efficient framework for generative recommendation that decouples computational depth from parameter growth through hierarchical recurrent computation.
+By recurrently reusing a decoder and a context updater, LoopGR increases effective depth while dynamically refining the historical context during SID generation. We further develop recurrent trajectory self-distillation to better balance recommendation performance and inference efficiency under hard recurrent budgets.
+Extensive experiments show that LoopGR consistently outperforms strong baselines and achieves better performance than representative Encoder-Decoder architectures with up to 52%52\% fewer parameters. These results demonstrate the potential of recurrent depth as a complementary scaling dimension beyond model size for generative recommendation.
+References
+Bai et al. (2019)
+S. Bai, J. Z. Kolter, and V. Koltun
+Deep equilibrium models.
+Advances in neural information processing systems 32.
+Cited by: §2.
+Chen et al. (2026)
+Y. Chen, F. Zhang, Z. Chen, H. Li, P. Xu, H. Liu, S. Li, X. Pei, F. Zhuang, and Z. Zhang
+LASAR: latent adaptive semantic aligned reasoning for generative recommendation.
+arXiv preprint arXiv:2605.10207.
+Cited by: §2.
+Cheng et al. (2026)
+L. Cheng, H. Hu, B. Kong, Y. Li, Z. Li, Y. Pang, H. Su, J. Tu, Y. Wang, B. Wen, et al.
+TGR: advancing industrial recommendation from generative-paradigm ranking toward unified generation and reasoning.
+arXiv preprint arXiv:2609.00986.
+Cited by: §1,
+§1.
+Chung et al. (2014)
+J. Chung, C. Gulcehre, K. Cho, and Y. Bengio
+Empirical evaluation of gated recurrent neural networks on sequence modeling.
+arXiv preprint arXiv:1412.3555.
+Cited by: §A.4.
+Dehghani et al. (2018)
+M. Dehghani, S. Gouws, O. Vinyals, J. Uszkoreit, and Ł. Kaiser
+Universal transformers.
+arXiv preprint arXiv:1807.03819.
+Cited by: §1,
+§2.
+Fan et al. (2025)
+Y. Fan, Y. Du, K. Ramchandran, and K. Lee
+Looped transformers for length generalization.
+In International Conference on Learning Representations,
+Vol. 2025, pp. 14502–14520.
+Cited by: §2.
+Geiping et al. (2026)
+J. Geiping, S. McLeish, N. Jain, J. Kirchenbauer, S. Singh, B. Bartoldson, B. Kailkhura, A. Bhatele, and T. Goldstein
+Scaling up test-time compute with latent reasoning: a recurrent depth approach.
+Advances in Neural Information Processing Systems 38, pp. 41340–41391.
+Cited by: §1,
+§2,
+§5.4.
+Giannou et al. (2023)
+A. Giannou, S. Rajput, J. Sohn, K. Lee, J. D. Lee, and D. Papailiopoulos
+Looped transformers as programmable computers.
+In International Conference on Machine Learning,
+pp. 11398–11442.
+Cited by: §2.
+Gong et al. (2025)
+G. Gong, J. Wang, J. Xu, D. Xiang, Z. Zhang, L. Shen, Y. Zhang, J. Shu, Z. Xing, Z. Chen, P. Liu, and K. Zhang
+Beyond logits: aligning feature dynamics for effective knowledge distillation.
+In Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), W. Che, J. Nabende, E. Shutova, and M. T. Pilehvar (Eds.),
+Vienna, Austria, pp. 23067–23077.
+External Links: Link,
+Document,
+ISBN 979-8-89176-251-0
+Cited by: §4.2.
+Goyal et al. (2026)
+S. Goyal, S. Agrawal, G. G. Anil, P. Jain, S. Paul, and A. Kusupati
+Elt: elastic looped transformers for visual generation.
+arXiv preprint arXiv:2604.09168.
+Cited by: §5.5.
+Graves (2016)
+A. Graves
+Adaptive computation time for recurrent neural networks.
+arXiv preprint arXiv:1603.08983.
+Cited by: §1,
+§2.
+Guo et al. (2024)
+W. Guo, H. Wang, L. Zhang, J. Y. Chin, Z. Liu, K. Cheng, Q. Pan, Y. Q. Lee, W. Xue, T. Shen, et al.
+Scaling new frontiers: insights into large recommendation models.
+arXiv preprint arXiv:2412.00714.
+Cited by: §1.
+He et al. (2026)
+Y. He, Y. Sun, J. Tan, Y. Chen, X. Kong, C. Shen, X. Wang, A. Zhang, and T. Chua
+Reasoning over semantic ids enhances generative recommendation.
+In Proceedings of the 32nd ACM SIGKDD Conference on Knowledge Discovery and Data Mining V.2,
+KDD ’26, New York, NY, USA, pp. 1638–1649.
+External Links: ISBN 9798400722592,
+Link,
+Document
+Cited by: §1.
+Hidasi et al. (2015)
+B. Hidasi, A. Karatzoglou, L. Baltrunas, and D. Tikk
+Session-based recommendations with recurrent neural networks.
+arXiv preprint arXiv:1511.06939.
+Cited by: §5.1.
+Hou et al. (2026)
+M. Hou, L. Wu, Y. Liao, Y. Yang, Z. Zhang, Y. Wang, C. Zheng, H. Wu, and R. Hong
+A survey on generative recommendation: data, model, and tasks.
+External Links: 2510.27157,
+Link
+Cited by: §1,
+§2.
+Hou et al. (2023)
+Y. Hou, Z. He, J. McAuley, and W. X. Zhao
+Learning vector-quantized item representation for transferable sequential recommenders.
+In Proceedings of the ACM Web Conference 2023,
+pp. 1162–1171.
+Cited by: §5.1.
+Hou et al. (2025a)
+Y. Hou, J. Li, A. Shin, J. Jeon, A. Santhanam, W. Shao, K. Hassani, N. Yao, and J. McAuley
+Generating long semantic ids in parallel for recommendation.
+In Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 2,
+pp. 956–966.
+Cited by: §5.1.
+Hou et al. (2025b)
+Y. Hou, J. Ni, Z. He, N. Sachdeva, W. Kang, E. H. Chi, J. McAuley, and D. Z. Cheng
+Actionpiece: contextually tokenizing action sequences for generative recommendation.
+arXiv preprint arXiv:2502.13581.
+Cited by: §5.1.
+Ju et al. (2026)
+C. M. Ju, T. Zhao, L. Neves, L. Collins, B. Kumar, J. Ren, L. Zhang, W. Zhuo, V. Zhang, X. Bai, J. Li, K. Iyer, Z. Fan, Y. Xu, Y. Chen, P. Yu, M. Malik, and N. Shah
+Semantic ids for recommender systems at snapchat: use cases, technical challenges, and design choices.
+External Links: 2604.03949,
+Link
+Cited by: §1.
+Kang and McAuley (2018)
+W. Kang and J. McAuley
+Self-attentive sequential recommendation.
+In 2018 IEEE international conference on data mining (ICDM),
+pp. 197–206.
+Cited by: §5.1.
+Katharopoulos et al. (2020)
+A. Katharopoulos, A. Vyas, N. Pappas, and F. Fleuret
+Transformers are rnns: fast autoregressive transformers with linear attention.
+In International conference on machine learning,
+pp. 5156–5165.
+Cited by: §A.4.
+Lan et al. (2019)
+Z. Lan, M. Chen, S. Goodman, K. Gimpel, P. Sharma, and R. Soricut
+Albert: a lite bert for self-supervised learning of language representations.
+arXiv preprint arXiv:1909.11942.
+Cited by: §2.
+Lee et al. (2022)
+D. Lee, C. Kim, S. Kim, M. Cho, and W. Han
+Autoregressive image generation using residual quantization.
+In 2022 IEEE/CVF conference on computer vision and pattern recognition (CVPR),
+pp. 11513–11522.
+Cited by: §3,
+§5.1.
+Li et al. (2025)
+X. Li, J. Jin, Y. Zhou, Y. Zhang, P. Zhang, Y. Zhu, and Z. Dou
+From matching to generation: a survey on generative information retrieval.
+ACM Transactions on Information Systems 43 (3), pp. 1–62.
+Cited by: §2.
+Liu et al. (2026)
+J. Liu, L. Collins, J. Tang, T. Zhao, N. Shah, and M. Ju
+Understanding generative recommendation with semantic ids from a model-scaling view.
+In Proceedings of the 32nd ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 2,
+pp. 3234–3245.
+Cited by: §1.
+Liu et al. (2025)
+Z. Liu, S. Wang, X. Wang, R. Zhang, J. Deng, H. Bao, J. Zhang, W. Li, P. Zheng, X. Wu, et al.
+Onerec-think: in-text reasoning for generative recommendation.
+arXiv preprint arXiv:2510.11639.
+Cited by: §2.
+McAuley et al. (2015)
+J. McAuley, C. Targett, Q. Shi, and A. Van Den Hengel
+Image-based recommendations on styles and substitutes.
+In Proceedings of the 38th international ACM SIGIR conference on research and development in information retrieval,
+pp. 43–52.
+Cited by: §5.1.
+Ni et al. (2022)
+J. Ni, G. H. Abrego, N. Constant, J. Ma, K. Hall, D. Cer, and Y. Yang
+Sentence-t5: scalable sentence encoders from pre-trained text-to-text models.
+In Findings of the association for computational linguistics: ACL 2022,
+pp. 1864–1874.
+Cited by: §5.1.
+Prairie et al. (2026)
+H. Prairie, Z. Novack, T. Berg-Kirkpatrick, and D. Y. Fu
+Parcae: scaling laws for stable looped language models.
+arXiv preprint arXiv:2604.12946.
+Cited by: §1.
+Raffel et al. (2020)
+C. Raffel, N. Shazeer, A. Roberts, K. Lee, S. Narang, M. Matena, Y. Zhou, W. Li, and P. J. Liu
+Exploring the limits of transfer learning with a unified text-to-text transformer.
+Journal of machine learning research 21 (140), pp. 1–67.
+Cited by: §5.1.
+Rajput et al. (2023)
+S. Rajput, N. Mehta, A. Singh, R. Hulikal Keshavan, T. Vu, L. Heldt, L. Hong, Y. Tay, V. Tran, J. Samost, et al.
+Recommender systems with generative retrieval.
+Advances in Neural Information Processing Systems 36, pp. 10299–10315.
+Cited by: §1,
+§1,
+§2,
+§5.1,
+§5.1.
+Saunshi et al. (2025)
+N. Saunshi, N. Dikkala, Z. Li, S. Kumar, and S. J Reddi
+Reasoning with latent thoughts: on the power of looped transformers.
+In International Conference on Learning Representations,
+Vol. 2025, pp. 14855–14881.
+Cited by: §1.
+Sun et al. (2019)
+F. Sun, J. Liu, J. Wu, C. Pei, X. Lin, W. Ou, and P. Jiang
+BERT4Rec: sequential recommendation with bidirectional encoder representations from transformer.
+In Proceedings of the 28th ACM international conference on information and knowledge management,
+pp. 1441–1450.
+Cited by: §5.1.
+Tang et al. (2026a)
+J. Tang, S. Dai, T. Shi, J. Xu, X. Chen, W. Chen, J. Wu, and Y. Jiang
+Think before recommend: unleashing the latent reasoning power for sequential recommendation.
+IEEE Transactions on Knowledge and Data Engineering.
+Cited by: §2.
+Tang et al. (2026b)
+J. Tang, R. Zhang, W. Wang, Y. Liu, C. Wang, X. Chen, Y. Yang, J. Wu, Y. Jiang, and B. Zheng
+LoopCTR: unlocking the loop scaling power for click-through rate prediction.
+arXiv preprint arXiv:2604.19550.
+Cited by: §2.
+Team et al. (2026)
+O. Team, B. Yang, B. Ding, C. Chu, D. Zang, F. Pan, H. Li, H. Jiang, H. Bao, H. Wang, J. Liang, J. Cao, J. Ou, J. Deng, J. Zhang, K. Gai, L. Ren, P. Du, P. Zheng, R. Zhang, R. Tang, S. Wang, S. Mao, S. Lou, T. Shi, W. Yuan, W. Xu, X. Liu, X. Wang, X. Jin, Y. Sun, Y. Wang, Y. Hu, Y. He, Y. Ye, Y. Wang, Y. Zhou, Y. Dai, Z. Liu, Z. Wei, Z. Ling, Z. Li, Z. Zhang, Z. Liu, A. Zhang, C. Lao, C. Ma, C. Song, D. Lian, F. Yang, G. Zhang, H. Peng, J. Shen, J. Chen, J. Xu, J. Chen, K. Zhang, K. Cai, M. Wen, M. Wang, M. Lv, Q. Zhang, Q. Luo, S. Yu, S. Li, S. Yi, S. Yang, S. Liu, S. Chen, T. Zhang, T. Gao, X. Wang, X. Wu, X. Zhao, X. Lv, X. Zhou, X. Wang, Y. Du, Z. Zhang, Z. Liu, Z. Zhang, Z. Zhuang, Z. Wang, and Z. Zhao
+OneReason technical report.
+External Links: 2606.06260,
+Link
+Cited by: §2.
+Vaswani et al. (2017)
+A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, Ł. Kaiser, and I. Polosukhin
+Attention is all you need.
+Advances in neural information processing systems 30.
+Cited by: §5.1.
+Wang et al. (2025a)
+G. Wang, J. Li, Y. Sun, X. Chen, C. Liu, Y. Wu, M. Lu, S. Song, and Y. A. Yadkori
+Hierarchical reasoning model.
+External Links: 2506.21734,
+Link
+Cited by: §1,
+§5.4.
+Wang et al. (2025b)
+W. Wang, H. Bao, X. Lin, J. Zhang, Y. Li, F. Feng, S. Ng, and T. Chua
+Learnable item tokenization for generative recommendation.
+External Links: 2405.07314,
+Link
+Cited by: §2.
+Wang et al. (2023)
+W. Wang, X. Lin, F. Feng, X. He, and T. Chua
+Generative recommendation: towards next-generation recommender paradigm.
+arXiv preprint arXiv:2304.03516.
+Cited by: §1.
+Wang et al. (2024)
+Y. Wang, J. Xun, M. Hong, J. Zhu, T. Jin, W. Lin, H. Li, L. Li, Y. Xia, Z. Zhao, and Z. Dong
+EAGER: two-stream generative recommender with behavior-semantic collaboration.
+External Links: 2406.14017,
+Link
+Cited by: §2.
+Wang et al. (2026)
+Y. Wang, H. Zhang, H. Hu, Y. Li, B. Wen, J. Tu, C. Zhuo, and Z. Li
+CCFormer: efficient cross-field interaction and hierarchical sequence compression for industrial recommendation at tencent.
+arXiv preprint arXiv:2607.28070.
+Cited by: §2.
+Yang et al. (2025a)
+C. Yang, G. Peng, J. Zhu, R. Le, R. Feng, T. Zhang, W. Ruan, X. Liu, X. Cheng, X. Xu, et al.
+Nanbeige4-3b technical report: exploring the frontier of small language models.
+arXiv preprint arXiv:2512.06266.
+Cited by: §1.
+Yang et al. (2024)
+L. Yang, K. Lee, R. Nowak, and D. Papailiopoulos
+Looped transformers are better at learning learning algorithms.
+In International conference on learning representations,
+Vol. 2024, pp. 42195–42214.
+Cited by: §2.
+Yang et al. (2026)
+S. Yang, M. Gao, Z. Wang, and J. Yu
+Where reasoning matters: rethinking latent reasoning in semantic id-based generative recommendation.
+arXiv preprint arXiv:2607.12425.
+Cited by: §2.
+Yang et al. (2025b)
+Y. Yang, Z. JI, Z. Li, Y. Li, Z. Mo, Y. Ding, K. Chen, Z. Zhang, J. Li, s. li, and L. LIN
+Sparse meets dense: unified generative recommendations with cascaded sparse-dense representations.
+In Advances in Neural Information Processing Systems, D. Belgrave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz, M. Ghassemi, and N. Chen (Eds.),
+Vol. 38, Main Conference, pp. 93746–93770.
+External Links: Document,
+Link
+Cited by: §1.
+Zeng et al. (2026)
+J. Zeng, J. Zhu, J. Chen, Y. Li, W. Liu, C. Zhuo, and Z. Li
+Bridging the structural gap: adapting autoregressive generation for recommendation.
+External Links: 2607.21028,
+Link
+Cited by: §5.1.
+Zhai et al. (2024)
+J. Zhai, L. Liao, X. Liu, Y. Wang, R. Li, X. Cao, L. Gao, Z. Gong, F. Gu, M. He, et al.
+Actions speak louder than words: trillion-parameter sequential transducers for generative recommendations.
+arXiv preprint arXiv:2402.17152.
+Cited by: §5.1.
+Zhang et al. (2019)
+T. Zhang, P. Zhao, Y. Liu, V. S. Sheng, J. Xu, D. Wang, G. Liu, X. Zhou, et al.
+Feature-level deeper self-attention network for sequential recommendation..
+In Ijcai,
+pp. 4320–4326.
+Cited by: §5.1.
+Zhang et al. (2026)
+Y. Zhang, W. Xu, X. Zhao, W. Wang, F. Feng, X. He, and T. Chua
+Reinforced latent reasoning for llm-based recommendation.
+In International Conference on Learning Representations, C. Vondrick, B. Hariharan, C. Raffel, L. Pinto, D. Yang, and A. Faust (Eds.),
+Vol. 2026, pp. 128449–128470.
+External Links: Link
+Cited by: §2.
+Zheng et al. (2024)
+B. Zheng, Y. Hou, H. Lu, Y. Chen, W. X. Zhao, M. Chen, and J. Wen
+Adapting large language models by integrating collaborative semantics for recommendation.
+In 2024 IEEE 40th International Conference on Data Engineering (ICDE),
+pp. 1435–1448.
+Cited by: §2.
+Zhou et al. (2025a)
+G. Zhou, J. Deng, J. Zhang, K. Cai, L. Ren, Q. Luo, Q. Wang, Q. Hu, R. Huang, S. Wang, et al.
+Onerec technical report.
+arXiv preprint arXiv:2506.13695.
+Cited by: §1.
+Zhou et al. (2025b)
+G. Zhou, H. Hu, H. Cheng, H. Wang, J. Deng, J. Zhang, K. Cai, L. Ren, L. Ren, L. Yu, P. Zheng, Q. Luo, Q. Wang, Q. Hu, R. Huang, R. Tang, S. Wang, S. Yang, T. Wu, W. Li, X. Luo, X. Wang, Y. Su, Y. Wu, Z. Cheng, Z. Liu, Z. Zhang, B. Zhang, B. Wang, C. Ma, C. Song, C. Wang, C. Chu, D. Wang, D. Meng, D. Zang, F. Yang, F. Zhang, F. Jiang, F. Zhang, G. Wang, G. Zhang, H. Li, H. Bao, H. Cao, J. Huang, J. Chen, J. Liu, J. Jia, K. Gai, L. Hu, L. Zeng, Q. Wang, Q. Zhou, R. Zhang, S. Wang, S. He, S. Yang, S. Mao, S. Huang, T. He, T. Gao, W. Yuan, X. Liang, X. Xu, X. Liu, Y. Wang, Y. Zhou, Y. Wang, Y. Liu, Y. Song, Y. Zhang, Y. Zhao, Z. Ling, and Z. Li
+OneRec-v2 technical report.
+External Links: 2508.20900,
+Link
+Cited by: §1,
+§2,
+§5.1.
+Zhou et al. (2020)
+K. Zhou, H. Wang, W. X. Zhao, Y. Zhu, S. Wang, F. Zhang, Z. Wang, and J. Wen
+S3-rec: self-supervised learning for sequential recommendation with mutual information maximization.
+In Proceedings of the 29th ACM international conference on information & knowledge management,
+pp. 1893–1902.
+Cited by: §5.1.
+Zhu et al. (2025a)
+J. Zhu, Z. Fan, X. Zhu, Y. Jiang, H. Wang, X. Han, H. Ding, X. Wang, W. Zhao, Z. Gong, et al.
+Rankmixer: scaling up ranking models in industrial recommenders.
+In Proceedings of the 34th ACM International Conference on Information and Knowledge Management,
+pp. 6309–6316.
+Cited by: §A.4.
+Zhu et al. (2025b)
+R. Zhu, Z. Wang, K. Hua, T. Zhang, Z. Li, H. Que, B. Wei, Z. Wen, F. Yin, H. Xing, et al.
+Scaling latent reasoning via looped language models.
+arXiv preprint arXiv:2510.25741.
+Cited by: §1,
+§2.
+Appendix A Appendix
+A.1 Experimental Details
+We conduct experiments on three public Amazon review datasets, including Beauty, Sports and Outdoors and CDs and Vinyl. As summarized in Table 5, the datasets span different scales and interaction densities. Beauty contains 22363 users, 12101 items and 198502 interactions, while Sports and Outdoors includes 35598 users, 18357 items and 296337 interactions. CDs and Vinyl is the largest dataset with 75258 users, 64443 items and over one million interactions. The average interaction lengths are 8.88, 8.32 and 14.58 for Beauty, Sports and CDs, respectively.
+Table 5: Statistics of the datasets. The average length denotes the average number of interactions per user.
+Dataset
+#Users
+#Items
+#Interactions
+Avg. Length
+Beauty
+22,363
+12,101
+198,502
+8.88
+Sports
+35,598
+18,357
+296,337
+8.32
+CDs
+75,258
+64,443
+1,097,592
+14.58
+A.2 Efficiency under Compressed Recurrent Trajectories
+We further evaluate whether RTSD can preserve recommendation quality when the recurrent trajectory is compressed to fewer cycles. Reducing the teacher from 16 cycles to 8 and 4 cycles decreases computation from 17.408 GFLOPs to 8.415 and 3.918 GFLOPs, respectively. The corresponding inference latency drops from 211.08 ms to 104.01 ms and 49.82 ms under batch size 1, providing approximately 2.0×\times and 4.2×\times speedups. Despite the substantially shorter trajectories, both students retain comparable recommendation accuracy. Notably, the 4-cycle student surpasses the 16-cycle teacher on all four metrics for Sports and remains competitive on Beauty, while the 8-cycle student achieves the best Recall@10 and NDCG@10 on Beauty. These results show that RTSD can compress a long recurrent trajectory into substantially fewer cycles without proportionally sacrificing predictive quality, enabling a more favorable trade-off between recurrent depth and inference efficiency.
+Table 6: 
+Performance-efficiency comparison between the full-budget teacher and students with reduced recurrent cycles. Inference latency is measured with batch size 1.
+Model
+GFLOPs
+Latency
+(ms)
+Sports and Outdoors
+Beauty
+R@5
+N@5
+R@10
+N@10
+R@5
+N@5
+R@10
+N@10
+LoopGR (Teacher, 16-loop)
+17.408
+211.08
+0.0304
+0.0199
+0.0456
+0.0248
+0.0531
+0.0369
+0.0775
+0.0448
+LoopGR-RTSD (8-loop)
+8.415
+104.01
+0.0295
+0.0195
+0.0465
+0.0250
+0.0530
+0.0369
+0.0791
+0.0453
+LoopGR-RTSD (4-loop)
+3.918
+49.82
+0.0315
+0.0209
+0.0479
+0.0261
+0.0534
+0.0368
+0.0789
+0.0450
+A.3 Additional Visualization of Recurrent Trajectories
+We provide additional trajectory visualizations to complement the analysis in the main text. Figure 5 shows representative examples across the three SID positions, comparing the 16-layer Encoder-Decoder, the 16-loop LoopGR teacher, and the distilled students with 8 and 4 recurrent cycles. Across different samples, LoopGR exhibits iterative refinement throughout recurrent computation, while the distilled students reach similar terminal regions through substantially shorter trajectories. These examples show that the distilled students reach their terminal states through shorter trajectories.
+A.4 Implementation Details of the Context Updater
+As discussed in the main text, the context updater UPD\operatorname{UPD} is model-agnostic, allowing different architectures to be incorporated into the same recurrent refinement framework. Here, we categorize the updaters into token-level and item-level variants according to their modeling granularity. Token-level updaters operate directly on individual SID token representations. Item-level updaters group the HH SID tokens of each historical item and refine the resulting item representations. Each historical item is represented by HH SID tokens. We index the context representations by item and hierarchy, and the representation of the hh-th SID token of the jj-th historical item is denoted as 𝐦j,h∈ℝd\mathbf{m}_{j,h}\in\mathbb{R}^{d}, where j=1,…,nj=1,\dots,n and h=1,…,Hh=1,\dots,H. For brevity, we omit the cycle indices.
+Token-level Updaters.
+Token-level updaters refine the context directly at the granularity of SID tokens. As a representative example, linear attention (Katharopoulos et al., 2020) enables each token to aggregate information from the entire history through a kernel-based attention mechanism. The prediction-aware query 𝐪\mathbf{q} is injected only into the attention query branch, while keys and values are derived from the conditioned context. For a single attention head, the query, key and value projections for the hh-th SID token of historical item iji_{j} are
+𝐐j,h=𝐖Q​(𝐦^j,h+𝐪),𝐊j,h=𝐖K​𝐦^j,h,𝐕j,h=𝐖V​𝐦^j,h,\mathbf{Q}_{j,h}=\mathbf{W}_{Q}\big(\widehat{\mathbf{m}}_{j,h}+\mathbf{q}\big),\qquad\mathbf{K}_{j,h}=\mathbf{W}_{K}\widehat{\mathbf{m}}_{j,h},\qquad\mathbf{V}_{j,h}=\mathbf{W}_{V}\widehat{\mathbf{m}}_{j,h},
+(14)
+where 𝐦^j,h\widehat{\mathbf{m}}_{j,h} denotes the conditioned representation of the hh-th SID token of item jj. 𝐖Q\mathbf{W}_{Q}, 𝐖K\mathbf{W}_{K} and 𝐖V\mathbf{W}_{V} are learnable projections. Using the positive feature map ϕ⁡(⋅)=ELU⁡(⋅)+1\phi(\cdot)=\operatorname{ELU}(\cdot)+1, the attention output can be computed by exploiting the associative property of matrix multiplication,
+𝐨j,h=∑a,b[ϕ​(𝐐j,h)⊤​ϕ​(𝐊a,b)]​𝐕a,b∑a,bϕ​(𝐐j,h)⊤​ϕ​(𝐊a,b)=[∑a,b𝐕a,b​ϕ​(𝐊a,b)⊤]​ϕ​(𝐐j,h)ϕ​(𝐐j,h)⊤​∑a,bϕ⁡(𝐊a,b),\mathbf{o}_{j,h}=\frac{\sum_{a,b}\big[\phi(\mathbf{Q}_{j,h})^{\top}\phi(\mathbf{K}_{a,b})\big]\mathbf{V}_{a,b}}{\sum_{a,b}\phi(\mathbf{Q}_{j,h})^{\top}\phi(\mathbf{K}_{a,b})}=\frac{\big[\sum_{a,b}\mathbf{V}_{a,b}\phi(\mathbf{K}_{a,b})^{\top}\big]\phi(\mathbf{Q}_{j,h})}{\phi(\mathbf{Q}_{j,h})^{\top}\sum_{a,b}\phi(\mathbf{K}_{a,b})},
+(15)
+Linear attention effectively avoids explicit pairwise attention scores with a computational complexity of 𝒪⁡(Lu​d2)\mathcal{O}(L_{u}d^{2}).
+Token-level updaters can also be instantiated as an MLP or an identity function, applied independently to each query-conditioned SID token representation. The MLP transforms each token through a feed-forward network, whereas the identity function leaves its input unchanged.
+Item-level Updaters.
+Item-level updaters treat the HH SID tokens of each item as a group rather than independent modeling units. They first organize token representations into item-level inputs. After refinement, they map the resulting updates back to the SID sequence. Specifically, the GRU updater uses mean pooling to summarize each item’s SID tokens as a vector. These vectors are projected and combined with the prediction-aware query before a bidirectional GRU (Chung et al., 2014), which processes the history in chronological and reverse chronological order. The forward and backward states are concatenated and projected to produce an item-level update 𝐮j∈ℝd\mathbf{u}_{j}\in\mathbb{R}^{d}, which is then copied to all HH SID tokens of that item. The pooling and broadcast operations are
+Pooling:𝐦¯j\displaystyle\text{Pooling:}\quad\bar{\mathbf{m}}_{j}
+=1H​∑h=1H𝐦^j,h,\displaystyle=\frac{1}{H}\sum_{h=1}^{H}\widehat{\mathbf{m}}_{j,h},
+(16)
+Broadcast:𝐦~j,h\displaystyle\text{Broadcast:}\quad\widetilde{\mathbf{m}}_{j,h}
+=𝐮j,\displaystyle=\mathbf{u}_{j},
+(17)
+With the GRU hidden dimension per direction set to dd, the sequence modeling and projection cost is 𝒪⁡(n​d2)\mathcal{O}(nd^{2}).
+The Mixing updater preserves the hierarchy-specific representations by grouping each item’s SID tokens into an H×dH\times d matrix. After query injection, token mixing rearranges channel groups across the HH tokens, so each output slot receives features from every SID token of the same item (Zhu et al., 2025a). Hierarchy-specific feed-forward networks refine these mixed features, followed by an output projection to produce 𝐔j∈ℝH×d\mathbf{U}_{j}\in\mathbb{R}^{H\times d}. Unlike the shared update in the GRU updater, each row of this matrix is mapped back to its corresponding SID token:
+Grouping:𝐌^j\displaystyle\text{Grouping:}\quad\widehat{\mathbf{M}}_{j}
+=[𝐦^j,1⊤;…;𝐦^j,H⊤],\displaystyle=\big[\widehat{\mathbf{m}}_{j,1}^{\top};\dots;\widehat{\mathbf{m}}_{j,H}^{\top}\big],
+(18)
+Broadcast:𝐦~j,h\displaystyle\text{Broadcast:}\quad\widetilde{\mathbf{m}}_{j,h}
+=[𝐔j]h,:⊤,\displaystyle=[\mathbf{U}_{j}]_{h,:}^{\top},
+(19)
+For a fixed number of mixing layers, the computational complexity is 𝒪⁡(Lu​d2)\mathcal{O}(L_{u}d^{2}).
+The two variants provide complementary inductive biases. The GRU updater captures bidirectional dependencies across items but compresses their internal SID structure through mean pooling, whereas the Mixing updater preserves and refines hierarchy-specific information within each item without introducing additional inter-item communication.
+(a) Sample 0
+(b) Sample 1
+(c) Sample 2
+Figure 5: Visualization of recurrent trajectories for different samples.
+ Experimental support, please
+ view the build logs
+ for errors. Generated by
+ L
+ A
+ T
+ E
+ xml
+ .
+Instructions for reporting errors
+We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+ support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+ methods listed below:
+Click the "Report Issue" (
+ ) button, located in the page header.
+Tip: You can select the relevant text first, to include it in your report.
+Our team has already identified the following issues. We appreciate your time reviewing and reporting rendering errors we
+ may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+ should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+ all.
+Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion, and welcome developer contributions.
+ We gratefully acknowledge support from our major funders,
+ member institutions, ,
+ and all contributors.
+ About ·
+ Help ·
+ Contact ·
+ Subscribe ·
+ Copyright ·
+ Privacy ·
+ Accessibility ·
+ Operational Status (opens in new tab)

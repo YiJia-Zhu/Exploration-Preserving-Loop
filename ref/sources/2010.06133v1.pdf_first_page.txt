@@ -1,0 +1,83 @@
+BERT-EMD: Many-to-Many Layer Mapping for BERT Compression
+with Earth Mover’s Distance
+Jianquan Li1∗, Xiaokang Liu1∗, Honghong Zhao1 , Ruifeng Xu2 , Min Yang3†, Yaohong Jin1
+1
+Beijing Ultrapower Software Co.,Ltd., China
+2
+Harbin Institute of Technology (Shenzhen), China
+3
+Shenzhen Key Laboratory for High Performance Data Mining,
+Shenzhen Institutes of Advanced Technology, Chinese Academy of Sciences, China
+{lijianquan2,liuxiaokang1,zhaohonghong1,jinyaohong}@ultrapower.com.cn
+xuruifeng@hit.edu.cn, min.yang@siat.ac.cn
+
+arXiv:2010.06133v1 [cs.CL] 13 Oct 2020
+
+Abstract
+Pre-trained language models (e.g., BERT)
+have achieved significant success in various natural language processing (NLP) tasks.
+However, high storage and computational
+costs obstruct pre-trained language models to be effectively deployed on resourceconstrained devices. In this paper, we propose
+a novel BERT distillation method based on
+many-to-many layer mapping, which allows
+each intermediate student layer to learn from
+any intermediate teacher layers. In this way,
+our model can learn from different teacher layers adaptively for various NLP tasks. In addition, we leverage Earth Mover’s Distance
+(EMD) to compute the minimum cumulative
+cost that must be paid to transform knowledge from teacher network to student network. EMD enables the effective matching
+for many-to-many layer mapping. Furthermore, we propose a cost attention mechanism
+to learn the layer weights used in EMD automatically, which is supposed to further improve the model’s performance and accelerate convergence time. Extensive experiments
+on GLUE benchmark demonstrate that our
+model achieves competitive performance compared to strong competitors in terms of both
+accuracy and model compression. For reproducibility, we release the code and data at
+https://github.com/lxk00/BERT-EMD.
+
+1 Introduction
+In recent years, pre-trained language models,
+such as GPT (Radford et al., 2018), BERT
+(Devlin et al., 2018), XL-Net (Yang et al., 2019),
+have been proposed and applied to many
+NLP tasks, yielding state-of-the-art performances.
+However, the promising results of the pre-trained
+language models come with the high costs of computation and memory in inference, which obstruct
+∗
+†
+
+Equal contribution
+Min Yang is corresponding author
+
+these pre-trained language models to be deployed
+on resource-constrained devices and real-time applications. For example, the original BERT-base
+model, which achieved great success in many NLP
+tasks, has 12 layers and about 110 millions parameters.
+It is therefore critical to effectively accelerate
+inference time and reduce the computational workload while maintaining accuracy. This research issue has attracted increasing attention (Wang et al.,
+2019; Shen et al., 2019; Tang et al., 2019), of
+which knowledge distillation (Tang et al., 2019) is
+considered to be able to provide a practical way.
+Typically, knowledge distillation techniques train
+a compact and shallow student network under the
+guidance of a complicated larger teacher network
+with a teacher-student strategy (Watanabe et al.,
+2017). Once trained, this compact student network
+can be directly deployed in real-life applications.
+So far, there have been several studies, such
+as DistilBERT (Tang et al., 2019), BERT-PKD
+(Sun et al., 2019), TinyBERT (Jiao et al., 2019),
+which attempt to compress the original BERT into
+a lightweight student model without performance
+sacrifice based on knowledge distillation. For example, BERT-PKD (Sun et al., 2019) and TinyBERT (Jiao et al., 2019) are two representative
+BERT compression approaches, which encourage
+the student model to extract knowledge from both
+the last layer and the intermediate layers of the
+teacher network.
+Despite the effectiveness of previous studies,
+there are still several challenges for distilling comprehensive knowledge from the teacher model,
+which are not addressed well in prior works. First,
+existing compression methods learn one-to-one
+layer mapping, where each student layer is guided
+by only one specific teacher layer. For example,
+BERT-PKD uses the 2, 4, 6, 8, 10 teacher layers to
+guide the 1 to 5 student layers, respectively. How-
+
+

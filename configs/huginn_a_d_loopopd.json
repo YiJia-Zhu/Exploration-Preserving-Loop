@@ -1,0 +1,12 @@
+{
+  "extends": "huginn_math_base.json",
+  "run_name": "huginn_a_d_loopopd",
+  "algorithm": {
+    "teacher_update": "current",
+    "teacher_endpoint": "fixed",
+    "stage_selection": "endpoint"
+  },
+  "optimization": {
+    "warmup_steps": 10
+  }
+}

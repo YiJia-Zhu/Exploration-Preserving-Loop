@@ -1,0 +1,125 @@
+[2610.19768] Learning to Compute Is Not Learning to Retain or Reuse in Looped Transformers
+ Skip to main content
+ Search
+ Submit
+ Donate
+Log in 
+ Search arXiv
+ Press Enter to search · Advanced search
+Computer Science > Machine Learning
+ arXiv:2610.19768 (cs)
+ [Submitted on 14 Oct 2026]
+Title:Learning to Compute Is Not Learning to Retain or Reuse in Looped Transformers
+Authors:Peilong Zhou, Hongtao Zhang, Yulong Huang, Cangyuan Li, Mingyu Chen, Ying Wang 
+View a PDF of the paper titled Learning to Compute Is Not Learning to Retain or Reuse in Looped Transformers, by Peilong Zhou and 5 other authors
+ View PDF
+ HTML (experimental)
+ Abstract:Looped transformers compute by applying one block repeatedly, so they can run for more loops than they were trained with. Recurrent reasoners are known to overthink: iterating past the trained depth can turn a correct answer into a wrong one. Such a late error can reflect failed computation, loss of retention, or a state that later computation cannot reuse. We separate these cases in in-context Mealy-machine execution, where a simulator supplies intermediate targets and exact counterfactuals for hidden-state interventions. Models trained to answer at loop 32 are fully correct there but keep only 22% of these answers at loop 64. Retention depends on what training asks for: supervising one randomly chosen position per example, instead of always the last, keeps 99.8%, and randomizing the number of training loops also helps; truncating gradients, as in progressive training against overthinking, does not. The computation itself is exact: position $k$ is computed at loop $k$, and swapping its loop-$k$ hidden vector for the one from another input redirects every later position to that input's exact continuation (237/237 pairs in each of ten models). Retention, however, is not reuse. Even in models that keep nearly all answers, holding each position $k$ fixed from loop $k$ drops accuracy to 4--6%, whereas holding it from loop $k+4$ is harmless. A released recurrent maze network trained to avoid overthinking behaves the same way. Learning to compute is thus not learning to retain, and avoiding overthinking does not make a state reusable when its answer first appears.
+ Comments:
+ 31 pages
+ Subjects:
+ Machine Learning (cs.LG)
+ Cite as:
+ arXiv:2610.19768 [cs.LG]
+ (or 
+ arXiv:2610.19768v1 [cs.LG] for this version)
+ https://doi.org/10.48550/arXiv.2610.19768
+ Focus to learn more
+ arXiv-issued DOI via DataCite
+Submission history From: Peilong Zhou [view email] 
+ [v1]
+ Wed, 14 Oct 2026 08:19:05 UTC (348 KB)
+ Full-text links:
+Access Paper:
+View a PDF of the paper titled Learning to Compute Is Not Learning to Retain or Reuse in Looped Transformers, by Peilong Zhou and 5 other authors
+View PDF
+HTML (experimental)
+TeX Source
+ view license
+Additional Features
+Audio Summary
+Current browse context:
+cs.LG
+ < prev
+ | 
+ next >
+ new
+ | 
+ recent
+ | 2026-10
+ Change to browse by:
+ cs
+References & Citations
+SciX
+Google Scholar
+Semantic Scholar
+ export BibTeX citation
+ Loading...
+BibTeX formatted citation
+ ×
+ loading...
+ Data provided by: 
+Bookmark
+ Bibliographic Tools
+Bibliographic and Citation Tools
+ Bibliographic Explorer Toggle
+ Bibliographic Explorer (What is the Explorer?)
+ Connected Papers Toggle
+ Connected Papers (What is Connected Papers?)
+ Litmaps Toggle
+ Litmaps (What is Litmaps?)
+ scite.ai Toggle
+ scite Smart Citations (What are Smart Citations?)
+ Code, Data, Media
+Code, Data and Media Associated with this Article
+ alphaXiv Toggle
+ alphaXiv (What is alphaXiv?)
+ Links to Code Toggle
+ CatalyzeX Code Finder for Papers (What is CatalyzeX?)
+ DagsHub Toggle
+ DagsHub (What is DagsHub?)
+ GotitPub Toggle
+ Gotit.pub (What is GotitPub?)
+ Huggingface Toggle
+ Hugging Face (What is Huggingface?)
+ ScienceCast Toggle
+ ScienceCast (What is ScienceCast?)
+ Demos
+Demos
+ Replicate Toggle
+ Replicate (What is Replicate?)
+ Spaces Toggle
+ Hugging Face Spaces (What is Spaces?)
+ Spaces Toggle
+ TXYZ.AI (What is TXYZ.AI?)
+ Related Papers
+Recommenders and Search Tools
+ Link to Influence Flower
+ Influence Flower (What are Influence Flowers?)
+ Core recommender toggle
+ CORE Recommender (What is CORE?)
+ IArxiv recommender toggle
+ IArxiv Recommender
+ (What is IArxiv?)
+Author
+Venue
+Institution
+Topic
+ About arXivLabs
+arXivLabs: experimental projects with community collaborators
+arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website.
+Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them.
+Have an idea for a project that will add value for arXiv's community? Learn more about arXivLabs.
+ Which authors of this paper are endorsers? |
+ Disable MathJax (What is MathJax?)
+ We gratefully acknowledge support from our major funders,
+ member institutions, ,
+ and all contributors.
+ About ·
+ Help ·
+ Contact ·
+ Subscribe ·
+ Copyright ·
+ Privacy ·
+ Accessibility ·
+ Operational Status (opens in new tab)

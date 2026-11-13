@@ -1,0 +1,2009 @@
+Distillation as Probability Transport: Routed On-Policy Distillation
+ Report GitHub Issue
+ ×
+ Title:
+Content selection saved. Describe the issue below:
+ Description:
+ Submit without GitHub
+ Submit in GitHub
+ arXiv is now an independent nonprofit!
+ Learn more
+ ×
+ Back to arXiv
+ Why HTML?
+ Report Issue
+ Back to Abstract
+ Download PDF
+Abstract
+1 Introduction
+2 Related Work
+Knowledge distillation and on-policy distillation.
+OPD objectives, targets, and stability.
+Selecting where and when to distill.
+Understanding OPD’s learning dynamics.
+3 Method: RouteOPD
+3.1 From scalar feedback to explicit routes
+Implicit redistribution in sampled OPD.
+Excess and deficit.
+3.2 Sparse excess-to-deficit routing
+3.3 Directed and integrable pairwise targets
+Direct locality.
+Teacher target and adaptive budget.
+3.4 Objective and implementation
+4 Experiments
+4.1 Experimental Setup
+Setup.
+4.2 How Well Does RouteOPD Perform?
+4.3 Why Does Explicit Routing Help?
+The effect is broad across states.
+4.4 Training Dynamics and Efficiency
+Sparse support and pair sampling.
+4.5 Behavioral Outcome Analysis
+5 Conclusion
+References
+A Proofs and Additional Method Details
+A.1 Scalar OPD Redistribution
+A.2 Coupling Identities and Monte Carlo Estimator
+A.3 Direct-Logit versus Probability Locality
+A.4 Target Positivity, Boundedness, and Integrability
+A.5 Implementation and Numerical Conventions
+B Full Experimental Protocol
+B.1 Teacher–Student Settings and Tokenizer Compatibility
+Compatibility checks.
+B.2 Training Data, Budgets, and Optimization
+Compute and randomness.
+Fairness after policy divergence.
+B.3 Evaluation and Uncertainty
+Paired confidence intervals.
+Checkpoint and contamination controls.
+C Complete Effectiveness Results
+C.1 Per-Setting and Per-Benchmark Results
+Setting-wise interpretation.
+C.2 Checkpoint Selection and Performance Trajectories
+D Complete Ablation Studies
+D.1 Destination Identity
+D.2 Source, Destination, and Pairwise Objectives
+D.3 Integrable Targets and Independent Edge Clipping
+D.4 Adaptive Transport Budget
+Destination identity.
+Two-sided correction.
+Budget rule.
+Joint target realization.
+When adaptive budgeting helps.
+D.5 Sparse Union and Monte Carlo Pair Sensitivity
+Support size.
+Pair sampling.
+E Mechanism Diagnostics
+E.1 Fixed-State Probe Bank
+E.2 Direct-Logit and Optimizer-Step Interventions
+E.3 Routing Fidelity, Leakage, and Target Realization
+Distributional evidence.
+From ideal logits to the trained optimizer.
+F Training Dynamics and Stability
+Stability interpretation.
+G Efficiency and Memory
+Cost interpretation.
+H Behavioral and Error Analysis
+H.1 Paired Correctness Transitions
+H.2 Error Taxonomy and Annotation
+Deterministic stages.
+LLM-judge stages.
+Boundary cases and precedence.
+H.3 Error Distributions and Transitions
+H.4 Length, Formatting, and Route-Level Cases
+ License: arXiv.org perpetual non-exclusive license
+arXiv:2609.08337v1 [cs.LG] 08 Sep 2026
+Distillation as Probability Transport: Routed On-Policy Distillation
+Tianle Xia*
+Lingxiang Hu*
+Yiding Sun
+Linfang Shang
+Ming Xu
+Affiliation: Lan Xu†, Ning Zheng, Wei Xu, Jie Jiang
+Abstract
+On-policy distillation (OPD) transfers teacher knowledge on student-generated trajectories, but
+efficient sampled objectives reduce the teacher distribution to scalar credit on individual
+tokens. Such credit indicates whether a token should gain or lose probability, yet leaves the
+corresponding redistribution unspecified. We recast OPD as teacher-guided probability transport
+and propose RouteOPD (Routed On-Policy Distillation), which decomposes local teacher–student disagreement into
+student-excess sources and teacher-deficit destinations and couples them into explicit transport
+pairs. RouteOPD optimizes pairwise log-odds toward jointly realizable targets obtained from a
+bounded teacher potential, while adapting the transport budget to the concentration of teacher
+demand. This formulation directs updates toward teacher-preferred destinations and controls their
+magnitude within a single transport operator. Experiments across four teacher–student settings
+and four mathematical-reasoning benchmarks demonstrate that RouteOPD consistently outperforms
+sampled reverse-KL OPD, with improvements accompanied by higher routing fidelity and lower
+background leakage. These results demonstrate the effectiveness of explicitly modeling
+probability transport in on-policy distillation.
+Tencent
+{tianlexia,lingxianghu,emanuelsun,faelynshang,flemingxu}@tencent.com
+{lanxu,yodazheng,davidxu,zeus}@tencent.com
+∗First author. †Corresponding author.
+1 Introduction
+On-policy distillation (OPD) has emerged as an effective post-training paradigm for transferring
+reasoning capabilities between language models (Agarwal et al. 2024; Team 2025). Unlike offline
+distillation, which supervises a student on fixed teacher or corpus trajectories
+(Hinton et al. 2015; Kim and Rush 2016), OPD samples from the student and queries the teacher
+at the resulting states. It therefore combines on-policy state coverage with
+temporally dense teacher feedback, reducing the state-distribution mismatch induced by
+fixed histories (Ross et al. 2011; Bengio et al. 2015) without relying only on sparse
+outcome rewards (Xia et al. 2026). This combination is especially attractive for
+long-horizon mathematical reasoning, where an early mistake changes every subsequent state and
+final-answer feedback gives little information about which local decisions should be corrected.
+Yet this advantage raises a
+more basic question: when the teacher prescribes a categorical distributional correction, is
+scalar credit on an individual token sufficient to specify how the student policy should change?
+Figure 1: RouteOPD replaces implicit redistribution with teacher-guided transport,
+improving average reasoning accuracy and routing fidelity while reducing leakage.
+An efficient and common instantiation of OPD, however, leaves each update structurally
+under-specified. Although the teacher provides a categorical distribution over the vocabulary, a
+sampled objective exposes one student action and one scalar credit at a visited state. This scalar
+can indicate whether the sampled token should be encouraged or suppressed, and with what strength.
+Yet a normalized categorical policy cannot change one probability in isolation: suppressing one
+token releases mass that must be assigned elsewhere, while increasing one token must draw mass
+from other alternatives. Thus, scalar credit is not a transport plan. It explicitly
+identifies at most one side of a redistribution, even though the teacher distribution provides
+evidence about both student-excess sources and teacher-deficit destinations.
+This distinction matters because the missing route is not neutral: it is filled in by student
+softmax geometry. For logits zz and a sampled token aa,
+∇zlogπθ(a∣s)=𝐞a−πθ(⋅∣s)\nabla_{z}\log\pi_{\theta}(a\mid s)=\mathbf{e}_{a}-\pi_{\theta}(\cdot\mid s). Consequently, a negative
+credit suppresses aa but produces a direct background logit update over every non-source token,
+weighted by the student’s current probabilities. Even when a scalar estimator recovers a dense
+objective in expectation, each realized stochastic update still delegates this unspecified
+redistribution to the student geometry. It can therefore favor alternatives that are already
+common under the student but exhibit no teacher deficit. Sampled OPD may estimate how strongly to
+correct a realized action while remaining incomplete about which alternatives should receive that
+correction. This per-update under-specification motivates explicit control over both sides of the
+redistribution.
+We introduce RouteOPD (Routed On-Policy Distillation), illustrated in
+Figure 2, to replace implicit redistribution with explicit,
+teacher-guided probability transport. RouteOPD treats teacher–student disagreement as a local
+conservation problem: probability removed from student-excess tokens should be reassigned to
+teacher-deficit tokens. At each student-visited state, it constructs a detached union of teacher
+and behavior-student top-kk tokens, then decomposes the normalized disagreement into excess source
+mass and deficit destination mass. Because both distributions are normalized on the common union,
+the two masses have equal totals; normalizing them yields the source and destination marginals.
+We connect these marginals with their independent product coupling—the maximum-entropy coupling
+under fixed marginals. Sampling this coupling produces explicit source–destination routes without
+materializing a dense quadratic coupling.
+For each sampled route (a,b)(a,b), RouteOPD learns the teacher-implied change in pairwise log-odds.
+The identity
+∇z[log⁡πθ​(b∣s)−log⁡πθ​(a∣s)]=𝐞b−𝐞a\nabla_{z}[\log\pi_{\theta}(b\mid s)-\log\pi_{\theta}(a\mid s)]=\mathbf{e}_{b}-\mathbf{e}_{a}
+cancels the shared log-softmax background and gives zero direct gradient to unrelated
+logits. The realized direct logit update is therefore localized to the specified source and
+destination rather than spread across the student’s background alternatives. This direct-logit
+locality complements the probability-level leakage measurements, which also capture softmax
+normalization and shared-parameter effects.
+Multiple sampled routes create a separate consistency challenge. Independently clipping each edge
+target can violate cycle consistency, so the resulting pairwise demands need not correspond to any
+jointly realizable set of token scores. RouteOPD instead derives every target as the difference
+of one bounded teacher potential evaluated at its destination and source. This shared construction
+makes all pair targets cycle-consistent and jointly realizable. We adapt the potential range using
+the concentration of teacher-deficit demand: concentrated demand identifies clearer destinations
+and permits a wider correction budget, whereas diffuse demand yields a more conservative update.
+The resulting operator specifies source, destination, and magnitude, reuses the scored teacher
+distribution, and adds only O⁡(k+m)O(k+m) routing overhead after top-kk extraction.
+Experiments across four teacher–student settings and four mathematical-reasoning benchmarks
+establish the effectiveness of explicit routing. Relative to sampled reverse-KL OPD, adaptive
+RouteOPD improves the four-benchmark average by 2.192.19–3.613.61 points across settings, with a
+mean gain of 2.702.70 points; paired evaluation intervals over matched problems and samples remain
+strictly above zero. It exceeds full-vocabulary reverse KL by 1.241.24 points on average, showing
+that the gain is not explained merely by access to dense teacher scores, and exceeds fixed-mid
+routing by 1.201.20 points, isolating the benefit of adaptive budgeting. The improvement is not a
+weak-student floor effect: for the strong OpenMath-Nemotron student, the average rises from
+79.7379.73 under sampled-RKL to 83.3483.34 under RouteOPD.
+Matched interventions support the proposed transport mechanism rather than an unexamined change
+of loss scale. Holding source identity, target magnitude, coupling weight, and nominal budget
+fixed, random-background and rank/frequency-matched destinations obtain 62.7262.72 and 63.7263.72
+Avg@16, whereas teacher-deficit destinations reach 64.4364.43. On the same frozen diagnostic bank,
+RouteOPD raises routing fidelity from 35.4%35.4\% for sampled-RKL to 90.4%90.4\% and reduces
+full-vocabulary background leakage from 68.3%68.3\% to 13.8%13.8\%. Destination identity therefore
+changes both the direction of the realized redistribution and downstream reasoning accuracy,
+forming the causal link predicted by the transport view.
+Further controls validate the remaining design choices and their practical cost. Independent edge
+clipping produces 27.6%27.6\% cycle violations, while the shared potential eliminates these
+violations, confirming that its pair targets are jointly realizable. Adaptive budgeting
+outperforms fixed-low, fixed-mid, fixed-high, and reversed-concentration controls. Finally, the
+default top-3232 union retains over 97%97\% of both teacher and student mass with 96.38%96.38\% sign
+agreement. It reaches 65.5365.53 Avg@16 at 2.5%2.5\% end-to-end overhead, compared with 65.6165.61 at
+12.5%12.5\% overhead for full-vocabulary routing. Thus, explicit transport remains both coherent and
+sparse rather than trading accuracy for a dense coupling computation.
+We make three contributions.
+• 
+A probability-transport view of OPD. We expose a per-update route
+under-specification in sampled scalar OPD: credit can correct the realized action while leaving
+its redistribution destination to student geometry. We instead formulate categorical
+correction as conserved transport from student-excess sources to teacher-deficit destinations.
+• 
+A sparse, integrable routed objective. RouteOPD couples the two marginals,
+realizes each route through pairwise log-odds with zero direct unrelated-logit gradient, and
+derives cycle-consistent targets from a shared bounded potential whose range adapts to teacher
+demand.
+• 
+Effectiveness with causal and practical evidence. Across four settings,
+RouteOPD outperforms sampled and full-vocabulary reverse-KL OPD. Matched destination
+interventions and fixed-bank diagnostics link the gains to higher routing fidelity and lower
+leakage, while target-realization and efficiency controls validate the shared potential,
+adaptive budget, and sparse construction.
+2 Related Work
+Knowledge distillation and on-policy distillation.
+Knowledge distillation transfers a teacher’s predictive distribution to a smaller student
+(Hinton et al. 2015), with sequence-level and reverse-KL variants extending it to
+autoregressive generation (Kim and Rush 2016; Gu et al. 2024). Because fixed offline prefixes can
+differ from student-generated histories, on-policy distillation (OPD) instead queries the teacher on
+states visited by the student (Agarwal et al. 2024), an idea also adopted in recent open-model
+training recipes (Team 2025). Recent theory sharpens when this change of state distribution
+matters: online imitation is most useful under student–teacher non-realizability
+(Zhang et al. 2026), and noisy expert feedback can create an exponential separation between
+offline and online imitation (Sriraman et al. 2026). These results explain the value of
+student-visited states, but leave open how teacher feedback should produce a categorical update
+within each state.
+OPD objectives, targets, and stability.
+A central line of work modifies the feedback applied at a visited state. Adaptive target
+reformulation constructs an intermediate target to avoid conflicting updates
+(Jang et al. 2026); generalized OPD extrapolates dense teacher feedback and corrects
+reference-policy bias (Yang et al. 2026); and Uni-OPD combines student-side exploration
+balancing with teacher-side reliability calibration (Hou et al. 2026). Complementary diagnoses
+identify prefix mismatch and biased top-kk reverse-KL estimation and develop corresponding fixes
+(Zhu et al. 2026). More recent methods directly regularize unstable feedback: PowerOPD
+replaces the unbounded log-ratio reward with a bounded power transformation
+(Zhao et al. 2026a), TOP-D dynamically constructs a proximal teacher and reuses data within a
+trust region (Xie et al. 2026b), and RG-OPD gates teacher logits using verifier feedback
+(Akhondzadeh et al. 2026). These methods determine the target, magnitude, or reliability of
+supervision. RouteOPD is complementary: it determines the vocabulary destination of the
+probability removed by a realized correction.
+Selecting where and when to distill.
+Another line allocates supervision across the training data or trajectory. PACED weights problems
+near the frontier of student competence (Xu et al. 2026b), while PG-OPD uses early
+teacher–student overlap to allocate long-rollout budgets to promising trajectories
+(Zhao et al. 2026b). At finer granularity, TIP selects informative token positions
+(Xu et al. 2026a), TRACE routes distillation to critical reasoning spans (Wang et al. 2026), and
+IW-OPD downweights late positions as student prefixes drift from the teacher
+(Xie et al. 2026a). DEAR further distinguishes uncertain decision tokens from confident but
+incorrect evidence tokens (Xiao et al. 2026). For long-horizon agents, TurnOPD reallocates both
+rollout depth and loss budgets across interaction turns (Zhou et al. 2026). All of these methods
+answer which examples, spans, positions, or turns should receive supervision. At a fixed
+selected state, RouteOPD instead answers which vocabulary alternative should receive mass
+from a student-excess source. Thus its action-space routing is orthogonal to temporal or data-level
+selection.
+Understanding OPD’s learning dynamics.
+Empirical analyses connect OPD success to teacher–student thinking-pattern compatibility and
+progressive alignment on overlapping tokens (Li et al. 2026). Parameter-space studies
+provide a complementary view: early OPD updates rapidly stabilize in direction and can be used to
+accelerate later training (Cai et al. 2026), while broader checkpoint analyses find that dense
+teacher supervision nevertheless produces small, coordinate-sparse, and spectrally concentrated
+updates (Yu et al. 2026). These findings characterize when OPD succeeds and
+how its changes accumulate. Our analysis operates one level earlier, exposing the
+per-update softmax redistribution that generates those dynamics and replacing its implicit
+destination rule with explicit excess-to-deficit routes.
+Figure 2: Overview of RouteOPD. Sampled OPD (a) assigns scalar credit to one token and
+leaves redistribution to student softmax geometry. RouteOPD (b) decomposes teacher–student
+disagreement into excess sources and deficit destinations and samples explicit routes.
+A bounded, demand-conditioned token potential (c) supplies integrable pairwise log-odds targets,
+producing zero direct gradient on unrelated logits.
+Table 1: Mathematical-reasoning accuracy across four teacher–student settings.
+Entries are Avg@16 accuracy (%); Avg. is the arithmetic mean of the four benchmarks. Fixed-mid
+routing uses B=log⁡1.35B=\log 1.35. Bold marks the best student method in each block.
+Method
+MATH500
+AMC23
+AIME24
+AIME25
+Avg.
+Qwen3-4B-Base-GRPO →\to Qwen3-1.7B-Base
+Student (untrained; no OPD)
+45.31
+11.67
+1.46
+1.04
+14.87
+Sampled-RKL OPD
+70.18
+37.65
+11.25
+6.67
+31.44
+Full-vocabulary RKL
+70.86
+39.16
+12.08
+7.29
+32.35
+Routed OPD, fixed-mid B=log⁡1.35B=\log 1.35
+70.63
+39.46
+11.88
+7.50
+32.36
+RouteOPD (ours)
+71.48
+42.85
+13.33
+7.50
+33.79
+JustRL-DeepSeek-1.5B →\to DeepSeek-R1-Distill-Qwen-1.5B
+Student (untrained; no OPD)
+84.90
+69.05
+29.17
+25.21
+52.08
+Sampled-RKL OPD
+86.63
+85.47
+48.13
+33.13
+63.34
+Full-vocabulary RKL
+87.51
+86.14
+49.38
+34.58
+64.40
+Routed OPD, fixed-mid B=log⁡1.35B=\log 1.35
+87.31
+86.45
+50.21
+33.75
+64.43
+RouteOPD (ours)
+88.08
+86.75
+52.50
+34.79
+65.53
+JustRL-Nemotron-1.5B →\to OpenMath-Nemotron-1.5B
+Student (untrained; no OPD)
+92.40
+88.10
+53.13
+48.13
+70.44
+Sampled-RKL OPD
+93.21
+96.54
+68.96
+60.21
+79.73
+Full-vocabulary RKL
+93.13
+96.23
+73.54
+65.63
+82.13
+Routed OPD, fixed-mid B=log⁡1.35B=\log 1.35
+93.28
+96.08
+74.38
+65.21
+82.24
+RouteOPD (ours)
+93.53
+96.08
+75.83
+67.92
+83.34
+DeepSeek-R1-Distill-Qwen-7B →\to
+DeepSeek-R1-Distill-Qwen-1.5B
+Student (untrained; no OPD)
+84.90
+69.05
+29.17
+25.21
+52.08
+Sampled-RKL OPD
+88.24
+70.93
+30.63
+24.58
+53.59
+Full-vocabulary RKL
+88.63
+72.89
+32.71
+26.04
+55.07
+Routed OPD, fixed-mid B=log⁡1.35B=\log 1.35
+88.81
+72.67
+32.50
+26.25
+55.06
+RouteOPD (ours)
+88.93
+74.62
+33.96
+27.50
+56.25
+3 Method: RouteOPD
+RouteOPD converts teacher–student disagreement at a student-visited state into explicit
+source–destination updates with teacher-directed destinations, direct logit locality, and jointly
+realizable targets.
+3.1 From scalar feedback to explicit routes
+Implicit redistribution in sampled OPD.
+For a prompt xx, the behavior student samples y∼πold(⋅∣x)y\sim\pi_{\mathrm{old}}(\cdot\mid x) and visits
+st=(x,y<t)s_{t}=(x,y_{<t}), with at=yta_{t}=y_{t}. The sampled reverse-KL baseline uses the detached advantage
+At​(at)=sg⁡[log⁡πT​(at∣st)−log⁡πold​(at∣st)],A_{t}(a_{t})=\operatorname{sg}\!\left[\log\pi_{T}(a_{t}\mid s_{t})-\log\pi_{\mathrm{old}}(a_{t}\mid s_{t})\right],
+(1)
+where sg\operatorname{sg} is stop-gradient. With importance ratio
+ρt=πθ​(at∣st)/πold​(at∣st)\rho_{t}=\pi_{\theta}(a_{t}\mid s_{t})/\pi_{\mathrm{old}}(a_{t}\mid s_{t}), the local loss is
+−ρt​At-\rho_{t}A_{t}. At the start of an update, a negative advantage produces
+−∇zℓsOPD(t)=|At(at)|[πold(⋅∣st)−𝐞at].-\nabla_{z}\ell_{\mathrm{sOPD}}^{(t)}=|A_{t}(a_{t})|\left[\pi_{\mathrm{old}}(\cdot\mid s_{t})-\mathbf{e}_{a_{t}}\right].
+(2)
+Thus the sampled token is suppressed while student geometry distributes the released mass over
+non-source tokens: the teacher identifies the correction sign, not its recipient
+(Appendix A.1).
+Excess and deficit.
+At rollout/scoring time, form a sparse shared support and separately renormalize each model on it:
+𝒰t=TopK(πold(⋅∣st))∪TopK(πT(⋅∣st)).\mathcal{U}_{t}=\operatorname{TopK}(\pi_{\mathrm{old}}(\cdot\mid s_{t}))\cup\operatorname{TopK}(\pi_{T}(\cdot\mid s_{t})).
+(3)
+pX​(a)=πX​(a∣st)∑v∈𝒰tπX​(v∣st),X∈{S,T},a∈𝒰t,p_{X}(a)=\frac{\pi_{X}(a\mid s_{t})}{\sum_{v\in\mathcal{U}_{t}}\pi_{X}(v\mid s_{t})},\quad X\in\{S,T\},\ a\in\mathcal{U}_{t},
+(4)
+where πS=πold\pi_{S}=\pi_{\mathrm{old}}. All routing statistics are detached within an update. Define
+et​(a)=[pS​(a)−pT​(a)]+,dt​(a)=[pT​(a)−pS​(a)]+.e_{t}(a)=[p_{S}(a)-p_{T}(a)]_{+},\qquad d_{t}(a)=[p_{T}(a)-p_{S}(a)]_{+}.
+(5)
+Their common mass is
+Mt=∑a∈𝒰tet​(a)=∑a∈𝒰tdt​(a)=TV⁡(pS,pT),M_{t}=\sum_{a\in\mathcal{U}_{t}}e_{t}(a)=\sum_{a\in\mathcal{U}_{t}}d_{t}(a)=\operatorname{TV}(p_{S},p_{T}),
+(6)
+so ete_{t} identifies sources, dtd_{t} identifies destinations, and MtM_{t} is the available transport
+mass. States with Mt≤δMM_{t}\leq\delta_{M} receive zero route loss.
+3.2 Sparse excess-to-deficit routing
+For Mt>δMM_{t}>\delta_{M}, normalize both marginals and use their independent product coupling:
+qt−​(a)\displaystyle q_{t}^{-}(a)
+=et​(a)Mt,qt+(b)=dt​(b)Mt,\displaystyle=\frac{e_{t}(a)}{M_{t}},\qquad q_{t}^{+}(b)=\frac{d_{t}(b)}{M_{t}},
+(7)
+Γt​(a,b)\displaystyle\Gamma_{t}(a,b)
+=Mt​qt−​(a)​qt+​(b).\displaystyle=M_{t}q_{t}^{-}(a)q_{t}^{+}(b).
+This coupling preserves both marginals; sampling mm independent routes
+ai∼qt−,bi∼qt+a_{i}\sim q_{t}^{-},b_{i}\sim q_{t}^{+} avoids the k2k^{2} table. Appendix A.2 derives
+the marginal identities and unbiased estimator.
+3.3 Directed and integrable pairwise targets
+Direct locality.
+For route (a,b)(a,b), define the pairwise log-odds change
+Δt​(a,b)=\displaystyle\Delta_{t}(a,b)={}
+[log⁡πθ​(b∣st)−log⁡πθ​(a∣st)]\displaystyle\bigl[\log\pi_{\theta}(b\mid s_{t})-\log\pi_{\theta}(a\mid s_{t})\bigr]
+(8)
+−[log⁡πold​(b∣st)−log⁡πold​(a∣st)].\displaystyle-\bigl[\log\pi_{\mathrm{old}}(b\mid s_{t})-\log\pi_{\mathrm{old}}(a\mid s_{t})\bigr].
+Its logit gradient is
+∇z(log⁡πθ​(b)−log⁡πθ​(a))=𝐞b−𝐞a.\nabla_{z}\!\left(\log\pi_{\theta}(b)-\log\pi_{\theta}(a)\right)=\mathbf{e}_{b}-\mathbf{e}_{a}.
+(9)
+Increasing Δt\Delta_{t} directly raises only the destination logit and lowers only the source logit;
+this establishes direct-logit locality, while Appendix A.3
+characterizes the induced probability changes under softmax normalization.
+Teacher target and adaptive budget.
+Let ℓδp​(x)=log⁡(max⁡{x,δp})\ell_{\delta_{p}}(x)=\log(\max\{x,\delta_{p}\}) and define the teacher token potential
+gt​(v)=ℓδp​(pT​(v))−ℓδp​(pS​(v)).g_{t}(v)=\ell_{\delta_{p}}(p_{T}(v))-\ell_{\delta_{p}}(p_{S}(v)).
+(10)
+For the nonempty deficit set 𝒟t={b∈𝒰t:dt​(b)>0}\mathcal{D}_{t}=\{b\in\mathcal{U}_{t}:d_{t}(b)>0\} with
+nt=|𝒟t|n_{t}=|\mathcal{D}_{t}|, measure teacher-demand concentration by the normalized Herfindahl index
+ct={1,nt=1,nt​∑b∈𝒟tqt+​(b)2−1nt−1,nt>1,c_{t}=\begin{cases}1,&n_{t}=1,\\[2.0pt]
+\displaystyle\frac{n_{t}\sum_{b\in\mathcal{D}_{t}}q_{t}^{+}(b)^{2}-1}{n_{t}-1},&n_{t}>1,\end{cases}
+(11)
+where ct∈[0,1]c_{t}\in[0,1]. For 0<Bmin≤Bmax0<B_{\min}\leq B_{\max}, set the target budget to
+Bt=Bmin+(Bmax−Bmin)​ct.B_{t}=B_{\min}+(B_{\max}-B_{\min})c_{t}.
+(12)
+Rather than independently clipping pair targets, bound one shared token potential:
+ϕB​(x)\displaystyle\phi_{B}(x)
+=B2​tanh⁡(2​xB),\displaystyle=\frac{B}{2}\tanh\!\left(\frac{2x}{B}\right),
+(13)
+D^t​(a,b)\displaystyle\widehat{D}_{t}(a,b)
+=ϕBt​(gt​(b))−ϕBt​(gt​(a)).\displaystyle=\phi_{B_{t}}(g_{t}(b))-\phi_{B_{t}}(g_{t}(a)).
+Monotonicity gives D^t​(a,b)∈[0,Bt)\widehat{D}_{t}(a,b)\in[0,B_{t}), and the shared-potential shift
+zv←zv+ϕBt​(gt​(v))z_{v}\leftarrow z_{v}+\phi_{B_{t}}(g_{t}(v)) jointly realizes every pair target.
+Appendix A.4 proves positivity, boundedness, and integrability and contrasts
+independent edge clipping.
+3.4 Objective and implementation
+With Huber transition κ>0\kappa>0,
+hκ​(r)={12​r2,|r|≤κ,κ⁡(|r|−12​κ),|r|>κ.h_{\kappa}(r)=\begin{cases}\frac{1}{2}r^{2},&|r|\leq\kappa,\\[2.0pt]
+\kappa\left(|r|-\frac{1}{2}\kappa\right),&|r|>\kappa.\end{cases}
+(14)
+the RouteOPD token loss is
+ℒRouteOPD(t)=Mt​𝔼(a,b)∼qt−×qt+​[hκ​(rt​(a,b))].\mathcal{L}_{\mathrm{RouteOPD}}^{(t)}=M_{t}\mathbb{E}_{(a,b)\sim q_{t}^{-}\times q_{t}^{+}}\!\left[h_{\kappa}\!\left(r_{t}(a,b)\right)\right].
+(15)
+RouteOPD replaces sampled reverse-KL; pairs and routing statistics are frozen within each update,
+so only current-student terms in Δt\Delta_{t} are differentiable. Let μt\mu_{t} mark valid generated
+response positions.
+Algorithm 1 RouteOPD at one student-visited state
+Input: response mask μt\mu_{t}; teacher/old-student top-kk IDs;
+detached cross-gathered log⁡πT,log⁡πold\log\pi_{T},\log\pi_{\mathrm{old}} on their union;
+differentiable current log⁡πθ\log\pi_{\theta} for sampled-ID gathers
+Output: one RouteOPD token loss
+ 1:
+ form 𝒰t\mathcal{U}_{t} from IDs; build detached pS,pTp_{S},p_{T}
+ 2:
+ compute et,dt,Mte_{t},d_{t},M_{t} by Eqs. (5)–(6)
+ 3:
+ if μt=0\mu_{t}=0 or Mt≤δMM_{t}\leq\delta_{M} return 00
+ 4:
+ form qt−,qt+q_{t}^{-},q_{t}^{+} and sample mm independent pairs
+ 5:
+ compute gt,ct,Btg_{t},c_{t},B_{t} by Eqs. (10), (11), and (12)
+ 6:
+ bound token potentials and form D^t\widehat{D}_{t} by Eq. (13)
+ 7:
+ compute Δt​(ai,bi)\Delta_{t}(a_{i},b_{i}) from current/old log-probabilities
+ 8:
+ return Mtm​∑i=1mhκ​(Δt​(ai,bi)−D^t​(ai,bi))\frac{M_{t}}{m}\sum_{i=1}^{m}h_{\kappa}(\Delta_{t}(a_{i},b_{i})-\widehat{D}_{t}(a_{i},b_{i}))
+After top-kk scoring, routing costs O⁡(k+m)O(k+m) per valid token and reuses teacher logits without an
+extra forward pass. Appendix A.5 specifies cross-gathering, validity,
+numerical conventions, defaults, and independent-edge clipping.
+4 Experiments
+4.1 Experimental Setup
+Setup.
+We evaluate four teacher–student pairs spanning Qwen3, DeepSeek, and Nemotron lineages on
+MATH500 (Hendrycks et al. 2021; Lightman et al. 2024; OpenAI 2023), AMC23 (AI-MO 2024b),
+AIME24 (AI-MO 2024a), and AIME25 (OpenCompass 2025) using Avg@16 exact-answer accuracy.
+All trainable arms share DAPO-Math-17K (Yu et al. 2025; ByteDance Seed and Tsinghua University SIA 2025), rollout seeds, teacher calls, and update
+budgets; token-level comparisons require exact tokenizer compatibility. We compare sampled-RKL,
+full-vocabulary KL, fixed-mid routing, and adaptive RouteOPD. Unless varied, k=32k=32, m=2m=2,
+Bmin=log⁡1.2B_{\min}=\log 1.2, and Bmax=log⁡1.5B_{\max}=\log 1.5. Full training, decoding, statistical, and
+decontamination details are deferred to the supplementary material.
+4.2 How Well Does RouteOPD Perform?
+Finding 1: RouteOPD improves every teacher–student setting.
+Relative to sampled-RKL, RouteOPD improves the four-benchmark average by 2.192.19–3.613.61 points
+(2.702.70 on average). It also exceeds full-vocabulary RKL by 1.131.13–1.441.44 points and fixed-mid routing
+by 1.101.10–1.431.43 points. The gains persist from a weak Qwen3 base student to the strong
+OpenMath-Nemotron student, indicating that explicit routing is not tied to one initialization or
+teacher scale.
+Matched problem-and-sample bootstrap intervals are also uniformly positive: the macro improvements
+are +2.70​[2.28,3.13]+2.70\,[2.28,3.13] over sampled-RKL, +1.24​[0.90,1.58]+1.24\,[0.90,1.58] over full-vocabulary RKL, and
++1.20​[0.89,1.51]+1.20\,[0.89,1.51] over fixed-mid routing, confirming the gains across matched evaluation
+resamples.
+4.3 Why Does Explicit Routing Help?
+We now test the three decisions that define explicit routing: where probability should go,
+how the requested changes should be realized jointly, and how much transport each
+state should receive.
+Figure 3: Matched routing controls.
+Each block varies one design family while retaining the remaining fixed-route construction;
+the points are separate contrasts rather than a sequential path from sampled-RKL.
+Finding 2: Destination identity and a two-sided update both matter.
+Figure 3 first isolates where removed probability is assigned. A
+rank/frequency-matched destination permutation reaches 63.7263.72, whereas teacher-deficit
+destinations reach 64.4364.43 under the same fixed-mid routed objective; random-background
+destinations fall further to 62.7262.72. The update-form block then compares the same routed
+construction with one side disabled: source-only and destination-only updates reach 63.5563.55 and
+63.8463.84, respectively, compared with 64.4364.43 for the pairwise update. Thus the gain is not
+explained by selecting unusual tokens or updating only one endpoint: the destination must follow
+teacher deficit, and the source and destination must be corrected together.
+Finding 3: Shared potentials make route targets jointly realizable.
+Independent clipping treats each sampled edge as an unrelated target and produces 27.6%27.6\%
+four-cycle violations. Deriving all pair targets from one bounded token potential eliminates these
+violations, reduces target MAE from 0.0910.091 to 0.0670.067, and raises bounded target completion from
+76.4%76.4\% to 83.2%83.2\% under the fixed-mid budget. With adaptive budgeting, MAE further falls to
+0.0520.052 and completion reaches 88.1%88.1\%. These diagnostics isolate the consistency benefit of the
+shared potential, while the following budget comparison isolates magnitude adaptation.
+Finding 4: Adaptive budgeting helps when teacher demand is concentrated.
+The aggregate comparison in Figure 3 favors adaptive over fixed-mid
+budgeting, 65.5365.53 versus 64.4364.43, while reversing the concentration rule reaches only 63.8863.88.
+More importantly, the adaptive-minus-fixed difference grows with teacher-deficit concentration:
+−0.10-0.10, +0.40+0.40, +1.30+1.30, and +2.70+2.70 points across the four concentration bins. Adaptive
+budgeting therefore does not merely enlarge every update; it allocates additional transport in
+the states where teacher demand is most concentrated.
+Figure 4: Mechanism phase portrait.
+Large markers are matched method variants with Avg@16 printed inside; small blue markers trace
+adaptive RouteOPD checkpoints. Desired transport lies toward the upper right.
+Finding 5: Better task performance accompanies a stronger routing signature.
+Figure 4 places the same interventions in fidelity–specificity space.
+Sampled-RKL has 35.4%35.4\% routing fidelity and 68.3%68.3\% full-vocabulary background leakage; the
+matched destination permutation degrades these to 24.2%24.2\% and 79.1%79.1\%. Teacher-deficit
+destinations with a fixed-mid budget instead reach 79.8%79.8\% fidelity and 23.7%23.7\% leakage, and
+adaptive RouteOPD reaches 90.4%90.4\% and 13.8%13.8\%. Along adaptive RouteOPD checkpoints, this
+routing signature strengthens while AIME24/25 Avg@16 rises from 27.1927.19 to 43.6543.65. Together with
+the matched destination intervention, the trajectory is consistent with the proposed mechanism;
+the checkpoint correlation alone is not treated as causal identification.
+The effect is broad across states.
+The fixed 1,024-state bank confirms that the mean effect is broad: adaptive RouteOPD reaches
+92.7%92.7\% median fidelity and 76.5%76.5\% at the tenth percentile, versus 33.1%33.1\% median fidelity for
+sampled-RKL, while median full-vocabulary leakage falls from 70.1%70.1\% to 11.2%11.2\%.
+4.4 Training Dynamics and Efficiency
+Figure 5: Training evidence on JustRL–DeepSeek.
+Accuracy, routing fidelity, and destination specificity (100−100-background leakage) improve
+together.
+Finding 6: The routing signature emerges throughout training.
+Figure 5 shows a largely monotone accuracy rise as routing fidelity and
+destination specificity improve and then saturate, rather than an isolated favorable checkpoint.
+The appendix compares mismatch, fidelity, and leakage trajectories with sampled-RKL and fixed-mid
+routing.
+Sparse support and pair sampling.
+The sparse construction retains 97.79%97.79\% of student mass and 97.13%97.13\% of teacher mass at k=32k=32.
+Its 65.5365.53 Avg@16 requires only 2.5%2.5\% end-to-end overhead, whereas full-vocabulary routing
+reaches 65.6165.61 at 12.5%12.5\% overhead. For route sampling, m=2m=2 is best in this setting:
+m=1m=1 lowers target coverage from 76.8%76.8\% to 58.4%58.4\%, whereas m=4m=4 and m=8m=8 reduce route-loss
+variance but also reduce Avg@16 from 65.5365.53 to 62.4862.48 and 61.1261.12. The resulting optimum at
+m=2m=2 balances estimator variance with selective target coverage.
+Figure 6: Accuracy–cost trade-off.
+Marker area encodes peak memory. The sparse k=32k=32 default lies at the Pareto knee and recovers
+nearly all full-vocabulary accuracy at one fifth of its end-to-end overhead.
+Finding 7: Sparse routing captures the practical Pareto knee.
+Figure 6 shows the largest accuracy gain from k=16k=16 to 3232;
+k=64k=64 and full-vocabulary routing add substantial cost for little further accuracy on this system.
+4.5 Behavioral Outcome Analysis
+Figure 7: AIME24 response composition.
+RouteOPD gains primarily replace reasoning errors, not formatting or truncation failures.
+Finding 8: On AIME24, explicit routing primarily repairs reasoning errors.
+Figure 7 shows that the correct-response share rises from 48.1%48.1\%
+under sampled-RKL and 50.2%50.2\% under fixed-mid routing to 52.5%52.5\% under RouteOPD. Among 480
+matched responses, RouteOPD converts 42 sampled-RKL failures to correct solutions while losing
+21 previously correct solutions; against fixed-mid routing, the corresponding counts are 27 and
+16.
+Of the 42 sampled-RKL failures repaired by RouteOPD, 34 are reasoning errors, compared with five
+arithmetic errors, two premature stops, and one formatting error. Format validity remains
+95.21%95.21\%, while the clipping rate decreases from 4.47%4.47\% to 2.34%2.34\%. Two method-blinded passes
+of a fixed LLM judge reach 92.4%92.4\% raw agreement and Cohen’s κ=0.864\kappa=0.864. These results
+show that recovered reasoning is the dominant behavioral change, accompanied by stable format
+validity and a lower clipping rate.
+5 Conclusion
+Sampled OPD leaves redistributed probability mass without an explicit destination. RouteOPD
+resolves this ambiguity through teacher-guided transport from student-excess sources to
+teacher-deficit destinations, using cycle-consistent targets and demand-adaptive magnitudes.
+Across four teacher–student settings and four reasoning benchmarks, RouteOPD consistently
+outperforms sampled reverse-KL OPD, full-vocabulary reverse KL, and fixed-mid routing. Controlled
+diagnostics attribute these gains to more faithful routing with less leakage, while sparse routing
+retains nearly full-vocabulary accuracy at substantially lower cost.
+References
+Agarwal et al. (2024)
+R. Agarwal, N. Vieillard, Y. Zhou, P. Stanczyk, S. Ramos, M. Geist, and O. Bachem
+On-policy distillation of language models: learning from self-generated mistakes.
+In International Conference on Learning Representations,
+Cited by: §1,
+§2.
+AI-MO (2024a)
+AI-MO
+AIME 2024.
+Note: https://huggingface.co/datasets/AI-MO/aimo-validation-aime
+Cited by: §B.3,
+§4.1.
+AI-MO (2024b)
+AI-MO
+AMC 2023.
+Note: https://huggingface.co/datasets/AI-MO/aimo-validation-amc
+Cited by: §B.3,
+§4.1.
+Akhondzadeh et al. (2026)
+M. S. Akhondzadeh, V. Lingam, A. Tejaswi, C. Ekbote, S. Sanghavi, and A. Bojchevski
+Reward-gated on-policy distillation.
+arXiv preprint arXiv:2607.04037.
+Cited by: §2.
+Bengio et al. (2015)
+S. Bengio, O. Vinyals, N. Jaitly, and N. Shazeer
+Scheduled sampling for sequence prediction with recurrent neural networks.
+In Advances in Neural Information Processing Systems (NeurIPS),
+Cited by: §1.
+ByteDance Seed and Tsinghua University SIA (2025)
+ByteDance Seed and Tsinghua University SIA
+DAPO-Math-17K.
+Note: Hugging Face dataset
+External Links: Link
+Cited by: §B.2,
+§4.1.
+Cai et al. (2026)
+Y. Cai, D. Cao, L. Lin, C. Luo, X. Xu, K. Yang, W. Liu, S. Yang, T. Zhao, G. Sun, G. Liu, and J. Fang
+Learning to foresee: unveiling the unlocking efficiency of on-policy distillation.
+arXiv preprint arXiv:2605.11739.
+Cited by: §2.
+Gu et al. (2024)
+Y. Gu, L. Dong, F. Wei, and M. Huang
+MiniLLM: knowledge distillation of large language models.
+In International Conference on Learning Representations,
+Cited by: §2.
+Hendrycks et al. (2021)
+D. Hendrycks, C. Burns, S. Kadavath, A. Arora, S. Basart, E. Tang, D. Song, and J. Steinhardt
+Measuring mathematical problem solving with the MATH dataset.
+In Advances in Neural Information Processing Systems,
+External Links: Link
+Cited by: §B.3,
+§4.1.
+Hinton et al. (2015)
+G. Hinton, O. Vinyals, and J. Dean
+Distilling the knowledge in a neural network.
+arXiv preprint arXiv:1503.02531.
+External Links: 1503.02531
+Cited by: §1,
+§2.
+Hou et al. (2026)
+W. Hou, S. Peng, W. Wang, Z. Ruan, Y. Zhang, Z. Zhou, M. Gao, Y. Chen, K. Wang, H. Yang, C. Zhang, Z. Tian, H. Hu, Y. Yang, F. Wu, and H. Fan
+Uni-OPD: unifying on-policy distillation with a dual-perspective recipe.
+arXiv preprint arXiv:2605.03677.
+Cited by: §2.
+Jang et al. (2026)
+I. Jang, J. Yeom, J. Yeo, H. Lim, and T. Kim
+Stable on-policy distillation through adaptive target reformulation.
+arXiv preprint arXiv:2601.07155.
+Cited by: §2.
+Kim and Rush (2016)
+Y. Kim and A. M. Rush
+Sequence-level knowledge distillation.
+In Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing (EMNLP),
+pp. 1317–1327.
+Cited by: §1,
+§2.
+Li et al. (2026)
+Y. Li, Y. Zuo, B. He, J. Zhang, C. Xiao, C. Qian, T. Yu, H. Gao, W. Yang, Z. Liu, and N. Ding
+Rethinking on-policy distillation of large language models: phenomenology, mechanism, and recipe.
+arXiv preprint arXiv:2604.13016.
+Cited by: §2.
+Lightman et al. (2024)
+H. Lightman, V. Kosaraju, Y. Burda, H. Edwards, B. Baker, T. Lee, J. Leike, J. Schulman, I. Sutskever, and K. Cobbe
+Let’s verify step by step.
+In International Conference on Learning Representations,
+External Links: Link
+Cited by: §B.3,
+§4.1.
+OpenAI (2023)
+OpenAI
+MATH-500.
+Note: Test split released with the Process Reward Model 800K dataset
+External Links: Link
+Cited by: §B.3,
+§4.1.
+OpenCompass (2025)
+OpenCompass
+AIME 2025.
+Note: https://huggingface.co/datasets/opencompass/AIME2025
+Cited by: §B.3,
+§4.1.
+Ross et al. (2011)
+S. Ross, G. Gordon, and D. Bagnell
+A reduction of imitation learning and structured prediction to no-regret online learning.
+In Proceedings of the Fourteenth International Conference on Artificial Intelligence and Statistics (AISTATS),
+pp. 627–635.
+Cited by: §1.
+Sriraman et al. (2026)
+V. Sriraman, P. Liu, D. Hsu, and A. Block
+Behavior cloning is not all you need: the optimality of on-policy distillation for noisy expert feedback.
+arXiv preprint arXiv:2606.30923.
+Cited by: §2.
+Team (2025)
+Q. Team
+Qwen3 technical report.
+External Links: 2505.09388
+Cited by: §1,
+§2.
+Wang et al. (2026)
+J. Wang, X. Ouyang, Z. Chen, Y. Hu, Z. Pan, X. Li, and L. Guo
+TRACE: distilling where it matters via token-routed self on-policy alignment.
+arXiv preprint arXiv:2605.10194.
+Cited by: §2.
+Xia et al. (2026)
+T. Xia, M. Xu, L. Hu, Y. Sun, W. Li, L. Shang, L. Liu, P. Shu, H. Yu, and J. Jiang
+Search-P1: path-centric reward shaping for stable and efficient agentic RAG training.
+arXiv preprint arXiv:2602.22576.
+Cited by: §1.
+Xiao et al. (2026)
+J. Xiao, Z. Han, Y. Sun, Z. Lu, Y. Liu, Z. Yao, W. Chen, Q. Gu, and X. Cai
+Finding the evidence: discovering decision-supporting tokens for on-policy reasoning distillation.
+arXiv preprint arXiv:2606.22830.
+Cited by: §2.
+Xie et al. (2026a)
+Y. Xie, S. Zhu, T. Wen, B. Chen, and Y. Wang
+On the position bias of on-policy distillation.
+arXiv preprint arXiv:2606.22600.
+Cited by: §2.
+Xie et al. (2026b)
+Z. Xie, L. L. Zhang, Z. Xie, and M. Yang
+Trust region policy distillation.
+arXiv preprint arXiv:2607.04751.
+Cited by: §2.
+Xu et al. (2026a)
+Y. Xu, H. Sang, Z. Zhou, R. He, Z. Wang, and A. Geramifard
+TIP: token importance in on-policy distillation.
+arXiv preprint arXiv:2604.14084.
+Cited by: §2.
+Xu et al. (2026b)
+Y. Xu, H. Sang, Z. Zhou, R. He, and Z. Wang
+PACED: distillation and on-policy self-distillation at the frontier of student competence.
+arXiv preprint arXiv:2603.11178.
+Cited by: §2.
+Yang et al. (2026)
+W. Yang, W. Liu, R. Xie, K. Yang, S. Yang, and Y. Lin
+Learning beyond teacher: generalized on-policy distillation with reward extrapolation.
+arXiv preprint arXiv:2602.12125.
+Cited by: §2.
+Yu et al. (2026)
+G. Yu, W. Liu, Y. Hu, H. Ma, J. Jiang, and H. Ye
+Dense supervision, sparse updates: on the sparsity and geometry of on-policy distillation.
+arXiv preprint arXiv:2606.13657.
+Cited by: §2.
+Yu et al. (2025)
+Q. Yu, Z. Zhang, R. Zhu, Y. Yuan, X. Zuo, Y. Yue, et al.
+DAPO: an open-source LLM reinforcement learning system at scale.
+arXiv preprint arXiv:2503.14476.
+External Links: Link
+Cited by: §B.2,
+§4.1.
+Zhang et al. (2026)
+H. Zhang, J. Gai, J. Kim, B. Liu, and A. Risteski
+When does online imitation learning help in LLM post-training? the role of (non-)realizability beyond horizon.
+arXiv preprint arXiv:2606.30445.
+Cited by: §2.
+Zhao et al. (2026a)
+A. Zhao, J. Tong, Y. Fan, P. Nie, W. Li, and X. Shen
+PowerOPD: stabilizing on-policy distillation with bounded power transformation.
+arXiv preprint arXiv:2606.17199.
+Cited by: §2.
+Zhao et al. (2026b)
+Q. Zhao, H. Song, S. Tian, J. Shao, and X. Li
+Prefix-guided on-policy distillation: mining golden trajectories from rollouts.
+arXiv preprint arXiv:2606.21994.
+Cited by: §2.
+Zhou et al. (2026)
+Y. Zhou, K. Zheng, H. Li, D. Peng, C. Xu, and J. Chen
+TurnOPD: making on-policy distillation turn-aware for efficient long-horizon agent training.
+arXiv preprint arXiv:2607.05804.
+Cited by: §2.
+Zhu et al. (2026)
+S. Zhu, X. Ye, H. Lu, W. Shi, and G. Liu
+The many faces of on-policy distillation: pitfalls, mechanisms, and fixes.
+arXiv preprint arXiv:2605.11182.
+Cited by: §2.
+Appendix A Proofs and Additional Method Details
+A.1 Scalar OPD Redistribution
+Proposition 1 (Implicit redistribution under sampled OPD).
+Fix a visited state sts_{t} and suppose the learner is evaluated at the behavior policy,
+πθ=πold\pi_{\theta}=\pi_{\mathrm{old}}. If the sampled action ata_{t} has detached advantage
+At​(at)<0A_{t}(a_{t})<0, then the negative gradient of the sampled-RKL loss is
+−∇zℓsOPD(t)=|At​(at)|​[πold−𝐞at].-\nabla_{z}\ell_{\mathrm{sOPD}}^{(t)}=|A_{t}(a_{t})|\bigl[\pi_{\mathrm{old}}-\mathbf{e}_{a_{t}}\bigr].
+Consequently, its source-logit component is negative and every non-source component is positive.
+Their components sum to zero.
+Proof.
+Let zz be the learner logits at one visited state and abbreviate
+π=πθ(⋅∣st)\pi=\pi_{\theta}(\cdot\mid s_{t}). The log-softmax identity gives
+log⁡π⁡(a)\displaystyle\log\pi(a)
+=za−log∑vexp(zv),\displaystyle=z_{a}-\log\sum_{v}\exp(z_{v}),
+(16)
+∇z​log​π​(a)\displaystyle\nabla_{z}\log\pi(a)
+=𝐞a−π,\displaystyle=\mathbf{e}_{a}-\pi,
+where 𝐞a\mathbf{e}_{a} is the one-hot vector for token aa. At the start of an update,
+πθ=πold\pi_{\theta}=\pi_{\mathrm{old}} and ρt=1\rho_{t}=1. Substituting
+Eq. (16) into the sampled-RKL surrogate yields
+Eq. (2). A direct descent step for At​(at)<0A_{t}(a_{t})<0 lowers the sampled
+source component in proportion to 1−πold​(at∣st)1-\pi_{\mathrm{old}}(a_{t}\mid s_{t}) and raises each non-source
+component v≠atv\neq a_{t} in proportion to πold​(v∣st)\pi_{\mathrm{old}}(v\mid s_{t}). Ratio clipping can limit
+the step magnitude, but it does not change this single-action score direction.
+∎
+A.2 Coupling Identities and Monte Carlo Estimator
+Proposition 2 (Exact marginals, maximum entropy, and unbiased estimation).
+Let pSp_{S} and pTp_{T} be probability distributions on the same finite support 𝒰t\mathcal{U}_{t}, and
+let et,dt,Mt,qt−,qt+e_{t},d_{t},M_{t},q_{t}^{-},q_{t}^{+} be defined as in
+Eqs. (6)–(7). Then
+Mt=12​∥pS−pT∥1M_{t}=\frac{1}{2}\lVert p_{S}-p_{T}\rVert_{1}. If Mt>0M_{t}>0, the product coupling
+Γt​(a,b)=Mt​qt−​(a)​qt+​(b)\Gamma_{t}(a,b)=M_{t}q_{t}^{-}(a)q_{t}^{+}(b) has marginals ete_{t} and dtd_{t} and, after division by MtM_{t},
+is the maximum-entropy joint distribution with marginals qt−q_{t}^{-} and qt+q_{t}^{+}. For any finite
+pair cost CtC_{t}, the mm-pair estimator in Eq. (19) is unbiased.
+Proof.
+Because ∑v(pS​(v)−pT​(v))=0\sum_{v}(p_{S}(v)-p_{T}(v))=0, the total positive and negative parts are equal. Therefore
+∑v[pS​(v)−pT​(v)]+\displaystyle\sum_{v}[p_{S}(v)-p_{T}(v)]_{+}
+=∑v[pT​(v)−pS​(v)]+\displaystyle=\sum_{v}[p_{T}(v)-p_{S}(v)]_{+}
+(17)
+=12​∑v|pS​(v)−pT​(v)|=Mt.\displaystyle=\tfrac{1}{2}\sum_{v}|p_{S}(v)-p_{T}(v)|=M_{t}.
+The product coupling in Eq. (7) is the maximum-entropy coupling of the
+fixed excess and deficit marginals. It preserves both sides exactly:
+∑b∈𝒰tΓt​(a,b)\displaystyle\sum_{b\in\mathcal{U}_{t}}\Gamma_{t}(a,b)
+=Mt​qt−​(a)=et​(a),\displaystyle=M_{t}q_{t}^{-}(a)=e_{t}(a),
+(18)
+∑a∈𝒰tΓt​(a,b)\displaystyle\sum_{a\in\mathcal{U}_{t}}\Gamma_{t}(a,b)
+=Mt​qt+​(b)=dt​(b).\displaystyle=M_{t}q_{t}^{+}(b)=d_{t}(b).
+For any pair cost CtC_{t} and positive integer mm, its coupling objective and sampled estimator are
+∑a,bΓt​(a,b)​Ct​(a,b)\displaystyle\sum_{a,b}\Gamma_{t}(a,b)C_{t}(a,b)
+=Mt​𝔼qt−×qt+​[Ct],\displaystyle=M_{t}\mathbb{E}_{q_{t}^{-}\times q_{t}^{+}}[C_{t}],
+(19)
+𝒞^t\displaystyle\widehat{\mathcal{C}}_{t}
+=Mtm​∑i=1mCt​(ai,bi),\displaystyle=\frac{M_{t}}{m}\sum_{i=1}^{m}C_{t}(a_{i},b_{i}),
+where ai∼qt−a_{i}\sim q_{t}^{-} and bi∼qt+b_{i}\sim q_{t}^{+} independently. Hence
+𝔼⁡[𝒞^t]\mathbb{E}[\widehat{\mathcal{C}}_{t}] equals the exact coupling objective without materializing the
+k2k^{2} source–destination table.
+For completeness, let (A,B)(A,B) have any normalized joint distribution with these marginals.
+Its entropy satisfies
+H⁡(A,B)=H⁡(A)+H⁡(B)−I⁡(A,B)≤H⁡(qt−)+H⁡(qt+)H(A,B)=H(A)+H(B)-I(A;B)\leq H(q_{t}^{-})+H(q_{t}^{+}) because mutual information is nonnegative.
+Equality holds for the independent joint qt−×qt+q_{t}^{-}\times q_{t}^{+}, proving the maximum-entropy claim.
+Finally, linearity of expectation applied to the mm independent costs yields
+𝔼⁡[Mtm​∑i=1mCt​(ai,bi)]=Mt​𝔼qt−×qt+​[Ct],\mathbb{E}\!\left[\frac{M_{t}}{m}\sum_{i=1}^{m}C_{t}(a_{i},b_{i})\right]=M_{t}\mathbb{E}_{q_{t}^{-}\times q_{t}^{+}}[C_{t}],
+which proves unbiasedness.
+∎
+A.3 Direct-Logit versus Probability Locality
+Proposition 3 (Direct-logit locality of a routed update).
+For any distinct vocabulary items aa and bb under a softmax policy,
+∇z[log⁡πθ​(b∣st)−log⁡πθ​(a∣st)]=𝐞b−𝐞a.\nabla_{z}\!\left[\log\pi_{\theta}(b\mid s_{t})-\log\pi_{\theta}(a\mid s_{t})\right]=\mathbf{e}_{b}-\mathbf{e}_{a}.
+Thus the pairwise objective has no direct gradient on unrelated logits. Nevertheless, an
+infinitesimal direct-logit step can change unrelated probabilities through softmax normalization.
+Proof.
+Since logπθ(v∣st)=zv−log∑jezj\log\pi_{\theta}(v\mid s_{t})=z_{v}-\log\sum_{j}e^{z_{j}}, subtracting the two log-probabilities
+cancels the log-partition term and leaves zb−zaz_{b}-z_{a}. Differentiation gives
+𝐞b−𝐞a\mathbf{e}_{b}-\mathbf{e}_{a}.
+Equation (9) characterizes direct-logit locality. For an
+infinitesimal direct-logit step
+d​z=η⁡(𝐞b−𝐞a)dz=\eta(\mathbf{e}_{b}-\mathbf{e}_{a}) and any v∉{a,b}v\notin\{a,b\}, the softmax differential is
+d​π​(v)\displaystyle d\pi(v)
+=π⁡(v)​(d​zv−∑jπ⁡(j)​d​zj)\displaystyle=\pi(v)\!\left(dz_{v}-\sum_{j}\pi(j)dz_{j}\right)
+(20)
+=−η​π​(v)​(π⁡(b)−π⁡(a)).\displaystyle=-\eta\pi(v)\bigl(\pi(b)-\pi(a)\bigr).
+Thus normalization can change unrelated probabilities even when their logits receive no direct
+displacement. A shared-parameter optimizer step can additionally move their logits.
+∎
+A.4 Target Positivity, Boundedness, and Integrability
+Proposition 4 (Valid and jointly integrable routed targets).
+Let aa be a student-excess token and bb a teacher-deficit token. For Bt>0B_{t}>0, the shared-potential
+target in Eq. (13) satisfies
+0≤D^t​(a,b)<Bt0\leq\widehat{D}_{t}(a,b)<B_{t}. It is strictly positive unless probability-floor saturation makes
+the relevant teacher and student log-potentials equal. Moreover, every routed edge target is
+jointly integrable: a single token potential realizes all pairwise targets simultaneously.
+Proof.
+Before bounding, the teacher-implied pairwise target is
+Dt⋆​(a,b)=gt​(b)−gt​(a).D_{t}^{\star}(a,b)=g_{t}(b)-g_{t}(a).
+(21)
+For an excess source and deficit destination, pS​(a)>pT​(a)p_{S}(a)>p_{T}(a) and pT​(b)>pS​(b)p_{T}(b)>p_{S}(b). Since
+ℓδp\ell_{\delta_{p}} is nondecreasing,
+Dt⋆​(a,b)=\displaystyle D_{t}^{\star}(a,b)={}
+ℓδp​(pT​(b))−ℓδp​(pS​(b))\displaystyle\ell_{\delta_{p}}(p_{T}(b))-\ell_{\delta_{p}}(p_{S}(b))
+(22)
++ℓδp​(pS​(a))−ℓδp​(pT​(a))≥0.\displaystyle+\ell_{\delta_{p}}(p_{S}(a))-\ell_{\delta_{p}}(p_{T}(a))\geq 0.
+The inequality is strict unless probability-floor saturation collapses both ordered comparisons.
+The bounded map in Eq. (13) is locally the identity because
+ϕB′​(0)=1\phi^{\prime}_{B}(0)=1 and saturates token potentials in (−B/2,B/2)(-B/2,B/2). Consequently
+D^t​(a,b)∈[0,Bt)\widehat{D}_{t}(a,b)\in[0,B_{t}) for every excess-to-deficit route.
+Define ht​(v)=ϕBt​(gt​(v))h_{t}(v)=\phi_{B_{t}}(g_{t}(v)). Every target is ht​(b)−ht​(a)h_{t}(b)-h_{t}(a), so the direct shift
+zv←zv+ht​(v)z_{v}\leftarrow z_{v}+h_{t}(v) changes every pairwise log-odds by exactly D^t​(a,b)\widehat{D}_{t}(a,b).
+This proves joint integrability.
+Independent edge clipping does not share this guarantee. For example, take two sources and two
+destinations with potentials
+g⁡(a1)=−2​Bg(a_{1})=-2B, g⁡(a2)=−0.4​Bg(a_{2})=-0.4B, g⁡(b1)=0.4​Bg(b_{1})=0.4B, and g⁡(b2)=2​Bg(b_{2})=2B.
+Clipping each positive difference at BB gives
+D11=D12=D22=BD_{11}=D_{12}=D_{22}=B and D21=0.8​BD_{21}=0.8B. These violate the necessary four-cycle identity
+D11+D22=D12+D21D_{11}+D_{22}=D_{12}+D_{21}, because 2​B≠1.8​B2B\neq 1.8B; hence no shared token potential realizes
+all four clipped targets.
+∎
+Teacher-demand concentration controls BtB_{t} as described in
+Eq. (12); Section C evaluates this design against
+fixed and reversed-concentration budgets.
+A.5 Implementation and Numerical Conventions
+A response state is valid exactly when it is a generated, unpadded response position, its
+teacher/behavior-student scores are finite and token-aligned, and 𝒰t\mathcal{U}_{t} is nonempty:
+μt=𝟙​{response state t is valid}.\mu_{t}=\mathbb{1}\{\text{response state $t$ is valid}\}.
+(23)
+The probability floor δp\delta_{p}, mismatch skip tolerance δM\delta_{M}, diagnostic denominator
+tolerance δdiag\delta_{\rm diag}, and substantive target threshold δtarget\delta_{\rm target} have distinct
+roles and are never reused for one another.
+At scoring time, each model retains its top-kk IDs and cross-gathers detached log-probabilities at
+the other model’s IDs; the deduplicated values define 𝒰t,pS,pT\mathcal{U}_{t},p_{S},p_{T}. During the learner
+update, differentiable current log-probabilities are gathered only at sampled pair IDs.
+Vocabulary-wide scoring and top-kk extraction are excluded from the incremental route-overhead
+count. After those operations, the overhead is O⁡(k+m)O(k+m) per valid token: O⁡(k)O(k) for detached
+routing statistics and O⁡(m)O(m) for pair sampling and learner gathers. The method reuses already
+scored teacher logits and introduces no extra teacher forward pass.
+The defaults are k=32k=32, m=2m=2, Bmin=log⁡1.2B_{\min}=\log 1.2, Bmax=log⁡1.5B_{\max}=\log 1.5, κ=1.0\kappa=1.0,
+δp=10−8\delta_{p}=10^{-8}, δM=10−6\delta_{M}=10^{-6}, δdiag=10−12\delta_{\rm diag}=10^{-12}, and
+δtarget=0.01\delta_{\rm target}=0.01 log-odds. All routing statistics are detached per update, and invalid
+response positions receive zero loss. Independent edge clipping is used only as an ablation.
+Appendix B Full Experimental Protocol
+B.1 Teacher–Student Settings and Tokenizer Compatibility
+We evaluate the four teacher–student pairs in Table 2. They cover a
+base student trained from a stronger Qwen3 teacher, two independently post-trained 1.5B lineages,
+and a scale-transfer setting in which a 7B DeepSeek-distilled model teaches its 1.5B counterpart.
+Every trainable arm starts from the same student checkpoint within a setting. The teacher is
+never initialized from or updated together with the student.
+Table 2: Teacher–student settings.
+Token-level comparisons are run only for pairs with identical ordered vocabulary IDs and
+compatible serialized prefixes.
+Teacher
+Student
+Purpose
+Qwen3-4B-Base-GRPO
+Qwen3-1.7B-Base
+Post-trained teacher to base student
+JustRL-DeepSeek-1.5B
+DeepSeek-R1-Distill-Qwen-1.5B
+Matched-size DeepSeek lineage
+JustRL-Nemotron-1.5B
+OpenMath-Nemotron-1.5B
+Strong matched-size Nemotron lineage
+DeepSeek-R1-Distill-Qwen-7B
+DeepSeek-R1-Distill-Qwen-1.5B
+Cross-scale distillation
+Compatibility checks.
+Route construction assumes that a vocabulary ID denotes the same byte sequence for teacher and
+student. Before training, we compare the ordered ID-to-token map, added-token map, special-token
+IDs, and chat-template serialization. We then tokenize a fixed suite of structured chats and
+require identical token-ID sequences for every prefix sent to both models. A pair is excluded from
+all token-level OPD comparisons unless every check passes. Every reported comparison therefore
+uses exact token alignment and matching IDs.
+B.2 Training Data, Budgets, and Optimization
+All trainable methods use the same ordered DAPO-Math-17K prompt stream
+(Yu et al. 2025; ByteDance Seed and Tsinghua University SIA 2025), rollout seeds, response
+mask, valid-token budget, number of optimizer steps, and checkpoint schedule. Each prompt produces
+four student responses with temperature 1.01.0, top-p=1.0p=1.0, and at most 16,38416{,}384 new tokens.
+The teacher is scored once at every student-visited state. Routed methods reuse these scores and
+therefore do not receive extra teacher queries.
+The learner uses AdamW with learning rate 10−610^{-6}, betas (0.9,0.999)(0.9,0.999), weight decay 0.010.01,
+global gradient clipping at 1.01.0, and a cosine schedule with 3%3\% warmup for one learner epoch.
+Training arithmetic is BF16, distributed learner updates use FSDP, and rollout and teacher scoring
+use vLLM. The routed defaults are k=32k=32, m=2m=2, Bmin=log⁡1.2B_{\min}=\log 1.2,
+Bmax=log⁡1.5B_{\max}=\log 1.5, κ=1\kappa=1, δp=10−8\delta_{p}=10^{-8}, and δM=10−6\delta_{M}=10^{-6}.
+Only the named ablations change these values.
+Compute and randomness.
+Every training run uses 24 NVIDIA H20 GPUs. We use a global random seed of 42 for prompt ordering,
+rollout decoding, route-pair sampling, and learner-side stochastic operations.
+Fairness after policy divergence.
+Every arm generates its own on-policy trajectories after the learners diverge, while receiving
+matched prompt order, decoding
+configuration, rollout count, teacher-call count, and update budget. Sampled-RKL, full-vocabulary
+KL, fixed-mid routing, and adaptive RouteOPD therefore differ only in the supervision applied at
+the states visited by their own current policies.
+B.3 Evaluation and Uncertainty
+We evaluate MATH500 (Hendrycks et al. 2021; Lightman et al. 2024; OpenAI 2023),
+AMC23 (AI-MO 2024b), AIME24 (AI-MO 2024a), and AIME25 (OpenCompass 2025)
+using temperature 0.70.7, top-p=0.95p=0.95, and at most
+16,38416{,}384 generated tokens. For benchmark problems {(xi,yi)}i=1N\{(x_{i},y_{i})\}_{i=1}^{N}, Avg@16 is
+Avg​@​16=100N∑i=1N116∑j=116𝟙{y^i​j=yi}.\operatorname{Avg@16}=\frac{100}{N}\sum_{i=1}^{N}\frac{1}{16}\sum_{j=1}^{16}\mathbb{1}\{\widehat{y}_{ij}=y_{i}\}.
+(24)
+Each problem therefore receives equal weight, and its 16 decoded responses are averaged before
+aggregation. All methods use common problem IDs, decoding-sample IDs, answer extraction, and token
+caps. Exact-answer correctness is computed after deterministic normalization of whitespace,
+delimiters, and mathematically equivalent answer syntax supported by the benchmark extractor.
+Paired confidence intervals.
+For every contrast, the bootstrap resamples problems and retains all decoded samples belonging to
+the selected problem. The same resampled problem and sample identifiers are used for both methods,
+preserving the pairing. We report percentile 95% intervals over these paired replicates. They
+quantify finite evaluation-set and sampled-decoding uncertainty through matched problem-level
+resampling.
+Checkpoint and contamination controls.
+All scheduled checkpoints are evaluated with the same protocol; the endpoint in
+Table 1 is not selected independently for each benchmark. We check
+training–evaluation overlap using exact hashes of raw and normalized problems followed by
+high-overlap token and character nn-gram screening. The evaluation artifacts retain problem,
+sample, checkpoint, extractor, and method-independent decoding identifiers needed to reproduce
+every paired comparison.
+Appendix C Complete Effectiveness Results
+C.1 Per-Setting and Per-Benchmark Results
+Table 3 reports paired improvements for each teacher–student setting.
+The main-paper table contains the corresponding per-benchmark endpoint accuracies.
+Table 3: Paired Avg@16 improvements and 95% evaluation intervals.
+Intervals use matched problem and sample identifiers.
+Teacher–student setting
+vs. sampled-RKL
+vs. full-vocabulary RKL
+vs. fixed-mid
+Qwen3-4B-GRPO →\to Qwen3-1.7B
++2.35​[1.65,3.05]+2.35\ [1.65,3.05]
++1.44​[0.78,2.10]+1.44\ [0.78,2.10]
++1.42​[0.81,2.03]+1.42\ [0.81,2.03]
+JustRL-DeepSeek-1.5B →\to DeepSeek-1.5B
++2.19​[1.42,2.96]+2.19\ [1.42,2.96]
++1.13​[0.46,1.80]+1.13\ [0.46,1.80]
++1.10​[0.49,1.71]+1.10\ [0.49,1.71]
+JustRL-Nemotron-1.5B →\to OpenMath-Nemotron-1.5B
++3.61​[2.78,4.44]+3.61\ [2.78,4.44]
++1.21​[0.55,1.87]+1.21\ [0.55,1.87]
++1.10​[0.48,1.72]+1.10\ [0.48,1.72]
+DeepSeek-7B →\to DeepSeek-1.5B
++2.65​[1.90,3.40]+2.65\ [1.90,3.40]
++1.18​[0.51,1.85]+1.18\ [0.51,1.85]
++1.19​[0.57,1.81]+1.19\ [0.57,1.81]
+Macro
++2.70​[2.28,3.13]\mathbf{+2.70\ [2.28,3.13]}
++1.24​[0.90,1.58]\mathbf{+1.24\ [0.90,1.58]}
++1.20​[0.89,1.51]\mathbf{+1.20\ [0.89,1.51]}
+Setting-wise interpretation.
+All twelve lower confidence bounds in Table 3 are positive. Against
+sampled-RKL, the gain ranges from +2.19+2.19 to +3.61+3.61 Avg@16 points and remains visible in both the
+weak Qwen3 base student and the strong OpenMath-Nemotron student. The smaller but consistently
+positive gaps over full-vocabulary RKL show that dense teacher scores alone do not explain the
+gain. The fixed-mid contrast is narrower still, as expected, because it changes only the budget
+rule; its +1.20+1.20 macro improvement isolates the value of conditioning update magnitude on teacher
+demand.
+C.2 Checkpoint Selection and Performance Trajectories
+Figure 8 uses matched optimizer-step coordinates to compare external
+accuracy, teacher–student mismatch, routing fidelity, and full-vocabulary background leakage.
+Figure 8: Full training trajectories.
+AIME24/25 Avg@16 for adaptive RouteOPD is shown together with mismatch mass, routing fidelity,
+and full-vocabulary background leakage for the three compared objectives.
+Adaptive RouteOPD improves AIME24/25 Avg@16 from 27.1927.19 at initialization to 43.6543.65 at the final
+checkpoint. Its teacher–student mismatch mass falls from 18.7218.72 to 4.514.51, while fixed-mid
+routing ends at 6.946.94 and sampled-RKL at 13.8913.89. Routing fidelity rises from 78.2%78.2\% to
+90.4%90.4\% as full-vocabulary leakage falls from 25.6%25.6\% to 13.8%13.8\%. The curves change smoothly
+rather than appearing only at the final checkpoint, supporting the interpretation that routing
+quality develops together with downstream accuracy. Raw loss values are never compared across
+objective families; the plotted mechanism statistics share a common definition.
+Appendix D Complete Ablation Studies
+D.1 Destination Identity
+To isolate destination identity, all controls retain the original source, teacher-derived target
+magnitude, coupling weight, and nominal loss scale. We compare teacher-deficit sampling,
+uniform-deficit sampling, random-background destinations, student-proportional destinations, and
+multiple rank/frequency-matched destination permutations.
+D.2 Source, Destination, and Pairwise Objectives
+We compare the complete pairwise update against source-only and destination-only log-probability
+updates, with and without mismatch-mass weighting. These controls test whether explicitly coupling
+both sides is necessary beyond changing token selection or loss scale.
+D.3 Integrable Targets and Independent Edge Clipping
+We compare targets derived from one bounded token potential against independently clipped edge
+targets using cycle-consistency violations, target MAE, bounded completion, and overshoot.
+D.4 Adaptive Transport Budget
+We compare the demand-conditioned budget against fixed
+B∈{log⁡1.2,log⁡1.35,log⁡1.5}B\in\{\log 1.2,\log 1.35,\log 1.5\} and a reversed-concentration control. The concentration
+stratification tests the specific prediction that adaptive budgeting matters most when
+teacher-deficit demand is concentrated.
+Table 4: Complete matched causal ablations on JustRL–DeepSeek.
+Each block varies one design family; Avg. is the four-benchmark mean.
+Family
+Variant
+MATH500
+AMC23
+AIME24
+AIME25
+Avg.
+Destination
+Random background
+86.21
+84.64
+46.88
+33.13
+62.72
+Student-proportional
+86.55
+85.09
+47.29
+33.33
+63.07
+Rank/frequency-matched
+87.03
+85.77
+49.17
+32.92
+63.72
+Uniform teacher deficit
+87.18
+86.07
+49.79
+33.54
+64.15
+Teacher-deficit coupling
+87.31
+86.45
+50.21
+33.75
+64.43
+Objective
+Source-only
+86.89
+85.62
+48.54
+33.13
+63.55
+Destination-only
+87.03
+85.84
+49.17
+33.33
+63.84
+Pairwise, no mismatch weight
+87.43
+86.22
+50.42
+34.17
+64.56
+Pairwise, independent clipping
+87.53
+86.37
+50.83
+34.58
+64.83
+Shared potential, fixed-mid
+87.31
+86.45
+50.21
+33.75
+64.43
+Shared potential, adaptive
+88.08
+86.75
+52.50
+34.79
+65.53
+Budget
+Fixed-low, log⁡1.2\log 1.2
+87.16
+85.99
+49.58
+33.75
+64.12
+Fixed-mid, log⁡1.35\log 1.35
+87.31
+86.45
+50.21
+33.75
+64.43
+Fixed-high, log⁡1.5\log 1.5
+87.20
+86.22
+49.79
+33.75
+64.24
+Reversed concentration
+86.98
+85.84
+49.17
+33.54
+63.88
+Adaptive concentration
+88.08
+86.75
+52.50
+34.79
+65.53
+Destination identity.
+The destination block holds the routed source, target construction, mismatch weighting, and
+fixed-mid budget constant. Teacher-deficit coupling reaches 64.4364.43, compared with 63.7263.72 for the
+rank/frequency-matched permutation and 62.7262.72 for random background destinations. Matching token
+frequency and rank therefore does not recover the gain: the recipient must be identified by the
+teacher deficit rather than by generic token salience.
+Two-sided correction.
+Source-only and destination-only updates reach 63.5563.55 and 63.8463.84, respectively. Pairing both
+sides reaches 64.4364.43 with the shared fixed-mid construction. The no-mismatch-weight and
+independent-clipping variants show that several pairwise objectives can improve accuracy; the
+shared potential specifically contributes joint realizability and higher target completion.
+Budget rule.
+Fixed-low, fixed-mid, and fixed-high budgets cluster between 64.1264.12 and 64.4364.43, whereas reversing
+the concentration rule falls to 63.8863.88. Adaptive concentration reaches 65.5365.53. This ordering
+rules out a simple “larger update is better” explanation: the best result comes from assigning
+larger budgets to states with concentrated teacher demand, while the reversed mapping is worse
+than all three fixed choices.
+Table 5: Target realization and budget calibration.
+(a) Shared potentials enforce jointly consistent targets; downstream superiority is not inferred
+from this diagnostic alone. (b) The adaptive advantage grows with teacher-deficit concentration.
+(a) Target realization
+Target
+Cycle viol.
+MAE
+Completion
+Overshoot
+Independent clipping
+27.6
+.091
+76.4
+25.8
+Shared, fixed-mid
+0.0
+.067
+83.2
+18.7
+Shared, adaptive
+0.0
+.052
+88.1
+13.4
+(b) Demand-concentration strata
+Concentration
+States
+Budget
+Adaptive
+Δ\Delta vs. fixed
+[0,.25)[0,.25)
+248
+.196
+64.21
+−0.10-0.10
+[.25,.50)[.25,.50)
+271
+.235
+64.82
++0.40+0.40
+[.50,.75)[.50,.75)
+286
+.279
+65.76
++1.30+1.30
+[.75,1][.75,1]
+219
+.326
+67.18
++2.70\mathbf{+2.70}
+Joint target realization.
+Independent edge clipping creates 27.6%27.6\% four-cycle violations because separately truncated
+edges need not correspond to differences of one token potential. The shared construction removes
+these violations by design and improves MAE, bounded completion, and overshoot under both fixed
+and adaptive budgets. These are realization diagnostics: they establish a coherent target system,
+whereas the downstream accuracy comparison additionally depends on budget calibration and
+optimization.
+When adaptive budgeting helps.
+The right half of Table 5 directly tests the motivation for
+BtB_{t}. Adaptive and fixed-mid routing are nearly tied in the lowest concentration bin
+(−0.10-0.10 points), but the adaptive advantage grows to +0.40+0.40, +1.30+1.30, and +2.70+2.70 as teacher
+demand becomes more concentrated. The effect therefore appears where the design predicts rather
+than uniformly across all states.
+D.5 Sparse Union and Monte Carlo Pair Sensitivity
+Table 6 reports the evaluated kk and mm sweeps. The k=32,m=2k=32,m=2 default
+is the best measured trade-off: increasing support improves diagnostic fidelity but yields little
+additional accuracy, whereas increasing the number of sampled pairs lowers route-loss variance
+without monotonically improving downstream performance.
+Table 6: Sparse-support and pair-sampling sweeps on JustRL–DeepSeek.
+All accuracy values are four-benchmark Avg@16.
+(a) Support size
+Support
+Avg@16
+Fidelity
+Leakage
+k=16k=16
+64.29
+84.2
+19.7
+k=32k=32
+65.53
+90.4
+13.8
+k=64k=64
+65.38
+92.3
+11.2
+Full vocabulary
+65.61
+93.1
+10.4
+(b) Sampled route pairs
+mm
+Avg@16
+Loss variance
+Coverage
+1
+63.78
+.184
+58.4
+2
+65.53
+.109
+76.8
+4
+62.48
+.064
+89.2
+8
+61.12
+.037
+96.1
+Support size.
+Increasing kk improves routing fidelity and lowers leakage because more of the teacher and student
+tails are represented. Accuracy, however, saturates at k=32k=32: k=64k=64 and full-vocabulary routing
+change Avg@16 by only −0.15-0.15 and +0.08+0.08 points while increasing cost. This separates diagnostic
+approximation quality from the practical accuracy–cost optimum.
+Pair sampling.
+The mm sweep is deliberately reported with both route-loss variance and target coverage.
+Increasing mm monotonically lowers estimator variance and raises coverage, yet downstream
+accuracy peaks at m=2m=2. The selected default therefore balances estimator variance, target
+coverage, and the selectivity of routed corrections.
+Appendix E Mechanism Diagnostics
+E.1 Fixed-State Probe Bank
+The controlled bank contains 1,024 response states obtained from fixed prompts, prefixes, and
+response positions. For every compared update, we freeze the teacher scores, pre-update student
+scores, union support, excess and deficit sets, sampled routes, and diagnostic random numbers.
+Each method therefore acts on the same local categorical problems. We rescore the exact
+full-vocabulary student distribution after the intervention rather than measuring only changes on
+the sparse union.
+Let πtpre\pi_{t}^{\rm pre} and πtpost\pi_{t}^{\rm post} denote the exact student distributions before and
+after the controlled update, and let
+Δ​pt​(v)=πtpost​(v)−πtpre​(v)\Delta p_{t}(v)=\pi_{t}^{\rm post}(v)-\pi_{t}^{\rm pre}(v). The excess and deficit sets
+ℰt\displaystyle\mathcal{E}_{t}
+={v:pS​(v)>pT​(v)},\displaystyle=\{v:p_{S}(v)>p_{T}(v)\},
+(25)
+𝒟t\displaystyle\mathcal{D}_{t}
+={v:pT​(v)>pS​(v)}\displaystyle=\{v:p_{T}(v)>p_{S}(v)\}
+are frozen from the pre-update scores. Source-mass reduction and teacher-deficit gain are
+Rtsrc=∑v∈ℰt[−Δ​pt​(v)]+,Gtdst=∑v∈𝒟t[Δ​pt​(v)]+.R_{t}^{\rm src}=\sum_{v\in\mathcal{E}_{t}}[-\Delta p_{t}(v)]_{+},\qquad G_{t}^{\rm dst}=\sum_{v\in\mathcal{D}_{t}}[\Delta p_{t}(v)]_{+}.
+(26)
+For states with Rtsrc>0R_{t}^{\rm src}>0, routing fidelity is
+Ft=min⁡{Rtsrc,Gtdst}Rtsrc.F_{t}=\frac{\min\{R_{t}^{\rm src},G_{t}^{\rm dst}\}}{R_{t}^{\rm src}}.
+(27)
+It asks whether probability removed from excess sources is accompanied by probability gain on
+teacher-deficit destinations. It is a direction-consistency statistic, not identification of a
+unique coupling between individual tokens.
+We compute background leakage on the full vocabulary. With
+𝒟t𝒱={v:πT​(v∣st)>πtpre​(v)}\mathcal{D}_{t}^{\mathcal{V}}=\{v:\pi_{T}(v\mid s_{t})>\pi_{t}^{\rm pre}(v)\},
+Lt𝒱=∑v∉𝒟t𝒱[Δ​pt​(v)]+∑v[Δ​pt​(v)]++δdiag.L_{t}^{\mathcal{V}}=\frac{\sum_{v\notin\mathcal{D}_{t}^{\mathcal{V}}}[\Delta p_{t}(v)]_{+}}{\sum_{v}[\Delta p_{t}(v)]_{+}+\delta_{\rm diag}}.
+(28)
+This quantity counts positive probability change assigned outside the teacher-deficit set. A low
+value is desirable, but zero leakage is not expected because softmax normalization and shared
+parameters can move unrelated probabilities even when their logits receive no direct pairwise
+gradient.
+E.2 Direct-Logit and Optimizer-Step Interventions
+We use a ladder of increasingly realistic interventions. The pair-isolated exact probe
+changes only the two logits in one sampled pair and realizes that pair target exactly. The
+potential-wide exact probe applies the shared token potential to the complete union and
+therefore realizes every integrable pair target at a state simultaneously. A scale-matched
+potential-wide probe rescales this shift to the RMS pair-log-odds change produced by the optimizer,
+separating target geometry from step magnitude.
+Parameter-space probes then apply one minibatch update through the shared transformer. Fresh
+zero-moment AdamW removes inherited optimizer moments, saved-optimizer AdamW retains the actual
+training state, and SGD removes Adam-style preconditioning. These comparisons expose how much of
+the ideal logit geometry survives softmax normalization, parameter sharing, and optimizer state.
+All optimizer probes use the same states, route samples, and achieved RMS pair-log-odds scale.
+E.3 Routing Fidelity, Leakage, and Target Realization
+Table 7 reports routing-fidelity distributions, full-vocabulary
+background leakage, target MAE, and bounded completion. Aggregate before–after marginals are
+interpreted as direction-consistency diagnostics, not as identification of a unique physical
+transport coupling.
+Table 7: Fixed-state mechanism probes.
+(a) Distribution summaries use the 1,024-state bank. (b) Direct-logit references separate exact
+target geometry from the effects of shared parameters and optimizer state.
+(a) Per-state routing diagnostics
+Method
+Fid. mean
+Fid. P10
+Fid. median
+Leak. median
+Sampled-RKL
+35.4
+10.4
+33.1
+70.1
+Matched permutation
+24.2
+4.8
+21.7
+81.2
+Teacher-deficit, fixed
+79.8
+58.2
+82.4
+21.4
+RouteOPD
+90.4
+76.5
+92.7
+11.2
+(b) Direct-logit and optimizer probes
+Probe
+Fidelity
+Leakage
+MAE
+Completion
+Pair-isolated exact
+96.8
+5.2
+.000
+100.0
+Potential-wide exact
+98.4
+3.1
+.000
+100.0
+Potential-wide matched
+95.1
+6.7
+.031
+92.6
+Fresh AdamW
+90.4
+13.8
+.052
+88.1
+Saved AdamW
+87.9
+16.7
+.061
+85.4
+SGD
+92.1
+11.6
+.047
+90.2
+Distributional evidence.
+The mean improvement is not carried by a small set of favorable states. Adaptive RouteOPD has
+92.7%92.7\% median fidelity and 76.5%76.5\% fidelity at the tenth percentile, whereas sampled-RKL has
+33.1%33.1\% median fidelity and the matched permutation has 21.7%21.7\%. Median leakage falls from
+70.1%70.1\% for sampled-RKL to 11.2%11.2\% for RouteOPD. The teacher-deficit fixed route lies between
+them, showing that destination identity accounts for most of the mechanism change and adaptive
+budgeting further improves its realization.
+From ideal logits to the trained optimizer.
+Exact pair-isolated and potential-wide probes achieve 100%100\% target completion with near-zero
+leakage, confirming the algebraic construction. Scale matching reduces completion to 92.6%92.6\%,
+and fresh AdamW reaches 88.1%88.1\%. Retaining saved optimizer state lowers it further to 85.4%85.4\%,
+while SGD reaches 90.2%90.2\%. Thus the routing signature survives parameter-space optimization but
+is attenuated by shared parameters and optimizer state. The fixed-state leakage metric directly
+captures this gap between ideal logit intervention and parameter-space optimization.
+Table 8: Mechanism stratification on the fixed probe bank.
+Higher mismatch creates a stronger transport signal, whereas high teacher entropy makes the
+destination less specific and therefore more difficult to realize.
+(a) Teacher–student mismatch quartile
+Quartile
+Fidelity
+Leakage
+Deficit reduction
+Completion
+Q1
+86.2
+17.8
+0.62
+84.1
+Q2
+89.1
+15.2
+0.97
+87.6
+Q3
+91.8
+12.9
+1.43
+89.4
+Q4
+94.5
+9.3
+2.46
+91.3
+(b) Teacher-entropy quartile
+Quartile
+Entropy
+Fidelity
+Leakage
+Deficit reduction
+Q1
+0.42
+94.1
+8.7
+1.58
+Q2
+0.87
+92.3
+11.2
+1.47
+Q3
+1.39
+89.6
+14.8
+1.32
+Q4
+2.18
+85.6
+20.5
+1.11
+The mismatch trend supports the transport interpretation: states with more disagreement provide
+more source mass and clearer measurable reduction. Teacher entropy provides complementary
+stratification: concentrated demand creates a clearer destination signal, yielding higher fidelity
+and lower leakage.
+Appendix F Training Dynamics and Stability
+Figure 8 shows external accuracy for adaptive RouteOPD and compares
+mismatch mass, routing fidelity, and full-vocabulary background leakage across sampled-RKL,
+fixed-mid routing, and adaptive RouteOPD. These trajectories test whether the reported endpoint
+is isolated or develops steadily during training.
+Table 9: Final-checkpoint optimization and generation diagnostics on JustRL–DeepSeek.
+Response length is measured in generated tokens; clip ratio is the percentage reaching the
+generation cap.
+Method
+Policy entropy
+Mean length
+Clip ratio (%)
+Gradient norm
+Valid routed tokens (%)
+Sampled-RKL
+1.632
+1410
+4.47
+0.437
+–
+Fixed-mid routing
+1.464
+1320
+2.96
+0.414
+92.4
+RouteOPD
+1.384
+1265
+2.34
+0.427
+93.4
+Stability interpretation.
+The routing gains do not coincide with exploding gradients or an increasing fraction of clipped
+responses. Gradient norms converge to similar values for all three methods. Adaptive RouteOPD
+ends with shorter responses and a lower clip ratio than sampled-RKL, while the fraction of tokens
+eligible for routed updates increases from 84.1%84.1\% at initialization to 93.4%93.4\%. Policy entropy
+moves toward the teacher endpoint (1.3101.310) rather than increasing as under sampled-RKL. These
+statistics provide complementary evidence of stable optimization.
+Appendix G Efficiency and Memory
+Figure 6 reports the measured end-to-end overhead and peak memory on
+identical hardware for the support-size sweep. Table 6 gives its
+corresponding accuracy values and the separate pair-sampling sweep.
+Table 10: End-to-end and learner-only cost on identical hardware.
+End-to-end timing includes rollout, teacher scoring, routing, learner forward/backward, and the
+optimizer step. Learner-only timing starts from available detached scores and token IDs.
+Method
+E2E s/step
+Learner s/step
+Tokens/s
+Peak GB
+Teacher calls
+Relative E2E
+Sampled-RKL
+184.6
+31.8
+22850
+64.2
+1.00
+1.000×\times
+Full-vocabulary FKL
+199.4
+44.7
+21160
+71.8
+1.00
+1.080×\times
+Full-vocabulary RKL
+201.2
+46.1
+20980
+72.4
+1.00
+1.090×\times
+RouteOPD, k=16,m=2k=16,m=2
+187.3
+34.1
+22510
+65.0
+1.00
+1.015×\times
+RouteOPD, k=32,m=1k=32,m=1
+188.1
+34.8
+22380
+65.6
+1.00
+1.019×\times
+RouteOPD, k=32,m=2k=32,m=2
+189.2
+35.9
+22240
+66.2
+1.00
+1.025×\times
+RouteOPD, k=32,m=4k=32,m=4
+191.0
+37.7
+22030
+66.8
+1.00
+1.035×\times
+RouteOPD, k=32,m=8k=32,m=8
+194.7
+41.5
+21620
+68.0
+1.00
+1.055×\times
+RouteOPD, k=64,m=2k=64,m=2
+192.8
+39.4
+21790
+67.9
+1.00
+1.044×\times
+RouteOPD, full vocabulary
+207.6
+54.2
+20250
+75.6
+1.00
+1.125×\times
+Table 11: Route-construction breakdown.
+All values are milliseconds per step after teacher/student scores are available.
+kk
+mm
+Top-kk
+Routing
+Pair gather
+16
+2
+8.4
+3.1
+1.6
+32
+1
+12.9
+3.8
+1.2
+32
+2
+12.9
+4.2
+1.8
+32
+4
+12.9
+5.1
+3.0
+32
+8
+12.9
+6.8
+5.4
+64
+2
+24.7
+6.9
+2.4
+Cost interpretation.
+The default k=32,m=2k=32,m=2 configuration adds 2.5%2.5\% end-to-end time and 2.02.0 GB peak memory over
+sampled-RKL while preserving the same teacher-call count. Full-vocabulary routing costs
+12.5%12.5\% end-to-end and 9.49.4 GB additional memory for only 0.080.08 more Avg@16 points. Within
+the sparse family, top-kk extraction dominates the route-construction cost as kk grows, whereas
+pair gather grows with mm. These measurements explain why k=32,m=2k=32,m=2 is the observed Pareto knee
+under the controlled hardware used for every comparison.
+Appendix H Behavioral and Error Analysis
+H.1 Paired Correctness Transitions
+We align responses by benchmark problem and decoding-sample identifier.
+Table 12 separates cases that both methods solve from directional
+changes in correctness. The
+net improvements are not produced solely by unpaired aggregate counts: against sampled-RKL,
+RouteOPD repairs 42 failures while losing 21 previously correct responses; against fixed-mid
+routing, the corresponding counts are 27 and 16.
+Table 12: Paired AIME24 correctness transitions.
+Rows compare responses with identical problem and decoding-sample IDs.
+Pair
+Both correct
+Base only
+RouteOPD only
+Both wrong
+Sampled-RKL vs. RouteOPD
+210
+21
+42
+207
+Fixed-mid vs. RouteOPD
+225
+16
+27
+212
+H.2 Error Taxonomy and Annotation
+The analysis covers 1,920 AIME24 responses: 480 responses from each of the untrained student,
+sampled-RKL, fixed-mid routing, and adaptive RouteOPD. Every response receives exactly one label
+from {correct, reasoning, arithmetic, premature-stop,
+format}. We use a deterministic-first cascade so that directly observable properties
+are not delegated to a subjective judge.
+Table 13: Error taxonomy and assignment rule.
+Rules are applied from top to bottom; the first matching rule assigns the unique label.
+Label
+Assigned by
+Operational definition
+Correct
+Exact-answer heuristic
+The normalized extracted answer is equivalent to the reference answer under the benchmark
+extractor.
+Format
+Deterministic heuristic
+The response is incorrect and no answer can be extracted because the required final-answer
+delimiter or parseable answer expression is missing or malformed. Content errors with a parseable
+answer are not labeled as format errors.
+Arithmetic
+LLM judge
+The solution strategy and mathematical reasoning are otherwise valid, but the first decisive
+mistake is a local numerical, algebraic, sign, or simplification error.
+Premature-stop
+LLM judge
+The response ends before completing the necessary derivation or gives a final answer without
+enough continuation to establish it. This label is used only when the output remains parseable and
+there is no earlier reasoning or arithmetic error.
+Reasoning
+LLM judge
+The first decisive mistake is conceptual or logical: an invalid inference, wrong theorem or case,
+contradictory assumption, unjustified transformation, or fundamentally incorrect solution path.
+Deterministic stages.
+We first run the same normalized exact-answer extractor used for evaluation. Correct responses are
+removed from error classification. Among incorrect responses, the format heuristic checks whether
+the configured final-answer delimiter and a parseable mathematical answer are present. A clipped
+response is not automatically a format error: clipping is recorded separately, and a clipped but
+parseable response proceeds to the judge. This separation prevents response length from silently
+determining the semantic error label.
+LLM-judge stages.
+The remaining incorrect, parseable responses are passed to one fixed LLM judge with the method
+name, checkpoint, and correctness transition hidden. The judge receives only the problem,
+reference answer, model response, and extracted answer, and identifies the first decisive
+error. We run two independent method-blinded judging passes with the same prompt. Matching labels
+are accepted; disagreements are sent to a separate adjudication pass with both candidate labels
+and rationales. Across all 1,920 responses, the two passes have 92.4%92.4\% raw agreement and
+Cohen’s κ=0.864\kappa=0.864; 146 responses require adjudication.
+Boundary cases and precedence.
+The “first decisive error” rule makes the three semantic labels mutually exclusive. A local
+calculation error is labeled arithmetic only when the preceding strategy remains valid;
+if the calculation follows from an invalid setup, the earlier setup determines a
+reasoning label. A short response is premature-stop only when it ends before a
+necessary step and contains no earlier decisive error. Merely concise but complete reasoning is
+not premature. Finally, an incorrect but extractable answer is never a format error,
+even if its prose or notation is unconventional. These precedence rules are also applied during
+adjudication so that surface form does not override mathematical causality.
+System: You are a careful judge of mathematical solutions. Identify the first error that
+causes the final answer to be wrong. Judge only the response content; do not infer which model or
+method produced it.
+User:
+Problem: {problem}
+Reference answer: {reference_answer}
+Model response: {response}
+Extracted answer: {extracted_answer}
+Choose exactly one label:
+reasoning_error: the first decisive error is conceptual or logical, including a wrong
+method, invalid inference, or unjustified transformation.
+arithmetic_error: the approach is otherwise correct and the first decisive error is a
+local calculation, algebra, sign, or simplification mistake.
+premature_stop: the response stops before completing the required reasoning, with no
+earlier reasoning or arithmetic error.
+Return only JSON in the form
+{"label": "<one label>", "rationale": "<one short sentence>"}.
+Figure 9: LLM-judge prompt for semantic error classification.
+Correct and format labels are assigned before this prompt by deterministic heuristics.
+H.3 Error Distributions and Transitions
+Table 14: AIME24 response-level error distribution.
+Counts sum to 480 responses for every method.
+Method
+Correct
+Reasoning
+Arithmetic
+Premature stop
+Format
+Total
+Student
+140
+218
+58
+39
+25
+480
+Sampled-RKL
+231
+151
+44
+31
+23
+480
+Fixed-mid routing
+241
+142
+43
+31
+23
+480
+RouteOPD
+252
+130
+43
+32
+23
+480
+The dominant change is a reduction in reasoning errors: RouteOPD has 130, compared with 151 for
+sampled-RKL and 142 for fixed-mid routing. Arithmetic, premature-stop, and format counts remain
+similar. The aggregate distribution therefore agrees with the paired transition analysis rather
+than reflecting a broad relabeling of all failure types.
+Table 15: Paired error transitions into and out of correctness.
+Only transitions involving a correct response on one side are shown.
+Transition
+Sampled-RKL →\to RouteOPD
+Fixed-mid →\to RouteOPD
+Reasoning error →\to Correct
+34
+21
+Arithmetic error →\to Correct
+5
+3
+Premature stop →\to Correct
+2
+2
+Format error →\to Correct
+1
+1
+Correct →\to Reasoning error
+15
+11
+Correct →\to Arithmetic error
+3
+2
+Correct →\to Premature stop
+2
+2
+Correct →\to Format error
+1
+1
+Against sampled-RKL, reasoning repairs contribute 34 of the 42 wrong-to-correct transitions,
+whereas 15 of the 21 regressions become reasoning errors. The resulting net change is therefore
+concentrated in mathematical reasoning rather than formatting. The fixed-mid comparison shows the
+same pattern at smaller scale.
+H.4 Length, Formatting, and Route-Level Cases
+Table 16: Response-length and deterministic formatting diagnostics.
+Lengths are generated tokens; clip ratio is the fraction reaching the generation cap.
+Method
+Mean
+P25
+Median
+P75
+P90
+Clip ratio
+Format valid
+Student
+1840
+896
+1532
+2410
+3726
+3.12
+94.79
+Sampled-RKL
+2146
+1028
+1814
+2862
+4310
+4.47
+95.21
+Fixed-mid routing
+2208
+1065
+1876
+2924
+4388
+2.96
+95.21
+RouteOPD
+2254
+1098
+1922
+2981
+4426
+2.34
+95.21
+RouteOPD combines stable format validity with a lower clipping rate than the OPD baselines,
+supporting the reasoning-error transitions observed above.
+Table 17: Representative route-level records.
+The records connect bounded target log-odds changes to their achieved updates.
+Case
+Route (t:a→b)(t:a\!\to\!b)
+pS​(a)/pT​(a)p_{S}(a)/p_{T}(a)
+Δ​ℓtarget/Δ​ℓachieved\Delta\ell_{\rm target}/\Delta\ell_{\rm achieved}
+184
+327:→362327:284\!\to\!362
+.184/.061.184/.061
+.298/.284.298/.284
+271
+514:→912514:17\!\to\!912
+.226/.083.226/.083
+.276/.251.276/.251
+419
+688:→135688:672\!\to\!135
+.097/.041.097/.041
+.241/.109.241/.109
+These records illustrate the local object optimized by RouteOPD: a student-excess source is paired
+with a teacher-deficit destination, and the achieved pairwise log-odds change is measured directly
+against its bounded target. The aggregate fidelity and paired-correctness analyses summarize this
+behavior across the complete evaluation set.
+ Experimental support, please
+ view the build logs
+ for errors. Generated by
+ L
+ A
+ T
+ E
+ xml
+ .
+Instructions for reporting errors
+We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+ support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+ methods listed below:
+Click the "Report Issue" (
+ ) button, located in the page header.
+Tip: You can select the relevant text first, to include it in your report.
+Our team has already identified the following issues. We appreciate your time reviewing and reporting rendering errors we
+ may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+ should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+ all.
+Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion, and welcome developer contributions.
+ We gratefully acknowledge support from
+ our major funders,
+ member institutions, ,
+ and all contributors.
+ About
+ ·
+ Help
+ ·
+ Contact
+ ·
+ Subscribe
+ ·
+ Copyright
+ ·
+ Privacy
+ ·
+ Accessibility
+ ·
+ Operational Status (opens in new tab)
+Major funding support from

@@ -1,0 +1,1596 @@
+Recurrent Self-Improvement: Dynamic Cross-Loop On-Policy Distillation for Looped Language Models
+Skip to main content
+ Report GitHub Issue
+ ×
+ Title:
+Content selection saved. Describe the issue below:
+ Description:
+ Submit without GitHub
+ Submit in GitHub
+ Why HTML?
+ Report Issue
+ Back to Abstract
+ Download PDF
+ Contents
+ Reading mode
+ Colour theme
+Abstract
+1 Introduction
+2 Related Work
+3 Preliminaries
+4 Method
+4.1 LoopOPD: Cross-Loop On-Policy Distillation
+4.2 Dynamic LoopOPD: Recurrent Self-Improvement
+4.3 Theoretical Analysis
+5 Experiments
+5.1 Experimental Setup
+5.2 Main Results
+5.3 Training Dynamics and Cross-Loop Performance
+5.4 Ablation Study
+6 Conclusion
+References
+A Proofs
+B Algorithms
+C Supplementary Experiments
+C.1 Additional Training Dynamics
+C.2 Cross-Loop Performance
+C.3 Effect of Decode Budget
+D Implementation Details
+D.1 Training Configuration
+D.2 Evaluation Protocol
+E Case Study
+ License: arXiv.org perpetual non-exclusive license
+arXiv:2610.10623v2 [cs.LG] 23 Oct 2026
+Recurrent Self-Improvement: 
+Dynamic Cross-Loop On-Policy Distillation for Looped Language Models
+Yi Wang
+Affiliation: ShanghaiTech University
+Rui Qian
+Affiliation: Fudan University
+Yu Li
+Affiliation: Southeast University
+Haoyang Yao
+Affiliation: Peking University
+Wenjie Wang
+Affiliation: ShanghaiTech University
+Abstract
+Looped Language Models (LoopLMs) offer a parameter efficient approach to scaling reasoning by reusing shared parameters across recurrent computation steps. Despite their promise, effective post-training of LoopLMs remains challenging.
+Existing approaches either provide reward based supervision that is sparse or costly to extend across loops, or rely on external teachers or privileged information, leading to limited teacher availability or teacher-student context mismatch.
+To address these limitations, we introduce LoopOPD, a cross-loop on-policy distillation framework that uses additional recurrent computation within a LoopLM as its own source of supervision. LoopOPD uses a frozen terminal loop policy as a compute privileged teacher for an intermediate loop student on student generated rollouts, providing dense supervision without an external teacher or privileged information.
+We further propose Dynamic LoopOPD (D-LoopOPD), which continually refreshes the terminal loop teacher as the shared model parameters are updated, enabling recurrent self-improvement. We characterize how distillation updates propagate across loop depths and derive sufficient conditions under which a single update yields simultaneous local improvement at both loop depths.
+Experiments on Ouro-Thinking models show that LoopOPD improves mathematical reasoning, while D-LoopOPD yields further gains through dynamic teacher updates. Despite being trained only on mathematical data, the resulting models also improve on general reasoning and code generation benchmarks, demonstrating that recurrent computation can serve as an effective source of supervision for LoopLMs. Our code and model checkpoints will be released upon acceptance.
+1 Introduction
+Looped Language Models (LoopLMs) have recently received growing attention as a promising approach to scaling reasoning through recurrent depth (Geiping et al., 2025). They reuse shared Transformer blocks across multiple latent computation steps before emitting each token (Zhu et al., 2025). This design increases computational depth without increasing parameter count, leading to stronger reasoning performance (Saunshi et al., 2025). However, effective post-training of LoopLMs remains challenging. Existing work applies or extends conventional post-training methods to LoopLMs, including reward based optimization and distillation, but faces limitations (Williams et al., 2026).
+Specifically, prior work on Ouro, a family of pretrained LoopLMs (Zhu et al., 2025), reports limited gains from reinforcement learning with verifiable rewards (RLVR) (Guo et al., 2025) over the supervised fine-tuning (SFT) checkpoint.
+Group Relative Policy Optimization (GRPO) (Shao et al., 2024) assigns reward credit only to the terminal loop, leaving intermediate latent computation without direct reward supervision. Reward Latent Thought Trajectories (RLTT) (Williams et al., 2026) alleviates this limitation by extending reward credit across all loops, but requires retaining per loop log-probabilities, causing memory usage to scale linearly with the number of loops and thereby limiting long rollout training. On-Policy Distillation (OPD) (Agarwal et al., 2024) provides dense distributional supervision but relies on an external, stronger teacher. For Ouro-2.6B-Thinking, no stronger same family LoopLM teacher is available, limiting OPD. On-Policy Self-Distillation (OPSD) instead constructs a same model teacher using privileged information (Zhao et al., 2026), but introduces teacher–student context mismatch (Kaur et al., 2026). Figure 1 (left) summarizes the three main limitations motivating our work: sparse terminal loop credit, increasing memory cost across loops, and limited availability of stronger teachers.
+Effective post-training of LoopLMs therefore calls for dense supervision that directly reaches intermediate loops when no stronger external teacher is available. Because deeper loops receive more recurrent computation, the terminal loop naturally provides a stronger policy within the same model. This raises a question: Can a LoopLM leverage its own additional recurrent computation to provide such supervision to its intermediate loops?
+To answer this question, we introduce LoopOPD. As illustrated in Figure 1 (right), LoopOPD uses an intermediate loop policy as the student and a frozen terminal loop policy as the compute privileged teacher. For student generated rollouts, both policies produce next token distributions on the same prefixes, and the terminal loop distribution is distilled into the intermediate loop through OPD. Unlike OPD and OPSD, the teacher’s advantage arises not from additional parameters (Li et al., 2026) or privileged information (Zhao et al., 2026), but from additional recurrent computation. LoopOPD therefore turns the model’s own recurrent computation into dense cross-loop supervision.
+Intuitively, because different loops share the same parameters, training the student also updates the student model’s terminal loop policy, creating a natural feedback path from the updated terminal policy back to the student. To exploit this feedback and further strengthen cross-loop supervision, we propose Dynamic LoopOPD (D-LoopOPD), which refreshes the terminal loop teacher at each optimization step, as shown in Figure 1 (right).
+The updated terminal policy then supervises the next student update, forming a closed teacher-student feedback loop for recurrent self-improvement. We further analyze cross-loop update transport and derive sufficient conditions for a single update to induce simultaneous local descent of task surrogates at both the intermediate and terminal loops. Table 1 compares the supervision signals and teacher requirements of these methods.
+We evaluate LoopOPD and D-LoopOPD on Ouro-Thinking (Zhu et al., 2025) across mathematical reasoning (Zhang and Math-AI, 2026), general reasoning (Hendrycks et al., 2021), and code generation benchmarks (Liu et al., 2023). On mathematical reasoning, both methods outperform existing baselines on average, with D-LoopOPD further improving over LoopOPD. Despite training only on mathematical data, they also improve general reasoning and code generation over the vanilla models.
+Figure 1: Existing LoopLM post-training approaches vs. LoopOPD and D-LoopOPD.
+Existing approaches variously face sparse supervision, increasing memory cost across loops, or dependence on stronger external teachers. LoopOPD uses additional recurrent computation as dense cross-loop supervision, while D-LoopOPD dynamically refreshes the terminal loop teacher during training.
+Our contributions are threefold:
+• 
+We introduce LoopOPD, which uses a frozen terminal loop policy as a compute privileged teacher for an intermediate loop student, providing dense on-policy supervision without an external teacher or privileged information.
+• 
+We propose D-LoopOPD, which refreshes the terminal loop teacher at each optimization step through shared parameter updates, forming recurrent self-improvement. We further analyze cross-loop update transport and derive sufficient conditions for local improvement of task surrogates at both the intermediate and terminal loops.
+• 
+Experiments on Ouro-Thinking models show improved mathematical reasoning at both model scales. On Ouro-2.6B-Thinking, D-LoopOPD raises terminal loop AIME 2024 Avg@16 from 62.08 to 71.67, with cross-loop evaluation showing improvements across all loop depths. The resulting models also improve general reasoning and code generation despite training only on mathematical data.
+2 Related Work
+Looped and Recurrent-Depth Language Models.
+Recurrent Transformer architectures such as the Universal Transformer (Dehghani et al., 2019) explore parameter sharing across computational depth. Recent work studies this principle in language models, showing that repeated latent computation can improve reasoning and provide an additional axis for scaling test-time compute (Saunshi et al., 2025; Geiping et al., 2025). Ouro (Zhu et al., 2025) extends this line of work to pretrained LoopLMs, which recurrently apply shared Transformer blocks before token generation. Our work builds on this structure by using additional loop computation as a source of supervision.
+Intermediate Supervision for Recurrent Computation.
+Recent work develops training objectives for recurrent latent computation. LSRL (Ren, 2025) decodes intermediate recurrent states and scores them with an external grader to provide process supervision. RLTT (Williams et al., 2026) extends outcome reward credit from the terminal loop to intermediate loop distributions in LoopLMs. LoopRPT (Tang et al., 2026) uses an EMA teacher and noisy latent rollouts to construct stepwise reinforcement signals during pre-training, shaping intermediate representations. These methods highlight the value of directly supervising intermediate recurrent computation. Our work provides dense token level supervision to an intermediate loop using the model’s own terminal loop distribution.
+On-Policy Distillation and Self-Distillation.
+OPD trains a student on its own trajectories using dense teacher distributions, reducing the distribution mismatch from off-policy distillation (Agarwal et al., 2024). Recent analyses identify teacher-student compatibility and a teacher capability advantage as key factors for effective OPD (Li et al., 2026). OPSD constructs a teacher from the same model using privileged information (Zhao et al., 2026; Hübotter et al., 2026), but introduce a context mismatch that can distort supervision (Kaur et al., 2026).
+In contrast, LoopOPD retains the on-policy setting and teacher-student compatibility while deriving teacher advantage from additional recurrent computation, with teacher and student conditioned on the same context. D-LoopOPD further exploits shared parameters by refreshing the terminal loop teacher as the model is updated.
+Table 1: Comparison of supervision and teacher requirements across different methods.
+Method
+Supervision
+Signal
+No Verifiable
+Reward
+No External
+Teacher
+No Privileged
+Information
+Evolving
+Teacher
+GRPO (Shao et al., 2024)
+Sparse
+×\times
+✓\checkmark
+✓\checkmark
+–
+RLTT (Williams et al., 2026)
+Relatively Dense
+×\times
+✓\checkmark
+✓\checkmark
+–
+OPD (Agarwal et al., 2024)
+Dense
+✓\checkmark
+×\times
+✓\checkmark
+×\times
+OPSD (Zhao et al., 2026)
+Dense
+✓\checkmark
+✓\checkmark
+×\times
+×\times
+LoopOPD
+Dense
+✓\checkmark
+✓\checkmark
+✓\checkmark
+×\times
+D-LoopOPD
+Dense
+✓\checkmark
+✓\checkmark
+✓\checkmark
+✓\checkmark
+3 Preliminaries
+Looped Language Models.
+Let xx be a prompt and y=(y1,…,ym)y=(y_{1},\ldots,y_{m}) a generated response of length mm. A LoopLM recurrently applies shared weight Transformer blocks (Vaswani et al., 2017; Zhu et al., 2025) for LL iterations before emitting each token. For the prediction of yiy_{i}, let hi(d)h_{i}^{(d)} denote the hidden state after loop dd. Let θ\theta denote the parameters of the LoopLM and gθg_{\theta} its language model head. Applying gθg_{\theta} to the loop dd hidden state defines the corresponding next token distribution
+Pθ(d)(⋅∣x,y<i)=softmax(gθ(hi(d))),d=1,…,L.P_{\theta}^{(d)}(\cdot\mid x,y_{<i})=\operatorname{softmax}\!\left(g_{\theta}(h_{i}^{(d)})\right),\qquad d=1,\ldots,L.
+(1)
+Standard autoregressive generation uses the terminal loop distribution, inducing the sequence policy
+πθ​(y∣x)=∏i=1mPθ(L)​(yi∣x,y<i).\pi_{\theta}(y\mid x)=\prod_{i=1}^{m}P_{\theta}^{(L)}(y_{i}\mid x,y_{<i}).
+(2)
+For d<Ld<L, we refer to Pθ(d)P_{\theta}^{(d)} as the intermediate loop distributions.
+Group Relative Policy Optimization (GRPO).
+For each prompt xx, GRPO samples a group of responses {y(j)}j=1G\{y^{(j)}\}_{j=1}^{G} from the old policy
+πθold\pi_{\theta_{\mathrm{old}}} and evaluates them with scalar rewards r1,…,rGr_{1},\ldots,r_{G}. The group relative advantage is A^j=(rj−r¯)/σr\widehat{A}_{j}=(r_{j}-\bar{r})/\sigma_{r}. For a LoopLM, response generation uses the terminal loop distribution, so the token level importance ratio is
+ρj,i​(θ)=Pθ(L)​(yi(j)∣x,y<i(j))Pθold(L)​(yi(j)∣x,y<i(j)).\rho_{j,i}(\theta)=\frac{P_{\theta}^{(L)}(y_{i}^{(j)}\mid x,y_{<i}^{(j)})}{P_{\theta_{\mathrm{old}}}^{(L)}(y_{i}^{(j)}\mid x,y_{<i}^{(j)})}.
+(3)
+GRPO optimizes the clipped objective
+ℒGRPO​(θ)=\displaystyle\mathcal{L}_{\mathrm{GRPO}}(\theta)={}
+−𝔼[1G∑j=1G1mj∑i=1mjmin(ρj,i(θ)A^j,clip(ρj,i(θ),1−ϵ,1+ϵ)A^j)]+βDKL(πθ∥πref),\displaystyle-\mathbb{E}\!\left[\frac{1}{G}\sum_{j=1}^{G}\frac{1}{m_{j}}\sum_{i=1}^{m_{j}}\min\!\left(\rho_{j,i}(\theta)\widehat{A}_{j},\operatorname{clip}(\rho_{j,i}(\theta),1-\epsilon,1+\epsilon)\widehat{A}_{j}\right)\right]+\beta D_{\mathrm{KL}}(\pi_{\theta}\|\pi_{\mathrm{ref}}),
+(4)
+where ϵ\epsilon is the clipping parameter, β\beta is the KL coefficient, and πref\pi_{\mathrm{ref}} is the reference policy. Thus, GRPO uses the terminal loop policy for rollouts and direct reward credit, while gradients propagate through all loops to update the shared parameters.
+Reward Latent Thought Trajectories (RLTT).
+RLTT extends reward credit from the terminal loop to all loops while retaining the group relative advantage (Williams et al., 2026). Its policy objective is
+ℒRLTT(θ)=−𝔼[1G∑j=1G1mj∑i=1mj∑d=1LωdlogPθ(d)(yi(j)∣x,y<i(j))A^j]+βDKL(πθ∥πref),\mathcal{L}_{\mathrm{RLTT}}(\theta)=-\mathbb{E}\!\left[\frac{1}{G}\sum_{j=1}^{G}\frac{1}{m_{j}}\sum_{i=1}^{m_{j}}\sum_{d=1}^{L}\omega_{d}\log P_{\theta}^{(d)}(y_{i}^{(j)}\mid x,y_{<i}^{(j)})\widehat{A}_{j}\right]+\beta D_{\mathrm{KL}}(\pi_{\theta}\|\pi_{\mathrm{ref}}),
+(5)
+where ωd≥0\omega_{d}\geq 0 and ∑d=1Lωd=1\sum_{d=1}^{L}\omega_{d}=1. A limitation of RLTT is that it retain per loop log-probabilities, leading to memory usage that scales linearly with the number of loops.
+On-Policy Distillation (OPD).
+OPD uses token level teacher distributions rather than scalar outcome rewards (Agarwal et al., 2024). Let θ\theta and ϕ\phi denote the parameters of the student LoopLM and the frozen teacher LoopLM. For y∼πθ(⋅∣x)y\sim\pi_{\theta}(\cdot\mid x), both models are evaluated on the same prefixes ci=(x,y<i)c_{i}=(x,y_{<i}). The reverse-KL distillation objective is
+ℒOPD(θ;ϕ)=𝔼[1m∑i=1mDKL(Pθ(L)(⋅∣ci)∥Pϕ(L)(⋅∣ci))].\mathcal{L}_{\mathrm{OPD}}(\theta;\phi)=\mathbb{E}\!\left[\frac{1}{m}\sum_{i=1}^{m}D_{\mathrm{KL}}\!\left(P_{\theta}^{(L)}(\cdot\mid c_{i})\,\middle\|\,P_{\phi}^{(L)}(\cdot\mid c_{i})\right)\right].
+(6)
+4 Method
+Prior work reports limited gains from conventional reinforcement learning post-training on LoopLMs (Zhu et al., 2025; Williams et al., 2026). We explore an intrinsic source of supervision in LoopLMs: additional recurrent computation. Since a LoopLM admits a next token distribution at every loop, each loop naturally induces a corresponding autoregressive policy.
+4.1 LoopOPD: Cross-Loop On-Policy Distillation
+For any loop d≤Ld\leq L, we define the loop dd policy as
+πθ(d)​(y∣x)=∏i=1mPθ(d)​(yi∣x,y<i).\pi_{\theta}^{(d)}(y\mid x)=\prod_{i=1}^{m}P_{\theta}^{(d)}(y_{i}\mid x,y_{<i}).
+(7)
+As illustrated in Figure 2 (left), LoopOPD selects an intermediate loop ℓ<L\ell<L as the student and uses the terminal loop LL policy as the compute privileged teacher.
+We use ℓ=2\ell=2 and L=4L=4.
+Let θ0\theta_{0} denote the initial LoopLM parameters. We initialize the trainable student with θ←θ0\theta\leftarrow\theta_{0} and the frozen teacher with θ¯0=θ0\bar{\theta}_{0}=\theta_{0}. For each prompt xx, a response is sampled from the student policy,
+y∼πθ(ℓ)(⋅∣x).y\sim\pi_{\theta}^{(\ell)}(\cdot\mid x).
+(8)
+Both policies are evaluated on the same prefixes ci=(x,y<i)c_{i}=(x,y_{<i}), and LoopOPD distills the terminal loop distribution into the student using the reverse-KL objective in equation 6:
+ℒLoopOPD(θ;θ¯0)=𝔼[1m∑i=1mDKL(Pθ(ℓ)(⋅∣ci)∥Pθ¯0(L)(⋅∣ci))].\mathcal{L}_{\mathrm{LoopOPD}}(\theta;\bar{\theta}_{0})=\mathbb{E}\!\left[\frac{1}{m}\sum_{i=1}^{m}D_{\mathrm{KL}}\!\left(P_{\theta}^{(\ell)}(\cdot\mid c_{i})\,\middle\|\,P_{\bar{\theta}_{0}}^{(L)}(\cdot\mid c_{i})\right)\right].
+(9)
+While LoopOPD supervises only the loop ℓ\ell student policy, the loop ℓ\ell and terminal loop policies of the trainable LoopLM share the same parameters. Updating the student therefore also changes the current terminal loop policy. Let θt\theta_{t} and θt+1\theta_{t+1} denote the parameters before and after optimization step tt. This interaction can be summarized as
+πθ¯0(L)→OPDπθt+1(ℓ)→parameter sharingπθt+1(L).\pi_{\bar{\theta}_{0}}^{(L)}\xrightarrow{\text{OPD}}\pi_{\theta_{t+1}}^{(\ell)}\xrightarrow{\text{parameter sharing}}\pi_{\theta_{t+1}}^{(L)}.
+(10)
+4.2 Dynamic LoopOPD: Recurrent Self-Improvement
+As illustrated in Figure 2 (right), D-LoopOPD leverages this shared parameter coupling by using the current terminal loop policy as the teacher at each optimization step. Its objective is
+ℒD​-​LoopOPD(θ)=𝔼[1m∑i=1mDKL(Pθ(ℓ)(⋅∣ci)∥sg[Pθ(L)(⋅∣ci)])],\mathcal{L}_{\mathrm{D\text{-}LoopOPD}}(\theta)=\mathbb{E}\!\left[\frac{1}{m}\sum_{i=1}^{m}D_{\mathrm{KL}}\!\left(P_{\theta}^{(\ell)}(\cdot\mid c_{i})\,\middle\|\,\operatorname{sg}\!\left[P_{\theta}^{(L)}(\cdot\mid c_{i})\right]\right)\right],
+(11)
+where sg⁡[⋅]\operatorname{sg}[\cdot] denotes stop-gradient. Gradients flow only through the student distribution, while the shared parameter update modifies both the loop ℓ\ell and terminal loop policies. This interaction can be summarized as
+πθt(L)→OPDπθt+1(ℓ)→parameter sharingπθt+1(L).\pi_{\theta_{t}}^{(L)}\xrightarrow{\text{OPD}}\pi_{\theta_{t+1}}^{(\ell)}\xrightarrow{\text{parameter sharing}}\pi_{\theta_{t+1}}^{(L)}.
+(12)
+The updated terminal loop policy then serves as the teacher for the next optimization step. Repeating this process forms a closed feedback loop between student learning and teacher evolution, which we refer to as recurrent self-improvement.
+Figure 2: Overview of LoopOPD and D-LoopOPD.
+LoopOPD uses a frozen terminal loop policy as a compute-privileged teacher and distills its next token distribution into an intermediate loop student on student generated rollouts. D-LoopOPD instead uses the current terminal loop policy of the same trainable LoopLM as the teacher, so each student update also changes the teacher used at the next step through shared parameters, forming recurrent self-improvement.
+4.3 Theoretical Analysis
+We analyze one distillation update and its effect at both loop depths. At step tt, sample a batch ℬt={(x(j),y(j))}j=1nt\mathcal{B}_{t}=\{(x^{(j)},y^{(j)})\}_{j=1}^{n_{t}} with y(j)∼πθt(ℓ)(⋅∣x(j))y^{(j)}\sim\pi_{\theta_{t}}^{(\ell)}(\cdot\mid x^{(j)}), response lengths mj≥1m_{j}\geq 1, and prefixes cj,i=(x(j),y<i(j))c_{j,i}=(x^{(j)},y_{<i}^{(j)}).
+We hold these sampled tokens and the targets qt(⋅∣c)=sg[Pθt(L)(⋅∣c)]q_{t}(\cdot\mid c)=\operatorname{sg}[P_{\theta_{t}}^{(L)}(\cdot\mid c)] fixed during the update, as in OPD.
+The empirical loss retains the response-wise normalization of equation 11:
+ℒt​(θ)\displaystyle\mathcal{L}_{t}(\theta)
+=1nt∑j=1nt1mj∑i=1mjDKL(Pθ(ℓ)(⋅∣cj,i)∥qt(⋅∣cj,i)),\displaystyle=\frac{1}{n_{t}}\sum_{j=1}^{n_{t}}\frac{1}{m_{j}}\sum_{i=1}^{m_{j}}D_{\mathrm{KL}}\!\left(P_{\theta}^{(\ell)}(\cdot\mid c_{j,i})\,\middle\|\,q_{t}(\cdot\mid c_{j,i})\right),
+(13)
+gt\displaystyle g_{t}
+=∇θℒt(θt),θt+1=θt−ηtgt.\displaystyle=\nabla_{\theta}\mathcal{L}_{t}(\theta_{t}),\qquad\theta_{t+1}=\theta_{t}-\eta_{t}g_{t}.
+where gtg_{t} is the gradient of the empirical distillation loss at θt\theta_{t}, and ηt>0\eta_{t}>0 is the step size. We analyze an exact gradient step for the full-distribution KL objective.
+Proposition 1 (Descent with a step-frozen teacher).
+Suppose ℒt\mathcal{L}_{t} has an MtM_{t}-Lipschitz gradient, Mt>0M_{t}>0, in a
+neighborhood of the update segment. If gt≠0g_{t}\neq 0 and 0<ηt<2/Mt0<\eta_{t}<2/M_{t}, then
+ℒt​(θt+1)≤ℒt​(θt)−ηt​(1−Mt​ηt2)​‖gt‖22<ℒt​(θt).\mathcal{L}_{t}(\theta_{t+1})\leq\mathcal{L}_{t}(\theta_{t})-\eta_{t}\!\left(1-\frac{M_{t}\eta_{t}}{2}\right)\!\|g_{t}\|_{2}^{2}<\mathcal{L}_{t}(\theta_{t}).
+(14)
+This guarantees a decrease in the batch-averaged KL divergence to the step-frozen teacher qtq_{t}.
+For d∈{ℓ,L}d\in\{\ell,L\}, concatenate the logits gθ​(hi(d))g_{\theta}(h_{i}^{(d)}) on the batch prefixes into zd​(θ)z_{d}(\theta), and let Jd=∂zd/∂θ|θtJ_{d}=\partial z_{d}/\partial\theta|_{\theta_{t}} and rt=∇zℓℒt|θtr_{t}=\nabla_{z_{\ell}}\mathcal{L}_{t}|_{\theta_{t}}.
+With the teacher stopped, gt=Jℓ⊤​rtg_{t}=J_{\ell}^{\top}r_{t}. If the logit maps have locally Lipschitz Jacobians, then
+zd​(θt+1)−zd​(θt)=−ηt​Jd​Jℓ⊤⏟Kd​ℓ​rt+O⁡(ηt2​‖gt‖22),d∈{ℓ,L},z_{d}(\theta_{t+1})-z_{d}(\theta_{t})=-\eta_{t}\underbrace{J_{d}J_{\ell}^{\top}}_{K_{d\ell}}r_{t}+O\!\left(\eta_{t}^{2}\|g_{t}\|_{2}^{2}\right),\qquad d\in\{\ell,L\},
+(15)
+where Kd​ℓK_{d\ell} is a block of the empirical tangent kernel (Jacot et al., 2018).
+Parameter sharing gives the first order terminal logit change −ηt​KL​ℓ​rt-\eta_{t}K_{L\ell}r_{t}, whose effect on the task surrogate depends on gradient alignment.
+For analysis, let ℛd​(θ)\mathcal{R}_{d}(\theta) be a differentiable task surrogate computed from the logits at loop depth dd on a fixed evaluation set ℰ\mathcal{E}, such as gold-token negative log-likelihood. Define
+γd,t=⟨∇θℛd​(θt),gt⟩,d∈{ℓ,L}.\gamma_{d,t}=\left\langle\nabla_{\theta}\mathcal{R}_{d}(\theta_{t}),g_{t}\right\rangle,\qquad d\in\{\ell,L\}.
+(16)
+Here γd,t\gamma_{d,t} measures the alignment between the distillation gradient and the task surrogate gradient at depth dd; γd,t>0\gamma_{d,t}>0 means that −gt-g_{t} is a descent direction for ℛd\mathcal{R}_{d}.
+Theorem 1 (Joint local decrease of task surrogates).
+Suppose ℛd\mathcal{R}_{d} has a βd\beta_{d}-Lipschitz gradient, βd>0\beta_{d}>0, in a neighborhood of the update segment for each d∈{ℓ,L}d\in\{\ell,L\}. If γℓ,t>0\gamma_{\ell,t}>0, γL,t>0\gamma_{L,t}>0, and
+0<ηt<mind∈{ℓ,L}⁡2​γd,tβd​‖gt‖22,0<\eta_{t}<\min_{d\in\{\ell,L\}}\frac{2\gamma_{d,t}}{\beta_{d}\|g_{t}\|_{2}^{2}},
+(17)
+then ℛℓ​(θt+1)<ℛℓ​(θt)\mathcal{R}_{\ell}(\theta_{t+1})<\mathcal{R}_{\ell}(\theta_{t}) and ℛL​(θt+1)<ℛL​(θt)\mathcal{R}_{L}(\theta_{t+1})<\mathcal{R}_{L}(\theta_{t}) simultaneously.
+For evaluation logits z~d\widetilde{z}_{d} on ℰ\mathcal{E}, write J~d=∂z~d/∂θ|θt\widetilde{J}_{d}=\partial\widetilde{z}_{d}/\partial\theta|_{\theta_{t}} and ad,t=∇z~dℛd|θta_{d,t}=\nabla_{\widetilde{z}_{d}}\mathcal{R}_{d}|_{\theta_{t}}. Then
+γd,t=ad,t⊤​J~d​Jℓ⊤​rt,d∈{ℓ,L}.\gamma_{d,t}=a_{d,t}^{\top}\widetilde{J}_{d}J_{\ell}^{\top}r_{t},\qquad d\in\{\ell,L\}.
+(18)
+This expression links the training time distillation update to the evaluation task gradients at both loop depths. Appendix A provides more details.
+5 Experiments
+5.1 Experimental Setup
+Models.
+We conduct experiments on Ouro-1.4B-Thinking and Ouro-2.6B-Thinking (Zhu et al., 2025). For comparison across model scales, we include Qwen3-1.7B, Qwen3-4B, Qwen3-8B (Yang et al., 2025), Qwen3.5-4B, and Qwen3.5-9B (Team, 2026) in thinking mode.
+Baselines and Training Dataset.
+For Ouro, we compare LoopOPD and D-LoopOPD against GRPO (Shao et al., 2024), RLTT (Williams et al., 2026), and OPSD (Zhao et al., 2026). We evaluate OPD (Agarwal et al., 2024) on Ouro-1.4B-Thinking, using Ouro-2.6B-Thinking as the teacher. For Qwen3, we evaluate the vanilla models and GRPO variants, while for Qwen3.5 we evaluate the vanilla models. All post-training methods are trained on DAPO-Math-17k (Yu et al., 2025).
+Evaluation Benchmarks.
+We evaluate mathematical reasoning on AIME 2024 (Zhang and Math-AI, 2024), AIME 2025 (Zhang and Math-AI, 2025), AIME 2026 (Zhang and Math-AI, 2026), OlympiadBench (He et al., 2024), and BeyondAIME (ByteDance-Seed, 2025). For general reasoning and code generation, we evaluate on MMLU (Hendrycks et al., 2021), MBPP and MBPP+ (Austin et al., 2021; Liu et al., 2023), and HumanEval and HumanEval+ (Chen et al., 2021; Liu et al., 2023). Detailed training and evaluation settings are provided in Appendix D.
+5.2 Main Results
+Mathematical Reasoning.
+As shown in Table 2, LoopOPD and D-LoopOPD improve mathematical reasoning on Ouro-2.6B-Thinking. Averaging Avg@16 across AIME 2024, AIME 2025, and AIME 2026, the vanilla model and GRPO achieve 55.49 and 56.60, while LoopOPD and D-LoopOPD improve to 59.37 and 62.36. D-LoopOPD achieves the best Avg@16 on all three AIME benchmarks within the Ouro-2.6B group, improving over LoopOPD by 6.46, 1.46, and 1.05 points on AIME 2024, AIME 2025, and AIME 2026, respectively. On AIME 2024, D-LoopOPD reaches 71.67 Avg@16, surpassing vanilla Qwen3-8B at 71.25 and approaching vanilla Qwen3.5-9B at 72.08 with fewer parameters.
+On OlympiadBench, D-LoopOPD also achieves the best result at 65.77, while its BeyondAIME score of 34.00 remains comparable to those of the vanilla model and GRPO.
+Similar improvements are observed on Ouro-1.4B-Thinking, where LoopOPD and D-LoopOPD outperform the vanilla model, GRPO, and OPD on average across the three AIME benchmarks; LoopOPD achieves the best OlympiadBench score and D-LoopOPD the best BeyondAIME score.
+Table 2: Performance comparison on mathematical reasoning benchmarks.
+AIME24, AIME25, and AIME26 are reported with Avg@16 and Pass@16, while OlympiadBench and BeyondAIME are reported with accuracy. All evaluations use a maximum response length of 31,744 tokens. Best results within each Ouro model group are shown in bold.
+Model
+Method
+AIME24
+AIME25
+AIME26
+Olympiad
+Bench
+Beyond
+AIME
+Avg@16
+Pass@16
+Avg@16
+Pass@16
+Avg@16
+Pass@16
+Qwen3-1.7B (Thinking)
+Vanilla
+47.92
+76.67
+36.46
+56.67
+38.13
+76.67
+56.30
+15.00
+GRPO
+51.04
+73.33
+37.50
+56.67
+40.42
+80.00
+57.19
+17.00
+Qwen3-4B (Thinking)
+Vanilla
+61.25
+83.33
+52.08
+73.33
+52.92
+76.67
+68.44
+31.00
+GRPO
+65.42
+83.33
+51.67
+76.67
+55.21
+80.00
+68.89
+32.00
+Qwen3.5-4B (Thinking)
+Vanilla
+54.79
+90.00
+51.46
+73.33
+55.00
+80.00
+61.63
+23.00
+Ouro-1.4B-Thinking
+(d=4d=4)
+Vanilla
+51.25
+73.33
+41.25
+70.00
+45.21
+73.33
+59.40
+24.00
+GRPO
+51.88
+76.67
+40.21
+70.00
+46.46
+70.00
+60.14
+24.00
+RLTT
+50.00
+80.00
+37.50
+66.67
+41.87
+66.67
+60.44
+22.00
+OPSD
+49.58
+73.33
+41.04
+63.33
+44.79
+70.00
+60.59
+22.00
+OPD
+50.42
+83.33
+38.54
+66.67
+46.25
+73.33
+60.44
+25.00
+LoopOPD
+53.33
+80.00
+43.54
+70.00
+46.25
+73.33
+60.74
+24.00
+D-LoopOPD
+55.00
+86.67
+43.54
+73.33
+47.92
+76.67
+60.59
+27.00
+Qwen3-8B (Thinking)
+Vanilla
+71.25
+90.00
+64.38
+83.33
+66.67
+86.67
+69.48
+37.00
+GRPO
+73.54
+93.33
+68.96
+83.33
+69.38
+86.67
+71.26
+38.00
+Qwen3.5-9B (Thinking)
+Vanilla
+72.08
+93.33
+61.46
+86.67
+66.04
+86.67
+64.89
+36.00
+Ouro-2.6B-Thinking
+(d=4d=4)
+Vanilla
+62.08
+83.33
+48.96
+73.33
+55.42
+83.33
+64.30
+35.00
+GRPO
+62.92
+86.67
+49.79
+73.33
+57.08
+86.67
+64.59
+35.00
+RLTT
+56.67
+83.33
+36.46
+66.67
+46.04
+76.67
+60.29
+28.00
+OPSD
+60.42
+83.33
+43.13
+70.00
+50.62
+73.33
+63.26
+30.00
+LoopOPD
+65.21
+90.00
+53.75
+80.00
+59.17
+90.00
+64.88
+33.00
+D-LoopOPD
+71.67
+90.00
+55.21
+80.00
+60.21
+86.67
+65.78
+34.00
+General Reasoning and Code Generation.
+Table 3 further examines performance beyond mathematical reasoning. On Ouro-2.6B-Thinking, D-LoopOPD improves over the vanilla model on all five benchmarks, with gains of 0.58 on MMLU, 1.06 on MBPP, 1.33 on MBPP+, 0.61 on HumanEval, and 0.61 on HumanEval+. It achieves the best results within the model group on MMLU, MBPP, and MBPP+. Similar gains are observed on Ouro-1.4B-Thinking, where LoopOPD achieves the best MMLU result, while D-LoopOPD achieves the best results on MBPP, MBPP+, and HumanEval+. These gains extend to general reasoning and code generation even though post-training uses only mathematical data.
+Table 3: Performance comparison on general reasoning and code generation benchmarks.
+MMLU is reported with accuracy, while MBPP, MBPP+, HumanEval, and HumanEval+ are reported with Pass@1. Best results within each Ouro model group are shown in bold.
+Model
+Method
+MMLU
+MBPP
+MBPP+
+HumanEval
+HumanEval+
+Qwen3-1.7B (Thinking)
+Vanilla
+60.21
+59.26
+50.26
+69.51
+63.41
+GRPO
+61.00
+60.05
+50.00
+71.34
+64.63
+Qwen3-4B (Thinking)
+Vanilla
+70.07
+68.78
+59.79
+77.44
+70.73
+GRPO
+68.49
+67.99
+60.85
+75.61
+69.51
+Qwen3.5-4B (Thinking)
+Vanilla
+69.66
+75.40
+61.11
+82.93
+76.83
+Ouro-1.4B-Thinking
+(d=4d=4)
+Vanilla
+67.78
+72.22
+62.70
+74.39
+70.12
+GRPO
+67.51
+72.49
+62.70
+75.00
+71.95
+RLTT
+68.01
+73.02
+62.70
+77.44
+71.34
+OPSD
+66.50
+71.96
+61.11
+74.39
+69.51
+OPD
+67.83
+72.22
+62.43
+74.39
+70.12
+LoopOPD
+68.05
+72.22
+62.70
+76.22
+71.34
+D-LoopOPD
+67.87
+73.28
+63.23
+76.22
+71.95
+Qwen3-8B (Thinking)
+Vanilla
+74.89
+71.69
+62.43
+84.15
+73.78
+GRPO
+74.48
+71.96
+63.23
+85.37
+75.00
+Qwen3.5-9B (Thinking)
+Vanilla
+69.90
+79.10
+64.81
+86.59
+82.32
+Ouro-2.6B-Thinking
+(d=4d=4)
+Vanilla
+76.09
+74.87
+62.43
+78.66
+74.39
+GRPO
+76.32
+75.13
+62.17
+78.05
+74.39
+RLTT
+76.11
+75.40
+61.90
+81.71
+77.44
+OPSD
+75.84
+74.87
+62.70
+76.83
+72.56
+LoopOPD
+76.09
+75.40
+62.70
+78.66
+74.39
+D-LoopOPD
+76.67
+75.93
+63.76
+79.27
+75.00
+5.3 Training Dynamics and Cross-Loop Performance
+Training Dynamics.
+Figure 3 (a) compares LoopOPD and D-LoopOPD during training. Both the rollout reward and validation performance are measured at the student loop ℓ=2\ell=2. D-LoopOPD achieves higher training reward and higher validation Avg@16 than LoopOPD. These trends support the benefit of dynamically using the current terminal loop policy as the teacher for student learning.
+Figure 3: Training dynamics and cross-loop performance of Ouro-2.6B-Thinking. (a) Training reward and student loop validation Avg@16 for LoopOPD and D-LoopOPD over training. (b) Avg@16 and Pass@16 across loop depths for different methods. All evaluations use a maximum response length of 31,744 tokens. Exact values are provided in Appendix C.
+Cross-Loop Performance.
+Figure 3 (b) evaluates the trained models across all four loops. Both LoopOPD and D-LoopOPD improve Avg@16 over the vanilla model at every depth, with D-LoopOPD achieving the highest Avg@16 among the compared methods. At the directly supervised loop 2, D-LoopOPD raises Avg@16 from 39.16 to 47.50, a gain of 8.34 percentage points. The gains extend to loops 3 and 4, where Avg@16 increases by 5.41 and 9.59 points to 66.87 and 71.67. These results support supervising intermediate computation as an effective way to improve both intermediate and terminal policies.
+Teacher and Student Entropy.
+Figure 4 compares the teacher and student token distribution entropy of LoopOPD and D-LoopOPD during training.
+Figure 4: Teacher and student entropy during training for Ouro-2.6B-Thinking. Left: entropy of the terminal loop teacher. Right: entropy of the student loop ℓ=2\ell=2. Both are measured on student generated rollouts.
+D-LoopOPD maintains higher teacher and student entropy than LoopOPD through most of training, with the gap narrowing toward later steps. This suggests that dynamically refreshing the terminal loop teacher maintains less peaked distributions during training, which support more diverse student rollouts and broader exploration (Jin et al., 2026; Cui et al., 2025). More details are provided in Appendix C.
+5.4 Ablation Study
+Figure 5: Student depth ablation for D-LoopOPD on Ouro-2.6B-Thinking. AIME 2024 Avg@16 at the student and terminal loops.
+We study the effect of student depth in D-LoopOPD by using loop 1, loop 2, or loop 3 as the student while keeping the terminal teacher at loop 4. As shown in Figure 5, loop 2 yields the best terminal performance, improving loop 4 Avg@16 from 62.08 to 71.67. Loop 3 already starts close to the initial terminal policy, with Avg@16 of 61.46 versus 62.08, leaving less room for distillation. In contrast, loop 1 has a much larger gap to the teacher but very low standalone accuracy. Its student Avg@16 remains at 0.63 after training, although the terminal loop improves to 68.54. Loop 2 provides a favorable balance between student capability and teacher advantage: its student Avg@16 improves from 39.16 to 47.50, while the terminal loop gains 9.59 points. These results indicate that neither a larger teacher-student gap nor a stronger student alone determines the effectiveness of cross-loop distillation. Overall, the intermediate loop ℓ=2\ell=2 yields the strongest terminal loop improvement in our setting.
+6 Conclusion
+We propose LoopOPD, which uses a frozen terminal loop policy to supervise an intermediate loop student through on-policy distillation, without an external teacher or privileged information. D-LoopOPD instead uses the current terminal loop policy as the teacher, allowing student updates to shape subsequent supervision through shared parameters. Our analysis characterizes this interaction and gives sufficient conditions for a single gradient update to improve task surrogates locally at both loop depths. Experiments on Ouro-Thinking models show gains in mathematical reasoning, with D-LoopOPD further improving mathematical performance over LoopOPD. Cross-loop evaluation shows that the gains extend beyond the directly supervised student to deeper loops. D-LoopOPD also improves general reasoning and code generation over the vanilla models despite using only mathematical training data. These findings support additional recurrent computation as an effective source of supervision for post-training LoopLMs.
+References
+Agarwal et al. (2024)
+R. Agarwal, N. Vieillard, Y. Zhou, P. Stanczyk, S. Ramos Garea, M. Geist, and O. Bachem
+On-policy distillation of language models: learning from self-generated mistakes.
+In International Conference on Learning Representations, B. Kim, Y. Yue, S. Chaudhuri, K. Fragkiadaki, M. Khan, and Y. Sun (Eds.),
+Vol. 2024, pp. 21246–21263.
+External Links: Link
+Cited by: §1,
+Table 1,
+§2,
+§3,
+§5.1.
+Austin et al. (2021)
+J. Austin, A. Odena, M. Nye, M. Bosma, H. Michalewski, D. Dohan, E. Jiang, C. Cai, M. Terry, Q. Le, et al.
+Program synthesis with large language models.
+arXiv preprint arXiv:2108.07732.
+Cited by: §5.1.
+ByteDance-Seed (2025)
+ByteDance-Seed
+BeyondAIME: advancing math reasoning evaluation beyond high school olympiads.
+ Hugging Face.
+Note: [https://huggingface.co/datasets/ByteDance-Seed/BeyondAIME(https://huggingface.co/datasets/ByteDance-Seed/BeyondAIME)
+Cited by: §5.1.
+Chen et al. (2021)
+M. Chen, J. Tworek, H. Jun, Q. Yuan, H. P. de Oliveira Pinto, J. Kaplan, H. Edwards, Y. Burda, N. Joseph, G. Brockman, A. Ray, R. Puri, G. Krueger, M. Petrov, H. Khlaaf, G. Sastry, P. Mishkin, B. Chan, S. Gray, N. Ryder, M. Pavlov, A. Power, L. Kaiser, M. Bavarian, C. Winter, P. Tillet, F. P. Such, D. Cummings, M. Plappert, F. Chantzis, E. Barnes, A. Herbert-Voss, W. H. Guss, A. Nichol, A. Paino, N. Tezak, J. Tang, I. Babuschkin, S. Balaji, S. Jain, W. Saunders, C. Hesse, A. N. Carr, J. Leike, J. Achiam, V. Misra, E. Morikawa, A. Radford, M. Knight, M. Brundage, M. Murati, K. Mayer, P. Welinder, B. McGrew, D. Amodei, S. McCandlish, I. Sutskever, and W. Zaremba
+Evaluating large language models trained on code.
+External Links: 2107.03374
+Cited by: §5.1.
+Cui et al. (2025)
+G. Cui, Y. Zhang, J. Chen, L. Yuan, Z. Wang, Y. Zuo, H. Li, Y. Fan, H. Chen, W. Chen, et al.
+The entropy mechanism of reinforcement learning for reasoning language models.
+arXiv preprint arXiv:2505.22617.
+Cited by: §5.3.
+Dehghani et al. (2019)
+M. Dehghani, S. Gouws, O. Vinyals, J. Uszkoreit, and L. Kaiser
+Universal transformers.
+In International Conference on Learning Representations,
+External Links: Link
+Cited by: §2.
+Geiping et al. (2025)
+J. Geiping, S. McLeish, N. Jain, J. Kirchenbauer, S. Singh, B. Bartoldson, B. Kailkhura, A. Bhatele, and T. Goldstein
+Scaling up test-time compute with latent reasoning: a recurrent depth approach.
+In Advances in Neural Information Processing Systems, D. Belgrave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz, M. Ghassemi, and N. Chen (Eds.),
+Vol. 38, Main Conference, pp. 41340–41391.
+External Links: Document,
+Link
+Cited by: §1,
+§2.
+Guo et al. (2025)
+D. Guo, D. Yang, H. Zhang, J. Song, P. Wang, Q. Zhu, R. Xu, R. Zhang, S. Ma, X. Bi, et al.
+Deepseek-r1: incentivizing reasoning capability in llms via reinforcement learning.
+arXiv preprint arXiv:2501.12948.
+Cited by: §1.
+He et al. (2024)
+C. He, R. Luo, Y. Bai, S. Hu, Z. Thai, J. Shen, J. Hu, X. Han, Y. Huang, Y. Zhang, J. Liu, L. Qi, Z. Liu, and M. Sun
+OlympiadBench: a challenging benchmark for promoting AGI with olympiad-level bilingual multimodal scientific problems.
+In Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), L. Ku, A. Martins, and V. Srikumar (Eds.),
+Bangkok, Thailand, pp. 3828–3850.
+External Links: Link,
+Document
+Cited by: §5.1.
+Hendrycks et al. (2021)
+D. Hendrycks, C. Burns, S. Basart, A. Zou, M. Mazeika, D. Song, and J. Steinhardt
+Measuring massive multitask language understanding.
+In International Conference on Learning Representations,
+External Links: Link
+Cited by: §1,
+§5.1.
+Hübotter et al. (2026)
+J. Hübotter, F. Lübeck, L. Behric, A. Baumann, M. Bagatella, D. Marta, I. Hakimi, I. Shenfeld, T. Kleine Buening, C. Guestrin, and A. Krause
+Reinforcement learning via self-distillation.
+In International Conference on Machine Learning (2026),
+Cited by: §2.
+Jacot et al. (2018)
+A. Jacot, F. Gabriel, and C. Hongler
+Neural tangent kernel: convergence and generalization in neural networks.
+Advances in neural information processing systems 31.
+Cited by: Appendix A,
+§4.3.
+Jin et al. (2026)
+R. Jin, P. Gao, Y. Ren, Z. Han, T. Zhang, W. Huang, W. Liu, J. Luan, and D. Xiong
+Revisiting entropy in reinforcement learning for large reasoning models.
+In Findings of the Association for Computational Linguistics: ACL 2026, M. Liakata, V. P. Moreira, J. Zhang, and D. Jurgens (Eds.),
+San Diego, California, United States, pp. 25300–25322.
+External Links: Link,
+Document,
+ISBN 979-8-89176-395-1
+Cited by: §5.3.
+Kaur et al. (2026)
+S. Kaur, N. Ri, Y. He, L. H. Fowl, and S. Arora
+Rethinking on-policy self-distillation for thinking models.
+In ICML 2026 Workshop on Foundations of Deep Generative Models: Understanding Memorization, Generalization, and Reasoning,
+External Links: Link
+Cited by: §1,
+§2.
+Li et al. (2026)
+Y. Li, Y. Zuo, B. He, J. Zhang, C. Xiao, C. Qian, T. Yu, H. Gao, W. Yang, Z. Liu, et al.
+Rethinking on-policy distillation of large language models: phenomenology, mechanism, and recipe.
+arXiv preprint arXiv:2604.13016.
+Cited by: §1,
+§2.
+Liu et al. (2023)
+J. Liu, C. S. Xia, Y. Wang, and L. ZHANG
+Is your code generated by chatgpt really correct? rigorous evaluation of large language models for code generation.
+In Advances in Neural Information Processing Systems, A. Oh, T. Naumann, A. Globerson, K. Saenko, M. Hardt, and S. Levine (Eds.),
+Vol. 36, pp. 21558–21572.
+External Links: Document,
+Link
+Cited by: §1,
+§5.1.
+Ren (2025)
+H. Ren
+LSRL: process-supervised GRPO on latent recurrent states improves mathematical reasoning.
+In Findings of the Association for Computational Linguistics: EMNLP 2025, C. Christodoulopoulos, T. Chakraborty, C. Rose, and V. Peng (Eds.),
+Suzhou, China, pp. 12534–12545.
+External Links: Link,
+Document,
+ISBN 979-8-89176-335-7
+Cited by: §2.
+Saunshi et al. (2025)
+N. Saunshi, N. Dikkala, Z. Li, S. Kumar, and S. J. Reddi
+Reasoning with latent thoughts: on the power of looped transformers.
+In International Conference on Learning Representations, Y. Yue, A. Garg, N. Peng, F. Sha, and R. Yu (Eds.),
+Vol. 2025, pp. 14855–14881.
+External Links: Link
+Cited by: §1,
+§2.
+Shao et al. (2024)
+Z. Shao, P. Wang, Q. Zhu, R. Xu, J. Song, X. Bi, H. Zhang, M. Zhang, Y. Li, et al.
+Deepseekmath: pushing the limits of mathematical reasoning in open language models.
+arXiv preprint arXiv:2402.03300.
+Cited by: §1,
+Table 1,
+§5.1.
+Tang et al. (2026)
+G. Tang, S. Jiang, H. Chang, N. Chen, Y. Li, H. Fan, J. Li, M. Liu, and B. Qin
+Looprpt: reinforcement pre-training for looped language models.
+arXiv preprint arXiv:2603.19714.
+Cited by: §2.
+Team (2026)
+Q. Team
+Qwen3.5: towards native multimodal agents.
+External Links: Link
+Cited by: §5.1.
+Vaswani et al. (2017)
+A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, Ł. Kaiser, and I. Polosukhin
+Attention is all you need.
+Advances in neural information processing systems 30.
+Cited by: §3.
+Williams et al. (2026)
+J. Williams, O. Russakovsky, and E. Tureci
+Prioritize the process, not just the outcome: rewarding latent thought trajectories improves reasoning in looped language models.
+In Forty-third International Conference on Machine Learning,
+External Links: Link
+Cited by: §1,
+§1,
+Table 1,
+§2,
+§3,
+§4,
+§5.1.
+Yang et al. (2025)
+A. Yang, A. Li, B. Yang, B. Zhang, B. Hui, B. Zheng, B. Yu, C. Gao, C. Huang, C. Lv, C. Zheng, D. Liu, F. Zhou, F. Huang, F. Hu, H. Ge, H. Wei, H. Lin, J. Tang, J. Yang, J. Tu, J. Zhang, J. Yang, J. Yang, J. Zhou, J. Zhou, J. Lin, K. Dang, K. Bao, K. Yang, L. Yu, L. Deng, M. Li, M. Xue, M. Li, P. Zhang, P. Wang, Q. Zhu, R. Men, R. Gao, S. Liu, S. Luo, T. Li, T. Tang, W. Yin, X. Ren, X. Wang, X. Zhang, X. Ren, Y. Fan, Y. Su, Y. Zhang, Y. Zhang, Y. Wan, Y. Liu, Z. Wang, Z. Cui, Z. Zhang, Z. Zhou, and Z. Qiu
+Qwen3 technical report.
+arXiv preprint arXiv:2505.09388.
+Cited by: §5.1.
+Yu et al. (2025)
+Q. Yu, Z. Zhang, R. Zhu, Y. Yuan, X. Zuo, Y. Yue, W. Dai, T. Fan, G. Liu, j. liu, L. Liu, X. Liu, H. Lin, Z. Lin, B. Ma, G. Sheng, Y. Tong, C. Zhang, M. Zhang, R. Zhang, W. Zhang, H. Zhu, J. Zhu, J. Chen, J. Chen, C. Wang, H. Yu, Y. Song, X. Wei, H. Zhou, J. Liu, W. Ma, Y. Zhang, L. Yan, Y. Wu, and M. Wang
+DAPO: an open-source llm reinforcement learning system at scale.
+In Advances in Neural Information Processing Systems, D. Belgrave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz, M. Ghassemi, and N. Chen (Eds.),
+Vol. 38, Main Conference, pp. 113222–113244.
+External Links: Document,
+Link
+Cited by: §5.1.
+Zhang and Math-AI (2024)
+Y. Zhang and T. Math-AI
+American invitational mathematics examination (aime) 2024.
+Cited by: §5.1.
+Zhang and Math-AI (2025)
+Y. Zhang and T. Math-AI
+American invitational mathematics examination (aime) 2025.
+Cited by: §5.1.
+Zhang and Math-AI (2026)
+Y. Zhang and T. Math-AI
+American invitational mathematics examination (aime) 2026.
+Cited by: §1,
+§5.1.
+Zhao et al. (2026)
+S. Zhao, Z. Xie, M. Liu, J. Huang, G. Pang, F. Chen, and A. Grover
+Self-distilled reasoner: on-policy self-distillation for large language models.
+In Forty-third International Conference on Machine Learning,
+External Links: Link
+Cited by: §1,
+§1,
+Table 1,
+§2,
+§5.1.
+Zhu et al. (2025)
+R. Zhu, Z. Wang, K. Hua, T. Zhang, Z. Li, H. Que, B. Wei, Z. Wen, F. Yin, H. Xing, et al.
+Scaling latent reasoning via looped language models.
+arXiv preprint arXiv:2510.25741.
+Cited by: §1,
+§1,
+§1,
+§2,
+§3,
+§4,
+§5.1.
+Appendix A Proofs
+Scope and Normalization.
+We condition on the rollout batch ℬt\mathcal{B}_{t} in equation 13. The sampled tokens, response lengths, and teacher probabilities are held fixed during differentiation. Hidden states and logits on these fixed token prefixes are functions of the trainable parameters. We use the reverse KL over the softmax distributions in equation 1, assuming finite logits and a finite vocabulary so that all probabilities are positive. Each token occurrence (j,i)(j,i) has weight wj,i=1/(nt​mj)w_{j,i}=1/(n_{t}m_{j}), so that ∑j∑iwj,i=1\sum_{j}\sum_{i}w_{j,i}=1. These weights match the per response normalization in equation 11.
+Reverse-KL Gradient.
+For a token occurrence (j,i)(j,i), abbreviate
+pj,i​(v)\displaystyle p_{j,i}(v)
+=Pθt(ℓ)​(v∣cj,i),\displaystyle=P_{\theta_{t}}^{(\ell)}(v\mid c_{j,i}),
+qj,i​(v)\displaystyle q_{j,i}(v)
+=qt​(v∣cj,i),\displaystyle=q_{t}(v\mid c_{j,i}),
+(19)
+κj,i\displaystyle\kappa_{j,i}
+=∑v∈𝒱pj,i​(v)​log⁡pj,i​(v)qj,i​(v).\displaystyle=\sum_{v\in\mathcal{V}}p_{j,i}(v)\log\frac{p_{j,i}(v)}{q_{j,i}(v)}.
+Let zℓ,j,i,vz_{\ell,j,i,v} be the corresponding student logit. The block of
+rt=∇zℓℒt|θtr_{t}=\nabla_{z_{\ell}}\mathcal{L}_{t}|_{\theta_{t}} is
+(rt)j,i,v=wj,i​pj,i​(v)​(log⁡pj,i​(v)qj,i​(v)−κj,i).(r_{t})_{j,i,v}=w_{j,i}p_{j,i}(v)\left(\log\frac{p_{j,i}(v)}{q_{j,i}(v)}-\kappa_{j,i}\right).
+(20)
+To verify this, use
+∂p(u)/∂zv=p(u)(𝟏{u=v}−p(v))\partial p(u)/\partial z_{v}=p(u)(\mathbf{1}\{u=v\}-p(v)) and
+∂DKL(p∥q)/∂p(u)=log(p(u)/q(u))+1\partial D_{\mathrm{KL}}(p\|q)/\partial p(u)=\log(p(u)/q(u))+1.
+Summing over uu gives
+∂DKL(p∥q)∂zv\displaystyle\frac{\partial D_{\mathrm{KL}}(p\|q)}{\partial z_{v}}
+=p⁡(v)​(log⁡p⁡(v)q⁡(v)+1)−p⁡(v)​∑up⁡(u)​(log⁡p⁡(u)q⁡(u)+1)\displaystyle=p(v)\left(\log\frac{p(v)}{q(v)}+1\right)-p(v)\sum_{u}p(u)\left(\log\frac{p(u)}{q(u)}+1\right)
+=p(v)(logp⁡(v)q⁡(v)−DKL(p∥q)).\displaystyle=p(v)\left(\log\frac{p(v)}{q(v)}-D_{\mathrm{KL}}(p\|q)\right).
+Multiplying by wj,iw_{j,i} proves equation 20. Since qtq_{t} is stopped, the chain rule gives gt=Jℓ⊤​rtg_{t}=J_{\ell}^{\top}r_{t}.
+Proof of Proposition 1.
+For a differentiable function FF with an MM-Lipschitz gradient in a neighborhood of the segment from θ\theta to θ+Δ\theta+\Delta, the fundamental theorem of calculus and Cauchy–Schwarz give
+F⁡(θ+Δ)−F⁡(θ)\displaystyle F(\theta+\Delta)-F(\theta)
+=⟨∇F​(θ),Δ⟩+∫01⟨∇F​(θ+s​Δ)−∇F​(θ),Δ⟩​𝑑s\displaystyle=\langle\nabla F(\theta),\Delta\rangle+\int_{0}^{1}\langle\nabla F(\theta+s\Delta)-\nabla F(\theta),\Delta\rangle\,ds
+≤⟨∇F​(θ),Δ⟩+M2​‖Δ‖22.\displaystyle\leq\langle\nabla F(\theta),\Delta\rangle+\frac{M}{2}\|\Delta\|_{2}^{2}.
+(21)
+Apply equation 21 at θ=θt\theta=\theta_{t} with
+F=ℒtF=\mathcal{L}_{t} and Δ=−ηt​gt\Delta=-\eta_{t}g_{t}. Since
+∇ℒt​(θt)=gt\nabla\mathcal{L}_{t}(\theta_{t})=g_{t},
+ℒt​(θt+1)\displaystyle\mathcal{L}_{t}(\theta_{t+1})
+≤ℒt​(θt)−ηt​‖gt‖22+Mt​ηt22​‖gt‖22\displaystyle\leq\mathcal{L}_{t}(\theta_{t})-\eta_{t}\|g_{t}\|_{2}^{2}+\frac{M_{t}\eta_{t}^{2}}{2}\|g_{t}\|_{2}^{2}
+=ℒt​(θt)−ηt​(1−Mt​ηt2)​‖gt‖22.\displaystyle=\mathcal{L}_{t}(\theta_{t})-\eta_{t}\left(1-\frac{M_{t}\eta_{t}}{2}\right)\|g_{t}\|_{2}^{2}.
+Since gt≠0g_{t}\neq 0 and 0<ηt<2/Mt0<\eta_{t}<2/M_{t}, ηt​(1−Mt​ηt/2)​‖gt‖22>0\eta_{t}(1-M_{t}\eta_{t}/2)\|g_{t}\|_{2}^{2}>0, proving equation 14.
+Proof of equation 15.
+For d∈{ℓ,L}d\in\{\ell,L\}, assume zdz_{d} is differentiable and its Jacobian is CdC_{d}-Lipschitz in operator norm in a neighborhood of the update segment. Let Jd​(θ)=∂zd​(θ)/∂θJ_{d}(\theta)=\partial z_{d}(\theta)/\partial\theta, with Jd=Jd​(θt)J_{d}=J_{d}(\theta_{t}). Integration gives
+zd​(θt+Δ)−zd​(θt)−Jd​Δ=∫01(Jd​(θt+s​Δ)−Jd)​Δ​𝑑s.z_{d}(\theta_{t}+\Delta)-z_{d}(\theta_{t})-J_{d}\Delta=\int_{0}^{1}\bigl(J_{d}(\theta_{t}+s\Delta)-J_{d}\bigr)\Delta\,ds.
+(22)
+The norm of the right-hand side is at most Cd​‖Δ‖22/2C_{d}\|\Delta\|_{2}^{2}/2. With Δ=−ηt​gt\Delta=-\eta_{t}g_{t} and gt=Jℓ⊤​rtg_{t}=J_{\ell}^{\top}r_{t}, this gives
+‖zd​(θt+1)−zd​(θt)+ηt​Jd​Jℓ⊤​rt‖2≤Cd​ηt22​‖gt‖22,\left\|z_{d}(\theta_{t+1})-z_{d}(\theta_{t})+\eta_{t}J_{d}J_{\ell}^{\top}r_{t}\right\|_{2}\leq\frac{C_{d}\eta_{t}^{2}}{2}\|g_{t}\|_{2}^{2},
+(23)
+and hence equation 15. The joint empirical tangent kernel has the block form
+[Jℓ​Jℓ⊤Jℓ​JL⊤JL​Jℓ⊤JL​JL⊤]=[JℓJL]​[JℓJL]⊤.\begin{bmatrix}J_{\ell}J_{\ell}^{\top}&J_{\ell}J_{L}^{\top}\\
+J_{L}J_{\ell}^{\top}&J_{L}J_{L}^{\top}\end{bmatrix}=\begin{bmatrix}J_{\ell}\\
+J_{L}\end{bmatrix}\begin{bmatrix}J_{\ell}\\
+J_{L}\end{bmatrix}^{\!\top}.
+(24)
+Thus, KL​ℓ=JL​Jℓ⊤K_{L\ell}=J_{L}J_{\ell}^{\top} is the cross-loop block of the empirical tangent kernel (Jacot et al., 2018).
+Proof of Theorem 1.
+For each d∈{ℓ,L}d\in\{\ell,L\}, apply equation 21 at θ=θt\theta=\theta_{t} with F=ℛdF=\mathcal{R}_{d} and Δ=−ηt​gt\Delta=-\eta_{t}g_{t}. This gives
+ℛd​(θt+1)−ℛd​(θt)≤−ηt​γd,t+βd​ηt22​‖gt‖22.\mathcal{R}_{d}(\theta_{t+1})-\mathcal{R}_{d}(\theta_{t})\leq-\eta_{t}\gamma_{d,t}+\frac{\beta_{d}\eta_{t}^{2}}{2}\|g_{t}\|_{2}^{2}.
+(25)
+Since γℓ,t>0\gamma_{\ell,t}>0 and γL,t>0\gamma_{L,t}>0, the step-size condition in equation 17 makes the right-hand side strictly negative for both d∈{ℓ,L}d\in\{\ell,L\}, proving Theorem 1.
+Proof of equation 18.
+Let z~d\widetilde{z}_{d} concatenate the logits on the fixed evaluation set ℰ\mathcal{E}, and let J~d=∂z~d/∂θ|θt\widetilde{J}_{d}=\partial\widetilde{z}_{d}/\partial\theta|_{\theta_{t}} and ad,t=∇z~dℛd|θta_{d,t}=\nabla_{\widetilde{z}_{d}}\mathcal{R}_{d}|_{\theta_{t}}.
+By the chain rule,
+γd,t=(J~d⊤​ad,t)⊤​Jℓ⊤​rt=ad,t⊤​J~d​Jℓ⊤​rt,d∈{ℓ,L},\gamma_{d,t}=\bigl(\widetilde{J}_{d}^{\top}a_{d,t}\bigr)^{\top}J_{\ell}^{\top}r_{t}=a_{d,t}^{\top}\widetilde{J}_{d}J_{\ell}^{\top}r_{t},\qquad d\in\{\ell,L\},
+(26)
+which proves equation 18.
+Cross-Loop Gradient Alignment.
+Consider binary next token prediction with a shared recurrent map and output head. Let token 11 be correct, with logits (a,0)(a,0) and probability σ⁡(a)=(1+e−a)−1\sigma(a)=(1+e^{-a})^{-1}. In both examples, we use a single fixed prefix cc with unit weight, only the scalar parameter θ\theta is trainable, and take
+ℛd​(θ)=−log⁡Pθ(d)​(1∣c).\mathcal{R}_{d}(\theta)=-\log P_{\theta}^{(d)}(1\mid c).
+For a positively aligned case, let h(0)=0h^{(0)}=0, h(k)=h(k−1)+θh^{(k)}=h^{(k-1)}+\theta, and use logits (h(d),0)(h^{(d)},0). Take ℓ=2\ell=2, L=4L=4, and θt>0\theta_{t}>0. Then p=σ⁡(2​θt)p=\sigma(2\theta_{t}) and q=σ⁡(4​θt)>pq=\sigma(4\theta_{t})>p. The stopped-target reverse-KL gradient is
+gt=2​p​(1−p)​(2​θt−4​θt)<0.g_{t}=2p(1-p)(2\theta_{t}-4\theta_{t})<0.
+(27)
+Thus a gradient step increases θ\theta, increasing the correct token probabilities at both depths and decreasing both negative log-likelihoods.
+For a contrasting case, consider
+h(0)=[00],h(k)=A​h(k−1)+θ​[10],A=[0−11−1],h^{(0)}=\begin{bmatrix}0\\
+0\end{bmatrix},\qquad h^{(k)}=Ah^{(k-1)}+\theta\begin{bmatrix}1\\
+0\end{bmatrix},\qquad A=\begin{bmatrix}0&-1\\
+1&-1\end{bmatrix},
+(28)
+with the shared head g⁡(h)=((1,−2)​h,0)g(h)=((1,-2)h,0). Direct substitution gives h(2)=(θ,θ)⊤h^{(2)}=(\theta,\theta)^{\top} and h(4)=(θ,0)⊤h^{(4)}=(\theta,0)^{\top}, so the correct token logits are −θ-\theta at loop 22 and θ\theta at loop 44. At θt=1\theta_{t}=1, p=σ⁡(−1)<q=σ⁡(1)p=\sigma(-1)<q=\sigma(1). The stopped-target gradient is
+gt=−p⁡(1−p)​(−1−1)=2​p​(1−p)>0,θt+1=1−ηt​gt<1.g_{t}=-p(1-p)(-1-1)=2p(1-p)>0,\qquad\theta_{t+1}=1-\eta_{t}g_{t}<1.
+(29)
+The student probability σ⁡(−θ)\sigma(-\theta) increases while the terminal probability σ⁡(θ)\sigma(\theta) decreases. Moreover, ℛℓ′​(1)=1−p>0\mathcal{R}^{\prime}_{\ell}(1)=1-p>0 and ℛL′​(1)=q−1<0\mathcal{R}^{\prime}_{L}(1)=q-1<0, giving γℓ,t>0\gamma_{\ell,t}>0 and γL,t<0\gamma_{L,t}<0. Thus, a stronger terminal teacher does not by itself imply γL,t>0\gamma_{L,t}>0.
+Appendix B Algorithms
+Algorithms 1 and 2 describe the training procedures in Sections 4.1 and 4.2. Each iteration samples GG responses for each of BB prompts, giving nt=B​Gn_{t}=BG responses. Teacher and student distributions are computed on the same student generated prefixes. OptimizerStep\operatorname{OptimizerStep} denotes one update with the chosen optimizer.
+Algorithm 1 LoopOPD: Cross-Loop On-Policy Distillation
+ 1:
+ Training prompts 𝒟\mathcal{D}; initial parameters θ0\theta_{0}; student depth ℓ<L\ell<L; terminal depth LL; prompt batch size BB; rollouts per prompt GG; number of updates TT; learning rates {ηt}t=0T−1\{\eta_{t}\}_{t=0}^{T-1}; optimizer.
+ 2:
+ Trained parameters θT\theta_{T}, defining
+πθT(ℓ)\pi_{\theta_{T}}^{(\ell)} and πθT(L)\pi_{\theta_{T}}^{(L)}.
+ 3:
+ Initialize the trainable LoopLM with θ0\theta_{0}.
+ 4:
+ Create a frozen teacher copy with θ¯0←θ0\bar{\theta}_{0}\leftarrow\theta_{0}.
+ 5:
+ for t=0,…,T−1t=0,\ldots,T-1 do
+ 6:
+ Student rollouts
+ 7:
+ Draw BB prompts x1,…,xBx_{1},\ldots,x_{B} from 𝒟\mathcal{D}.
+ 8:
+ for b=1,…,Bb=1,\ldots,B do
+ 9:
+ Sample y(b,s)∼πθt(ℓ)(⋅∣xb)y^{(b,s)}\sim\pi_{\theta_{t}}^{(\ell)}(\cdot\mid x_{b}),
+s=1,…,Gs=1,\ldots,G.
+ 10:
+ end for
+ 11:
+ Flatten the responses into
+ℬt={(x(j),y(j))}j=1nt\mathcal{B}_{t}=\{(x^{(j)},y^{(j)})\}_{j=1}^{n_{t}}, where nt=B​Gn_{t}=BG.
+ 12:
+ Set mj←|y(j)|m_{j}\leftarrow|y^{(j)}| and
+cj,i←(x(j),y<i(j))c_{j,i}\leftarrow(x^{(j)},y_{<i}^{(j)}) for j=1,…,ntj=1,\ldots,n_{t},
+i=1,…,mji=1,\ldots,m_{j}.
+ 13:
+ Frozen teacher targets
+ 14:
+ Evaluate the frozen teacher at depth LL on the batch prefixes.
+ 15:
+ qj,i​(v)←Pθ¯0(L)​(v∣cj,i)q_{j,i}(v)\leftarrow P_{\bar{\theta}_{0}}^{(L)}(v\mid c_{j,i}) for all (j,i)(j,i) and
+v∈𝒱v\in\mathcal{V}.
+ 16:
+ Evaluate the trainable LoopLM at depth ℓ\ell on the same prefixes.
+ 17:
+ pj,i​(v)←Pθt(ℓ)​(v∣cj,i)p_{j,i}(v)\leftarrow P_{\theta_{t}}^{(\ell)}(v\mid c_{j,i})
+for all (j,i)(j,i) and v∈𝒱v\in\mathcal{V}.
+ 18:
+ κj,i←∑v∈𝒱pj,i​(v)​log⁡pj,i​(v)qj,i​(v)\displaystyle\kappa_{j,i}\leftarrow\sum_{v\in\mathcal{V}}p_{j,i}(v)\log\frac{p_{j,i}(v)}{q_{j,i}(v)} for all (j,i)(j,i).
+ 19:
+ ℒt←1nt​∑j=1nt1mj​∑i=1mjκj,i\displaystyle\mathcal{L}_{t}\leftarrow\frac{1}{n_{t}}\sum_{j=1}^{n_{t}}\frac{1}{m_{j}}\sum_{i=1}^{m_{j}}\kappa_{j,i}.
+ 20:
+ gt←∇θℒt|θ=θtg_{t}\leftarrow\left.\nabla_{\theta}\mathcal{L}_{t}\right|_{\theta=\theta_{t}}.
+ 21:
+ θt+1←OptimizerStep⁡(θt,gt,ηt)\theta_{t+1}\leftarrow\operatorname{OptimizerStep}(\theta_{t},g_{t},\eta_{t}).
+ 22:
+ end for
+ 23:
+ return θT\theta_{T}.
+Algorithm 2 D-LoopOPD: Dynamic Cross-Loop On-Policy Distillation
+ 1:
+ Training prompts 𝒟\mathcal{D}; initial parameters θ0\theta_{0}; student depth ℓ<L\ell<L; terminal depth LL; prompt batch size BB; rollouts per prompt GG; number of updates TT; learning rates {ηt}t=0T−1\{\eta_{t}\}_{t=0}^{T-1}; optimizer.
+ 2:
+ Trained parameters θT\theta_{T}, defining
+πθT(ℓ)\pi_{\theta_{T}}^{(\ell)} and πθT(L)\pi_{\theta_{T}}^{(L)}.
+ 3:
+ Initialize the trainable LoopLM with θ0\theta_{0}.
+ 4:
+ for t=0,…,T−1t=0,\ldots,T-1 do
+ 5:
+ Student rollouts
+ 6:
+ Draw BB prompts x1,…,xBx_{1},\ldots,x_{B} from 𝒟\mathcal{D}.
+ 7:
+ for b=1,…,Bb=1,\ldots,B do
+ 8:
+ Sample y(b,s)∼πθt(ℓ)(⋅∣xb)y^{(b,s)}\sim\pi_{\theta_{t}}^{(\ell)}(\cdot\mid x_{b}),
+s=1,…,Gs=1,\ldots,G.
+ 9:
+ end for
+ 10:
+ Flatten the responses into
+ℬt={(x(j),y(j))}j=1nt\mathcal{B}_{t}=\{(x^{(j)},y^{(j)})\}_{j=1}^{n_{t}}, where nt=B​Gn_{t}=BG.
+ 11:
+ Set mj←|y(j)|m_{j}\leftarrow|y^{(j)}| and
+cj,i←(x(j),y<i(j))c_{j,i}\leftarrow(x^{(j)},y_{<i}^{(j)}) for j=1,…,ntj=1,\ldots,n_{t},
+i=1,…,mji=1,\ldots,m_{j}.
+ 12:
+ Current teacher targets
+ 13:
+ Evaluate the trainable LoopLM at depth LL on the batch prefixes.
+ 14:
+ qj,i​(v)←sg⁡[Pθt(L)​(v∣cj,i)]q_{j,i}(v)\leftarrow\operatorname{sg}\!\left[P_{\theta_{t}}^{(L)}(v\mid c_{j,i})\right]
+for all (j,i)(j,i) and v∈𝒱v\in\mathcal{V}.
+ 15:
+ Evaluate the trainable LoopLM at depth ℓ\ell on the same prefixes.
+ 16:
+ pj,i​(v)←Pθt(ℓ)​(v∣cj,i)p_{j,i}(v)\leftarrow P_{\theta_{t}}^{(\ell)}(v\mid c_{j,i})
+for all (j,i)(j,i) and v∈𝒱v\in\mathcal{V}.
+ 17:
+ κj,i←∑v∈𝒱pj,i​(v)​log⁡pj,i​(v)qj,i​(v)\displaystyle\kappa_{j,i}\leftarrow\sum_{v\in\mathcal{V}}p_{j,i}(v)\log\frac{p_{j,i}(v)}{q_{j,i}(v)} for all (j,i)(j,i).
+ 18:
+ ℒt←1nt​∑j=1nt1mj​∑i=1mjκj,i\displaystyle\mathcal{L}_{t}\leftarrow\frac{1}{n_{t}}\sum_{j=1}^{n_{t}}\frac{1}{m_{j}}\sum_{i=1}^{m_{j}}\kappa_{j,i}.
+ 19:
+ gt←∇θℒt|θ=θtg_{t}\leftarrow\left.\nabla_{\theta}\mathcal{L}_{t}\right|_{\theta=\theta_{t}}.
+ 20:
+ θt+1←OptimizerStep⁡(θt,gt,ηt)\theta_{t+1}\leftarrow\operatorname{OptimizerStep}(\theta_{t},g_{t},\eta_{t}).
+ 21:
+ Use πθt+1(L)\pi_{\theta_{t+1}}^{(L)} as the teacher for the next iteration.
+ 22:
+ end for
+ 23:
+ return θT\theta_{T}.
+Appendix C Supplementary Experiments
+C.1 Additional Training Dynamics
+Validation Performance.
+Table 4 reports the exact AIME 2024 validation Avg@16 values corresponding to Figure 3 (a) for Ouro-2.6B-Thinking at the student loop ℓ=2\ell=2.
+Table 4: AIME 2024 validation Avg@16 during training for Ouro-2.6B-Thinking at student loop ℓ=2\ell=2. Best results at each training step are shown in bold.
+Method
+Step 20
+Step 40
+Step 60
+Step 80
+Step 100
+LoopOPD
+39.37
+40.00
+42.08
+40.62
+45.62
+D-LoopOPD
+41.46
+40.20
+46.25
+44.79
+47.50
+Response Length and Truncation Rate.
+Figure 6 compares response length during training, while Figure 7 reports the rollout truncation rate.
+Due to the GPU memory overhead of retaining learning signals across recurrent loops, we follow the original RLTT training configuration and use a maximum rollout length of 2,048 tokens for RLTT, while LoopOPD and D-LoopOPD use 31,744 tokens.
+RLTT produces substantially shorter responses and exhibits a substantially higher truncation rate throughout training. In contrast, LoopOPD and D-LoopOPD generate much longer responses while maintaining near zero truncation. This behavior is consistent with the decode budget results in Appendix C.3, where RLTT performs strongly under short decode budgets but saturates as the budget increases, while D-LoopOPD continues to benefit from longer generation. Training RLTT with 31,744 token rollouts exceeded our available memory budget, highlighting the practical limitation of extending per loop reward supervision to long rollouts.
+Figure 6: Response length during training for Ouro-2.6B-Thinking. Left: LoopOPD and D-LoopOPD. Right: RLTT. LoopOPD and D-LoopOPD use a maximum rollout length of 31,744 tokens, while RLTT uses 2,048 tokens.
+Figure 7: Rollout truncation rate during training for Ouro-2.6B-Thinking.
+RLTT exhibits substantially higher truncation than LoopOPD and D-LoopOPD throughout training.
+C.2 Cross-Loop Performance
+Table 5 reports the exact values corresponding to the cross-loop results shown in Figure 3 (b). We evaluate each loop depth of Ouro-2.6B-Thinking on AIME 2024 using a maximum response length of 31,744 tokens. Each entry reports Avg@16 / Pass@16.
+Table 5: Cross-loop performance on AIME 2024 for Ouro-2.6B-Thinking. Best results at each loop depth are shown in bold.
+Method
+Loop 1
+Loop 2
+Loop 3
+Loop 4
+Base
+0.63 / 3.33
+39.16 / 73.33
+61.46 / 83.33
+62.08 / 83.33
+RLTT
+0.00 / 0.00
+26.87 / 63.33
+49.58 / 80.00
+56.67 / 83.33
+GRPO
+0.42 / 3.33
+41.88 / 73.33
+62.92 / 83.33
+62.92 / 86.67
+LoopOPD
+1.25 / 10.00
+45.62 / 76.67
+63.33 / 83.33
+65.21 / 90.00
+D-LoopOPD
+1.88 / 10.00
+47.50 / 80.00
+66.87 / 86.67
+71.67 / 90.00
+C.3 Effect of Decode Budget
+Figure 8 shows AIME 2024 Avg@16 of Ouro-2.6B-Thinking under different maximum decode budgets, with exact values reported in Table 6. RLTT performs better under short decode budgets, but its gains diminish as the budget increases. D-LoopOPD overtakes RLTT at 16K tokens and continues to improve at 31K, reaching 71.67 Avg@16 compared with 56.67 for RLTT. Notably, RLTT also falls below the vanilla model at both 16K and 31K, indicating a degradation in its ability to benefit from longer reasoning trajectories. In contrast, D-LoopOPD exceeds the vanilla model across all decode budgets and outperforms it from 2K onward, suggesting that its gains do not come at the cost of long budget reasoning capability. These results are consistent with the response length and truncation behavior in Figures 6 and 7: RLTT favors short generation under its constrained rollout budget, whereas D-LoopOPD continues to benefit from longer generation.
+Figure 8: Effect of decode budget on AIME 2024 performance for Ouro-2.6B-Thinking.
+Avg@16 is evaluated under maximum decode budgets ranging from 1K to 31K tokens.
+Table 6: AIME 2024 Avg@16 under different maximum decode budgets for Ouro-2.6B-Thinking. Best results at each decode budget are shown in bold.
+Method
+1K
+2K
+4K
+8K
+16K
+31K
+Base
+0.00
+3.75
+13.95
+32.29
+55.00
+62.08
+RLTT
+4.38
+23.33
+34.16
+45.21
+53.95
+56.67
+D-LoopOPD
+0.00
+3.96
+16.87
+36.45
+58.33
+71.67
+Appendix D Implementation Details
+D.1 Training Configuration
+We detail the training configurations used throughout our experiments in Table 7. All post-training methods use DAPO-Math-17k as the training dataset, with its basic statistics summarized in Table 8. Each training run uses 4 NVIDIA H200 GPUs. For OPSD, we follow the original setup, using a maximum sequence length of 20,000 and a maximum rollout length of 1,024 tokens.
+RLTT uses a maximum rollout length of 2,048 tokens and AdamW8bit, following its original training configuration, consistent with the higher GPU memory usage associated with retaining learning signals across recurrent loops. We use uniform weights across recurrent loops.
+LoopOPD and D-LoopOPD use student depth ℓ=2\ell=2 and terminal depth L=4L=4.
+Table 7: Training and validation hyperparameters for different methods.
+Hyperparameter
+GRPO
+RLTT
+OPD
+OPSD
+LoopOPD
+D-LoopOPD
+General
+Max Prompt Length
+1024
+1024
+1024
+–
+1024
+1024
+Optimization
+Global Batch Size
+256
+512
+256
+32
+256
+256
+Prompts per Rollout Batch
+32
+32
+32
+32
+32
+32
+Group Rollout Size
+8
+8
+8
+1
+8
+8
+Gradient Accumulation
+1
+2
+1
+1
+1
+1
+Optimizer
+AdamW
+AdamW8bit
+AdamW
+AdamW
+AdamW
+AdamW
+Learning Rate
+1×10−61\times 10^{-6}
+1×10−61\times 10^{-6}
+1×10−61\times 10^{-6}
+5×10−65\times 10^{-6}
+1×10−61\times 10^{-6}
+1×10−61\times 10^{-6}
+Warmup
+10 steps
+10%
+–
+–
+–
+10 steps
+Weight Decay
+0.1
+0.1
+0.01
+0
+0.01
+0.01
+Sampling
+Rollout Max Response Length
+31744
+2048
+31744
+1024
+31744
+31744
+Rollout Temperature
+1.0
+1.0
+1.0
+1.1
+1.0
+1.0
+Rollout Top-pp
+1.0
+1.0
+1.0
+0.95
+1.0
+1.0
+Validation Max Response Length
+31744
+31744
+31744
+31744
+31744
+31744
+Validation Temperature
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+Validation Top-pp
+0.7
+0.7
+0.7
+0.7
+0.7
+0.7
+Validation Samples per Problem
+16
+16
+16
+16
+16
+16
+Method Specific
+Student Depth ℓ\ell
+–
+–
+4
+4
+2
+2
+Teacher Depth LL
+–
+–
+4
+4
+4
+4
+Frozen Teacher
+–
+–
+Yes
+Yes
+Yes
+No
+External Teacher
+–
+–
+Yes
+No
+No
+No
+Privileged Information
+–
+–
+No
+Yes
+No
+No
+Table 8: Training dataset used for post-training.
+Dataset
+Split
+# Examples
+Domain
+Answer Type
+DAPO-Math-17k
+Train
+17,398
+Mathematical Reasoning
+Integer Ground Truth
+D.2 Evaluation Protocol
+Table 9 summarizes the evaluation protocols used throughout our experiments. For mathematical reasoning benchmarks, we use zero-shot generation with thinking enabled. For MMLU, we use the standard 5-shot multiple-choice log-likelihood evaluation, while code generation benchmarks are evaluated using EvalPlus.
+Mathematical Reasoning.
+For all mathematical reasoning benchmarks, each example is provided as a single user message containing the original problem followed by:
+Mathematical Reasoning Prompt
+{problem}
+Please reason step by step, and put your final answer within
+\boxed{}.
+For AIME 2024, AIME 2025, and AIME 2026, we evaluate all 30 problems from each benchmark under the same protocol. Each problem is evaluated with 16 sampled completions using temperature 1.01.0, top-pp 0.70.7, and a maximum of 31,744 generated tokens. We extract the final boxed answer and determine correctness using numerical and symbolic mathematical equivalence. We report two metrics. Avg@16 is the fraction of correct completions among the 30×16=48030\times 16=480 generated responses for each benchmark. Pass@16 is the fraction of the 30 problems for which at least one of the 16 completions is correct.
+For OlympiadBench, we evaluate 675 text-based mathematical problems. For BeyondAIME, we use the official test split containing 100 problems. Both benchmarks use temperature 1.01.0, top-pp 0.70.7, and a maximum of 31,744 generated tokens.
+MMLU.
+We evaluate MMLU using lm-eval-harness on the full test split of 14,042 questions across 57 subjects. We use five demonstrations from the development split of each subject together with the subject description. The prompt is formatted as:
+MMLU Prompt
+{subject description}
+{five demonstrations}
+{question}
+A. {choice_0}
+B. {choice_1}
+C. {choice_2}
+D. {choice_3}
+Answer:
+We select the candidate with the highest log-likelihood among A, B, C, and D.
+Code Generation.
+We evaluate MBPP, MBPP+, HumanEval, and HumanEval+ using EvalPlus. MBPP and MBPP+ contain 378 problems, while HumanEval and HumanEval+ contain 164 problems. For each problem, we generate one program and use it to compute both the original and “+” benchmark scores. The original benchmark uses the base test suite, while the “+” variant additionally includes the extended tests. We use greedy decoding with one generated solution per problem and a maximum of 768 new tokens.
+The prompt is formatted as:
+Code Generation Prompt
+User:
+Please provide a self-contained Python script that solves the following problem in a markdown code block:
+‘‘‘
+{task prompt}
+‘‘‘
+Assistant:
+Below is a Python script with a self-contained function that solves the problem and passes corresponding tests:
+‘‘‘python
+Table 9: Evaluation settings for different benchmarks.
+Benchmark
+# Examples
+Decoding / Scoring
+Max New Tokens
+Metric
+AIME 2024
+30
+T=1.0T=1.0, p=0.7p=0.7, n=16n=16
+31,744
+Avg@16 / Pass@16
+AIME 2025
+30
+T=1.0T=1.0, p=0.7p=0.7, n=16n=16
+31,744
+Avg@16 / Pass@16
+AIME 2026
+30
+T=1.0T=1.0, p=0.7p=0.7, n=16n=16
+31,744
+Avg@16 / Pass@16
+OlympiadBench
+675
+T=1.0T=1.0, p=0.7p=0.7, n=1n=1
+31,744
+Accuracy
+BeyondAIME
+100
+T=1.0T=1.0, p=0.7p=0.7, n=1n=1
+31,744
+Accuracy
+MMLU
+14,042
+Candidate log-likelihood
+–
+Accuracy
+MBPP
+378
+Greedy, n=1n=1
+768
+Pass@1
+MBPP+
+378
+Greedy, n=1n=1
+768
+Pass@1
+HumanEval
+164
+Greedy, n=1n=1
+768
+Pass@1
+HumanEval+
+164
+Greedy, n=1n=1
+768
+Pass@1
+Appendix E Case Study
+We present a qualitative case study to compare the reasoning behaviors of the vanilla model and the D-LoopOPD trained model.
+Question and Ground Truth
+Question:
+Let b≥2b\geq 2 be an integer. Call a positive integer nn b​-​𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙b\text{-}\mathit{eautiful} if it has exactly two digits when expressed in base bb and these two digits sum to n\sqrt{n}. For example, 8181 is 13​-​𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙13\text{-}\mathit{eautiful} because 81=6¯​3¯1381=\underline{6}\;\underline{3}_{13} and 6+3=816+3=\sqrt{81}. Find the least integer b≥2b\geq 2 for which there are more than ten b​-​𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙b\text{-}\mathit{eautiful} integers.
+Ground Truth: 211211
+Response from Vanilla Model
+Okay, so I need to find the smallest integer bb (where bb is at least 2) such that there are more than ten bb-eautiful numbers. A bb-eautiful number is a two-digit number in base bb where the sum of its digits equals the square root of the number itself. The example given is 81 in base 13, which is written as 63 in base 13, and 6+3=96+3=9, which is 81\sqrt{81}.
+Let me formalize this. For each base bb, we need to find all pairs of digits (a,c)(a,c) where aa is between 1 and b−1b-1 (since it’s the leading digit in a two-digit number), and cc is between 0 and b−1b-1. Then, the number nn is a⋅b+ca\cdot b+c, and we require that a+c=na+c=\sqrt{n}.
+So, substituting nn into the equation: a+c=a⋅b+ca+c=\sqrt{a\cdot b+c}. Let’s square both sides to eliminate the square root: (a+c)2=a⋅b+c(a+c)^{2}=a\cdot b+c.
+Expanding the left side: a2+2​a​c+c2=a⋅b+ca^{2}+2ac+c^{2}=a\cdot b+c.
+Rearranging terms: a2+2​a​c+c2−a⋅b−c=0a^{2}+2ac+c^{2}-a\cdot b-c=0.
+Hmm, this seems a bit complicated. Maybe there’s a better way to approach this. Let’s see.
+Alternatively, since aa and cc are digits in base bb, their possible values are limited. For a given base bb, aa can be from 1 to b−1b-1, and cc can be from 0 to b−1b-1. So, for each base bb, we can iterate over all possible aa and cc, compute n=a⋅b+cn=a\cdot b+c, check if a+ca+c equals n\sqrt{n}, and count how many such numbers exist. Then, we need to find the smallest bb where this count exceeds 10.
+But since we need to find the minimal bb where the count is more than ten, maybe there’s a pattern or formula we can derive instead of brute-forcing for each bb. Let’s see.
+Starting with the equation: (a+c)2=a⋅b+c(a+c)^{2}=a\cdot b+c. Let’s denote s=a+cs=a+c. Then, s2=a⋅b+cs^{2}=a\cdot b+c. But since s=a+cs=a+c, we can express cc as s−as-a. Substituting into the equation: s2=a⋅b+(s−a)s^{2}=a\cdot b+(s-a). Simplify this: s2=a⋅b+s−as^{2}=a\cdot b+s-a. Rearranging terms: s2−s=a⋅(b−1)s^{2}-s=a\cdot(b-1). Therefore, a=(s2−s)/(b−1)a=(s^{2}-s)/(b-1).
+Since aa must be a positive integer between 1 and b−1b-1, the right-hand side must also be an integer in that range. So, (s2−s)(s^{2}-s) must be divisible by (b−1)(b-1), and the result must be between 1 and b−1b-1.
+So, for each possible ss, we can compute aa and check if it’s valid. Then, c=s−ac=s-a, which must be between 0 and b−1b-1.
+Wait, but in the example given, 81 is a bb-eautiful number where b=13b=13. 81=9\sqrt{81}=9, which is equal to the sum of digits 6+36+3. So, in that case, s=9s=9, which is equal to n\sqrt{n}. So, ss must be an integer such that s2s^{2} is a two-digit number in base bb. So, s2s^{2} must be between bb and b2−1b^{2}-1. Therefore, ss must satisfy b≤s≤b−1\sqrt{b}\leq s\leq b-1. Because s2≤b2−1s^{2}\leq b^{2}-1 implies s≤b−1s\leq b-1 (since ss is integer). Therefore, ss ranges from ⌈b⌉\lceil\sqrt{b}\rceil to b−1b-1.
+Therefore, for each base bb, ss can be from ⌈b⌉\lceil\sqrt{b}\rceil to b−1b-1. For each such ss, we can compute a=(s2−s)/(b−1)a=(s^{2}-s)/(b-1). Then, check if aa is an integer between 1 and b−1b-1, and c=s−ac=s-a is between 0 and b−1b-1.
+So, the number of bb-eautiful numbers is the number of ss in [⌈b⌉,b−1][\lceil\sqrt{b}\rceil,b-1] such that (s2−s)(s^{2}-s) is divisible by (b−1)(b-1), and the resulting aa and cc are valid digits.
+…
+b=7b=7: smin=⌈7⌉=3s_{\min}=\lceil\sqrt{7}\rceil=3; smax=6s_{\max}=6; s=3,4,5,6s=3,4,5,6.
+s=3s=3: numerator=9−3=6\mathrm{numerator}=9-3=6; b−1=6b-1=6; 6/6=16/6=1; a=1a=1; c=3−1=2c=3-1=2; Check a=1a=1 valid, c=2c=2 valid. n=1⋅7+2=9n=1\cdot 7+2=9. Check 1+2=3=91+2=3=\sqrt{9}. Yes. Count =1=1.
+s=4s=4: numerator=16−4=12\mathrm{numerator}=16-4=12; 12/6=212/6=2; a=2a=2; c=4−2=2c=4-2=2; Check a=2a=2 valid, c=2c=2 valid. n=2⋅7+2=16n=2\cdot 7+2=16. Check 2+2=4=162+2=4=\sqrt{16}. Yes. Count =2=2.
+s=5s=5: numerator=25−5=20\mathrm{numerator}=25-5=20; 20/6≈3.33320/6\approx 3.333, invalid.
+s=6s=6: numerator=36−6=30\mathrm{numerator}=36-6=30; 30/6=530/6=5; a=5a=5; c=6−5=1c=6-5=1; Check a=5a=5 valid, c=1c=1 valid. n=5⋅7+1=36n=5\cdot 7+1=36. Check 5+1=6=365+1=6=\sqrt{36}. Yes. Count =3=3. So, for b=7b=7, count =3=3.
+…
+Let’s denote k=b−1k=b-1. Then, we need (s2−s)(s^{2}-s) divisible by kk. So, kk divides s⁡(s−1)s(s-1). Therefore, kk must be a divisor of s⁡(s−1)s(s-1). Since ss and s−1s-1 are consecutive integers, they are coprime. Therefore, kk must be a product of divisors of ss and s−1s-1. But since ss and s−1s-1 are coprime, the divisors of kk must be products of divisors of ss and s−1s-1.
+Alternatively, for each kk, the number of ss in [⌈k+1⌉,k][\lceil\sqrt{k+1}\rceil,k] such that kk divides s⁡(s−1)s(s-1). Let’s compute this for k=24k=24 (b=25b=25): ss ranges from 5 to 24. We need 24 divides s⁡(s−1)s(s-1). Since 24=8⋅324=8\cdot 3, and ss and s−1s-1 are coprime, one of them must be divisible by 8 and the other by 3.
+Annotation: Both 8 and 3 can divide the same number. This misses s=24s=24.
+So, either s≡0(mod8)s\equiv 0\pmod{8} and s≡1(mod3)s\equiv 1\pmod{3}, or s≡1(mod8)s\equiv 1\pmod{8} and s≡0(mod3)s\equiv 0\pmod{3}. Let’s solve these congruences.
+Case 1: s≡0(mod8)s\equiv 0\pmod{8} and s≡1(mod3)s\equiv 1\pmod{3}.
+Let s=8​ms=8m. Then, 8​m≡1(mod3)⇒2​m≡1(mod3)⇒m≡2(mod3)8m\equiv 1\pmod{3}\Rightarrow 2m\equiv 1\pmod{3}\Rightarrow m\equiv 2\pmod{3}. So, m=3​n+2m=3n+2. Therefore, s=8⋅(3​n+2)=24​n+16s=8\cdot(3n+2)=24n+16. Within s≤24,n=0s\leq 24,n=0: s=16s=16; n=1n=1: s=40s=40 (too big). So, s=16s=16.
+Case 2: s≡1(mod8)s\equiv 1\pmod{8} and s≡0(mod3)s\equiv 0\pmod{3}.
+Let s=8​m+1s=8m+1. Then, 8​m+1≡0(mod3)⇒2​m+1≡0(mod3)⇒2​m≡−1≡2(mod3)⇒m≡1(mod3)8m+1\equiv 0\pmod{3}\Rightarrow 2m+1\equiv 0\pmod{3}\Rightarrow 2m\equiv-1\equiv 2\pmod{3}\Rightarrow m\equiv 1\pmod{3}. So, m=3​n+1m=3n+1. Therefore, s=8⋅(3​n+1)+1=24​n+9s=8\cdot(3n+1)+1=24n+9. Within s≤24,n=0s\leq 24,n=0: s=9s=9; n=1n=1: s=33s=33 (too big). So, s=9s=9.
+Therefore, for k=24k=24, the possible ss are 9 and 16. Then, check if these ss’s give valid aa and cc.
+For s=9s=9: a=(81−9)/24=72/24=3a=(81-9)/24=72/24=3; c=9−3=6c=9-3=6; Check a=3a=3 is between 1 and 24 (valid), c=6c=6 is between 0 and 24 (valid). So, n=3⋅25+6=81n=3\cdot 25+6=81. Valid.
+For s=16s=16: a=(256−16)/24=240/24=10a=(256-16)/24=240/24=10; c=16−10=6c=16-10=6; Check a=10a=10 valid, c=6c=6 valid. n=10⋅25+6=256n=10\cdot 25+6=256. Valid.
+…
+s=24s=24: numerator=576−24=552,552/24=23,a=23,c=1\mathrm{numerator}=576-24=552,552/24=23,a=23,c=1. Valid.
+…
+Therefore, our earlier analysis missed s=24s=24 because we considered only s=9s=9 and 16. But s=24s=24 also works. Therefore, the number of solutions is more than 2.
+Therefore, the earlier approach of solving congruences missed some cases. So, perhaps the number of solutions is equal to the number of divisors of k=b−1k=b-1 that divide ss or s−1s-1.
+Alternatively, since kk divides s⁡(s−1)s(s-1), and ss and s−1s-1 are coprime, then kk must divide ss or kk divides s−1s-1.
+Wait, no. Since ss and s−1s-1 are coprime, kk must divide ss or kk divides s−1s-1. Because if a prime divides kk, it can divide either ss or s−1s-1, but not both. Therefore, kk must be a product of divisors of ss and s−1s-1. But since ss and s−1s-1 are coprime, kk must be a product of divisors of ss and divisors of s−1s-1. Therefore, the number of solutions ss is equal to the number of ways to write kk as a product of two coprime factors, one dividing ss and the other dividing s−1s-1.
+Annotation: For k=24k=24 and s=9s=9, 24|9⋅824\mid 9\cdot 8, but 24 divides neither 9 nor 8.
+Therefore, the number of solutions ss is equal to 2m−12^{m-1}, where mm is the number of distinct prime factors of kk.
+Because each prime factor can go to either ss or s−1s-1, but since they are coprime, each prime must go entirely to one or the other. Therefore, the number of solutions is 2m−12^{m-1}, but this might not be exact.
+Annotation: There are 2m2^{m} solutions modulo kk, and 2m−12^{m}-1 valid values after excluding s=1s=1.
+Wait, for example, if k=24=23⋅3k=24=2^{3}\cdot 3, then the number of ways to split the prime factors into ss and s−1s-1. Since ss and s−1s-1 are coprime, all factors of 2 must go to one of them, and all factors of 3 must go to the other. So, either ss is divisible by 232^{3} and 3, and s−1s-1 is 1, which is impossible since s≥2s\geq 2. Or, ss is divisible by 232^{3} and s−1s-1 is divisible by 3. Or, ss is divisible by 3 and s−1s-1 is divisible by 232^{3}. So, two possibilities. Therefore, the number of solutions is 2. But in reality, for k=24k=24, we have three solutions: s=9,16,24s=9,16,24. So, this approach is not capturing all possibilities.
+Annotation: Assigning no factor to s−1s-1 only requires divisibility by 1, not s−1=1s-1=1. For s=24s=24, s−1=23s-1=23 is allowed.
+Alternatively, maybe the number of solutions is equal to the number of divisors of kk. For example, k=24k=24 has divisors 1, 2, 3, 4, 6, 8, 12, 24. But this doesn’t directly relate.
+Alternatively, perhaps the number of solutions is equal to the number of divisors of kk that are less than or equal to kk. But this is vague.
+…
+Let’s check b=121b=121 (b−1=120b-1=120). 120 has many divisors: 1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 24, 30, 40, 60, 120. So, 16 divisors. Let’s see if this leads to more than ten solutions.
+For b=121,k=120b=121,k=120. We need to find ss in [⌈121⌉,120]=[11,120][\lceil\sqrt{121}\rceil,120]=[11,120] such that 120 divides s⁡(s−1)s(s-1).
+120=23⋅3⋅5120=2^{3}\cdot 3\cdot 5. Since ss and s−1s-1 are coprime, the factors of 120 must be split between ss and s−1s-1. Each prime factor must go entirely to one or the other.
+Possible splits:
+ss divisible by 8​(23),38(2^{3}),3, and 5, and s−1=1s-1=1. But s−1=1⇒s=2s-1=1\Rightarrow s=2, which is too small.
+ss divisible by 8 and 3, and s−1s-1 divisible by 5.
+ss divisible by 8 and 5, and s−1s-1 divisible by 3.
+ss divisible by 3 and 5, and s−1s-1 divisible by 8.
+ss divisible by 24​(8⋅3)24(8\cdot 3), and s−1s-1 divisible by 5.
+ss divisible by 40​(8⋅5)40(8\cdot 5), and s−1s-1 divisible by 3.
+ss divisible by 15​(3⋅5)15(3\cdot 5), and s−1s-1 divisible by 8.
+ss divisible by 120, and s−1=1s-1=1. s=121s=121, which is too big.
+Annotation: Several splits are repeated; the opposite assignments giving s=16,25,81s=16,25,81 are missing. Also, s−1=1s-1=1 gives s=2s=2, not 121.
+Let’s solve these congruences.
+Case 1: s≡0(mod24)s\equiv 0\pmod{24} and s≡1(mod5)s\equiv 1\pmod{5}.
+Let s=24​ms=24m. Then, 24​m≡1(mod5)⇒24​m≡1(mod5)⇒4​m≡1(mod5)⇒m≡4(mod5)24m\equiv 1\pmod{5}\Rightarrow 24m\equiv 1\pmod{5}\Rightarrow 4m\equiv 1\pmod{5}\Rightarrow m\equiv 4\pmod{5}. So, m=5​n+4m=5n+4. Therefore, s=24⋅(5​n+4)=120​n+96s=24\cdot(5n+4)=120n+96. Within s≤120,n=0s\leq 120,n=0: s=96s=96; n=1n=1: s=216s=216 (too big). So, s=96s=96.
+Case 2: s≡0(mod40)s\equiv 0\pmod{40} and s≡1(mod3)s\equiv 1\pmod{3}.
+Let s=40​ms=40m. Then, 40​m≡1(mod3)⇒1​m≡1(mod3)⇒m≡1(mod3)40m\equiv 1\pmod{3}\Rightarrow 1m\equiv 1\pmod{3}\Rightarrow m\equiv 1\pmod{3}. So, m=3​n+1m=3n+1. Therefore, s=40⋅(3​n+1)=120​n+40s=40\cdot(3n+1)=120n+40. Within s≤120,n=0s\leq 120,n=0: s=40s=40; n=1n=1: s=160s=160 (too big). So, s=40s=40.
+Case 3: s≡0(mod15)s\equiv 0\pmod{15} and s≡1(mod8)s\equiv 1\pmod{8}.
+Let s=15​ms=15m. Then, 15​m≡1(mod8)⇒7​m≡1(mod8)⇒m≡7(mod8)15m\equiv 1\pmod{8}\Rightarrow 7m\equiv 1\pmod{8}\Rightarrow m\equiv 7\pmod{8}. So, m=8​n+7m=8n+7. Therefore, s=15⋅(8​n+7)=120​n+105s=15\cdot(8n+7)=120n+105. Within s≤120,n=0s\leq 120,n=0: s=105s=105; n=1n=1: s=225s=225 (too big). So, s=105s=105.
+Case 4: ss divisible by 8, 3, and 5. s=120s=120, which is too big.
+Case 5: s=120s=120, which is too big.
+Annotation: The upper endpoint s=120s=120 is included in [11,120][11,120].
+Additionally, check if s=120s=120 is allowed. s=120,s−1=119s=120,s-1=119. 120 divides 120⋅119=14280120\cdot 119=14280. 14280/120=11914280/120=119, which is integer. So, s=120s=120 is a solution.
+Therefore, solutions are s=96,40,105,120s=96,40,105,120.
+Check if these give valid aa and cc.
+For s=96s=96: a=(962−96)/120=(9216−96)/120=9120/120=76a=(96^{2}-96)/120=(9216-96)/120=9120/120=76; c=96−76=20c=96-76=20; Check a=76a=76 valid (b=121,a≤120),c=20(b=121,a\leq 120),c=20 valid. n=76⋅121+20=9216n=76\cdot 121+20=9216. Check 76+20=96=921676+20=96=\sqrt{9216}. Yes.
+For s=40s=40: a=(1600−40)/120=1560/120=13a=(1600-40)/120=1560/120=13; c=40−13=27c=40-13=27; Check a=13a=13 valid, c=27c=27 valid. n=13⋅121+27=1580n=13\cdot 121+27={\color[rgb]{0.75,0,0}1580}. Check 13+27=40=160013+27=40=\sqrt{1600}. Yes.
+Annotation: 13⋅121+27=160013\cdot 121+27=1600, not 1580.
+For s=105s=105: a=(11025−105)/120=10920/120=91a=(11025-105)/120=10920/120=91; c=105−91=14c=105-91=14; Check a=91a=91 valid, c=14c=14 valid. n=91⋅121+14=11025n=91\cdot 121+14=11025. Check 91+14=105=1102591+14=105=\sqrt{11025}. Yes.
+For s=120s=120: a=(14400−120)/120=14280/120=119a=(14400-120)/120=14280/120=119; c=120−119=1c=120-119=1; Check a=119a=119 valid, c=1c=1 valid. n=119⋅121+1=14400n=119\cdot 121+1=14400. Check 119+1=120=14400119+1=120=\sqrt{14400}. Yes.
+So, count =4=4 for b=121b=121. Still low.
+Annotation: The correct count is 23−1=72^{3}-1=7, not 4.
+This suggests that even with b=121b=121, we only get 4 solutions. Therefore, we need to consider even larger bb.
+Alternatively, maybe the number of solutions increases with the number of divisors of (b−1)(b-1). For example, if (b−1)=60(b-1)=60, which has 12 divisors, perhaps the count is higher.
+But manually checking each bb is impractical. Given the time I’ve spent and the lack of progress, I think the answer is likely b=121b=121, but according to our previous calculation, it only gives 4 solutions. Therefore, I must have made a mistake in my approach.
+Annotation: Even the correct count of 7 is below the required 11.
+Wait, perhaps the key is to realize that for each divisor dd of (b−1)(b-1), there corresponds a solution s=ds=d and s−1=(b−1)/ds-1=(b-1)/d, but this requires that d−1=(b−1)/dd-1=(b-1)/d, which is a quadratic equation. Solving d2−d−(b−1)=0d^{2}-d-(b-1)=0.
+Annotation: The factors must divide ss and s−1s-1; they need not equal them.
+…
+None of these give integer bb. Therefore, there are no solutions where ss and s−1s-1 are divisors of (b−1)(b-1) in this way. Therefore, this approach doesn’t yield solutions.
+Annotation: This family is not empty: s=d=2s=d=2, b=3b=3 gives the valid number n=4n=4.
+Given that I’m stuck, I’ll look for patterns in the counts we have:
+…
+[Response truncated here; no final answer is provided.]
+Response from D-LoopOPD
+Okay, so I need to find the smallest integer b≥2b\geq 2 such that there are more than ten bb-beautiful numbers. A bb-beautiful number is a two-digit number in base bb where the sum of its digits equals the square root of the number itself. The example given is 81 being 13-beautiful because in base 13, 81 is written as 63 (since 6×13+3=816\times 13+3=81), and 6 + 3 = 9, which is 81\sqrt{81}.
+First, let me make sure I understand the problem correctly. A two-digit number in base bb has the form x​y¯b\overline{xy}_{b}, which translates to x×b+yx\times b+y in decimal. The condition is that the sum of the digits x+yx+y equals the square root of the number n=x×b+yn=x\times b+y. Therefore, the equation we need is:
+x+y=n=x×b+yx+y=\sqrt{n}=\sqrt{x\times b+y}
+Since nn must be a perfect square (because its square root is an integer), x×b+yx\times b+y must be a perfect square. Also, since x​y¯b\overline{xy}_{b} is a two-digit number in base bb, xx must be between 1 and b−1b-1, and yy must be between 0 and b−1b-1.
+So, to find all bb-beautiful numbers, we can set up the equation:
+(x+y)2=x×b+y(x+y)^{2}=x\times b+y
+Let me rearrange this equation to make it easier to handle. Let’s denote s=x+ys=x+y, so the equation becomes:
+s2=x×b+ys^{2}=x\times b+y
+But since s=x+ys=x+y, we can substitute y=s−xy=s-x into the equation:
+s2=x×b+(s−x),s^{2}=x\times b+(s-x),
+s2=x×(b−1)+s,s^{2}=x\times(b-1)+s,
+s2−s=x×(b−1),s^{2}-s=x\times(b-1),
+x=s2−sb−1.x=\frac{s^{2}-s}{b-1}.
+Since xx must be a positive integer between 1 and b−1b-1, the right-hand side must also be an integer in that range. Let’s note that x=s⁡(s−1)b−1x=\frac{s(s-1)}{b-1}.
+Therefore, for each possible ss, we can compute xx and check if it’s an integer in the valid range. Also, y=s−xy=s-x must be between 0 and b−1b-1.
+…
+Alternatively, since s=x+ys=x+y, and x≥1x\geq 1, y≥0y\geq 0, so s≥1s\geq 1. But given that n=s2n=s^{2}, which is a two-digit number in base bb, so n≥bn\geq b (since the smallest two-digit number in base bb is 10b=b10_{b}=b). Therefore, s2≥b⟹s≥bs^{2}\geq b\implies s\geq\sqrt{b}. Since ss must be an integer, so s≥⌈b⌉s\geq\lceil\sqrt{b}\rceil.
+But also, since n=x×b+y≤(b−1)×b+(b−1)=b2−1n=x\times b+y\leq(b-1)\times b+(b-1)=b^{2}-1. Therefore, s2≤b2−1⟹s≤⌊b2−1⌋=b−1s^{2}\leq b^{2}-1\implies s\leq\lfloor\sqrt{b^{2}-1}\rfloor=b-1.
+Therefore, ss can range from ⌈b⌉\lceil\sqrt{b}\rceil up to b−1b-1.
+…
+Let me consider that for each bb, the number of bb-beautiful numbers is equal to the number of integers ss such that:
+1. ss is an integer with b≤s≤b−1\sqrt{b}\leq s\leq b-1.
+2. b−1b-1 divides s⁡(s−1)s(s-1).
+3. x=s⁡(s−1)b−1x=\frac{s(s-1)}{b-1} is an integer between 1 and b−1b-1.
+4. y=s−xy=s-x is between 0 and b−1b-1.
+But actually, conditions 1 and 2 and 3 imply condition 4?
+Wait, let’s see:
+Since x≥1x\geq 1, then y=s−x≤s−1y=s-x\leq s-1. Since s≤b−1s\leq b-1, y≤(b−1)−1=b−2≤b−1y\leq(b-1)-1=b-2\leq b-1. So that’s okay.
+Alternatively, since y=s−x≥0y=s-x\geq 0 is equivalent to x≤sx\leq s, let’s check that. We have
+x=s⁡(s−1)b−1≤s⟺s−1≤b−1⟺s≤b.x=\frac{s(s-1)}{b-1}\leq s\quad\Longleftrightarrow\quad s-1\leq b-1\quad\Longleftrightarrow\quad s\leq b.
+Which is true since s≤b−1s\leq b-1.
+Therefore, as long as s≤b−1s\leq b-1 and xx is between 1 and b−1b-1, yy will be between 0 and b−1b-1. Therefore, conditions 1–3 are sufficient.
+In fact, if 2≤s≤b−12\leq s\leq b-1 and b−1b-1 divides s⁡(s−1)s(s-1), then xx is a positive integer and x<sx<s. So 1≤x≤s−11\leq x\leq s-1 and 1≤y=s−x≤s−11\leq y=s-x\leq s-1, which are valid digits. Also,
+x​b+y=x⁡(b−1)+s=s⁡(s−1)+s=s2.xb+y=x(b-1)+s=s(s-1)+s=s^{2}.
+Therefore, each such ss gives exactly one bb-beautiful number, and every bb-beautiful number gives one such ss. For b=2b=2, there are no such values of ss.
+Alternatively, perhaps we can find a formula for the number of such ss.
+Note that s⁡(s−1)≡0(modb−1)s(s-1)\equiv 0\pmod{b-1}. Since ss and s−1s-1 are consecutive integers, they are coprime. Therefore, each prime power in the factorization of b−1b-1 must divide either ss or s−1s-1.
+…
+Let me denote d=b−1d=b-1. So we need s⁡(s−1)≡0(modd)s(s-1)\equiv 0\pmod{d}.
+Therefore, for example, if d=12=3×4d=12=3\times 4, we can have 3 dividing ss and 4 dividing s−1s-1, or vice versa. In the case of s=9s=9, d=12d=12: 3 divides 9 and 4 divides 8 (since s−1=8s-1=8). Therefore, 3×4=123\times 4=12 divides 9×8=729\times 8=72.
+Therefore, in general, for dd to divide s⁡(s−1)s(s-1), we can write dd as a product of two coprime integers, say mm and nn, such that mm divides ss and nn divides s−1s-1. Then, s≡0(modm)s\equiv 0\pmod{m} and s≡1(modn)s\equiv 1\pmod{n}. By the Chinese Remainder Theorem, since mm and nn are coprime, there exists a solution s≡a(modd)s\equiv a\pmod{d}, where aa is the solution to the system of congruences.
+Let me denote s≡k(modd)s\equiv k\pmod{d}, using kk in [1,d][1,d]. Each residue has exactly one representative kk in this range.
+Therefore, the equation becomes k⁡(k−1)≡0(modd)k(k-1)\equiv 0\pmod{d}.
+Therefore, for each divisor mm of dd, set n=d/mn=d/m, and check if mm and nn are coprime. Then, the solutions satisfy k≡0(modm)k\equiv 0\pmod{m} and k≡1(modn)k\equiv 1\pmod{n}. By Chinese Remainder Theorem, since mm and nn are coprime, there is a unique solution modulo dd.
+Therefore, the number of solutions kk in [1,d][1,d] is equal to the number of such factorizations of dd into ordered coprime pairs (m,n)(m,n), which is equal to 2ω⁡(d)2^{\omega(d)}, where ω⁡(d)\omega(d) is the number of distinct prime factors of dd. More precisely, for each prime power in the factorization of dd, we can assign it to either mm or nn. Therefore, if dd has the prime factorization d=p1e1p2e2⋯prerd=p_{1}^{e_{1}}p_{2}^{e_{2}}\cdots p_{r}^{e_{r}}, then the number of ways to split the prime powers into mm and nn (coprime) is 2r2^{r}, since for each prime power, we can assign it to mm or to nn. Therefore, the number of coprime factorizations is 2r2^{r}, where rr is the number of distinct prime factors of dd.
+But wait, in the example with d=12d=12 (b=13b=13), which has prime factors 2 and 3, so r=2r=2, so 22=42^{2}=4 solutions. Let’s check:
+Let’s list all kk in [1,12][1,12] such that k⁡(k−1)≡0(mod12)k(k-1)\equiv 0\pmod{12}.
+k=1k=1: 1×0≡0(mod12)1\times 0\equiv 0\pmod{12} →\rightarrow yes; k=2k=2: 2×1≡2(mod12)2\times 1\equiv 2\pmod{12} →\rightarrow no; k=3k=3: 3×2≡6(mod12)3\times 2\equiv 6\pmod{12} →\rightarrow no; k=4k=4: 4×3=12≡0(mod12)4\times 3=12\equiv 0\pmod{12} →\rightarrow yes.
+k=5k=5: 5×4=20≡8(mod12)5\times 4=20\equiv 8\pmod{12} →\rightarrow no; k=6k=6: 6×5=30≡6(mod12)6\times 5=30\equiv 6\pmod{12} →\rightarrow no; k=7k=7: 7×6=42≡6(mod12)7\times 6=42\equiv 6\pmod{12} →\rightarrow no; k=8k=8: 8×7=56≡8(mod12)8\times 7=56\equiv 8\pmod{12} →\rightarrow no.
+k=9k=9: 9×8=72≡0(mod12)9\times 8=72\equiv 0\pmod{12} →\rightarrow yes; k=10k=10: 10×9=90≡6(mod12)10\times 9=90\equiv 6\pmod{12} →\rightarrow no; k=11k=11: 11×10=110≡2(mod12)11\times 10=110\equiv 2\pmod{12} →\rightarrow no; k=12k=12: 12×11=132≡0(mod12)12\times 11=132\equiv 0\pmod{12} →\rightarrow yes.
+Therefore, the solutions are k=1,4,9,12k=1,4,9,12. So 4 solutions, which matches 2r2^{r} where r=2r=2 (since 12 has two prime factors). Therefore, the formula holds.
+Therefore, the total number of solutions in [1,d][1,d] is 2r2^{r}, but we need to subtract those k<⌈d+1⌉k<\lceil\sqrt{d+1}\rceil. For 2≤k<⌈d+1⌉2\leq k<\lceil\sqrt{d+1}\rceil, we have 0<k⁡(k−1)<d0<k(k-1)<d, so none is a solution. Only k=1k=1 is excluded. Therefore, the count we need is 2r−12^{r}-1.
+…
+Given that the number of solutions in [1,d][1,d] is 2r2^{r}, where rr is the number of distinct prime factors of dd, to get more than 10 valid solutions, we need 2r−1>102^{r}-1>10, so r≥4r\geq 4 (since 24−1=152^{4}-1=15). Therefore, we need dd with at least 4 distinct prime factors.
+Therefore, the minimal dd with 4 distinct prime factors is 2×3×5×7=2102\times 3\times 5\times 7=210. Therefore, b=211b=211 is the smallest candidate. Any smaller dd has at most 3 distinct prime factors and therefore at most 23−1=72^{3}-1=7 valid solutions.
+…
+Therefore, the formula holds even for prime powers. Therefore, the number of solutions in [1,d][1,d] is indeed 2r2^{r}, where rr is the number of distinct prime factors of dd.
+Therefore, for d=60=22×3×5d=60=2^{2}\times 3\times 5, r=3r=3, so 8 solutions.
+Wait, let’s properly list all solutions for d=60d=60.
+We need k⁡(k−1)≡0(mod60)k(k-1)\equiv 0\pmod{60}.
+This requires that 60 divides k⁡(k−1)k(k-1). Since 60=22×3×560=2^{2}\times 3\times 5, and kk and k−1k-1 are coprime, we need to distribute the prime powers between kk and k−1k-1.
+Therefore, total possibilities: for the prime factors, 222^{2} can be assigned to kk or k−1k-1; 3 can be assigned to kk or k−1k-1; 5 can be assigned to kk or k−1k-1. Therefore, total possibilities: 2×2×2=82\times 2\times 2=8. Each corresponds to a different combination.
+However, solving each case:
+Case 1: 22→k, 3→k−1, 5→k−12^{2}\rightarrow k,\ 3\rightarrow k-1,\ 5\rightarrow k-1. The solution is k=16k=16.
+Case 2: 22→k, 3→k, 5→k−12^{2}\rightarrow k,\ 3\rightarrow k,\ 5\rightarrow k-1. We have k≡0(mod4)k\equiv 0\pmod{4}, k≡0(mod3)k\equiv 0\pmod{3}, k≡1(mod5)k\equiv 1\pmod{5}. Solve k≡0(mod12)k\equiv 0\pmod{12} (since 4 and 3), and k≡1(mod5)k\equiv 1\pmod{5}. Let k=12​mk=12m. Then 12​m≡1(mod5)→2​m≡1(mod5)→m≡3(mod5)12m\equiv 1\pmod{5}\rightarrow 2m\equiv 1\pmod{5}\rightarrow m\equiv 3\pmod{5}. So m=5​n+3m=5n+3. Thus, k=12​(5​n+3)=60​n+36k=12(5n+3)=60n+36. In [1,60][1,60], k=36k=36.
+Case 3: 22→k, 3→k−1, 5→k2^{2}\rightarrow k,\ 3\rightarrow k-1,\ 5\rightarrow k. We have k≡0(mod4)k\equiv 0\pmod{4}, k≡1(mod3)k\equiv 1\pmod{3}, k≡0(mod5)k\equiv 0\pmod{5}. So k≡0(mod20)k\equiv 0\pmod{20} (since 4 and 5), and k≡1(mod3)k\equiv 1\pmod{3}. Let k=20​mk=20m. Then 20​m≡1(mod3)→2​m≡1(mod3)→m≡2(mod3)20m\equiv 1\pmod{3}\rightarrow 2m\equiv 1\pmod{3}\rightarrow m\equiv 2\pmod{3}. So m=3​n+2m=3n+2. Thus, k=20​(3​n+2)=60​n+40k=20(3n+2)=60n+40. In [1,60][1,60], k=40k=40.
+Case 4: 22→k−1, 3→k, 5→k2^{2}\rightarrow k-1,\ 3\rightarrow k,\ 5\rightarrow k. We have k−1≡0(mod4)→k≡1(mod4)k-1\equiv 0\pmod{4}\rightarrow k\equiv 1\pmod{4}, k≡0(mod3)k\equiv 0\pmod{3}, k≡0(mod5)k\equiv 0\pmod{5}. So k≡0(mod15)k\equiv 0\pmod{15}, and k≡1(mod4)k\equiv 1\pmod{4}. Let k=15​mk=15m. Then 15​m≡1(mod4)→3​m≡1(mod4)→m≡3(mod4)15m\equiv 1\pmod{4}\rightarrow 3m\equiv 1\pmod{4}\rightarrow m\equiv 3\pmod{4}. So m=4​n+3m=4n+3. Thus, k=15​(4​n+3)=60​n+45k=15(4n+3)=60n+45. In [1,60][1,60], k=45k=45.
+Case 5: 22→k−1, 3→k−1, 5→k2^{2}\rightarrow k-1,\ 3\rightarrow k-1,\ 5\rightarrow k. We have k≡1(mod4)k\equiv 1\pmod{4}, k≡1(mod3)k\equiv 1\pmod{3}, k≡0(mod5)k\equiv 0\pmod{5}. So k≡1(mod12)k\equiv 1\pmod{12} (since 4 and 3), and k≡0(mod5)k\equiv 0\pmod{5}. Let k=12​m+1k=12m+1. Then 12​m+1≡0(mod5)→12​m≡−1(mod5)→2​m≡4(mod5)→m≡2(mod5)12m+1\equiv 0\pmod{5}\rightarrow 12m\equiv-1\pmod{5}\rightarrow 2m\equiv 4\pmod{5}\rightarrow m\equiv 2\pmod{5}. So m=5​n+2m=5n+2. Thus, k=12​(5​n+2)+1=60​n+25k=12(5n+2)+1=60n+25. In [1,60][1,60], k=25k=25.
+Case 6: 22→k−1, 3→k, 5→k−12^{2}\rightarrow k-1,\ 3\rightarrow k,\ 5\rightarrow k-1. We have k≡1(mod4)k\equiv 1\pmod{4}, k≡0(mod3)k\equiv 0\pmod{3}, k≡1(mod5)k\equiv 1\pmod{5}. Solve k≡1(mod4)k\equiv 1\pmod{4} and k≡1(mod5)→k≡1(mod20)k\equiv 1\pmod{5}\rightarrow k\equiv 1\pmod{20}. Also, k≡0(mod3)k\equiv 0\pmod{3}. So k=20​m+1≡0(mod3)→20​m≡−1(mod3)→2​m≡2(mod3)→m≡1(mod3)k=20m+1\equiv 0\pmod{3}\rightarrow 20m\equiv-1\pmod{3}\rightarrow 2m\equiv 2\pmod{3}\rightarrow m\equiv 1\pmod{3}. Thus, m=3​n+1m=3n+1. So k=20​(3​n+1)+1=60​n+21k=20(3n+1)+1=60n+21. In [1,60][1,60], k=21k=21.
+Case 7: 22→k−1, 3→k−1, 5→k−12^{2}\rightarrow k-1,\ 3\rightarrow k-1,\ 5\rightarrow k-1. We have k−1≡0(mod4)k-1\equiv 0\pmod{4}, k−1≡0(mod3)k-1\equiv 0\pmod{3}, k−1≡0(mod5)→k−1≡0(mod60)→k≡1(mod60)k-1\equiv 0\pmod{5}\rightarrow k-1\equiv 0\pmod{60}\rightarrow k\equiv 1\pmod{60}. In [1,60][1,60], k=1k=1.
+Case 8: 22→k, 3→k, 5→k2^{2}\rightarrow k,\ 3\rightarrow k,\ 5\rightarrow k. We have k≡0(mod4)k\equiv 0\pmod{4}, k≡0(mod3)k\equiv 0\pmod{3}, k≡0(mod5)→k≡0(mod60)k\equiv 0\pmod{5}\rightarrow k\equiv 0\pmod{60}. In [1,60][1,60], k=60k=60.
+Therefore, the solutions are k=1,16,21,25,36,40,45,60k=1,16,21,25,36,40,45,60. That’s 8 solutions, which matches the formula.
+So in [1,60][1,60], these are the solutions. Now, for b=61b=61 (d=60d=60), we need k≥⌈61⌉=8k\geq\lceil\sqrt{61}\rceil=8.
+Therefore, the solutions in [8,60][8,60] are: 16,21,25,36,40,45,6016,21,25,36,40,45,60. That’s 7 solutions.
+Therefore, for b=61b=61, there are 7 beautiful numbers.
+But we need more than 10. So need to go higher.
+Next, take d=105=3×5×7d=105=3\times 5\times 7. Then r=3r=3, so 23=82^{3}=8 solutions. Number of solutions in [⌈106⌉,105]=[11,105][\lceil\sqrt{106}\rceil,105]=[11,105]. The solutions kk in [1,105][1,105] are 8. Need to count how many are ≥11\geq 11. Only k=1k=1 is below 11, so 7 solutions. Not enough.
+Next, d=165=3×5×11d=165=3\times 5\times 11. r=3r=3, so 8 solutions. We have ⌈166⌉=13\lceil\sqrt{166}\rceil=13. Number of solutions in [13,165][13,165]: 7, after excluding k=1k=1. Still not enough.
+…
+For d=210d=210, ⌈211⌉=15\lceil\sqrt{211}\rceil=15. The number of solutions in [15,210][15,210] is equal to the number of solutions in [1,210][1,210] minus those in [1,14][1,14].
+But to confirm, let’s compute the number of solutions in [1,14][1,14] for d=210d=210.
+Solutions of k⁡(k−1)≡0(mod210)k(k-1)\equiv 0\pmod{210}. Possible kk from 1 to 14:
+Check k=1k=1: 1×0≡0(mod210)1\times 0\equiv 0\pmod{210} →\rightarrow yes; k=2k=2: 2×1≡2(mod210)2\times 1\equiv 2\pmod{210} →\rightarrow no; k=3k=3: 3×2≡6(mod210)3\times 2\equiv 6\pmod{210} →\rightarrow no; k=4k=4: 4×3≡12(mod210)4\times 3\equiv 12\pmod{210} →\rightarrow no.
+k=5k=5: 5×4≡20(mod210)5\times 4\equiv 20\pmod{210} →\rightarrow no; k=6k=6: 6×5≡30(mod210)6\times 5\equiv 30\pmod{210} →\rightarrow no; k=7k=7: 7×6≡42(mod210)7\times 6\equiv 42\pmod{210} →\rightarrow no; k=8k=8: 8×7≡56(mod210)8\times 7\equiv 56\pmod{210} →\rightarrow no.
+k=9k=9: 9×8≡72(mod210)9\times 8\equiv 72\pmod{210} →\rightarrow no; k=10k=10: 10×9≡90(mod210)10\times 9\equiv 90\pmod{210} →\rightarrow no; k=11k=11: 11×10≡110(mod210)11\times 10\equiv 110\pmod{210} →\rightarrow no; k=12k=12: 12×11≡132(mod210)12\times 11\equiv 132\pmod{210} →\rightarrow no.
+k=13k=13: 13×12≡156(mod210)13\times 12\equiv 156\pmod{210} →\rightarrow no; k=14k=14: 14×13≡182(mod210)14\times 13\equiv 182\pmod{210} →\rightarrow no.
+Only k=1k=1 is a solution in [1,14][1,14].
+Therefore, the number of solutions in [15,210][15,210] is 16−1=1516-1=15.
+Therefore, for b=211b=211, there are 15 beautiful numbers, which is more than 10.
+…
+Thus, the least integer b≥2b\geq 2 for which there are more than ten bb-beautiful integers is 211\boxed{211}.
+ Experimental support, please
+ view the build logs
+ for errors. Generated by
+ L
+ A
+ T
+ E
+ xml
+ .
+Instructions for reporting errors
+We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+ support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+ methods listed below:
+Click the "Report Issue" (
+ ) button, located in the page header.
+Tip: You can select the relevant text first, to include it in your report.
+Our team has already identified the following issues. We appreciate your time reviewing and reporting rendering errors we
+ may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+ should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+ all.
+Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion, and welcome developer contributions.
+ We gratefully acknowledge support from our major funders,
+ member institutions, ,
+ and all contributors.
+ About ·
+ Help ·
+ Contact ·
+ Subscribe ·
+ Copyright ·
+ Privacy ·
+ Accessibility ·
+ Operational Status (opens in new tab)
