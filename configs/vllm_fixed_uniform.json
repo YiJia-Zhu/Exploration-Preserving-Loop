@@ -1,0 +1,5 @@
+{
+  "extends": "vllm_fixed_top_n.json",
+  "run_name": "vllm_fixed_uniform",
+  "algorithm": {"stage_selection": "uniform_n", "teacher_endpoint": "fixed"}
+}

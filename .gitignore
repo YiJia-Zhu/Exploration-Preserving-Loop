@@ -41,6 +41,8 @@ dist/
 # Keep lightweight experiment metrics, rollout records, and source snapshots.
 /experiments/runs/**/checkpoints/
 /experiments/runs/**/run.lock
+/experiments/ablations/**/checkpoints/
+/experiments/ablations/**/run.lock
 events.out.tfevents.*
 /checkpoints/
 /outputs/

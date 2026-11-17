@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "family": "ouro",
+      "teacher": "frozen",
+      "repeated_metrics_and_weights_exact": true,
+      "resumed_metrics_and_weights_exact": true,
+      "updates": 2
+    },
+    {
+      "family": "ouro",
+      "teacher": "current",
+      "repeated_metrics_and_weights_exact": true,
+      "resumed_metrics_and_weights_exact": true,
+      "updates": 2
+    },
+    {
+      "family": "huginn",
+      "teacher": "frozen",
+      "repeated_metrics_and_weights_exact": true,
+      "resumed_metrics_and_weights_exact": true,
+      "updates": 2
+    },
+    {
+      "family": "huginn",
+      "teacher": "current",
+      "repeated_metrics_and_weights_exact": true,
+      "resumed_metrics_and_weights_exact": true,
+      "updates": 2
+    }
+  ]
+}

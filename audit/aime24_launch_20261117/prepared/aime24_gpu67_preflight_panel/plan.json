@@ -1,0 +1,66 @@
+{
+  "stage": "ablation",
+  "research_route": "vllm",
+  "execution_mode": "vllm_fixed",
+  "gpus": [
+    "6",
+    "7"
+  ],
+  "cpu_threads_per_process": 16,
+  "max_runtime_hours": 10.0,
+  "teacher_backend": "vllm",
+  "phase_offload": true,
+  "teacher_logical_endpoints": {
+    "top_n": "native"
+  },
+  "teacher_loops": 4,
+  "student_loops": 2,
+  "deployment_loops": "2",
+  "groups": [
+    "top_n"
+  ],
+  "updates_per_group": 100,
+  "teacher_distribution": "full_vocab",
+  "global_batch": 256,
+  "train_examples": "all",
+  "prompts_per_batch": 32,
+  "responses_per_prompt": 8,
+  "target_rollout_responses": 25600,
+  "target_question_draws": 3200,
+  "teacher_trace_dir": "/dev/shm",
+  "eval_suite": "aime",
+  "eval_data_path": "data/aime/aime2024.jsonl",
+  "train_decontamination_path": "data/aime/eval.jsonl",
+  "eval_examples": 30,
+  "eval_samples_per_problem": 16,
+  "eval_responses_per_checkpoint": 480,
+  "max_new_tokens": 16384,
+  "eval_max_new_tokens": 16384,
+  "output": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/aime24_launch_20261117/prepared",
+  "panel": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/aime24_launch_20261117/prepared/aime24_gpu67_preflight_panel",
+  "checkpoint_free_gib": 70.68741226196289,
+  "checkpoint_required_gib": 58.79011149331927,
+  "checkpoint_space_ready": true,
+  "commands": [
+    {
+      "group": "top_n",
+      "command": [
+        "bash",
+        "/home/zhenning/data/working_tmp/Exploration-Preserving-Loop/scripts/run_fastpath_ablation.sh",
+        "--prepare-only"
+      ],
+      "environment": {
+        "EXECUTION_MODE": "vllm_fixed",
+        "GPUS": "6,7",
+        "METHOD": "ours",
+        "STAGE_SELECTION": "top_n",
+        "RUN_TAG": "aime24_gpu67_preflight_top_n",
+        "OUTPUT_ROOT": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/aime24_launch_20261117/prepared",
+        "EVAL_INITIAL": "0",
+        "EVAL_INITIAL_FIXED": "0",
+        "STOP_LOSS_WEIGHT": "0",
+        "BASELINE_STUDENT_LOOPS": "2"
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "gpu": "2",
+  "cases": [
+    {
+      "name": "training_batch8",
+      "requests": 8,
+      "response_tokens": 128,
+      "seconds": 0.1895224959589541
+    },
+    {
+      "name": "whole_shard32_max_prompt1024",
+      "requests": 32,
+      "response_tokens": 512,
+      "seconds": 1.184753657784313
+    }
+  ],
+  "wall_seconds": 28.946861188858747,
+  "scheduler": "No sequence-count argument is passed; installed vLLM defaults",
+  "scope": "Real Ouro weights, compiled fixed-N2 engine, short generation and sleep/wake; not an accuracy or long-generation throughput result."
+}

@@ -1,0 +1,11 @@
+{
+  "extends": "huginn_e_dynamic_js.json",
+  "run_name": "huginn_g_dynamic_probe_know",
+  "algorithm": {
+    "boundary_signal": "probe_know",
+    "confidence_threshold": 0.05
+  },
+  "paper": {
+    "status": "Opt-in dynamic confidence boundary ablation; confidence threshold is uncalibrated; prompt probes change input and add measured cost"
+  }
+}

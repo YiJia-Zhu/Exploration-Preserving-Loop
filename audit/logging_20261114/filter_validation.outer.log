@@ -1,0 +1,17 @@
+[2026-11-14T17:00:17.144+08:00] run_start: teacher_filter
+[2026-11-14T17:00:17.145+08:00] stage_start: teacher_filter_run
+[2026-11-14T17:00:17.146+08:00] stage_start: model_load
+[2026-11-14T17:00:17.146+08:00] stage_end: model_load (0.000s)
+[2026-11-14T17:00:17.146+08:00] stage_start: tokenizer_load
+[2026-11-14T17:00:17.146+08:00] stage_end: tokenizer_load (0.000s)
+[2026-11-14T17:00:17.146+08:00] stage_start: data_prepare
+Tokenize prompts:   0%|          | 0/3 [00:00<?, ?prompt/s]                                                           [2026-11-14T17:00:17.147+08:00] stage_end: data_prepare (0.001s)
+Teacher filter:   0%|          | 0/3 [00:00<?, ?problem/s]
+Filter 0:   0%|          | 0/4 [00:00<?, ?tok/s][A
+                                                [A
+Filter 1:   0%|          | 0/4 [00:00<?, ?tok/s][A
+                                                [A
+Filter 2:   0%|          | 0/4 [00:00<?, ?tok/s][A
+                                                [ATeacher filter: 100%|██████████| 3/3 [00:00<00:00, 127.18problem/s]
+[2026-11-14T17:00:17.181+08:00] stage_end: teacher_filter_run (0.036s)
+[2026-11-14T17:00:17.181+08:00] run_end: teacher_filter (0.038s)

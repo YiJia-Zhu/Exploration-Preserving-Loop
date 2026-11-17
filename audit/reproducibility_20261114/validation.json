@@ -1,0 +1,348 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-11-14T06:42:50.116684+00:00",
+  "default_seed": 42,
+  "strict_deterministic_kernels_enabled_by_this_change": false,
+  "sampling_reseed_frequency": "once per evaluation completion; never per token",
+  "training_rng_policy": "shared seed-42 initialization/data order; persistent independent rank streams",
+  "unit_tests_passed": 49,
+  "python_sources_compiled": 29,
+  "tiny_training_repeated_and_resumed": [
+    {
+      "config": "e_dynamic_js",
+      "checkpoint_tensors_exact": 27,
+      "same_seed_repeat_exact": true,
+      "resume_exact": true,
+      "all_rng_streams_saved": true
+    },
+    {
+      "config": "e_dynamic_js_current",
+      "checkpoint_tensors_exact": 27,
+      "same_seed_repeat_exact": true,
+      "resume_exact": true,
+      "all_rng_streams_saved": true
+    },
+    {
+      "config": "huginn_e_dynamic_js",
+      "checkpoint_tensors_exact": 78,
+      "same_seed_repeat_exact": true,
+      "resume_exact": true,
+      "all_rng_streams_saved": true
+    },
+    {
+      "config": "huginn_e_dynamic_js_current",
+      "checkpoint_tensors_exact": 78,
+      "same_seed_repeat_exact": true,
+      "resume_exact": true,
+      "all_rng_streams_saved": true
+    }
+  ],
+  "evaluation_order_independence": [
+    {
+      "family": "ouro",
+      "question_order_independent": true,
+      "samples_compared": 4
+    },
+    {
+      "family": "huginn",
+      "question_order_independent": true,
+      "samples_compared": 4
+    }
+  ],
+  "cpu_ddp": {
+    "status": "PASS",
+    "world_size": 2,
+    "shared_data_rng": true,
+    "independent_rank_streams": true,
+    "per_rank_rng_saved": true
+  },
+  "gpu_training_launched": false,
+  "cuda_bitwise_identity_promised": false,
+  "scope": "Cheap RNG control and small CPU repeat/resume checks. Same environment/configuration/world size; CUDA reductions and cross-platform numerical differences remain allowed.",
+  "artifacts": [
+    {
+      "path": "README.md",
+      "sha256": "86a81ef1cd650e5b3a897c324d795a91acb31a57d393fe5b50331d1b83fd6f3a"
+    },
+    {
+      "path": "audit/reproducibility_20261114/check_runs.py",
+      "sha256": "4f6cdbff6e753857bcf3d4847992b41360f0516b7356ee3fcb91efc0b4636b7a"
+    },
+    {
+      "path": "audit/reproducibility_20261114/ddp.log",
+      "sha256": "aa4b3a1e7c09ad3d2142406cbf45af7c4806c84d7c141071ba3deea45c326720"
+    },
+    {
+      "path": "audit/reproducibility_20261114/ddp_check.json",
+      "sha256": "ed583cb81ad21ad86dab06aa4dfe149d325cbaea87e18be8cc0adc4405d9c395"
+    },
+    {
+      "path": "audit/reproducibility_20261114/e_dynamic_js_current_full.log",
+      "sha256": "775ecc932f523970a3e76c8d61a54a75828e4318721bdc4a3dee035d55360c18"
+    },
+    {
+      "path": "audit/reproducibility_20261114/e_dynamic_js_current_repeat.log",
+      "sha256": "1cae4bc9676aa2450a0bd464ccf857009eae5eec80d38e23dbebf383235f8f24"
+    },
+    {
+      "path": "audit/reproducibility_20261114/e_dynamic_js_current_resume.log",
+      "sha256": "d75f76f89294c43be664fb7f2b51b92d57ad3ced89a6674d0efd0ca4110400c1"
+    },
+    {
+      "path": "audit/reproducibility_20261114/e_dynamic_js_full.log",
+      "sha256": "3e609de2feda73f65e7a3467953b684bdb5163410fe6006e351ccb8acc27aa17"
+    },
+    {
+      "path": "audit/reproducibility_20261114/e_dynamic_js_repeat.log",
+      "sha256": "997c904ea880fbc6395c36b406ce6aaa70401541d97010d800858a4a7b774eaa"
+    },
+    {
+      "path": "audit/reproducibility_20261114/e_dynamic_js_resume.log",
+      "sha256": "cc083f1b7354619daf43d1674478233c37ae93cf8aabe08557bb91905269b652"
+    },
+    {
+      "path": "audit/reproducibility_20261114/evaluation_checks.json",
+      "sha256": "ea03c7a6cb2c178fe7b5e75414d9e3a1e1754e78be898567f098ae7a6edac24e"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_captured_data_eval.log",
+      "sha256": "e299b54e5319189ef6c408413217272e15049e2963939b7073fe3fc65421ffff"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_captured_data_eval.summary.json",
+      "sha256": "b9c923a2e5e916d60e87932e98c90bdb0306b4524faafbbd1b62ae73c6cba15d"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_e_dynamic_js_current_full.log",
+      "sha256": "df9943d78b0b32e4bb4514051e0790aee04a0adcb8613bdb6a121bc1f5b96497"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_e_dynamic_js_current_repeat.log",
+      "sha256": "fc9ccdda0b477e632770a2f16e986de0d9de1dd88630ee5d5091e24c0d0307f1"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_e_dynamic_js_current_resume.log",
+      "sha256": "9df96f227917c553c99612d52debb86d3bbb1de9c32fb66b1086f8ac5ce8caa3"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_e_dynamic_js_full.log",
+      "sha256": "bfbefbc90ef0dccc6abac4bf33c46f19ae5846e70ec967ab9e6e5ed76ffc9234"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_e_dynamic_js_repeat.log",
+      "sha256": "b808937571a816b80de2c75751f5eabb0b0a9e98e491b7202d48b3d9166b907a"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_e_dynamic_js_resume.log",
+      "sha256": "f6a666039120fc504d9706026fb51a050e3dcad625188af59425e79cbe4d3d6a"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_forward_eval.log",
+      "sha256": "7e370a3b106bfa86983ae3625b73723669df411a4642bec98c7995a93e76d489"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_forward_eval.summary.json",
+      "sha256": "53fe96bec934c6c362ec20e82282861bfd52fc956900c1621d7af143a662e8a7"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_forward_final_eval.log",
+      "sha256": "419531de7f9fa0816aade8282282752098ebf46c4d584ff0ccc0860cfc10b474"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_forward_final_eval.summary.json",
+      "sha256": "d66a7165aa86992db3405daea10608949a4af1df86120bb5c6f798263dcfc12a"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_reverse_eval.log",
+      "sha256": "50a302c7906753edcdc8adfb62dd762e498a454896de71a3b173bf144f7dd2ec"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_reverse_eval.summary.json",
+      "sha256": "9686019209aa2febb3dfe6a7f4fd86df0b141ef1490c5e792e0f875c5168baa7"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_reverse_final_eval.log",
+      "sha256": "ac7d800d230c9118da751c982e58f004c29342e8d6973129e6f6beb71ba27719"
+    },
+    {
+      "path": "audit/reproducibility_20261114/huginn_reverse_final_eval.summary.json",
+      "sha256": "619d91108853224660cda9c231025fa4ec1f48ef9c559a95425be220066db39e"
+    },
+    {
+      "path": "audit/reproducibility_20261114/launcher_dry_run.log",
+      "sha256": "26b1820f7569c618c5018be062760f779cd0258fbf71231c9f5ea055ff2eb2a6"
+    },
+    {
+      "path": "audit/reproducibility_20261114/ouro_captured_data_eval.log",
+      "sha256": "e17b5b8e842529bf5bcb2fdf3ae36494630152404c3608e4332a7578ae3ca3cd"
+    },
+    {
+      "path": "audit/reproducibility_20261114/ouro_captured_data_eval.summary.json",
+      "sha256": "2002385a323d46a2fb345c69a84f809a19b032072f806016a9eb6f6baaea9f79"
+    },
+    {
+      "path": "audit/reproducibility_20261114/ouro_forward_eval.log",
+      "sha256": "cd79b7223fe9eca4dd718dc9230d3fdfc6c04cd6dcd4f67a1b26ed090e4b376a"
+    },
+    {
+      "path": "audit/reproducibility_20261114/ouro_forward_eval.summary.json",
+      "sha256": "3b34315bf62250fbb8975ad2f76287e8df9941a83dcd179eef4d5ef95d69d705"
+    },
+    {
+      "path": "audit/reproducibility_20261114/ouro_forward_final_eval.log",
+      "sha256": "41de9d9faa0cdc60eebdcde38525eea1a736b18f5f97db67bc01893702838f65"
+    },
+    {
+      "path": "audit/reproducibility_20261114/ouro_forward_final_eval.summary.json",
+      "sha256": "1f0484cfdf34b602b3edf7dee2dc68fd3063ba661f817a721e4708ae9120f0cc"
+    },
+    {
+      "path": "audit/reproducibility_20261114/ouro_reverse_eval.log",
+      "sha256": "467a6983ebbf25299293456d8c38ecb0ddf68689388f5468e57fe42d2722c641"
+    },
+    {
+      "path": "audit/reproducibility_20261114/ouro_reverse_eval.summary.json",
+      "sha256": "1f266669d551a9a27676b82500648b8750ce595813ac7e0b1ba3c9ce7554bccf"
+    },
+    {
+      "path": "audit/reproducibility_20261114/ouro_reverse_final_eval.log",
+      "sha256": "8f4f3349443a98f223a0ffb2c666f0e10e8b4b4594a5a0fb583dc59a5c1da76e"
+    },
+    {
+      "path": "audit/reproducibility_20261114/ouro_reverse_final_eval.summary.json",
+      "sha256": "2e6a6490cabdda98a643124a09deea0ac9716c5c822191cba1c66edeba535a8b"
+    },
+    {
+      "path": "audit/reproducibility_20261114/training_checks.json",
+      "sha256": "4886354e40a98ca76a1257d56e1d3d97568dfd874274439db22251ff903f339d"
+    },
+    {
+      "path": "audit/reproducibility_20261114/unit_tests.log",
+      "sha256": "90c5176c84a51b7d20e897319baad2821aff97292874c8611e267eea76dc5129"
+    },
+    {
+      "path": "docs/09_reproducibility.md",
+      "sha256": "c00ca448dc6ecab31922a2db52080c9468aa8b56c4a536871387152dcb934169"
+    },
+    {
+      "path": "ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "ep_loop/config.py",
+      "sha256": "bf21850bfbffa1a1413bb811dc3b498129c3483aa043f92f0e8b224d89ebb1ce"
+    },
+    {
+      "path": "ep_loop/data.py",
+      "sha256": "fe9e3104061447e679919be542a52d186b0fc58b204cb4b281826445fdc8388a"
+    },
+    {
+      "path": "ep_loop/huginn.py",
+      "sha256": "5c534cbcf96a222410d35588a0e6cc0253825574418fd852ae253461f2c2aa30"
+    },
+    {
+      "path": "ep_loop/inference.py",
+      "sha256": "a6d046b62a8f84333452b9572de7d892c37edeedcb3c9ca0645cdc357e1ad6c2"
+    },
+    {
+      "path": "ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "ep_loop/ouro.py",
+      "sha256": "c0b9c1de500a92c5d0de5ef0b5a52bc2e1b085bf7eda3005875b7084fdb3ddb9"
+    },
+    {
+      "path": "ep_loop/reproducibility.py",
+      "sha256": "c54263ca887a1a8491de2d06b54eb1872139dc760aa789a827b97788967ad793"
+    },
+    {
+      "path": "ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "ep_loop/training.py",
+      "sha256": "ce3102d3a538a925e1c6f3814a73595a92e8cf7b479dfb758cef6e25fe6e36b5"
+    },
+    {
+      "path": "scripts/build_teacher_filter.py",
+      "sha256": "8240ca376bb3549a4e264c166269d67fe463d1224e14b0ace8e5e51428e4e2c3"
+    },
+    {
+      "path": "scripts/download_pilot_model.py",
+      "sha256": "459691c85359c76f298b043118b4746e79b88f5d650516f25661935e6418f24b"
+    },
+    {
+      "path": "scripts/evaluate_stage_distillation.py",
+      "sha256": "1de173ccf92c87dba236bb014ebac6ba61ff296e74de0ab1c819f40654131b2f"
+    },
+    {
+      "path": "scripts/prepare_stage_data.py",
+      "sha256": "8995984b87e1fe5c67976d95607e2a000bfa54a5f74a9d4edd302fac43a1705d"
+    },
+    {
+      "path": "scripts/run_diagnostic.py",
+      "sha256": "71993b08b471670d5316877ad1cc089fba9c2994677c4eb10df61901534fe118"
+    },
+    {
+      "path": "scripts/run_pilot.sh",
+      "sha256": "3f5d08e4320244d0ea2c943781a91c186dc55b11fc149e486576f43a33e9851f"
+    },
+    {
+      "path": "scripts/run_training_pilot.py",
+      "sha256": "77cba43aaec333e250fe737b8bfada0d9f4ed8a759254b88dc1432de89fbed8b"
+    },
+    {
+      "path": "scripts/train_stage_distillation.py",
+      "sha256": "7894c802519e8d6885282350687faa246842a82d40a555bdf1e6c1b9220c5341"
+    },
+    {
+      "path": "scripts/validate_dynamic_student.py",
+      "sha256": "d42c84bb865ee66d76117af177b35fda658384cfa8bb478988521e6a632318a0"
+    },
+    {
+      "path": "scripts/validate_package.py",
+      "sha256": "696386ed805240e709f9166541cbb0e14f5e44e4e5d402fd30b1189d2f089d28"
+    },
+    {
+      "path": "scripts/validate_proposal_sync.py",
+      "sha256": "badc985ce6c75aed4e3b924e827a9c8f47ba4148afce04037175b68f25ce75fe"
+    },
+    {
+      "path": "scripts/validate_stage_implementation.py",
+      "sha256": "badc985ce6c75aed4e3b924e827a9c8f47ba4148afce04037175b68f25ce75fe"
+    },
+    {
+      "path": "scripts/verify_pilot.py",
+      "sha256": "e4178eabe8e9c238a44888211fdcb33c570dbc602e0ffe6c6568ee75f0e1755b"
+    },
+    {
+      "path": "tests/test_dynamic_student.py",
+      "sha256": "38e63ce2d95c3912fd67c7aaf39cf1c1a6c9b4ef84bf79dbc88527ad90a8fa72"
+    },
+    {
+      "path": "tests/test_huginn_stage.py",
+      "sha256": "c04267f5be15f0186325dcec4ed7f2faff7b62e33aa79b7ff313617f53fa7050"
+    },
+    {
+      "path": "tests/test_losses.py",
+      "sha256": "866d56e4d1dff0f714e41b59ee84933f1ec40b8391ee0b7849bad0d01b583c36"
+    },
+    {
+      "path": "tests/test_reproducibility.py",
+      "sha256": "34478fc0d731f8fad4e15a759df08462ff88668efc5acd5706ebb5954277071e"
+    },
+    {
+      "path": "tests/test_stage_distillation.py",
+      "sha256": "c45fcdf7d6c9027e37b51c5f63d1ad8d9cd2690c820b19be666eea45974317d8"
+    }
+  ]
+}

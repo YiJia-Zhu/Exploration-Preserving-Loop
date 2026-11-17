@@ -1,0 +1,14 @@
+{
+  "extends": "huginn_e_dynamic_js.json",
+  "run_name": "huginn_e_dynamic_js_teacher_correct",
+  "distillation": {
+    "question_filter": "teacher_correct",
+    "require_eos": true
+  },
+  "paper": {
+    "status": "Opt-in correctness ablation; not the unfiltered main result"
+  },
+  "data": {
+    "correctness_cache": "data/filters/huginn_initial_teacher_correct.jsonl"
+  }
+}

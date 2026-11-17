@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "attempted_and_effective_updates_separate": true,
+  "current_teacher_weight_versions_correct": true,
+  "optimizer_count_and_weights_resume_exact": true
+}

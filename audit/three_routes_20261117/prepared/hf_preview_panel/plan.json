@@ -1,0 +1,47 @@
+{
+  "stage": "ablation",
+  "research_route": "hf",
+  "execution_mode": "hf_adaptive",
+  "gpus": [
+    "2",
+    "3"
+  ],
+  "teacher_loops": 4,
+  "student_loops": "dynamic_training",
+  "deployment_loops": "dynamic",
+  "groups": [
+    "threshold"
+  ],
+  "updates_per_group": 20,
+  "teacher_distribution": "full_vocab",
+  "global_batch": 16,
+  "train_examples": 256,
+  "eval_examples": 64,
+  "max_new_tokens": 16384,
+  "eval_max_new_tokens": 16384,
+  "output": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/three_routes_20261117/prepared",
+  "panel": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/three_routes_20261117/prepared/hf_preview_panel",
+  "checkpoint_free_gib": 78.83609390258789,
+  "checkpoint_required_gib": 74.82377826422453,
+  "checkpoint_space_ready": true,
+  "commands": [
+    {
+      "group": "threshold",
+      "command": [
+        "bash",
+        "/home/zhenning/data/working_tmp/Exploration-Preserving-Loop/scripts/run_ablation.sh",
+        "--prepare-only"
+      ],
+      "environment": {
+        "EXECUTION_MODE": "hf_adaptive",
+        "GPUS": "2,3",
+        "METHOD": "ours",
+        "STAGE_SELECTION": "threshold",
+        "RUN_TAG": "hf_preview_threshold",
+        "OUTPUT_ROOT": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/three_routes_20261117/prepared",
+        "EVAL_INITIAL": "1",
+        "EVAL_INITIAL_FIXED": "0"
+      }
+    }
+  ]
+}

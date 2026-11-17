@@ -1,0 +1,39 @@
+{
+  "date": "2026-11-17",
+  "verl_commit": "07490cb5ce1fa1818e0d98540abc9bccd02534ac",
+  "verl_recipe_commit": "acc239fc978bf001e1957b7148b36e69df63cc19",
+  "local_source_checkout": "/tmp/ep_loop_verl_opd_20261117/verl",
+  "source_sha256": {
+    "docs/algo/opd.md": "56f003527b51b1186e9b7a5bb171473fe4fe7bb7245055f5b942e9a0dd7e79f7",
+    "verl/trainer/distillation/losses.py": "8d893f89b156881509167c7edf9a8a91c67b26e9b98d7aaade268926040e290c",
+    "verl/trainer/distillation/fsdp/losses.py": "00e3702f008c1ddc409d659eb43bad24e0584b38cd647e7c021afca1ec2ad563",
+    "verl/experimental/teacher_loop/teacher_manager.py": "485883f75919fb5b9eec54b509b87765d19482bd56975ab2454601d9af16bfc4",
+    "verl/experimental/teacher_loop/teacher_model.py": "371cf5075aa9b008c6e7084355ab01971328f9eba6e598b8ea5748d398edb729",
+    "verl/workers/config/model.py": "60786c806febec57e42331110476977d2137745461825e4c23b16dc549a222d6",
+    "verl/workers/config/distillation.py": "e264aacf4a3e318e8ca1052691f117a75b57c62200e9713cc145f12a306718a4",
+    "verl/workers/engine/fsdp/transformer_impl.py": "ff7266496cede77ddce70668acdf4c28d6e499a46b996f51fab9e6454a232153",
+    "verl/models/transformers/monkey_patch.py": "4f86276f3c783e070bda108724c0799b10877e96d3505d33acbe183731911f77",
+    "verl/models/transformers/dense_common.py": "057accf8298f2222e70637c2237f7687f8a008fd577617ecd78fdccf06a79c71",
+    "verl/workers/engine_workers.py": "eb9d1e40aee0443f85f23b499ee9d34cff15cf39f2d28271b5948fd0952e6175",
+    "verl/workers/rollout/vllm_rollout/vllm_async_server.py": "b129931de958b10f2f359b07fbea92eeeeb452d01953fa88643f7d4b07ee80ce",
+    "verl/trainer/ppo/v1/trainer_base.py": "f96ea47392927d1f870b0f382492addafa6d359b8e4ecb9c8395384da8c9e74d",
+    "verl/trainer/config/distillation/distillation.yaml": "23a74dc343d88a780d053244f1a25c70bc89b338a0734c53599a8eed6b4531ad",
+    "pyproject.toml": "b78d5f691367d158c2c0a3c55f6483979a2cb87b62832359b0d2e4e76f4ffb27",
+    "setup.py": "d9ac3d954517d6feaf050b931e76717953dac02e52f6bb00522efd9304d4ede5"
+  },
+  "local_versions": {
+    "torch": "2.8.0",
+    "transformers": "4.57.1",
+    "vllm": "0.11.0",
+    "verl": null,
+    "ray": "2.56.0",
+    "tensordict": null,
+    "flash-attn": null
+  },
+  "validation_scope": "Read-only current upstream source audit plus official tiny-model CPU interface probes; no verl installation, distributed worker or end-to-end migration executed.",
+  "additional_sources": [
+    "https://github.com/vllm-project/vllm/blob/v0.32.0/vllm/model_executor/models/registry.py",
+    "https://github.com/vllm-project/vllm/blob/v0.26.0/vllm/model_executor/models/ouro.py",
+    "https://github.com/huggingface/transformers/blob/v5.16.1/src/transformers/models/auto/configuration_auto.py"
+  ]
+}

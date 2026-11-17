@@ -63,7 +63,7 @@ def adjacent_js_from_log_probs(log_probs):
 
 @torch.no_grad()
 def make_stage_plan(log_probs, exits, student_loops, mode="js",
-                    js_threshold=0.01, count_matched_uniform=True):
+                    js_threshold=0.01, count_matched_uniform=True, shallow_target_placement='last'):
     """Select <= S stage ends, then map j-th end to ceil(j*S/M).
 
 Uniform controls can use the same JS-derived number M of targets while using
@@ -71,14 +71,14 @@ uniform locations. Ties in JS are resolved toward the earlier boundary.
 When n_t <= S, every mode uses only the final student checkpoint.
 """
     return make_stage_plan_from_js(adjacent_js_from_log_probs(log_probs), exits,
-                                   student_loops, mode, js_threshold, count_matched_uniform)
+                                   student_loops, mode, js_threshold, count_matched_uniform,shallow_target_placement)
 
 
 @torch.no_grad()
 def make_stage_plan_from_js(js, exits, student_loops, mode="js",
-                            js_threshold=0.01, count_matched_uniform=True):
+                            js_threshold=0.01, count_matched_uniform=True,shallow_target_placement='last'):
     """Reuse JS already measured by a native KL-exit teacher's coda readouts."""
-    if mode not in {"endpoint", "uniform", "js"}:
+    if mode not in {"endpoint", "uniform", "js", "top_n", "uniform_n"}:
         raise ValueError(f"Unknown selection mode: {mode}")
     if student_loops < 1 or not math.isfinite(js_threshold) or js_threshold < 0:
         raise ValueError("S must be positive and JS threshold finite/nonnegative")
@@ -88,6 +88,33 @@ def make_stage_plan_from_js(js, exits, student_loops, mode="js",
     exits = exits.detach().to(device=js.device, dtype=torch.long).reshape(-1)
     if exits.numel() != positions or ((exits < 1) | (exits > k)).any():
         raise ValueError("Exit depths must match positions and lie in [1, K]")
+    if mode in {'top_n', 'uniform_n'}:
+        if student_loops > k:raise ValueError('Fixed-budget supervision requires N <= K')
+        if shallow_target_placement not in {'prefix','last'}:raise ValueError('Unknown shallow target placement')
+        if mode == 'top_n':
+            # Compute all K loops, but restrict boundaries to each token's
+            # logical teacher endpoint. There are min(N,n_t) distinct targets.
+            count=exits.clamp_max(student_loops)
+            eligible=torch.arange(1,k,device=js.device)[:,None]<exits[None]
+            scores=js.masked_fill(~eligible,-torch.inf)
+            order=scores.argsort(dim=0,descending=True,stable=True)[:student_loops-1]
+            boundaries=torch.where(scores.gather(0,order).isfinite(),order+1,k+1).sort(dim=0).values
+            targets=torch.full((student_loops,positions),-1,device=js.device,dtype=torch.long)
+            columns=torch.arange(positions,device=js.device)
+            for index in range(student_loops):
+                active=index<count
+                depth=(torch.where(index<count-1,boundaries[index],exits)
+                       if index<student_loops-1 else exits)
+                slot=(torch.full_like(count,index) if shallow_target_placement=='prefix' else
+                      ((index+1)*student_loops+count-1)//count-1)
+                targets[slot[active],columns[active]]=depth[active]
+            weights=(targets>0).to(js.dtype)/count[None]
+        else:
+            if not (exits==k).all():raise ValueError('uniform_n requires a fixed teacher endpoint K')
+            ranks=torch.arange(1,student_loops+1,device=js.device)[:,None]
+            targets=((ranks*k+student_loops-1)//student_loops).expand(-1,positions)
+            weights=torch.full(targets.shape,1/student_loops,device=js.device,dtype=js.dtype)
+        return StagePlan(targets,weights,exits,js)
     targets = torch.full((student_loops, positions), -1, device=exits.device, dtype=torch.long)
     if mode == "endpoint" or student_loops == 1 or k == 1:
         targets[-1] = exits

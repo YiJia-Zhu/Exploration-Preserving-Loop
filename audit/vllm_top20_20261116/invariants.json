@@ -1,0 +1,20 @@
+{
+  "unchanged_sections": [
+    "model",
+    "rollout",
+    "optimization",
+    "evaluation",
+    "distillation",
+    "data",
+    "seed"
+  ],
+  "algorithm_changes_only": [
+    "teacher_top_k=20",
+    "teacher_distribution=top20_original_mass_uniform_tail"
+  ],
+  "space_preflight": {
+    "available_gib": 16.970340728759766,
+    "estimated_required_gib": 74.82377826422453
+  },
+  "full_20_update_run_started": false
+}

@@ -1,0 +1,48 @@
+{
+  "status": "prepared_and_verified",
+  "evaluation": {
+    "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/data/aime/eval.jsonl",
+    "sha256": "a7be49d372767b0e505e35cbfe6d19a914f6ee5587a6c628823a351aacb26781",
+    "examples": 90,
+    "benchmarks": {
+      "AIME2024": 30,
+      "AIME2025": 30,
+      "AIME2026": 30
+    }
+  },
+  "samples_per_problem": 16,
+  "responses_per_model_budget": 1440,
+  "temperature": 1.0,
+  "top_p": 0.7,
+  "max_new_tokens": 16384,
+  "metrics": [
+    "Avg@16",
+    "Pass@16"
+  ],
+  "per_year": true,
+  "seed": 42,
+  "max_prompt_tokens_observed": 458,
+  "training_questions": 17309,
+  "dapo_development_questions": 64,
+  "source_overlap_excluded": 1,
+  "remaining_exact_text_matches": 0,
+  "overlap_scope": "Normalized full problem substring; semantic/near duplicates are not claimed detected",
+  "verification": {
+    "cpu_tests_passed": 118,
+    "three_route_dry_runs_passed": true,
+    "hf_and_vllm_preparation_passed": true,
+    "vllm_simulated_submissions": [
+      720,
+      720
+    ],
+    "hf_tiny_synthetic_completions": 480,
+    "actual_gpu_evaluation_started": false
+  },
+  "prepared_vllm_config": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/aime_evaluation_20261117/prepared/aime_32x8_100_top_n/configs/ours.json",
+  "caveats": [
+    "Generation cap16384, paper31744",
+    "Boxed integer verification including integer-valued decimals and degree annotations; generic symbolic equivalence not integrated",
+    "Public datasets pinned; exact identity with author artifacts unverified",
+    "Original10h panel budget retained; includes initial and final evaluations"
+  ]
+}

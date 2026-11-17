@@ -1,0 +1,21 @@
+{
+  "ep_loop/fastpath/__init__.py": "bbdc67595ea50ccc8e910f904ad8a88bdf1ede27a70d4dffef379d442f780b11",
+  "ep_loop/fastpath/actor.py": "07a4fa36977784a568cd3d26c1641d4c934e67e4c88c62169e5d9a59a19668fa",
+  "ep_loop/fastpath/inference.py": "4e98d109539b28524b9b3302ebaa03f3ec9b793bcce067bdea75aafe014dd186",
+  "ep_loop/fastpath/objective.py": "6c5242c9e52dff8ddddbe4ef225b8aef87120fcdc6045b1fbcb86235401a9b19",
+  "ep_loop/fastpath/readout.py": "26919ec672569f45b2cafa56157a7be9b0e78ae55aad7919085ec61f8d907637",
+  "ep_loop/fastpath/rollout.py": "480d04463bc5eced040ad4191bd49f16651d8cc514fab8ded5296501e35ab659",
+  "ep_loop/fastpath/sparse.py": "2a2d023a9bd8e8289e13880f23f6c84bf01df3f76598c74df5573c147685ca79",
+  "ep_loop/fastpath/training.py": "c8c1c6f6dcd3a983eb783b684360ff03bab6f541043443b267671299d5a95ff0",
+  "ep_loop/fastpath/vendor/ouro_v012_original.py": "1706a4c625aa56038aa8203df0efed24fbf32adbcdb3f2823aefa36cf1f2b3f4",
+  "ep_loop/fastpath/vllm_ouro.py": "4a0ac4f8a98c94910a0a5b9bcfea84605c7ad2572c5b71dc49a3e7031f32165e",
+  "ep_loop/fastpath/vllm_server.py": "3879f11ae781bb06031e0f12ed4adaf26fe42acc02cb3ecb31285b783b7df774",
+  "ep_loop/fastpath/vllm_worker.py": "ad2bf9f3807d820dbccbab9b73bdd109173dd9afbf100d88a483d9de323f6ea8",
+  "scripts/evaluate_fastpath.py": "6d84fab2e940132c73dfe2089688a42cc360a541a95c7dcd9aaa79c043b9bd21",
+  "scripts/train_fastpath_distillation.py": "3e6b9b484d6060448ba70d508962cac75c8f7f62ece5b425a2e7229a5aa3e97c",
+  "scripts/validate_fastpath_long_context.py": "a6a18808b9acf4503b5f150a41716b6e5f1345437c81aba3d2dd29c7c3e68700",
+  "scripts/validate_fastpath_training.py": "a73e14292ac43947746ed2950f8363ddd442ed51e57a58a6db96d934a637723b",
+  "scripts/benchmark_vllm_top20.py": "13f6beb0b126aa9390211fe2b46e675ff4a80d245be74e2caa496d0ca2f74fdc",
+  "scripts/run_fastpath_ablation.sh": "0121b16e536d4269bb063a98dea480e50166c49bf3437f2db7a81be6b2d2f980",
+  "tests/test_fastpath.py": "a4fe69cc9035d5e1de3f6664e1481c06c5e11bf187b519a8a788c365903e0577"
+}

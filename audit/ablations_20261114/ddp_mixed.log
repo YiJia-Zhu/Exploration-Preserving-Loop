@@ -1,0 +1,33 @@
+[2026-11-14T19:02:43.913+08:00] run_start: train
+[2026-11-14T19:02:43.913+08:00] stage_start: training_run
+[2026-11-14T19:02:43.913+08:00] stage_start: config_validation
+[2026-11-14T19:02:43.914+08:00] stage_end: config_validation (0.000s)
+[2026-11-14T19:02:43.917+08:00] stage_start: distributed_init
+[Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : [Gloo] Rank 11
+ is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[2026-11-14T19:02:43.961+08:00] stage_end: distributed_init (0.044s)
+[2026-11-14T19:02:44.075+08:00] stage_start: model_load
+[2026-11-14T19:02:45.098+08:00] stage_end: model_load (1.023s)
+[2026-11-14T19:02:45.098+08:00] stage_start: tokenizer_load
+[2026-11-14T19:02:45.098+08:00] stage_end: tokenizer_load (0.000s)
+[2026-11-14T19:02:45.098+08:00] stage_start: teacher_student_setup
+[2026-11-14T19:02:45.099+08:00] stage_end: teacher_student_setup (0.001s)
+[2026-11-14T19:02:45.099+08:00] stage_start: data_prepare
+[2026-11-14T19:02:45.100+08:00] stage_end: data_prepare (0.000s)
+[2026-11-14T19:02:45.113+08:00] stage_start: optimizer_ddp_setup
+[2026-11-14T19:02:45.115+08:00] stage_end: optimizer_ddp_setup (0.002s)
+[2026-11-14T19:02:45.116+08:00] stage_start: update
+[rank0]:[W1114 19:02:45.042447570 reducer.cpp:1457] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator())
+{"update": 1, "mean_response_loss": 0.6735451817512512, "responses": 4, "response_tokens": 44, "truncated_responses": 0, "endpoint_only_tokens": 20, "exit_not_deeper_than_student": 0, "rollout_executed_token_loops": 448, "teacher_loss_executed_token_loops": 888, "mean_adjacent_js_nats": 0.0011837019274632135, "exit_hist": [0, 0, 0, 20], "stage_count_hist": [0, 20, 0, 0, 0], "teacher_depth_by_student_slot": [[0, 0, 0, 20], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], "learning_rate": 0.001, "gradient_norm": 9.6900634765625, "teacher_weight_version": "initial", "student_loss_executed_token_loops": 222, "teacher_coda_token_positions": 0, "teacher_executed_loops": 4, "student_executed_loops": null, "student_policy": "learned", "student_max_loops": 4, "mean_stage_loss": 0.013808388262987137, "mean_stop_loss": 0.6597368121147156, "target_student_depth_hist": [20, 0, 0, 0], "actual_student_depth_hist": [44, 0, 0, 0], "target_actual_depth_confusion": [[20, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], "mean_target_student_depth": 1.0, "mean_actual_student_depth": 1.0, "replay_additional_required_loops": 0, "stop_depth_mean_absolute_error": 0.0, "uncompressed_tokens": 0, "target_at_max_tokens": 0, "generation_seconds_sum": 0.004, "rollout_backfill_token_loops": 0, "rollout_coda_token_positions": 0, "distillation_response_filter": "student_correct", "distilled_responses": 2, "distilled_response_tokens": 20, "rejected_responses": 2, "distillation_acceptance_rate": 0.5, "optimizer_updated": true, "confidence_probe_token_loops": 0, "confidence_probe_coda_token_positions": 0, "confidence_probe_forwards": 0, "boundary_signal": "js", "mean_boundary_change": 0.0011837019274632135, "teacher_max_loops": 4, "native_exit_reduces_executed_loops": false, "seconds": 0.035945093957707286}
+[2026-11-14T19:02:45.152+08:00] stage_start: checkpoint_save
+[2026-11-14 19:02:45,335] [WARNING] [real_accelerator.py:209:get_accelerator] Setting accelerator to CPU. If you have GPU or other accelerator, we were unable to detect it.
+[2026-11-14 19:02:45,340] [INFO] [real_accelerator.py:254:get_accelerator] Setting ds_accelerator to cpu (auto detect)
+[2026-11-14T19:02:46.275+08:00] stage_end: checkpoint_save (1.123s)
+[2026-11-14T19:02:46.275+08:00] stage_end: update (1.159s)
+[2026-11-14T19:02:46.275+08:00] stage_start: update
+{"update": 2, "mean_response_loss": 0.5269668698310852, "responses": 4, "response_tokens": 44, "truncated_responses": 0, "endpoint_only_tokens": 20, "exit_not_deeper_than_student": 0, "rollout_executed_token_loops": 448, "teacher_loss_executed_token_loops": 888, "mean_adjacent_js_nats": 0.0010222747921943664, "exit_hist": [0, 0, 0, 20], "stage_count_hist": [0, 20, 0, 0, 0], "teacher_depth_by_student_slot": [[0, 0, 0, 20], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], "learning_rate": 0.001, "gradient_norm": 4.33347749710083, "teacher_weight_version": "initial", "student_loss_executed_token_loops": 222, "teacher_coda_token_positions": 0, "teacher_executed_loops": 4, "student_executed_loops": null, "student_policy": "learned", "student_max_loops": 4, "mean_stage_loss": 0.010765688493847847, "mean_stop_loss": 0.5162011981010437, "target_student_depth_hist": [20, 0, 0, 0], "actual_student_depth_hist": [44, 0, 0, 0], "target_actual_depth_confusion": [[20, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], "mean_target_student_depth": 1.0, "mean_actual_student_depth": 1.0, "replay_additional_required_loops": 0, "stop_depth_mean_absolute_error": 0.0, "uncompressed_tokens": 0, "target_at_max_tokens": 0, "generation_seconds_sum": 0.004, "rollout_backfill_token_loops": 0, "rollout_coda_token_positions": 0, "distillation_response_filter": "student_correct", "distilled_responses": 2, "distilled_response_tokens": 20, "rejected_responses": 2, "distillation_acceptance_rate": 0.5, "optimizer_updated": true, "confidence_probe_token_loops": 0, "confidence_probe_coda_token_positions": 0, "confidence_probe_forwards": 0, "boundary_signal": "js", "mean_boundary_change": 0.0010222747921943664, "teacher_max_loops": 4, "native_exit_reduces_executed_loops": false, "seconds": 0.03450935520231724}
+[2026-11-14T19:02:46.310+08:00] stage_start: checkpoint_save
+[2026-11-14T19:02:46.314+08:00] stage_end: checkpoint_save (0.005s)
+[2026-11-14T19:02:46.314+08:00] stage_end: update (0.039s)
+[2026-11-14T19:02:46.315+08:00] stage_end: training_run (2.401s)
+[2026-11-14T19:02:46.315+08:00] run_end: train (2.402s)

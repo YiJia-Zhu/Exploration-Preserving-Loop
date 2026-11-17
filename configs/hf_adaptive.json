@@ -1,0 +1,6 @@
+{
+  "extends": "default.json",
+  "run_name": "hf_teacher_and_student_adaptive",
+  "algorithm": {"teacher_endpoint": "native_adaptive"},
+  "implementation": {"execution_mode": "hf_adaptive", "rollout_backend": "hf"}
+}

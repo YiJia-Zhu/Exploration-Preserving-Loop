@@ -1,0 +1,118 @@
+{
+  "status": "engineering_checks_passed",
+  "unit_tests": 109,
+  "default_groups": [
+    "endpoint",
+    "top_n"
+  ],
+  "teacher_backend": "vllm",
+  "teacher_compute_loops": 4,
+  "teacher_logical_endpoint": "native_cdf_for_top_n; fixed_K_for_endpoint_control",
+  "student_compute_loops": 2,
+  "shallow_target_placement": "prefix",
+  "phase_offload": true,
+  "real_ddp_updates": 2,
+  "diagnostic_new_token_cap": 32,
+  "production_new_token_cap": 16384,
+  "offload_records": [
+    {
+      "rank": 0,
+      "update": 1,
+      "student_device": "cpu",
+      "optimizer_cuda_tensors": 0,
+      "hf_cuda_allocated_bytes": 512
+    },
+    {
+      "rank": 0,
+      "update": 2,
+      "student_device": "cpu",
+      "optimizer_cuda_tensors": 0,
+      "hf_cuda_allocated_bytes": 17043968
+    },
+    {
+      "rank": 1,
+      "update": 1,
+      "student_device": "cpu",
+      "optimizer_cuda_tensors": 0,
+      "hf_cuda_allocated_bytes": 512
+    },
+    {
+      "rank": 1,
+      "update": 2,
+      "student_device": "cpu",
+      "optimizer_cuda_tensors": 0,
+      "hf_cuda_allocated_bytes": 17043968
+    }
+  ],
+  "backend_fidelity": {
+    "status": "MEASURED_BACKEND_DIFFERENCES",
+    "checks": [
+      {
+        "target_stage_agreement": 1.0,
+        "mean_full_vocab_js": 9.768689051270485e-05,
+        "input_positions": 149,
+        "state_max_abs_error": 0.6130819320678711,
+        "max_full_vocab_js": 0.0009612204157747328,
+        "js_max_by_loop": [
+          0.0003200573555659503,
+          0.0003056063433177769,
+          0.000830594974104315,
+          0.0009612204157747328
+        ],
+        "exit_agreement": 1.0,
+        "executed_token_loops": 596
+      },
+      {
+        "target_stage_agreement": 1.0,
+        "mean_full_vocab_js": 0.00013795011909678578,
+        "input_positions": 220,
+        "state_max_abs_error": 0.8045320510864258,
+        "max_full_vocab_js": 0.0011283548083156347,
+        "js_max_by_loop": [
+          0.00023747619707137346,
+          0.0009275057818740606,
+          0.0011283548083156347,
+          0.0007624728605151176
+        ],
+        "exit_agreement": 1.0,
+        "executed_token_loops": 880
+      }
+    ],
+    "teacher_batch_seconds": 0.04966669110581279,
+    "wall_seconds": 35.532702206168324,
+    "scope": "Real-weight teacher-forced all-loop backend parity; not task efficacy or long-context speed evidence."
+  },
+  "long_context": {
+    "status": "PASS",
+    "requests": 2,
+    "known_prefix_positions": 17407,
+    "total_model_context": 17408,
+    "physical_teacher_loops": 4,
+    "teacher_batch_seconds": 3.383198490832001,
+    "wall_seconds": 40.738531693816185,
+    "scope": "Long known-prefix teacher prefill and full readout transport with chunking; no autoregressive speed or task-score claim."
+  },
+  "initial_strict_js_probe": "Retained CHECK_FAILED at max JS 0.001128 > strict 0.001. Current backend readouts are not numerically identical to HF.",
+  "source_sha256": {
+    "ep_loop/fastpath/__init__.py": "bbdc67595ea50ccc8e910f904ad8a88bdf1ede27a70d4dffef379d442f780b11",
+    "ep_loop/fastpath/vllm_ouro.py": "5062ab8ca71665a438bf96137e9b8b976c6dc2a93b5269d143f0e197feed06ae",
+    "ep_loop/fastpath/vllm_worker.py": "9514f4dcca90f231c09afe5a4c51adf1ec9da64e9c029027e51895e012cbffca",
+    "ep_loop/fastpath/vllm_server.py": "eaa7f3b0e7b57d07a65bd524f42ed61f42d187139911d11c0df96f510a98f023",
+    "ep_loop/fastpath/sparse.py": "2a2d023a9bd8e8289e13880f23f6c84bf01df3f76598c74df5573c147685ca79",
+    "ep_loop/fastpath/actor.py": "cbb65127b1fae2826b43107d0f6abd6707647690bd201e9475a0c73168c6ec21",
+    "ep_loop/fastpath/objective.py": "6c5242c9e52dff8ddddbe4ef225b8aef87120fcdc6045b1fbcb86235401a9b19",
+    "ep_loop/fastpath/readout.py": "26919ec672569f45b2cafa56157a7be9b0e78ae55aad7919085ec61f8d907637",
+    "ep_loop/fastpath/inference.py": "4e98d109539b28524b9b3302ebaa03f3ec9b793bcce067bdea75aafe014dd186",
+    "ep_loop/fastpath/rollout.py": "b77579074aa7bb475ae7b70fb20e31fea1ac4d4b9291417adf47feeab4958880",
+    "ep_loop/fastpath/training.py": "f66e31a77f1b6cf027a68038dea1e29df17dbec418027c3fb2d168c7be868943",
+    "ep_loop/fastpath/teacher.py": "957c3182f603a965393bf974ea1fbaf3c705f129b66ade497d06d8937e8fa40a",
+    "ep_loop/fastpath/residency.py": "5147d04d249383c28010b7b7592886d341a2fe60cacab0f9c159d9a2c00f0151",
+    "ep_loop/objective.py": "2907f4bc32d91c81016ea7c245e7e91d40095c4bf19081ece2f19a0dc9bf2303",
+    "ep_loop/selection.py": "bf27673f2dd2cfd3103f4e0e5f075028f5db52a0b9ba8bb5e3acd03ea11d2c54",
+    "ep_loop/config.py": "adb0173663f9ddd854a24c5daeefa544a5daf296bc7a07fad5e60707edc52259",
+    "ep_loop/execution.py": "cd3ed0f6dc07884895eeb0cb473357988a0b4cc66545502380b565ef80960251",
+    "scripts/run_three_route_ablation.sh": "5e268050971852b1fd4c28c5a904debb4b4eef42fb63d45e6ca4885ecaf11cb1",
+    "scripts/run_fastpath_ablation.sh": "012e0b2133343c683b1ddd9557600ac2c8067a8d11fda2d371ab4e56876527d2"
+  },
+  "scope": "Finite engineering validation only; no new formal training panel or task accuracy claim."
+}

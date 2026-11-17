@@ -1,0 +1,44 @@
+{
+  "status": "prepared_and_cpu_verified",
+  "paper_source": "papers/sources/2610.10623v2.txt",
+  "paper_sections": [
+    "Appendix D.1 Table 7: prompts32, group8, global256",
+    "Appendix C.1 Table 4: Step100"
+  ],
+  "defaults": {
+    "prompts_per_batch": 32,
+    "responses_per_prompt": 8,
+    "global_batch_size": 256,
+    "updates": 100,
+    "train_examples": "all",
+    "dev_examples": 64,
+    "evaluation_examples": 64,
+    "max_new_tokens": 16384,
+    "seed": 42,
+    "cpu_threads_per_process": 16,
+    "teacher_trace_dir": "/dev/shm",
+    "max_runtime_hours_unified_launcher": 10
+  },
+  "paper_differences": [
+    "Public source17391 after excluding7 conflicting labels; paper17398 subset identity unverified",
+    "Ouro usable17374, then train17310 and held-out dev64; all-pool split differs from old256-pool split",
+    "Local cap16384; paper31744",
+    "DAPO dev64 x1; paper AIME x16",
+    "Two RTX PRO5000 with one-response microbatches and DDP accumulation; paper four H200",
+    "Independent uniform batch sampling with within-batch no replacement is a local implementation choice"
+  ],
+  "verification": {
+    "cpu_unit_tests_passed": 114,
+    "all_three_default_route_dry_runs_passed": true,
+    "full_source_preparation_passed": true,
+    "legacy_numeric_split_reused": true,
+    "all_rank_requests_per_submission": [
+      128,
+      128
+    ],
+    "actual_gpu_training_started": false,
+    "full_length_batch256_timing_measured": false
+  },
+  "data_validation": "data_and_protocol_validation.json",
+  "prepared_vllm_config": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/loopopd_batch_alignment_20261117/prepared/full_pool_32x8_100_top_n/configs/ours.json"
+}

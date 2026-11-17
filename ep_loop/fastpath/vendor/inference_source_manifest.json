@@ -1,0 +1,8 @@
+{
+  "source": "ep_loop/inference.py",
+  "sha256": "f1ba6e80b6a5f568abd033b55c406de23393e5ba1005c621633581b6be3abca5",
+  "changes": [
+    "Skip redundant GPU exit scalar read",
+    "Avoid rebuilding full GPU token prefix when KV cache is active"
+  ]
+}

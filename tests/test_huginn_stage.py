@@ -167,7 +167,7 @@ class HuginnTests(unittest.TestCase):
                 read_checkpoint_weights(restored.model, folder)
 
     def test_family_configs_context_and_filter_identity(self):
-        configs = [p for p in (ROOT / "configs").glob("huginn_[abcd]_*.json") if "dynamic" not in p.name]
+        configs = [p for p in (ROOT / "configs").glob("huginn_[abcd]_*.json") if "dynamic" not in p.name and "correct" not in p.name]
         self.assertEqual(len(configs), 9)
         for path in configs:
             config = validate_config(load_config(path))

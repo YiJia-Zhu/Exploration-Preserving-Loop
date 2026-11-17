@@ -1,0 +1,7 @@
+{
+  "group": "threshold",
+  "status": "prepared",
+  "output": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/loopopd_batch_alignment_20261117/prepared/hf_full_pool_threshold",
+  "timestamp": "2026-11-17T17:56:29.352742+08:00",
+  "finished_at": "2026-11-17T17:56:34.638144+08:00"
+}

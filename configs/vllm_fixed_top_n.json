@@ -1,0 +1,12 @@
+{
+  "extends": "a_loopopd.json",
+  "run_name": "vllm_fixed_top_n",
+  "algorithm": {
+    "student_policy": "fixed", "student_loops": 2,
+    "teacher_endpoint": "native", "stage_selection": "top_n", "shallow_target_placement": "prefix",
+    "teacher_distribution": "full_vocab", "teacher_top_k": null,
+    "js_threshold": 0.0, "stop_loss_weight": 0.0
+  },
+  "implementation": {"execution_mode": "vllm_fixed", "rollout_backend": "vllm", "teacher_backend": "vllm", "phase_offload": true},
+  "evaluation": {"student_policy": "fixed", "student_loops": [2], "use_cache": true}
+}

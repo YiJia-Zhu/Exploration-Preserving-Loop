@@ -1,0 +1,110 @@
+{
+  "run_name": "g_dynamic_probe_know",
+  "paper": {
+    "version": "2610.10623v2",
+    "sources": [
+      "Appendix B Algorithms 1/2",
+      "Appendix C Table 4",
+      "Appendix D Tables 7/8/9"
+    ],
+    "reported_hardware": "4 NVIDIA H200",
+    "status": "Opt-in dynamic confidence boundary ablation; confidence threshold is uncalibrated; prompt probes change input and add measured cost",
+    "unspecified_choices": [
+      "seed=42",
+      "AdamW betas=(0.9,0.999), eps=1e-8",
+      "drop overlength prompts",
+      "linear warmup then constant LR",
+      "FP32 master parameters with BF16 forward",
+      "unsharded DDP and sequential microbatches",
+      "repair escaped newline literals in the pinned chat template"
+    ],
+    "new_method_thresholds": "JS=0.05 nats and beta=1 are explicit uncalibrated starting choices; local student P(stop)>=0.5; teacher exit unchanged",
+    "dynamic_implementation_choices": [
+      "Keep all JS>tau boundaries; no Top-S cap or shallow-exit fallback",
+      "Mean stop BCE over 1..S_t, then response tokens, then responses",
+      "Exact lazy depth KV/state caching for learned rollout; fill only missing historical suffixes without KV approximation; full-prefix training replay to response max(S_t)",
+      "Huginn new linear exit head starts weight=0,bias=-2; Ouro reuses original gate",
+      "First rollout already uses learned stopping; no native-policy warmup"
+    ]
+  },
+  "model": {
+    "family": "ouro",
+    "path": "models/Ouro-1.4B-Thinking",
+    "revision": "3aaa2224253a92ca45cf2e3d427c360e1ef9c93d",
+    "enable_thinking": true,
+    "repair_template_newlines": true
+  },
+  "data": {
+    "train_path": "data/dapo_math17k/train.jsonl",
+    "expected_examples": 17398,
+    "max_prompt_tokens": 1024,
+    "correctness_cache": null
+  },
+  "algorithm": {
+    "teacher_update": "frozen",
+    "teacher_max_loops": 4,
+    "student_loops": null,
+    "teacher_endpoint": "native",
+    "exit_threshold": 0.9,
+    "stage_selection": "threshold",
+    "js_threshold": 0.05,
+    "count_matched_uniform": true,
+    "student_policy": "learned",
+    "student_max_loops": 4,
+    "stop_loss_weight": 1.0,
+    "student_stop_threshold": 0.5,
+    "boundary_signal": "probe_know",
+    "confidence_threshold": 0.05,
+    "probe_max_answer_tokens": 1
+  },
+  "optimization": {
+    "updates": 100,
+    "global_batch_size": 256,
+    "optimizer": "AdamW",
+    "learning_rate": 1e-06,
+    "weight_decay": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "warmup_steps": 0,
+    "gradient_clip_norm": null,
+    "parameter_dtype": "float32",
+    "mixed_precision": "bf16",
+    "gradient_checkpointing": true
+  },
+  "rollout": {
+    "prompts_per_batch": 32,
+    "responses_per_prompt": 8,
+    "max_new_tokens": 31744,
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "use_cache": true
+  },
+  "evaluation": {
+    "max_new_tokens": 31744,
+    "temperature": 1.0,
+    "top_p": 0.7,
+    "samples_per_problem": 16,
+    "student_loops": [
+      4
+    ],
+    "scope": "AIME integer math; symbolic mathematics and code use external official evaluators",
+    "student_policy": "learned",
+    "use_cache": true
+  },
+  "implementation": {
+    "microbatch_responses": 1,
+    "readout_chunk_size": 128,
+    "checkpoint_readout": true,
+    "save_every_updates": 20,
+    "save_optimizer": true,
+    "write_rollout_text": true
+  },
+  "seed": 42,
+  "distillation": {
+    "response_filter": "all",
+    "require_eos": true
+  }
+}

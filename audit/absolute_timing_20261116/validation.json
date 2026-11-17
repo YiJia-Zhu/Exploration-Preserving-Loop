@@ -1,0 +1,14 @@
+{
+  "checked_at": "2026-11-16T16:20:47.507674+08:00",
+  "cpu_ddp_updates": 2,
+  "final_weights_bitwise_equal": true,
+  "training_metrics_equal_except_timing": true,
+  "live_watcher_alive": true,
+  "live_heartbeat_count": 11,
+  "live_node_event_count": 0,
+  "live_node_transition_test_passed": true,
+  "current_evaluation_uninterrupted": true,
+  "last_live_heartbeat_at": "2026-11-16T16:20:43.457+08:00",
+  "converted_historical_node_events": 7815,
+  "unit_tests_passed": 78
+}

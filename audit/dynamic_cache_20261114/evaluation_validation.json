@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "family": "ouro",
+      "cached_evaluation_passed": true,
+      "per_problem_results_exact_after_reordering": true
+    },
+    {
+      "family": "huginn",
+      "cached_evaluation_passed": true,
+      "per_problem_results_exact_after_reordering": true
+    }
+  ]
+}

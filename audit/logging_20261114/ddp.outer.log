@@ -1,0 +1,40 @@
+[2026-11-14T16:56:46.297+08:00] run_start: train
+[2026-11-14T16:56:46.297+08:00] stage_start: training_run
+[2026-11-14T16:56:46.297+08:00] stage_start: config_validation
+[2026-11-14T16:56:46.298+08:00] stage_end: config_validation (0.000s)
+[2026-11-14T16:56:46.300+08:00] stage_start: distributed_init
+[Gloo] Rank [Gloo] Rank 0 is connected to 11 is connected to  peer ranks. 1Expected number of connected peer ranks is :  peer ranks. 1Expected number of connected peer ranks is : 1
+
+[2026-11-14T16:56:46.303+08:00] stage_end: distributed_init (0.003s)
+[2026-11-14T16:56:46.419+08:00] stage_start: model_load
+[2026-11-14T16:56:47.470+08:00] stage_end: model_load (1.051s)
+[2026-11-14T16:56:47.470+08:00] stage_start: tokenizer_load
+[2026-11-14T16:56:47.470+08:00] stage_end: tokenizer_load (0.000s)
+[2026-11-14T16:56:47.470+08:00] stage_start: teacher_student_setup
+[2026-11-14T16:56:47.471+08:00] stage_end: teacher_student_setup (0.001s)
+[2026-11-14T16:56:47.472+08:00] stage_start: data_prepare
+Tokenize prompts:   0%|          | 0/8 [00:00<?, ?prompt/s]                                                           [2026-11-14T16:56:47.472+08:00] stage_end: data_prepare (0.001s)
+[2026-11-14T16:56:47.484+08:00] stage_start: optimizer_ddp_setup
+[2026-11-14T16:56:47.486+08:00] stage_end: optimizer_ddp_setup (0.002s)
+Train updates:   0%|          | 0/2 [00:00<?, ?update/s]                                                        [2026-11-14T16:56:47.487+08:00] stage_start: update
+Train updates:   0%|          | 0/2 [00:00<?, ?update/s]
+Update 1: rank 0 responses:   0%|          | 0/2 [00:00<?, ?response/s][A
+
+Generate smoke-1 #0:   0%|          | 0/4 [00:00<?, ?tok/s][A[A
+
+                                                           [A[A
+
+Generate smoke-1 #1:   0%|          | 0/4 [00:00<?, ?tok/s][A[A
+
+                                                           [A[A[rank0]:[W1114 16:56:47.416075221 reducer.cpp:1457] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator())
+[rank1]:[W1114 16:56:47.416297091 reducer.cpp:1457] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator())
+
+                                                                       [A                                                        {"update": 1, "mean_response_loss": 0.665732353925705, "responses": 4, "response_tokens": 16, "truncated_responses": 4, "endpoint_only_tokens": 16, "exit_not_deeper_than_student": 0, "rollout_executed_token_loops": 420, "teacher_loss_executed_token_loops": 1680, "mean_adjacent_js_nats": 0.0011565891715387504, "exit_hist": [0, 0, 0, 16], "stage_count_hist": [0, 16, 0, 0, 0], "teacher_depth_by_student_slot": [[0, 0, 0, 16], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], "learning_rate": 0.001, "gradient_norm": 8.906549453735352, "teacher_weight_version": "initial", "student_loss_executed_token_loops": 420, "teacher_coda_token_positions": 0, "teacher_executed_loops": 4, "student_executed_loops": null, "student_policy": "learned", "student_max_loops": 4, "mean_stage_loss": 0.012888496974483132, "mean_stop_loss": 0.6528438478708267, "target_student_depth_hist": [16, 0, 0, 0], "actual_student_depth_hist": [16, 0, 0, 0], "target_actual_depth_confusion": [[16, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], "mean_target_student_depth": 1.0, "mean_actual_student_depth": 1.0, "replay_additional_required_loops": 0, "stop_depth_mean_absolute_error": 0.0, "uncompressed_tokens": 0, "target_at_max_tokens": 0, "generation_seconds_sum": 0.013705299235880375, "rollout_backfill_token_loops": 0, "rollout_coda_token_positions": 0, "teacher_max_loops": 4, "native_exit_reduces_executed_loops": false, "seconds": 0.03718510898761451}
+Train updates:   0%|          | 0/2 [00:00<?, ?update/s]                                                        [2026-11-14T16:56:47.525+08:00] stage_start: checkpoint_save
+Train updates:  50%|█████     | 1/2 [00:00<00:00, 26.61update/s, depth=1, loss=0.666][2026-11-14 16:56:47,726] [WARNING] [real_accelerator.py:209:get_accelerator] Setting accelerator to CPU. If you have GPU or other accelerator, we were unable to detect it.
+[2026-11-14 16:56:47,733] [INFO] [real_accelerator.py:254:get_accelerator] Setting ds_accelerator to cpu (auto detect)
+                                                                                     [2026-11-14T16:56:48.747+08:00] stage_end: checkpoint_save (1.223s)
+Train updates:  50%|█████     | 1/2 [00:01<00:01,  1.26s/update, depth=1, loss=0.666]                                                                                     [2026-11-14T16:56:48.748+08:00] stage_end: update (1.260s)
+Train updates:  50%|█████     | 1/2 [00:01<00:01,  1.26s/update, depth=1, loss=0.666]Train updates:  50%|█████     | 1/2 [00:01<00:01,  1.26s/update, depth=1, loss=0.666]
+[2026-11-14T16:56:48.749+08:00] stage_end: training_run (2.451s)
+[2026-11-14T16:56:48.749+08:00] run_end: train (2.452s)

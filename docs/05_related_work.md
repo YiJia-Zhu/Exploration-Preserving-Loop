@@ -12,5 +12,8 @@
 | Best-of-Depth | 用最低参考损失训练深度候选集合 | 当前是逐token阈值阶段与停止学习；checkpoint一致性未确认 |
 | Query Handoff / Compute-Retain-Reuse | 一些跨轮更新具有计算功能 | JS选中的阶段是否承载这些功能 |
 | Outcome-guided distillation | 用结果筛选监督 | 可选正确性筛选是已有组件，不能单独当创新 |
+| Language Models (Mostly) Know What They Know | P(True)评估候选答案、P(IK)预测是否知道 | 仅核对[论文摘要](https://arxiv.org/abs/2207.05221)；不能据此认定Ouro/Huginn的自报信心已校准 |
 
 完整组合是“原生教师终点→JS阈值阶段数→段末蒸馏→学生停止学习”。组件已有依据不等于组合已有效；动态退出也不自动等于关键探索迁移。论文固定版本与适用模型见[参考入口](../ref/README.md)。
+
+[新增消融](12_confidence_and_correctness_ablations.md)分别比较原始分布置信度与输入改变后的prompt探针，保持原始前缀上的蒸馏目标。正确性消融仅筛教师答对的训练题目，学生当前回答全部参与蒸馏；不能把自报信心当作正确性验证器。

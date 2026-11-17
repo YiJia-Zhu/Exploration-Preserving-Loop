@@ -1,0 +1,23 @@
+{
+  "source": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ablation_workflow_20261114/source.jsonl",
+  "source_sha256": "d77997e238aa094f985d5c1a944e0148a15bf7fb96e65e1d662f5d6a5bd56e9f",
+  "seed": 42,
+  "model_revision": "bb6621b65e90b6a4b9b29ef88dc83866d450470c",
+  "model_family": "huginn",
+  "max_prompt_tokens": 1024,
+  "source_expected_examples": 3,
+  "unique_usable_examples": 3,
+  "duplicates_removed": 0,
+  "overlong_removed": 0,
+  "paper_dataset_identity_verified": false,
+  "partition_sha256": {
+    "train.jsonl": "2921cc2b435d06a3aa383dfebf9b9cfb43ba72104a4ee7c22e4c0ed5c019d898",
+    "dev.jsonl": "e6a43779fcfd65a5626495e0e20198a81a27f8e2d1579c810927c98db7c65b18",
+    "eval.jsonl": "e6a43779fcfd65a5626495e0e20198a81a27f8e2d1579c810927c98db7c65b18"
+  },
+  "partition_sizes": {
+    "train.jsonl": 2,
+    "dev.jsonl": 1,
+    "eval.jsonl": 1
+  }
+}

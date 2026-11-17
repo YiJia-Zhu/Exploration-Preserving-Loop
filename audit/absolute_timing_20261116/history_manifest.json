@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-11-16T16:20:47.507429+08:00",
+  "events": 7815,
+  "sources": [
+    {
+      "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/ablations/20261115_124332_ouro_e_js_dapo64_len16384_seed42_gpu23_memfix/evaluation/ours_update_000010.events.jsonl",
+      "snapshot_bytes": 305323,
+      "snapshot_sha256": "01e662475f23d769a470f4203105db2cd4bd4a2b1e2222b354b68b17c01c058f"
+    },
+    {
+      "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/ablations/20261115_124332_ouro_e_js_dapo64_len16384_seed42_gpu23_memfix/evaluation/ours_update_000020.events.jsonl",
+      "snapshot_bytes": 300470,
+      "snapshot_sha256": "d25c0800043194b0a973681887454a6504d744937b1cdb25b5dca3ae986a765a"
+    },
+    {
+      "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/ablations/20261115_124332_ouro_e_js_dapo64_len16384_seed42_gpu23_memfix/launcher.events.jsonl",
+      "snapshot_bytes": 12996,
+      "snapshot_sha256": "47f6ab2feecc63ca7b6d7daf7b8b06494a3af95251ff4aa60a2d66f9408a85b3"
+    },
+    {
+      "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/ablations/20261115_124332_ouro_e_js_dapo64_len16384_seed42_gpu23_memfix/ours/events_rank0.jsonl",
+      "snapshot_bytes": 1826404,
+      "snapshot_sha256": "bd1e755f9ce52e1779e7c4aaeb0b4f30efaabaa01512e60b92ceda5f5b71a048"
+    },
+    {
+      "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/ablations/20261115_124332_ouro_e_js_dapo64_len16384_seed42_gpu23_memfix/ours/events_rank1.jsonl",
+      "snapshot_bytes": 1775635,
+      "snapshot_sha256": "a4880e6b4c1ae897b4117ee35722129b85342788b959308138a95c8a08b024ac"
+    }
+  ],
+  "note": "Timezone conversion of recorded events only; no reconstructed or fabricated missing timestamps."
+}

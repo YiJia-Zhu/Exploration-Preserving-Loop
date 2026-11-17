@@ -1,0 +1,91 @@
+{
+  "stage": "ablation",
+  "research_route": "vllm",
+  "execution_mode": "vllm_fixed",
+  "gpus": [
+    "2",
+    "3"
+  ],
+  "teacher_loops": 4,
+  "student_loops": 2,
+  "deployment_loops": "2",
+  "groups": [
+    "endpoint",
+    "uniform_n",
+    "top_n"
+  ],
+  "updates_per_group": 20,
+  "teacher_distribution": "full_vocab",
+  "global_batch": 16,
+  "train_examples": 256,
+  "eval_examples": 64,
+  "max_new_tokens": 16384,
+  "eval_max_new_tokens": 16384,
+  "output": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/three_routes_20261117/prepared",
+  "panel": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/three_routes_20261117/prepared/vllm_preview_panel",
+  "checkpoint_free_gib": 78.83614730834961,
+  "checkpoint_required_gib": 171.02577888965607,
+  "checkpoint_space_ready": false,
+  "commands": [
+    {
+      "group": "endpoint",
+      "command": [
+        "bash",
+        "/home/zhenning/data/working_tmp/Exploration-Preserving-Loop/scripts/run_fastpath_ablation.sh",
+        "--prepare-only"
+      ],
+      "environment": {
+        "EXECUTION_MODE": "vllm_fixed",
+        "GPUS": "2,3",
+        "METHOD": "ours",
+        "STAGE_SELECTION": "endpoint",
+        "RUN_TAG": "vllm_preview_endpoint",
+        "OUTPUT_ROOT": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/three_routes_20261117/prepared",
+        "EVAL_INITIAL": "1",
+        "EVAL_INITIAL_FIXED": "1",
+        "STOP_LOSS_WEIGHT": "0",
+        "BASELINE_STUDENT_LOOPS": "2"
+      }
+    },
+    {
+      "group": "uniform_n",
+      "command": [
+        "bash",
+        "/home/zhenning/data/working_tmp/Exploration-Preserving-Loop/scripts/run_fastpath_ablation.sh",
+        "--prepare-only"
+      ],
+      "environment": {
+        "EXECUTION_MODE": "vllm_fixed",
+        "GPUS": "2,3",
+        "METHOD": "ours",
+        "STAGE_SELECTION": "uniform_n",
+        "RUN_TAG": "vllm_preview_uniform_n",
+        "OUTPUT_ROOT": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/three_routes_20261117/prepared",
+        "EVAL_INITIAL": "0",
+        "EVAL_INITIAL_FIXED": "0",
+        "STOP_LOSS_WEIGHT": "0",
+        "BASELINE_STUDENT_LOOPS": "2"
+      }
+    },
+    {
+      "group": "top_n",
+      "command": [
+        "bash",
+        "/home/zhenning/data/working_tmp/Exploration-Preserving-Loop/scripts/run_fastpath_ablation.sh",
+        "--prepare-only"
+      ],
+      "environment": {
+        "EXECUTION_MODE": "vllm_fixed",
+        "GPUS": "2,3",
+        "METHOD": "ours",
+        "STAGE_SELECTION": "top_n",
+        "RUN_TAG": "vllm_preview_top_n",
+        "OUTPUT_ROOT": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/three_routes_20261117/prepared",
+        "EVAL_INITIAL": "0",
+        "EVAL_INITIAL_FIXED": "0",
+        "STOP_LOSS_WEIGHT": "0",
+        "BASELINE_STUDENT_LOOPS": "2"
+      }
+    }
+  ]
+}

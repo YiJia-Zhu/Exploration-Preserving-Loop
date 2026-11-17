@@ -1,0 +1,5 @@
+{
+  "source": "ep_loop/objective.py",
+  "sha256": "e168dd598a1a6fea5e4c4e5c9b964a1e7ed6c1f72d27a6c818b5610e3a6769ee",
+  "purpose": "Local copied objective; only teacher distribution approximation differs"
+}

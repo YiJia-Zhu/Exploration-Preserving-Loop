@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-11-14T11:39:28.322656+00:00",
+  "unit_tests": 70,
+  "removed_signal": "probe_true",
+  "remaining_signals": [
+    "js",
+    "max_probability",
+    "normalized_entropy",
+    "probe_know"
+  ],
+  "removed_config_files": 2,
+  "obsolete_training_answer_length_parameter_removed": true,
+  "independent_forced_answer_diagnostic_passed": true,
+  "ablation_launcher_rejects_removed_signal": true,
+  "scope": "Unit tests, dry-run validation and tiny CPU diagnostic only; no real-model training started."
+}

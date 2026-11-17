@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-11-14T11:31:21.265773+00:00",
+  "unit_tests": 70,
+  "renamed_launcher": "scripts/run_ablation.sh",
+  "old_launcher_removed": true,
+  "default_methods": [
+    "ours"
+  ],
+  "output_root": "experiments/ablations",
+  "experiment_stage": "ablation",
+  "workflow": [
+    "method_ablation",
+    "parameter_experiments_after_method_selection",
+    "formal_baseline_comparison_after_parameter_selection"
+  ],
+  "dynamic_stage_variants": [
+    "threshold",
+    "threshold_uniform",
+    "threshold_endpoint"
+  ],
+  "generic_python_train_and_evaluate_retained": true,
+  "default_teacher_filter": "all",
+  "student_response_filter": false,
+  "seed": 42,
+  "prepare_only_cases": 4,
+  "stage_metadata_in_configs_provenance_and_summaries_verified": true,
+  "checkpoints_and_run_locks_ignored_in_new_output_root": true,
+  "real_model_training_started": false,
+  "scope": "Read-only launcher plans, CPU tokenizer/config preparation, 70 unit tests, and random tiny CPU train/eval metadata propagation. No parameter sweep or formal baseline experiments started.",
+  "sources": {
+    "scripts/run_ablation.sh": "5a1283314614286594cb0bf87e9784a46a88b72bbd956916123ac4e8f9c95129",
+    "ep_loop/training.py": "f90f3b385b329252bb054f8d3fd6ac0c532c0ab0bc9eb1b0f5f4e2d44fb6e44d",
+    "scripts/evaluate_stage_distillation.py": "19aa1320d57b0bd486a09c5a096f27bb49e39e3977cb149324b71cecf5960142",
+    "docs/13_experiment_workflow.md": "b5ed143d456135f3a9ea1413dc13207041315f92d9b6a72b7f425ea64a28a6f6"
+  }
+}

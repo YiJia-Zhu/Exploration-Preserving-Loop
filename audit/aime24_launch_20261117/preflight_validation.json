@@ -1,0 +1,14 @@
+{
+  "config": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/aime24_launch_20261117/prepared/aime24_gpu67_preflight_top_n/configs/ours.json",
+  "training_questions": 17309,
+  "evaluation_questions": 30,
+  "samples_per_problem": 16,
+  "evaluation_responses": 480,
+  "training_decontamination_questions": 90,
+  "global_batch": 256,
+  "updates_target": 100,
+  "gpus": [
+    "6",
+    "7"
+  ]
+}

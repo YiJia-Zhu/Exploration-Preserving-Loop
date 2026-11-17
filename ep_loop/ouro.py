@@ -63,6 +63,8 @@ class LoopTrace:
     exits: object = None
     adjacent_js: object = None
     executed_token_loops: object = None
+    backfill_token_loops: int = 0
+    coda_token_positions: int = 0
 
 
 class OuroBackend:
@@ -134,18 +136,101 @@ and the original cached fixed-depth baseline remain on the author's path.
         return LoopTrace(tuple(states), tuple(gates), exits=exits,
                          executed_token_loops=ids.shape[1]*actual)
 
+    def learned_cached_trace(self, ids, loops, threshold, cache=None, stop_rule='local'):
+        from .cache import ExactLoopCache, causal_suffix_mask
+        if ids.ndim != 2 or ids.shape[0] != 1 or ids.shape[1] < 1 or loops < 1 or not 0 < threshold <= 1:
+            raise ValueError("Invalid learned-exit suffix/depth/threshold")
+        cache = cache if cache is not None else ExactLoopCache(self.model, loops)
+        if not isinstance(cache, ExactLoopCache):
+            raise ValueError("Learned stopping requires its own exact loop cache")
+        cache.validate(self.model, loops)
+        if cache.levels[0].size + ids.shape[1] > self.max_context_length:
+            raise ValueError("Ouro context limit exceeded")
+        backbone = self.model.model
+        states, gates, cost = [], [], 0
+        with self.autocast():
+            cache.levels[0].append(backbone.embed_tokens(ids))
+            end = cache.levels[0].size
+            for depth in range(loops):
+                start = cache.levels[depth + 1].size
+                # A late deep exit can require the whole historical prefix.
+                # Chunk its exact causal suffix so masks/activations stay bounded.
+                for begin in range(start, end, cache.backfill_chunk_size):
+                    stop = min(end, begin + cache.backfill_chunk_size)
+                    hidden = cache.levels[depth].value()[:, begin:stop]
+                    positions = torch.arange(begin, stop, device=ids.device)
+                    position_ids = positions[None]
+                    rotary = backbone.rotary_emb(hidden, position_ids)
+                    masks = {"full_attention": causal_suffix_mask(hidden, begin)}
+                    if backbone.has_sliding_layers:
+                        masks["sliding_attention"] = causal_suffix_mask(hidden, begin, backbone.config.sliding_window)
+                    for layer in backbone.layers:
+                        hidden = layer(hidden, attention_mask=masks[layer.attention_type],
+                            position_ids=position_ids, past_key_value=cache.kv, use_cache=True,
+                            cache_position=positions, position_embeddings=rotary, current_ut=depth)
+                    hidden = backbone.norm(hidden)
+                    cache.levels[depth + 1].append(hidden)
+                cost += end - start
+                # Public trace rows correspond only to the newly consumed IDs.
+                states.append(cache.levels[depth + 1].value()[:, -ids.shape[1]:])
+                gate = backbone.early_exit_gate(states[-1])
+                gates.append(gate)
+                if stop_rule == 'local':
+                    stop = gate[:, -1, 0].sigmoid() >= threshold
+                elif stop_rule == 'native_cdf':
+                    remaining=torch.ones_like(gates[0][...,-1,0])
+                    pdf=[]
+                    for index,visited in enumerate(gates):
+                        probability=visited[...,-1,0].sigmoid()
+                        pdf.append(remaining if index==loops-1 else probability*remaining)
+                        remaining=remaining*(1-probability)
+                    stop=torch.stack(pdf,-1).cumsum(-1)[...,-1]>=threshold
+                else:
+                    raise ValueError('Unknown cached stop rule')
+                if bool(stop.all()):
+                    break
+        actual = len(states)
+        return LoopTrace(tuple(states), tuple(gates), cache=cache,
+            exits=torch.full(ids.shape, actual, dtype=torch.long, device=ids.device),
+            executed_token_loops=cost, backfill_token_loops=cost - actual * ids.shape[1])
+
+    @contextmanager
+    def generation_context(self):
+        """Reuse BF16 weight casts for one no-grad response, then discard them.
+
+        Never retain detached inference casts into the shared-model gradient
+        replay. Inner loop forwards inherit this request-scoped setting.
+        """
+        if torch.is_grad_enabled():
+            raise ValueError("Generation weight-cast caching requires torch.no_grad()")
+        previous = getattr(self, "_generation_cast_cache", False)
+        self._generation_cast_cache = True
+        try:
+            with self.autocast():
+                yield
+        finally:
+            self._generation_cast_cache = previous
+            torch.clear_autocast_cache()
+
     def autocast(self):
         if self.device.type == "cuda" and self.mixed_precision == "bf16":
             # Separate contexts prevent no_grad teacher casts from masking
             # gradients through the same shared weights in D-LoopOPD.
-            return torch.autocast("cuda", dtype=torch.bfloat16, cache_enabled=False)
+            return torch.autocast("cuda", dtype=torch.bfloat16,
+                                  cache_enabled=getattr(self, "_generation_cast_cache", False))
         return nullcontext()
 
     def trace(self, ids, loops, cache=None, use_cache=False, endpoint="fixed", exit_threshold=0.9):
         if endpoint == "learned":
-            if use_cache or cache is not None:
-                raise ValueError("Learned Ouro exit uses explicit full-prefix recomputation, not cached KV")
+            if use_cache:
+                return self.learned_cached_trace(ids, loops, exit_threshold, cache)
+            if cache is not None:
+                raise ValueError("Cannot pass a KV cache when use_cache is false")
             return self.learned_trace(ids, loops, exit_threshold)
+        if endpoint == 'native_adaptive':
+            if not use_cache:
+                raise ValueError('Actual native adaptive execution requires exact depth KV caching')
+            return self.learned_cached_trace(ids,loops,exit_threshold,cache,stop_rule='native_cdf')
         with fixed_depth(self.model, loops), self.autocast():
             output, states, gates = self.model.model(
                 input_ids=ids, past_key_values=cache, use_cache=use_cache,
@@ -162,10 +247,46 @@ and the original cached fixed-depth baseline remain on the author's path.
             return self.model.lm_head(states).float()
 
     def response_trace(self, ids, loops, start, endpoint="fixed", exit_threshold=0.9):
+        if endpoint == 'native_adaptive':
+            return self.native_adaptive_response_trace(ids,loops,start,exit_threshold)
         trace = self.trace(ids, loops, use_cache=False)
         return LoopTrace(tuple(h[0, start:] for h in trace.states),
                          tuple(g[0, start:] for g in trace.gates),
                          executed_token_loops=trace.executed_token_loops)
+
+    def native_adaptive_response_trace(self, ids, loops, start, threshold):
+        """Real CDF exits on a known student prefix, with exact historical KV.
+
+        Unvisited states are padded solely to form rectangular label tensors;
+        per-position exits mask them out of JS and KL, without extra backbone work.
+        """
+        if torch.is_grad_enabled() or self.model.training:
+            raise ValueError('Adaptive teacher labeling requires no_grad and evaluation mode')
+        if ids.shape[0]!=1 or not 0<=start<ids.shape[1]:
+            raise ValueError('Invalid adaptive teacher prefix')
+        positions=ids.shape[1]-start
+        states=gates=exits=None
+        cache=None
+        cost=backfill=0
+        with self.generation_context():
+            for offset in range(positions):
+                current=ids[:,:start+1] if offset==0 else ids[:,start+offset:start+offset+1]
+                trace=self.trace(current,loops,cache,True,'native_adaptive',threshold)
+                cache=trace.cache
+                if states is None:
+                    states=trace.states[0].new_empty((loops,positions,trace.states[0].shape[-1]))
+                    gates=trace.gates[0].new_empty((loops,positions,1))
+                    exits=ids.new_empty(positions)
+                depth=len(trace.states)
+                exits[offset]=depth
+                for slot in range(loops):
+                    selected=min(slot,depth-1)
+                    states[slot,offset].copy_(trace.states[selected][0,-1])
+                    gates[slot,offset].copy_(trace.gates[selected][0,-1])
+                cost+=trace.executed_token_loops
+                backfill+=trace.backfill_token_loops
+        return LoopTrace(tuple(states.unbind(0)),tuple(gates.unbind(0)),exits=exits,
+                         executed_token_loops=cost,backfill_token_loops=backfill)
 
 
 def load_ouro(directory, device, mixed_precision="bf16", gradient_checkpointing=True):

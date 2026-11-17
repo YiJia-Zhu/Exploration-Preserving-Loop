@@ -1,0 +1,107 @@
+{
+  "run_name": "huginn_g_dynamic_entropy",
+  "paper": {
+    "version": "2610.10623v2",
+    "sources": [
+      "Main proposal sections 3 and 7",
+      "Huginn official raven_modeling_minimal.py at pinned revision"
+    ],
+    "reported_hardware": "4 NVIDIA H200",
+    "status": "Opt-in dynamic confidence boundary ablation; confidence threshold is uncalibrated; prompt probes change input and add measured cost",
+    "unspecified_choices": [
+      "Reuse Ouro LoopOPD optimizer and batch as a controlled Huginn adaptation",
+      "Full S-step student backpropagation with nonreentrant checkpointing; not BoD last-eight truncation",
+      "Native random state on every forward; teacher and student draws are independent",
+      "Native whole-prompt adaptive prefill, batch size 1, latest-m4 cache",
+      "Huginn-0125 is an explicitly chosen official base; identity with BoD checkpoint is unconfirmed"
+    ],
+    "new_method_thresholds": "JS=0.05 nats and beta=1 are explicit uncalibrated starting choices; local student P(stop)>=0.5; teacher exit unchanged",
+    "dynamic_implementation_choices": [
+      "Keep all JS>tau boundaries; no Top-S cap or shallow-exit fallback",
+      "Mean stop BCE over 1..S_t, then response tokens, then responses",
+      "Exact lazy depth KV/state caching for learned rollout; native initial state sampled once per position; depth-specific coda KV; full-prefix training replay to response max(S_t)",
+      "Huginn new linear exit head starts weight=0,bias=-2; Ouro reuses original gate",
+      "First rollout already uses learned stopping; no native-policy warmup"
+    ]
+  },
+  "model": {
+    "family": "huginn",
+    "path": "models/huginn-0125",
+    "revision": "bb6621b65e90b6a4b9b29ef88dc83866d450470c",
+    "enable_thinking": false,
+    "repair_template_newlines": false
+  },
+  "data": {
+    "train_path": "data/dapo_math17k/train.jsonl",
+    "expected_examples": 17398,
+    "max_prompt_tokens": 1024,
+    "correctness_cache": null
+  },
+  "algorithm": {
+    "teacher_update": "frozen",
+    "teacher_max_loops": 32,
+    "student_loops": null,
+    "teacher_endpoint": "native",
+    "exit_threshold": 0.0005,
+    "stage_selection": "threshold",
+    "js_threshold": 0.05,
+    "count_matched_uniform": true,
+    "student_policy": "learned",
+    "student_max_loops": 32,
+    "stop_loss_weight": 1.0,
+    "student_stop_threshold": 0.5,
+    "boundary_signal": "normalized_entropy",
+    "confidence_threshold": 0.05,
+    "probe_max_answer_tokens": 1
+  },
+  "optimization": {
+    "updates": 100,
+    "global_batch_size": 256,
+    "optimizer": "AdamW",
+    "learning_rate": 1e-06,
+    "weight_decay": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "warmup_steps": 0,
+    "gradient_clip_norm": null,
+    "parameter_dtype": "float32",
+    "mixed_precision": "bf16",
+    "gradient_checkpointing": true
+  },
+  "rollout": {
+    "prompts_per_batch": 32,
+    "responses_per_prompt": 8,
+    "max_new_tokens": 3072,
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "use_cache": true
+  },
+  "evaluation": {
+    "max_new_tokens": 3072,
+    "temperature": 1.0,
+    "top_p": 0.7,
+    "samples_per_problem": 16,
+    "student_loops": [
+      32
+    ],
+    "scope": "AIME integer math; symbolic mathematics and code use external official evaluators",
+    "student_policy": "learned",
+    "use_cache": true
+  },
+  "implementation": {
+    "microbatch_responses": 1,
+    "readout_chunk_size": 16,
+    "checkpoint_readout": true,
+    "save_every_updates": 20,
+    "save_optimizer": true,
+    "write_rollout_text": true
+  },
+  "seed": 42,
+  "distillation": {
+    "response_filter": "all",
+    "require_eos": true
+  }
+}

@@ -19,3 +19,5 @@
 当前默认 `configs/default.json` 指向E组冻结教师版。Ouro上限4，Huginn上限32；τ=0.05 nats、β=1尚未校准。Huginn新退出头初始化weight=0、bias=−2；Ouro保留原始gate，不重置。
 
 旧版固定S、最多Top-(S−1)边界、有序映射保留为F。它不再是默认方法。实现、缓存和真实成本边界见[实现说明](08_implementation_and_reproduction.md)。
+
+新增[边界信号与正确性消融](12_confidence_and_correctness_ablations.md)：以最大概率、归一化熵或prompt探针信心的变化替代JS；比较教师正确题目池、同数量随机题目和不筛选版本。默认仍是JS且不筛选，所有新信号组保留动态学生，不固定实际循环数。

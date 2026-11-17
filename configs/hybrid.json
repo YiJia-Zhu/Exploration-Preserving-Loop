@@ -1,0 +1,7 @@
+{
+  "extends": "default.json",
+  "run_name": "hybrid_dynamic_train_fixed_deployment",
+  "algorithm": {"teacher_endpoint": "native"},
+  "implementation": {"execution_mode": "hybrid", "rollout_backend": "hf"},
+  "evaluation": {"student_policy": "fixed", "student_loops": [1, 2, 3, 4]}
+}

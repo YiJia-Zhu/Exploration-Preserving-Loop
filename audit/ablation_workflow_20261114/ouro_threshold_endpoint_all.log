@@ -1,0 +1,76 @@
+{
+  "experiment_stage": "ablation",
+  "purpose": "method_selection_on_development_data",
+  "methods": [
+    "ours"
+  ],
+  "gpus": [
+    "7"
+  ],
+  "model": "ouro",
+  "teacher_update": "frozen",
+  "stage_selection": "threshold_endpoint",
+  "loopopd_role": "optional_ablation_control",
+  "seed": 42,
+  "python_hash_seed": "42",
+  "evaluation_seed_scheme": "sha256_base_seed_problem_fingerprint_sample_v1",
+  "strict_deterministic_kernels": false,
+  "teacher_max_loops": 4,
+  "baseline_student_loops": 2,
+  "dynamic_student": "1..K, learned stopping",
+  "js_threshold": 0.05,
+  "stop_loss_weight": 1.0,
+  "boundary_signal": "js",
+  "confidence_threshold": 0.05,
+  "question_filter": "all",
+  "filter_require_eos": true,
+  "ours_use_cache": true,
+  "baseline_use_cache": true,
+  "progress": {
+    "show": false,
+    "tokens": true,
+    "min_interval": 1.0,
+    "timezone": "Asia/Shanghai"
+  },
+  "student_stop_threshold": 0.5,
+  "train_examples": 2,
+  "dev_examples": 1,
+  "updates": 20,
+  "global_batch": 1,
+  "prompts_per_batch": 1,
+  "responses_per_prompt": 1,
+  "learning_rate": 1e-06,
+  "max_new_tokens": 512,
+  "evaluation_updates": [
+    10,
+    20
+  ],
+  "initial_references": true,
+  "initial_fixed_references": false,
+  "output": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ablation_workflow_20261114/prepared/ouro_threshold_endpoint_all",
+  "launcher_sha256": "5a1283314614286594cb0bf87e9784a46a88b72bbd956916123ac4e8f9c95129"
+}
+{
+  "ready": true,
+  "missing": [],
+  "observed_model_revision": "3aaa2224253a92ca45cf2e3d427c360e1ef9c93d",
+  "requested_model_revision": "3aaa2224253a92ca45cf2e3d427c360e1ef9c93d",
+  "model_revision_metadata_matches": true,
+  "observed_training_rows": 3,
+  "expected_training_rows": 3,
+  "training_count_matches": true,
+  "dataset_identity_verified": false,
+  "note": "Metadata/count checks do not independently establish the original paper dataset identity"
+}
+[2026-11-14T19:30:01.326+08:00] run_start: ablation
+[2026-11-14T19:30:01.328+08:00] stage_start: ablation
+[2026-11-14T19:30:01.328+08:00] stage_start: data_split
+[2026-11-14T19:30:02.841+08:00] stage_start: tokenizer_load
+[2026-11-14T19:30:02.890+08:00] stage_end: tokenizer_load (0.048s)
+Reusing matching split: /local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ablation_workflow_20261114/split_ouro
+[2026-11-14T19:30:02.904+08:00] stage_end: data_split (1.576s)
+[2026-11-14T19:30:02.904+08:00] stage_start: save_configs
+[2026-11-14T19:30:02.905+08:00] stage_end: save_configs (0.001s)
+Prepared data and configs: /local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ablation_workflow_20261114/prepared/ouro_threshold_endpoint_all
+[2026-11-14T19:30:02.905+08:00] stage_end: ablation (1.577s)
+[2026-11-14T19:30:02.905+08:00] run_end: ablation (1.579s)

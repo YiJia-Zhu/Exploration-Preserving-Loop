@@ -1,9 +1,11 @@
 """On-policy stage prediction and optional supervised student stopping."""
+from contextlib import nullcontext
 import torch
 from torch import nn
 from torch.utils.checkpoint import checkpoint
 
 from .ouro import evaluation_mode
+from .confidence import confidence_changes
 from .selection import (StagePlan, adjacent_js_from_log_probs, make_dynamic_stage_plan,
                         make_stage_plan, make_stage_plan_from_js, stage_reverse_kl,
                         stage_stop_bce)
@@ -17,11 +19,13 @@ class DistillationObjective(nn.Module):
     counted. No teacher cache is transplanted into the student.
     """
     def __init__(self, student, teacher, algorithm, readout_chunk_size=128,
-                 checkpoint_readout=True):
+                 checkpoint_readout=True, observer=None, confidence_probe=None):
         super().__init__()
         self.student_model = student.model
         self.student, self.teacher = student, teacher
         self.algorithm = dict(algorithm)
+        self.observer = observer
+        self.confidence_probe = confidence_probe
         self.chunk_size, self.checkpoint_readout = readout_chunk_size, checkpoint_readout
         if readout_chunk_size < 1:
             raise ValueError("Readout chunk size must be positive")
@@ -38,31 +42,52 @@ class DistillationObjective(nn.Module):
         dynamic = a.get("student_policy", "fixed") == "learned"
         k = a["teacher_max_loops"]
         slots = a["student_max_loops"] if dynamic else a["student_loops"]
+        signal = a.get('boundary_signal','js')
+        probe_changes = None
+        probe_cost = dict(token_loops=0,coda_token_positions=0,forwards=0,positions=0)
         inputs, first = response_ids[:, :-1], prompt_length-1
-        with torch.no_grad(), evaluation_mode(self.teacher.model):
+        with (self.observer.stage("teacher_forward", max_loops=k, response_tokens=n)
+              if self.observer else nullcontext()), torch.no_grad(), evaluation_mode(self.teacher.model):
             teacher = self.teacher.response_trace(inputs, k, first, a["teacher_endpoint"], a["exit_threshold"])
-            exits = (self.teacher.native_exit_depths(teacher, a["exit_threshold"])
+            exits = (teacher.exits if a['teacher_endpoint']=='native_adaptive' else self.teacher.native_exit_depths(teacher, a["exit_threshold"])
                      if a["teacher_endpoint"] == "native" else
                      torch.full((n,), k, device=inputs.device, dtype=torch.long))
+        if dynamic and signal=='probe_know':
+            if self.confidence_probe is None:
+                raise ValueError('Prompt confidence requires tokenizer/probe instrumentation')
+            measured, _, probe_cost = self.confidence_probe.measure(inputs, first, exits, signal)
+            probe_changes = inputs.new_zeros((k-1,n),dtype=torch.float32)
+            probe_changes[:measured.shape[0]] = measured
         stage_hist = torch.zeros(slots+1, device=inputs.device, dtype=torch.long)
         mapping = torch.zeros(slots, k, device=inputs.device, dtype=torch.long)
         js_sum = torch.zeros((), device=inputs.device)
         js_count = torch.zeros((), device=inputs.device, dtype=torch.long)
+        signal_sum = torch.zeros((), device=inputs.device)
         target_depths = torch.full((n,), slots, device=inputs.device, dtype=torch.long)
         plans = []
-        with torch.no_grad():
+        with (self.observer.stage("stage_planning", response_tokens=n)
+              if self.observer else nullcontext()), torch.no_grad():
             for start in range(0, n, self.chunk_size):
                 end = min(start+self.chunk_size, n)
                 selected_exits = exits[start:end]
                 if dynamic:
-                    if teacher.adjacent_js is not None:
-                        js = teacher.adjacent_js[:, start:end]
-                    else:
+                    need_logits = signal in {'max_probability','normalized_entropy'} or teacher.adjacent_js is None
+                    if need_logits:
                         hidden = torch.stack([h[start:end] for h in teacher.states])
                         logq = self.teacher.head(hidden).log_softmax(-1)
                         js = adjacent_js_from_log_probs(logq)
+                    else:
+                        js = teacher.adjacent_js[:, start:end]
+                    if signal == 'js':
+                        changes, threshold = js, a['js_threshold']
+                    elif probe_changes is not None:
+                        changes, threshold = probe_changes[:,start:end], a.get('confidence_threshold',.05)
+                    else:
+                        changes, _ = confidence_changes(logq,signal)
+                        threshold = a.get('confidence_threshold',.05)
+                    plan = make_dynamic_stage_plan(changes, selected_exits, a["stage_selection"], threshold)
+                    if need_logits:
                         del logq
-                    plan = make_dynamic_stage_plan(js, selected_exits, a["stage_selection"], a["js_threshold"])
                     target_depths[start:end] = plan.target_loops
                 elif a["stage_selection"] == "endpoint":
                     targets = torch.full((slots, end-start), -1, device=exits.device, dtype=torch.long)
@@ -72,25 +97,33 @@ class DistillationObjective(nn.Module):
                     plan = StagePlan(targets, weights, selected_exits, weights.new_zeros((k-1, end-start)))
                 elif teacher.adjacent_js is not None:
                     plan = make_stage_plan_from_js(teacher.adjacent_js[:, start:end], selected_exits,
-                        slots, a["stage_selection"], a["js_threshold"], a.get("count_matched_uniform", True))
+                        slots, a["stage_selection"], a["js_threshold"], a.get("count_matched_uniform", True),
+                        a.get('shallow_target_placement','last'))
                 else:
                     hidden = torch.stack([h[start:end] for h in teacher.states])
                     logq = self.teacher.head(hidden).log_softmax(-1)
                     plan = make_stage_plan(logq, selected_exits, slots, a["stage_selection"],
-                        a["js_threshold"], a.get("count_matched_uniform", True))
+                        a["js_threshold"], a.get("count_matched_uniform", True),a.get('shallow_target_placement','last'))
                     del logq
                 counts = plan.target_loops if dynamic else plan.counts
+                if not dynamic and a.get('shallow_target_placement','last')=='prefix' and a['stage_selection']=='top_n':
+                    target_depths[start:end]=((plan.teacher_depths>0)*
+                        torch.arange(1,slots+1,device=exits.device)[:,None]).max(0).values
                 stage_hist += torch.bincount(counts, minlength=slots+1)
                 for slot in range(slots):
                     active = plan.teacher_depths[slot] > 0
                     mapping[slot] += torch.bincount(plan.teacher_depths[slot, active]-1, minlength=k)
                 if dynamic or a["stage_selection"] != "endpoint":
                     valid = torch.arange(2, k+1, device=exits.device)[:, None] <= selected_exits[None]
-                    js_sum += plan.adjacent_js.masked_select(valid).sum()
+                    js_sum += (js if dynamic else plan.adjacent_js).masked_select(valid).sum()
+                    signal_sum += (changes if dynamic else plan.adjacent_js).masked_select(valid).sum()
                     js_count += valid.sum()
                 plans.append((start, end, plan))
         replay_loops = int(target_depths.max()) if dynamic else slots
-        student = self.student.response_trace(inputs, replay_loops, first)
+        with (self.observer.stage("student_replay", loops=replay_loops, response_tokens=n)
+              if self.observer else nullcontext()):
+            student = self.student.response_trace(inputs, replay_loops, first)
+        readout_span = self.observer.start("loss_readout", response_tokens=n) if self.observer else None
         stage_loss = student.states[0].new_zeros((), dtype=torch.float32)
         for start, end, full_plan in plans:
             plan = StagePlan(full_plan.teacher_depths[:replay_loops], full_plan.weights[:replay_loops],
@@ -116,6 +149,8 @@ class DistillationObjective(nn.Module):
                 raise RuntimeError("Student stopping head was not included in replay")
             stop_loss = stage_stop_bce(torch.stack(student.gates), target_depths).mean()
         loss = stage_loss+a.get("stop_loss_weight", 1.)*stop_loss
+        if self.observer:
+            self.observer.finish(readout_span)
         target_hist = torch.bincount(target_depths, minlength=slots+1)[1:]
         confusion = torch.zeros(slots, slots, device=inputs.device, dtype=torch.long)
         extra = error = 0
@@ -128,10 +163,11 @@ class DistillationObjective(nn.Module):
             error = int((target_depths-actual).abs().sum())
         info = dict(response_tokens=n, exit_hist=torch.bincount(exits,minlength=k+1)[1:].detach(),
             stage_hist=stage_hist.detach(), mapping_hist=mapping.detach(), js_sum=js_sum.detach(),
-            js_count=js_count.detach(), teacher_executed_loops=(None if
+            js_count=js_count.detach(), teacher_executed_loops=(None if a['teacher_endpoint']=='native_adaptive' or
                 self.teacher.native_exit_reduces_executed_loops and a["teacher_endpoint"] == "native" else k),
             student_executed_loops=replay_loops,
             teacher_executed_token_loops=teacher.executed_token_loops,
+            teacher_backfill_token_loops=teacher.backfill_token_loops,
             student_executed_token_loops=student.executed_token_loops,
             teacher_coda_token_positions=teacher.executed_token_loops if self.teacher.has_coda else 0,
             endpoint_only_tokens=int(stage_hist[1]),
@@ -142,4 +178,6 @@ class DistillationObjective(nn.Module):
             replay_additional_required_loops=extra, stop_depth_absolute_error=error,
             uncompressed_tokens=int((target_depths==exits).sum()) if dynamic else 0,
             target_at_max_tokens=int((target_depths==slots).sum()) if dynamic else 0)
+        info.update(boundary_signal_sum=signal_sum.detach(),confidence_probe_token_loops=probe_cost['token_loops'],
+                    confidence_probe_coda_token_positions=probe_cost['coda_token_positions'],confidence_probe_forwards=probe_cost['forwards'])
         return loss, info

@@ -1,0 +1,17 @@
+{
+  "reason": "User requested a maximum 10-hour experiment; replace the initial-reference 20-step panel with a budgeted panel",
+  "timestamp": "2026-11-17T01:29:30.645069+08:00",
+  "root_pid": 251851,
+  "owned_pids": [
+    251851,
+    251855,
+    252301,
+    252376,
+    252377,
+    252913,
+    252914,
+    252917,
+    252918
+  ],
+  "stopped_before_optimizer_training": true
+}

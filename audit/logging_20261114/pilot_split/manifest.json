@@ -1,0 +1,23 @@
+{
+  "source": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/logging_20261114/launcher_input.jsonl",
+  "source_sha256": "676792dfcf9d12d0151db7464a78ef77eab51e6b83636ce886517737e0941ca2",
+  "seed": 42,
+  "model_revision": "3aaa2224253a92ca45cf2e3d427c360e1ef9c93d",
+  "model_family": "ouro",
+  "max_prompt_tokens": 1024,
+  "source_expected_examples": 3,
+  "unique_usable_examples": 3,
+  "duplicates_removed": 0,
+  "overlong_removed": 0,
+  "paper_dataset_identity_verified": false,
+  "partition_sha256": {
+    "train.jsonl": "e1a4afe0dc8ad31d40f4000556e943691a1034d8b0eb16cbbfef8d6ced4a248c",
+    "dev.jsonl": "3937c5be142f18c9b0f02331b6fc273cd345e0fc4b454f3eaaadf5b7539b9388",
+    "eval.jsonl": "3937c5be142f18c9b0f02331b6fc273cd345e0fc4b454f3eaaadf5b7539b9388"
+  },
+  "partition_sizes": {
+    "train.jsonl": 2,
+    "dev.jsonl": 1,
+    "eval.jsonl": 1
+  }
+}

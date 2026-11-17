@@ -4,7 +4,11 @@
 
 ## 1. 默认配置与关键约定
 
+当前处于方法消融阶段，统一编排入口是`run_ablation.sh`；参数实验与正式baseline比较在方案确定后再开展，见[实验流程](13_experiment_workflow.md)。下列Python命令是可复用的底层入口，运行类别由实验配置记录。
+
 `configs/default.json` 继承 [e_dynamic_js.json](../configs/e_dynamic_js.json)，默认Ouro、冻结教师。训练、评测和正确性筛选入口不传 `--config` 时都读取它。未准备数据时，正式训练明确报错，不会静默进入小模型模式。
+
+默认执行模式为`hf_dynamic`：原HF真实逐token停止、完整词表JS和reverse KL、精确动态KV缓存。`run_ablation.sh`与兼容入口`run_fastpath_ablation.sh`不指定模式均使用主实现；只有显式`EXECUTION_MODE=vllm_top20`才启用固定K读出＋top-20近似，`hf_top20`仅启用教师近似而保持HF生成和评测。详见[执行模式](14_vllm_top20_fastpath.md)。
 
 | 参数 | 默认Ouro | Huginn验证 |
 |---|---|---|
@@ -16,7 +20,7 @@
 | 学生停止 | 本地P(stop)≥0.5 | 同左 |
 | 停止BCE系数β | 1 | 1 |
 | 学生退出头 | 复用已有gate，不重置 | 新增线性头，weight=0、bias=−2 |
-| 学生rollout缓存 | 关闭，逐前缀重算 | 同左 |
+| 学生rollout缓存 | 开启，按深度精确缓存与按需补算 | 同左，随机初态每位置一次、coda按深度隔离 |
 | 教师参数更新 | 默认frozen；可选current | 同左 |
 
 JS阈值和β是明确的未校准选择，不是LoopOPD原文参数。第一批也直接使用学生停止策略，没有额外原生策略warmup；主方案允许原生warm start，但不要求它。
@@ -42,13 +46,15 @@ C/D/E都用同一阈值规则生成S_t。C只在学生第S_t轮匹配教师终�
 
 Ouro教师保留官方先计算全部K轮、再按CDF选出口的实现。教师早读出不代表真正少执行。学生复用gate参数，但停止规则是本地概率≥0.5，与教师CDF不同。
 
-第一版动态学生不近似填补未运行循环的KV，而是对当前完整文本前缀逐轮重算并停止。这给出明确、可核对的条件分布；代价是每次重复处理既有前缀。`executed_token_loops`统计输入位置数×真实执行轮数，不只统计生成token的退出深度。它不含反向、checkpoint重算和LM head；教师coda另记token-positions，不能直接当作完整FLOPs。
+动态学生默认开启精确按深度KV与状态缓存。每个深度保存已完成的前缀长度；后续token需要更深循环时，只用上一深度的已存状态补齐该深度的缺失后缀，计算结果与同初态完整前缀前向在数学上相同，不用浅层KV填补深层。缓存仅属于单次回答，结束即释放，训练参数更新后不会沿用。`use_cache=false`仍保留第一版完整前缀重算。
 
-原始LoopOPD保留缓存。除原始B外，使用 [loopopd_recompute.json](../configs/loopopd_recompute.json) 或 [huginn_loopopd_recompute.json](../configs/huginn_loopopd_recompute.json) 在相同重算条件下比较。精度—轮数与精度—耗时均需报告；降低平均轮数不自动建立加速。
+`executed_token_loops`包括prompt预填充、新token循环和历史深度补算；`backfill_token_loops`单列历史补算。`execution_depths`只表示当前新输入实际经过的循环数，不把补算摊成大于K的出口。Huginn另记生成coda token-positions。统计不含反向、checkpoint重算和LM head，不能当作完整FLOPs。
 
-Huginn教师沿用batch size=1、原生whole-prompt prefill和独立latest-m4 KV。KL首轮参考均匀分布，后续为KL(q_previous||q_current)。每轮预测经过norm→完整coda→norm→LM head，退出检查产生的分布同时用于JS。学生线性头读取归一化循环状态，动态rollout采用完整前缀重算；不与教师共享缓存。
+原始LoopOPD保留固定深度缓存。旧 [loopopd_recompute.json](../configs/loopopd_recompute.json) 或 [huginn_loopopd_recompute.json](../configs/huginn_loopopd_recompute.json) 仅作重算诊断；正式比较两组默认缓存、实际耗时和显存。深层KV精确补算可能使总工作量接近全K，降低出口均值不自动建立同等比例加速。详见[缓存验证](10_dynamic_kv_cache.md)。
 
-Huginn保留原生随机初态，teacher/student独立抽样。本实现全学生回放轮次反传，未声称复现BoD的最后至多八轮截断。选择官方huginn-0125作为本项目基模，仍未确认与BoD使用相同checkpoint，见[论文笔记](03_paper_notes.md)。
+Huginn教师沿用batch size=1、原生whole-prompt prefill和独立latest-m4 KV。KL首轮参考均匀分布，后续为KL(q_previous||q_current)。每轮预测经过norm→完整coda→norm→LM head，退出检查产生的分布同时用于JS。学生线性头读取归一化循环状态，动态rollout采用精确缓存，coda KV按循环深度隔离，不与教师共享缓存。
+
+Huginn保留原生随机初态，teacher/student独立抽样；缓存生成时，每个新位置只初始化一次并保留历史初态。旧重算会重新抽取整个前缀，因此即使种子相同，新旧路径也不保证生成相同；数值对照必须固定同一组原生初态。测试时噪声注入`test_time_noise>0`暂不支持精确学生缓存。本实现全学生回放轮次反传，未声称复现BoD的最后至多八轮截断。选择官方huginn-0125作为本项目基模，仍未确认与BoD使用相同checkpoint，见[论文笔记](03_paper_notes.md)。
 
 ## 4. LoopOPD对齐部分与A–F配置
 
@@ -80,12 +86,12 @@ C/D/E的current教师版使用同名 `_current.json`。正式Huginn数学验证�
 CUDA_VISIBLE_DEVICES='' .venv/bin/python scripts/train_stage_distillation.py \
   --smoke --device cpu --output experiments/runs/my_dynamic_smoke
 
-# 正式四卡主方法。GPU编号按可用卡修改。
+# 通用训练入口：当前用于主方法的ablation组，GPU编号按可用卡修改。
 CUDA_VISIBLE_DEVICES=0,1,2,3 .venv/bin/python -m torch.distributed.run \
   --standalone --nproc-per-node=4 scripts/train_stage_distillation.py \
   --device cuda --output experiments/runs/my_dynamic_student
 
-# 正式LoopOPD baseline。
+# 通用训练入口：显式选择LoopOPD作为ablation对照组。
 CUDA_VISIBLE_DEVICES=0,1,2,3 .venv/bin/python -m torch.distributed.run \
   --standalone --nproc-per-node=4 scripts/train_stage_distillation.py \
   --config configs/a_loopopd.json --device cuda \
@@ -94,11 +100,15 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 .venv/bin/python -m torch.distributed.run \
 
 恢复加 `--resume <checkpoint目录>`，必须使用同一配置和world size。保存参数、退出头、optimizer、各rank的数据／采样／Torch RNG。输出已有更晚更新时拒绝从旧检查点混写历史，需新输出目录。Huginn新增头和原有tied embedding都支持单文件／分片；动态checkpoint应通过本项目loader加载，官方原始类不知道新增学生头。
 
+默认显示更新、每rank回答数与逐token生成tqdm，最大约每秒刷新。各rank将阶段起止、耗时、题目／样本标识和异常写入`events_rankN.jsonl`，控制台写入`console_rankN.log`；ablation启动脚本还按训练／评测子进程保存原始合并日志。时间包含UTC与北京时间，断点恢复追加新session，详见[日志与进度](11_logging_and_progress.md)。
+
 ## 6. 数据、筛选与评测
 
-正式 `data/dapo_math17k/train.jsonl` 尚缺。用已确认来源运行 `prepare_stage_data.py`，默认期望17,398题；保留原消息、ID和内容哈希，源发布／revision也记录。不自动使用其他项目的17,162题子集。
+本地`data/dapo_math17k/train.jsonl`已准备，为公开DAPO去重并剔除7道标签冲突题后的17,391题，保留原消息、ID和内容哈希。不能据此确认与论文17,398题内部子集相同。启动脚本默认排除超长题及AIME原文重合题，再留出64道DAPO备用开发题；当前Ouro得到17,309道训练题。三个sh入口默认32题×8回答／更新、目标100更新；评测默认先用AIME2024的30题×16次，2025／2026可选扩展，长度上限仍为16,384。直接使用`paper_ouro_base.json`仍保留论文记录值，实际运行优先使用启动脚本生成的配置。数据来源、判分边界及命令见[AIME评测协议](17_aime_evaluation.md)。
 
-可选 `build_teacher_filter.py` 使用冻结初始教师原生动态作答一次，只缓存正确性接受标签；当前前缀上的n_t与阶段必须重算。现有boxed整数验证器不能替代复杂符号或EvalPlus官方验证。
+可选 `build_teacher_filter.py` 使用冻结初始教师原生动态作答一次，只缓存正确性接受标签；当前前缀上的n_t与阶段必须重算。现有整数验证器支持boxed提示与公开DAPO的Answer:格式，不能替代复杂符号或EvalPlus官方验证。
+
+正确性现仅作为教师筛题消融：`distillation.question_filter=teacher_correct`保留教师答对的训练题目，`random_matched`控制相同题目数量；默认`all`不过滤。学生回答无论对错均参与蒸馏。开启教师筛题时，默认要求教师EOS完整终止。置信度边界由`algorithm.boundary_signal`控制，prompt探针成本单列，详见[消融说明](12_confidence_and_correctness_ablations.md)。
 
 ```bash
 # 动态学生部署评测：不传 --loops，使用自己学到的停止头。

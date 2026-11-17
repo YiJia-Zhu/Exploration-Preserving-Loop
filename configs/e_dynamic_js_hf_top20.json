@@ -1,0 +1,12 @@
+{
+  "extends": "e_dynamic_js.json",
+  "run_name": "e_dynamic_js_hf_top20_optional",
+  "algorithm": {
+    "teacher_distribution": "top20_original_mass_uniform_tail",
+    "teacher_top_k": 20
+  },
+  "implementation": {
+    "execution_mode": "hf_top20",
+    "rollout_backend": "hf"
+  }
+}

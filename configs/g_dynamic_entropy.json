@@ -1,0 +1,11 @@
+{
+  "extends": "e_dynamic_js.json",
+  "run_name": "g_dynamic_entropy",
+  "algorithm": {
+    "boundary_signal": "normalized_entropy",
+    "confidence_threshold": 0.05
+  },
+  "paper": {
+    "status": "Opt-in dynamic confidence boundary ablation; confidence threshold is uncalibrated; prompt probes change input and add measured cost"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "family": "ouro",
+      "stage_selection": "threshold",
+      "question_filter": "all",
+      "config_stage": "ablation",
+      "training_started": false
+    },
+    {
+      "family": "ouro",
+      "stage_selection": "threshold_uniform",
+      "question_filter": "all",
+      "config_stage": "ablation",
+      "training_started": false
+    },
+    {
+      "family": "ouro",
+      "stage_selection": "threshold_endpoint",
+      "question_filter": "all",
+      "config_stage": "ablation",
+      "training_started": false
+    },
+    {
+      "family": "huginn",
+      "stage_selection": "threshold_uniform",
+      "question_filter": "teacher_correct",
+      "config_stage": "ablation",
+      "training_started": false
+    }
+  ]
+}

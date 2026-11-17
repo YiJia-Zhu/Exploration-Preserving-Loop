@@ -1,0 +1,11 @@
+test_analytic_reverse_kl_and_gradient_match_dense_reconstruction (test_fastpath.FastpathTests) ... ok
+test_fixed_compute_readout_matches_first_local_stop_and_native_cdf (test_fastpath.FastpathTests) ... ok
+test_full_vocab_limit_preserves_original_objective_stop_labels_and_gradients (test_fastpath.FastpathTests) ... ok
+test_hf_cached_fastpath_keeps_exact_tokens_depths_and_random_stream (test_fastpath.FastpathTests) ... ok
+test_sparse_distribution_keeps_mass_and_nonzero_tail (test_fastpath.FastpathTests) ... ok
+test_sparse_js_matches_dense_reconstructed_distribution (test_fastpath.FastpathTests) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.238s
+
+OK

@@ -1,0 +1,28 @@
+[2026-11-14T19:08:58.784+08:00] run_start: train
+[2026-11-14T19:08:58.785+08:00] stage_start: training_run
+[2026-11-14T19:08:58.785+08:00] stage_start: config_validation
+[2026-11-14T19:08:58.785+08:00] stage_end: config_validation (0.000s)
+[2026-11-14T19:08:58.788+08:00] stage_start: model_load
+[2026-11-14T19:08:59.797+08:00] stage_end: model_load (1.009s)
+[2026-11-14T19:08:59.797+08:00] stage_start: tokenizer_load
+[2026-11-14T19:08:59.797+08:00] stage_end: tokenizer_load (0.000s)
+[2026-11-14T19:08:59.797+08:00] stage_start: teacher_student_setup
+[2026-11-14T19:08:59.797+08:00] stage_end: teacher_student_setup (0.000s)
+[2026-11-14T19:08:59.797+08:00] stage_start: data_prepare
+[2026-11-14T19:08:59.797+08:00] stage_end: data_prepare (0.000s)
+[2026-11-14T19:08:59.811+08:00] stage_start: optimizer_ddp_setup
+[2026-11-14T19:08:59.811+08:00] stage_end: optimizer_ddp_setup (0.000s)
+[2026-11-14T19:08:59.812+08:00] stage_start: update
+[2026-11-14T19:08:59.907+08:00] stage_start: checkpoint_save
+{"update": 1, "mean_response_loss": 0.6735451817512512, "responses": 4, "response_tokens": 44, "truncated_responses": 0, "endpoint_only_tokens": 20, "exit_not_deeper_than_student": 0, "rollout_executed_token_loops": 448, "teacher_loss_executed_token_loops": 888, "mean_adjacent_js_nats": 0.0011837019274632135, "exit_hist": [0, 0, 0, 20], "stage_count_hist": [0, 20, 0, 0, 0], "teacher_depth_by_student_slot": [[0, 0, 0, 20], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], "learning_rate": 0.001, "gradient_norm": 9.6900634765625, "teacher_weight_version": 0, "student_loss_executed_token_loops": 222, "teacher_coda_token_positions": 0, "teacher_executed_loops": null, "student_executed_loops": null, "student_policy": "learned", "student_max_loops": 4, "mean_stage_loss": 0.013808388262987137, "mean_stop_loss": 0.6597368121147156, "target_student_depth_hist": [20, 0, 0, 0], "actual_student_depth_hist": [44, 0, 0, 0], "target_actual_depth_confusion": [[20, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], "mean_target_student_depth": 1.0, "mean_actual_student_depth": 1.0, "replay_additional_required_loops": 0, "stop_depth_mean_absolute_error": 0.0, "uncompressed_tokens": 0, "target_at_max_tokens": 0, "generation_seconds_sum": 0.004, "rollout_backfill_token_loops": 0, "rollout_coda_token_positions": 0, "distillation_response_filter": "student_correct", "distilled_responses": 2, "distilled_response_tokens": 20, "rejected_responses": 2, "distillation_acceptance_rate": 0.5, "optimizer_updated": true, "optimizer_updates_so_far": 1, "confidence_probe_token_loops": 0, "confidence_probe_coda_token_positions": 0, "confidence_probe_forwards": 0, "boundary_signal": "js", "mean_boundary_change": 0.0011837019274632135, "teacher_max_loops": 4, "native_exit_reduces_executed_loops": false, "seconds": 0.09536634990945458}
+[2026-11-14 19:09:00,037] [WARNING] [real_accelerator.py:209:get_accelerator] Setting accelerator to CPU. If you have GPU or other accelerator, we were unable to detect it.
+[2026-11-14 19:09:00,042] [INFO] [real_accelerator.py:254:get_accelerator] Setting ds_accelerator to cpu (auto detect)
+[2026-11-14T19:09:00.864+08:00] stage_end: checkpoint_save (0.957s)
+[2026-11-14T19:09:00.864+08:00] stage_end: update (1.053s)
+[2026-11-14T19:09:00.864+08:00] stage_start: update
+[2026-11-14T19:09:00.897+08:00] stage_start: checkpoint_save
+[2026-11-14T19:09:00.901+08:00] stage_end: checkpoint_save (0.004s)
+[2026-11-14T19:09:00.901+08:00] stage_end: update (0.037s)
+[2026-11-14T19:09:00.902+08:00] stage_end: training_run (2.117s)
+[2026-11-14T19:09:00.902+08:00] run_end: train (2.118s)
+{"update": 2, "mean_response_loss": 0.5241352915763855, "responses": 4, "response_tokens": 44, "truncated_responses": 0, "endpoint_only_tokens": 20, "exit_not_deeper_than_student": 0, "rollout_executed_token_loops": 448, "teacher_loss_executed_token_loops": 888, "mean_adjacent_js_nats": 0.0008033654652535915, "exit_hist": [0, 0, 20, 0], "stage_count_hist": [0, 20, 0, 0, 0], "teacher_depth_by_student_slot": [[0, 0, 20, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], "learning_rate": 0.001, "gradient_norm": 4.325467109680176, "teacher_weight_version": 1, "student_loss_executed_token_loops": 222, "teacher_coda_token_positions": 0, "teacher_executed_loops": null, "student_executed_loops": null, "student_policy": "learned", "student_max_loops": 4, "mean_stage_loss": 0.007934121415019035, "mean_stop_loss": 0.5162011981010437, "target_student_depth_hist": [20, 0, 0, 0], "actual_student_depth_hist": [44, 0, 0, 0], "target_actual_depth_confusion": [[20, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], "mean_target_student_depth": 1.0, "mean_actual_student_depth": 1.0, "replay_additional_required_loops": 0, "stop_depth_mean_absolute_error": 0.0, "uncompressed_tokens": 0, "target_at_max_tokens": 0, "generation_seconds_sum": 0.004, "rollout_backfill_token_loops": 0, "rollout_coda_token_positions": 0, "distillation_response_filter": "student_correct", "distilled_responses": 2, "distilled_response_tokens": 20, "rejected_responses": 2, "distillation_acceptance_rate": 0.5, "optimizer_updated": true, "optimizer_updates_so_far": 2, "confidence_probe_token_loops": 0, "confidence_probe_coda_token_positions": 0, "confidence_probe_forwards": 0, "boundary_signal": "js", "mean_boundary_change": 0.0008033654652535915, "teacher_max_loops": 4, "native_exit_reduces_executed_loops": false, "seconds": 0.032566962065175176}

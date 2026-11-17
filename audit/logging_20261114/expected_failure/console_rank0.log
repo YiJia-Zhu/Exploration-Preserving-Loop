@@ -1,0 +1,18 @@
+[2026-11-14T16:56:51.644+08:00] run_start: train
+[2026-11-14T16:56:51.644+08:00] stage_start: training_run
+[2026-11-14T16:56:51.644+08:00] stage_start: config_validation
+[2026-11-14T16:56:51.644+08:00] stage_end: config_validation (0.000s)
+[2026-11-14T16:56:51.644+08:00] stage_end: training_run (0.000s)
+Traceback (most recent call last):
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop/training.py", line 96, in train
+    return _train(config_path, output, device_name, smoke, resume, stop_after_updates, observer)
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop/training.py", line 101, in _train
+    config = load_config(config_path)
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop/config.py", line 29, in load_config
+    config = json.loads(path.read_text())
+  File "/local_nvme/data/zhenning/miniconda3/envs/tokenrouter-blackwell/lib/python3.10/pathlib.py", line 1134, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/local_nvme/data/zhenning/miniconda3/envs/tokenrouter-blackwell/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/logging_20261114/missing.json'
+[2026-11-14T16:56:51.645+08:00] run_end: train (0.001s)

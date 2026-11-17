@@ -1,0 +1,117 @@
+[2026-11-17T17:41:02.246+08:00] [rank=0 pid=3085076] run_start: fastpath_evaluation
+[2026-11-17T17:41:02.247+08:00] [rank=0 pid=3085076] stage_start: evaluation_run  started_at_local=2026-11-17T17:41:02.247+08:00
+[2026-11-17T17:41:02.251+08:00] [rank=0 pid=3085076] stage_end: evaluation_run status=completed seconds=0.003790916409343481 started_at_local=2026-11-17T17:41:02.247+08:00 finished_at_local=2026-11-17T17:41:02.251+08:00
+[2026-11-17T17:41:02.251+08:00] [rank=0 pid=3085076] run_end: fastpath_evaluation status=completed seconds=0.004611385054886341 started_at_local=2026-11-17T17:41:02.246+08:00 finished_at_local=2026-11-17T17:41:02.251+08:00
+----------------------------------------------------------------------
+Ran 14 tests in 1.290s
+
+OK
+{
+  "results": {
+    "fixed_1": {
+      "avg": 0.0,
+      "pass_at_n": 0.0,
+      "problems": 10,
+      "completions": 10,
+      "samples_per_problem": [
+        1
+      ],
+      "selected_exit_depth_hist": [
+        10
+      ],
+      "mean_selected_depth": 1.0,
+      "mean_actual_depth": 1.0,
+      "executed_token_loops": 940,
+      "response_tokens": 10,
+      "backfill_token_loops": 0,
+      "truncated_responses": 0
+    },
+    "fixed_2": {
+      "avg": 0.0,
+      "pass_at_n": 0.0,
+      "problems": 10,
+      "completions": 10,
+      "samples_per_problem": [
+        1
+      ],
+      "selected_exit_depth_hist": [
+        0,
+        10
+      ],
+      "mean_selected_depth": 2.0,
+      "mean_actual_depth": 2.0,
+      "executed_token_loops": 1880,
+      "response_tokens": 10,
+      "backfill_token_loops": 0,
+      "truncated_responses": 0
+    },
+    "fixed_3": {
+      "avg": 0.0,
+      "pass_at_n": 0.0,
+      "problems": 10,
+      "completions": 10,
+      "samples_per_problem": [
+        1
+      ],
+      "selected_exit_depth_hist": [
+        0,
+        0,
+        10
+      ],
+      "mean_selected_depth": 3.0,
+      "mean_actual_depth": 3.0,
+      "executed_token_loops": 2820,
+      "response_tokens": 10,
+      "backfill_token_loops": 0,
+      "truncated_responses": 0
+    },
+    "fixed_4": {
+      "avg": 0.0,
+      "pass_at_n": 0.0,
+      "problems": 10,
+      "completions": 10,
+      "samples_per_problem": [
+        1
+      ],
+      "selected_exit_depth_hist": [
+        0,
+        0,
+        0,
+        10
+      ],
+      "mean_selected_depth": 4.0,
+      "mean_actual_depth": 4.0,
+      "executed_token_loops": 3760,
+      "response_tokens": 10,
+      "backfill_token_loops": 0,
+      "truncated_responses": 0
+    }
+  },
+  "settings": {
+    "max_new_tokens": 31744,
+    "temperature": 1.0,
+    "top_p": 0.7,
+    "samples_per_problem": 16,
+    "student_loops": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "scope": "AIME integer math; symbolic mathematics and code use external official evaluators",
+    "student_policy": "fixed",
+    "use_cache": true
+  },
+  "gpus": [
+    "2",
+    "3"
+  ],
+  "wall_seconds": 0.00503241503611207,
+  "cpu_threads_per_process": 16,
+  "data": {
+    "path": "/tmp/tmp20chzdjy/data.jsonl",
+    "sha256": "c5285ab7900d56c9865a355fd4cc17f2a5035b64e008524bd5e4812540b9d849"
+  },
+  "backend": "repo-local Ouro adapter on installed vLLM 0.11",
+  "scope": "Same per-problem seeds, gate policy and sampling settings. Fixed K execution; do not compare parallel throughput with isolated single-request latency."
+}

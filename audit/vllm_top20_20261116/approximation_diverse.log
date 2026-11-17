@@ -1,0 +1,51 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+{
+  "status": "PASS",
+  "approximation": [
+    {
+      "id": "7ab91f2f-62df-4d6f-8af8-1674939e73bf",
+      "positions": 128,
+      "edges": 384,
+      "boundary_matches": 384,
+      "stage_count_matches": 128,
+      "max_js_error": 0.04989108443260193,
+      "mean_retained_mass": 0.9701444506645203,
+      "min_retained_mass": 0.13550525903701782
+    },
+    {
+      "id": "49620ede-6d1b-4763-ab93-c5b448b86854",
+      "positions": 128,
+      "edges": 384,
+      "boundary_matches": 384,
+      "stage_count_matches": 128,
+      "max_js_error": 0.05466651916503906,
+      "mean_retained_mass": 0.9518041014671326,
+      "min_retained_mass": 0.06836108863353729
+    },
+    {
+      "id": "433e5915-33ae-46a5-a043-f537e7d77cc5",
+      "positions": 128,
+      "edges": 384,
+      "boundary_matches": 384,
+      "stage_count_matches": 128,
+      "max_js_error": 0.013374507427215576,
+      "mean_retained_mass": 0.981775164604187,
+      "min_retained_mass": 0.11335816979408264
+    },
+    {
+      "id": "d0d6d1c3-149c-4728-b97c-35350c129a6f",
+      "positions": 128,
+      "edges": 384,
+      "boundary_matches": 384,
+      "stage_count_matches": 128,
+      "max_js_error": 0.0964282751083374,
+      "mean_retained_mass": 0.9074051380157471,
+      "min_retained_mass": 0.035428229719400406
+    }
+  ],
+  "boundary_agreement": 1.0,
+  "target_depth_agreement": 1.0,
+  "unchanged_js_threshold": 0.05,
+  "long_context": null,
+  "scope": "Top-20 agreement on 512 historical response positions; long prefix plus decode validates KV/context capacity, not a full 16k autoregressive speed benchmark."
+}

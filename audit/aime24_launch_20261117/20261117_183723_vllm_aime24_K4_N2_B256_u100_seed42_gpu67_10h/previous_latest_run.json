@@ -1,0 +1,52 @@
+{
+  "pid": 301549,
+  "started_at": "2026-11-17T01:36:09.707593+08:00",
+  "command": [
+    "bash",
+    "scripts/run_three_route_ablation.sh"
+  ],
+  "research_route": "vllm",
+  "environment_overrides": {
+    "ROUTE": "vllm",
+    "GPUS": "2,3",
+    "PYTHON_BIN": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python",
+    "RUN_TAG": "20261117_013609_vllm_K4_N2_seed42_10h",
+    "OUTPUT_ROOT": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/three_route_ablations",
+    "ABLATION_GROUPS": "endpoint,uniform_n,top_n",
+    "TEACHER_MAX_LOOPS": "4",
+    "STUDENT_LOOPS": "2",
+    "TEACHER_UPDATE": "frozen",
+    "UPDATES": "10",
+    "EVAL_UPDATES": "10",
+    "SAVE_EVERY_UPDATES": "10",
+    "KEEP_LATEST_CHECKPOINTS": "1",
+    "EVAL_INITIAL": "0",
+    "MAX_RUNTIME_HOURS": "10",
+    "PROMPTS_PER_BATCH": "4",
+    "RESPONSES_PER_PROMPT": "4",
+    "SEED": "42",
+    "TRAIN_EXAMPLES": "256",
+    "DEV_EXAMPLES": "64",
+    "EVAL_EXAMPLES": "64",
+    "MAX_NEW_TOKENS": "16384",
+    "EVAL_MAX_NEW_TOKENS": "16384",
+    "CUDA_DEVICE_ORDER": "PCI_BUS_ID",
+    "PYTHONUNBUFFERED": "1",
+    "OMP_NUM_THREADS": "4",
+    "TOKENIZERS_PARALLELISM": "false"
+  },
+  "panel": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/three_route_ablations/20261117_013609_vllm_K4_N2_seed42_10h_panel",
+  "current_group_file": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/three_route_ablations/20261117_013609_vllm_K4_N2_seed42_10h_panel/current_group.json",
+  "output": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/three_route_ablations",
+  "group_runs": {
+    "endpoint": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/three_route_ablations/20261117_013609_vllm_K4_N2_seed42_10h_endpoint",
+    "uniform_n": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/three_route_ablations/20261117_013609_vllm_K4_N2_seed42_10h_uniform_n",
+    "top_n": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/three_route_ablations/20261117_013609_vllm_K4_N2_seed42_10h_top_n"
+  },
+  "external_console": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/three_routes_20261117/budget_013609.console.log",
+  "time_budget_file": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/three_route_ablations/20261117_013609_vllm_K4_N2_seed42_10h_panel/time_budget.json",
+  "initial_stage": "training_endpoint_update1_vllm_fixedN2_on_policy_generation",
+  "checkpoint_policy": "Full model + optimizer + each-rank RNG after every update; complete marker; keep latest1 + final10",
+  "source_hashes": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/three_routes_20261117/budget_source_sha256.json",
+  "source_archive": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/three_routes_20261117/budget_sources.tar.gz"
+}

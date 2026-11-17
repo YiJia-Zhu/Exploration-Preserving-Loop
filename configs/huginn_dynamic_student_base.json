@@ -9,16 +9,19 @@
     "stage_selection": "threshold",
     "js_threshold": 0.05,
     "stop_loss_weight": 1.0,
-    "student_stop_threshold": 0.5
+    "student_stop_threshold": 0.5,
+    "boundary_signal": "js",
+    "confidence_threshold": 0.05
   },
   "rollout": {
-    "use_cache": false
+    "use_cache": true
   },
   "evaluation": {
     "student_loops": [
       32
     ],
-    "student_policy": "learned"
+    "student_policy": "learned",
+    "use_cache": true
   },
   "paper": {
     "status": "Current threshold-only dynamic-student proposal; not original LoopOPD replication",
@@ -26,9 +29,12 @@
     "dynamic_implementation_choices": [
       "Keep all JS>tau boundaries; no Top-S cap or shallow-exit fallback",
       "Mean stop BCE over 1..S_t, then response tokens, then responses",
-      "Full-prefix recomputation for learned rollout and full-prefix replay to response max(S_t); no approximate missing KV",
+      "Exact lazy depth KV/state caching for learned rollout; native initial state sampled once per position; depth-specific coda KV; full-prefix training replay to response max(S_t)",
       "Huginn new linear exit head starts weight=0,bias=-2; Ouro reuses original gate",
       "First rollout already uses learned stopping; no native-policy warmup"
     ]
+  },
+  "distillation": {
+    "require_eos": true
   }
 }

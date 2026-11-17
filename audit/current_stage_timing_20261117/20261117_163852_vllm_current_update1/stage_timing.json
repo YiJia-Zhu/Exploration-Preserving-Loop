@@ -1,0 +1,70 @@
+{
+  "scope": "One real update; global16, actual EOS/16384 generation, frozenK4 teacher, fixedN2 student; not an efficacy result",
+  "global_response_tokens": 125936,
+  "mean_response_tokens": 7871.0,
+  "truncated_responses": 2,
+  "loss": 0.04676255851518363,
+  "teacher_exit_hist": [
+    0,
+    0,
+    0,
+    125936
+  ],
+  "teacher_backend": "vllm",
+  "parent_wall_seconds": 548.282975,
+  "rank_details": {
+    "0": {
+      "stage_seconds": {
+        "training_state_offload": 1.2246028152294457,
+        "vllm_on_policy_batch": 156.92029003007337,
+        "vllm_teacher_label_batch": 36.682150593958795,
+        "training_state_restore": 0.3567659039981663,
+        "teacher_forward": 0.1360206501558423,
+        "stage_planning": 0.9226489937864244,
+        "student_replay": 1.9387026722542942,
+        "loss_readout": 1.0396299213171005,
+        "objective_forward": 4.431958677247167,
+        "backward": 329.573302521836,
+        "response": 334.74283965164796,
+        "optimizer_step": 0.1162774870172143,
+        "metrics_reduce": 0.0005267998203635216,
+        "checkpoint_save": 9.860533716157079,
+        "update": 539.956367128063,
+        "student_generation_excluding_engine_init": 110.10818663798273,
+        "teacher_labeling_excluding_engine_init": 3.173083467874676
+      },
+      "engine_initialization_seconds": {
+        "student": 46.81210339209065,
+        "teacher": 33.50906712608412
+      }
+    },
+    "1": {
+      "stage_seconds": {
+        "training_state_offload": 1.2038010959513485,
+        "vllm_on_policy_batch": 413.5385077893734,
+        "vllm_teacher_label_batch": 43.91682846006006,
+        "training_state_restore": 0.3450030139647424,
+        "teacher_forward": 0.3484047297388315,
+        "stage_planning": 2.7286026743240654,
+        "student_replay": 9.071742301806808,
+        "loss_readout": 5.475897095166147,
+        "objective_forward": 18.246886186301708,
+        "backward": 49.135793070774525,
+        "response": 70.92914384091273,
+        "optimizer_step": 0.11008344404399395,
+        "metrics_reduce": 0.000403509009629488,
+        "checkpoint_save": 9.86060775630176,
+        "update": 539.9606154737994,
+        "student_generation_excluding_engine_init": 366.7971174255945,
+        "teacher_labeling_excluding_engine_init": 10.035372645128518
+      },
+      "engine_initialization_seconds": {
+        "student": 46.74139036377892,
+        "teacher": 33.88145581493154
+      }
+    }
+  },
+  "checkpoint": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/profiling/20261117_163852_vllm_current_update1/checkpoints/update_000001",
+  "checkpoint_bytes": 17220988457,
+  "caveat": "Rank-local host timings include waits and nested stages. The two ranks overlap, so do not sum their times. Subtracting initialization estimates warm engine work, not a second full-length update measurement."
+}

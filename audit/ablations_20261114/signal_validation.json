@@ -1,0 +1,62 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "family": "ouro",
+      "signal": "max_probability",
+      "probe_cost_recorded": true,
+      "dynamic_stopping": true,
+      "finite_loss": true
+    },
+    {
+      "family": "ouro",
+      "signal": "normalized_entropy",
+      "probe_cost_recorded": true,
+      "dynamic_stopping": true,
+      "finite_loss": true
+    },
+    {
+      "family": "ouro",
+      "signal": "probe_know",
+      "probe_cost_recorded": true,
+      "dynamic_stopping": true,
+      "finite_loss": true
+    },
+    {
+      "family": "ouro",
+      "signal": "probe_true",
+      "probe_cost_recorded": true,
+      "dynamic_stopping": true,
+      "finite_loss": true
+    },
+    {
+      "family": "huginn",
+      "signal": "max_probability",
+      "probe_cost_recorded": true,
+      "dynamic_stopping": true,
+      "finite_loss": true
+    },
+    {
+      "family": "huginn",
+      "signal": "normalized_entropy",
+      "probe_cost_recorded": true,
+      "dynamic_stopping": true,
+      "finite_loss": true
+    },
+    {
+      "family": "huginn",
+      "signal": "probe_know",
+      "probe_cost_recorded": true,
+      "dynamic_stopping": true,
+      "finite_loss": true
+    },
+    {
+      "family": "huginn",
+      "signal": "probe_true",
+      "probe_cost_recorded": true,
+      "dynamic_stopping": true,
+      "finite_loss": true
+    }
+  ],
+  "scope": "CPU random tiny smoke, probe candidate limit=1 for validation; no efficacy claim"
+}

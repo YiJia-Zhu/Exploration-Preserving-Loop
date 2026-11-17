@@ -1,0 +1,18 @@
+{
+  "checked_at": "2026-11-17T19:43:20.548396+08:00",
+  "deleted_allocated_gib": 112.69296646118164,
+  "free_project_gib": 180.60932159423828,
+  "free_output_gib": 807.5202178955078,
+  "active_pid": 3286270,
+  "active_preserved": true,
+  "complete_current_checkpoints": [
+    "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/three_route_ablations/20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h_top_n/ours/checkpoints/update_000001"
+  ],
+  "completed_updates": 1,
+  "last_complete_update_seconds": 3458.9506157767028,
+  "old_checkpoint_directories_remaining": 0,
+  "formal_comparison_groups": [
+    "LoopOPD4to2",
+    "gate_JS4to2"
+  ]
+}

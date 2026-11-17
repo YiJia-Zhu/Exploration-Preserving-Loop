@@ -1,0 +1,9 @@
+[2026-11-16T18:06:03.460+08:00] [rank=0 pid=1683351] run_start: fastpath_validation
+[2026-11-16T18:06:03.463+08:00] [rank=0 pid=1683351] stage_start: vllm_on_policy_batch update=1 started_at_local=2026-11-16T18:06:03.463+08:00
+[2026-11-16T18:06:33.461+08:00] [rank=0 pid=1683351] heartbeat: fastpath_validation  active=[{"stage":"vllm_on_policy_batch","stage_id":1,"started_at":"2026-11-16T10:06:03.463+00:00","started_at_local":"2026-11-16T18:06:03.463+08:00","seconds":29.99810177180916,"update":1,"responses":16,"weight_version":0}]
+[2026-11-16T18:07:03.461+08:00] [rank=0 pid=1683351] heartbeat: fastpath_validation  active=[{"stage":"vllm_on_policy_batch","stage_id":1,"started_at":"2026-11-16T10:06:03.463+00:00","started_at_local":"2026-11-16T18:06:03.463+08:00","seconds":59.99841674789786,"update":1,"responses":16,"weight_version":0}]
+[2026-11-16T18:07:12.854+08:00] [rank=0 pid=1683351] stage_end: vllm_on_policy_batch update=1 status=completed seconds=69.39175959397107 started_at_local=2026-11-16T18:06:03.463+08:00 finished_at_local=2026-11-16T18:07:12.854+08:00
+[2026-11-16T18:07:18.442+08:00] [rank=0 pid=1683351] stage_start: vllm_on_policy_batch update=2 started_at_local=2026-11-16T18:07:18.442+08:00
+[2026-11-16T18:07:27.672+08:00] [rank=0 pid=1683351] stage_end: vllm_on_policy_batch update=2 status=completed seconds=9.230155037948862 started_at_local=2026-11-16T18:07:18.442+08:00 finished_at_local=2026-11-16T18:07:27.672+08:00
+[2026-11-16T18:07:33.461+08:00] [rank=0 pid=1683351] heartbeat: fastpath_validation  active=[]
+[2026-11-16T18:07:33.997+08:00] [rank=0 pid=1683351] run_end: fastpath_validation status=completed seconds=90.56903665792197 started_at_local=2026-11-16T18:06:03.428+08:00 finished_at_local=2026-11-16T18:07:33.997+08:00

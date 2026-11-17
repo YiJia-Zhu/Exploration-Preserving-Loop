@@ -1,0 +1,30 @@
+{
+  "vllm": "0.11.0",
+  "torch": "2.8.0",
+  "transformers": "4.57.1",
+  "installed_library_files_read_only": {
+    "/local_nvme/data/zhenning/miniconda3/envs/tokenrouter-blackwell/lib/python3.10/site-packages/vllm/model_executor/models/registry.py": {
+      "sha256": "66cc1cd3245239328c86af49dde46ac98bfefa3b5e52d038eb683c2d06076c25",
+      "mtime": 1793250737.2158062
+    },
+    "/local_nvme/data/zhenning/miniconda3/envs/tokenrouter-blackwell/lib/python3.10/site-packages/vllm/model_executor/models/llama.py": {
+      "sha256": "135cc5e748672057e1528b7f21c7a767c56d2ea4438b73ad60e3cfa3743d8613",
+      "mtime": 1793250737.2088063
+    },
+    "/local_nvme/data/zhenning/miniconda3/envs/tokenrouter-blackwell/lib/python3.10/site-packages/vllm/v1/worker/gpu_model_runner.py": {
+      "sha256": "ea6b7bfe4082349e80042df4801c7ef9e18c80d1c3879eeb6ac6e9c476303574",
+      "mtime": 1793250737.2328064
+    },
+    "/local_nvme/data/zhenning/miniconda3/envs/tokenrouter-blackwell/lib/python3.10/site-packages/vllm/v1/worker/gpu_worker.py": {
+      "sha256": "e06833e8a5247dea488f067078b9f64e1284ca9c97b248b279852b046e815256",
+      "mtime": 1793250737.2328064
+    }
+  },
+  "local_copied_source_manifest": {
+    "source_url": "https://raw.githubusercontent.com/vllm-project/vllm/v0.12.0/vllm/model_executor/models/ouro.py",
+    "version": "v0.12.0",
+    "sha256": "1706a4c625aa56038aa8203df0efed24fbf32adbcdb3f2823aefa36cf1f2b3f4",
+    "installed_vllm": "0.11.0",
+    "policy": "Original retained; modifications live in ../vllm_ouro.py, never in site-packages"
+  }
+}

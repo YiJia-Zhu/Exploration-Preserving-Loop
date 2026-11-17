@@ -1,0 +1,7 @@
+{
+  "source_url": "https://raw.githubusercontent.com/vllm-project/vllm/v0.12.0/vllm/model_executor/models/ouro.py",
+  "version": "v0.12.0",
+  "sha256": "1706a4c625aa56038aa8203df0efed24fbf32adbcdb3f2823aefa36cf1f2b3f4",
+  "installed_vllm": "0.11.0",
+  "policy": "Original retained; modifications live in ../vllm_ouro.py, never in site-packages"
+}

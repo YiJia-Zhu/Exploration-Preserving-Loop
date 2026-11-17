@@ -1,0 +1,97 @@
+{
+  "sources": [
+    {
+      "benchmark": "AIME2024",
+      "repo": "HuggingFaceH4/aime_2024",
+      "revision": "2fe88a2f1091d5048c0f36abc874fb997b3dd99a",
+      "file": "data/train-00000-of-00001.parquet",
+      "sha256": "26139847601a5037c237d5928b195e7260ca8074cf4f264b794af42847f79ccf",
+      "examples": 30
+    },
+    {
+      "benchmark": "AIME2025",
+      "repo": "opencompass/AIME2025",
+      "revision": "a6ad95f611d72cf628a80b58bd0432ef6638f958",
+      "file": "aime2025-I.jsonl",
+      "sha256": "b91b3c96f05d9635d2a0692b124ebe023c1ff59cb19c074275e6c4b349d0659e",
+      "examples": 15
+    },
+    {
+      "benchmark": "AIME2025",
+      "repo": "opencompass/AIME2025",
+      "revision": "a6ad95f611d72cf628a80b58bd0432ef6638f958",
+      "file": "aime2025-II.jsonl",
+      "sha256": "16a2dcfbbf9db1b11f8a69a3ba5e4cac73e3641b19a37e2307e9c12240bbed5e",
+      "examples": 15
+    },
+    {
+      "benchmark": "AIME2026",
+      "repo": "MathArena/aime_2026",
+      "revision": "d61f486805306e6e6b5913504c07763a99e1b112",
+      "file": "data/train-00000-of-00001.parquet",
+      "sha256": "ae72853349a46c5f08666feb42db2d09fb4ac4fd4768c726b29702df21c7768e",
+      "examples": 30
+    }
+  ],
+  "years": [
+    2024,
+    2025,
+    2026
+  ],
+  "examples": 90,
+  "benchmarks": {
+    "AIME2024": 30,
+    "AIME2025": 30,
+    "AIME2026": 30
+  },
+  "output_sha256": {
+    "eval.jsonl": "a7be49d372767b0e505e35cbfe6d19a914f6ee5587a6c628823a351aacb26781",
+    "aime2024.jsonl": "961c61670f8f5f05f0721a3628ee82b492882cea57a6c926eef55a70b120b72c",
+    "aime2025.jsonl": "0e730ad3c0caffae6dd63a38181f08362b3a0552d0cc1c5839cbeec285bc0fe0",
+    "aime2026.jsonl": "df49346b7be4b7c404ea5de84c32d557a5a94bc1413a6b2ccba2839db2eeba1e"
+  },
+  "answer_normalizations": [
+    {
+      "id": "AIME2024_train-00000-of-00001_08",
+      "source_answer": "025",
+      "answer": "25"
+    },
+    {
+      "id": "AIME2024_train-00000-of-00001_16",
+      "source_answer": "073",
+      "answer": "73"
+    },
+    {
+      "id": "AIME2024_train-00000-of-00001_19",
+      "source_answer": "023",
+      "answer": "23"
+    },
+    {
+      "id": "AIME2024_train-00000-of-00001_24",
+      "source_answer": "045",
+      "answer": "45"
+    },
+    {
+      "id": "AIME2024_train-00000-of-00001_25",
+      "source_answer": "033",
+      "answer": "33"
+    },
+    {
+      "id": "AIME2024_train-00000-of-00001_26",
+      "source_answer": "080",
+      "answer": "80"
+    },
+    {
+      "id": "AIME2024_train-00000-of-00001_27",
+      "source_answer": "055",
+      "answer": "55"
+    },
+    {
+      "id": "AIME2025_aime2025-II_05",
+      "source_answer": "336^\\circ",
+      "answer": "336"
+    }
+  ],
+  "prompt": "Original problem + step-by-step and boxed-answer instruction; no source solutions",
+  "paper_dataset_artifact_identity_verified": false
+}

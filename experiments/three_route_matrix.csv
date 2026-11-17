@@ -1,0 +1,6 @@
+route,group,teacher_compute,teacher_endpoint,student_rollout,student_deployment,selection,teacher_distribution,stop_bce,stage
+hf,threshold,actual_native_cdf_exit,native_cdf,hf_dynamic,hf_dynamic,all_js_threshold_boundaries,full_vocab,yes,ablation
+vllm,endpoint,fixed_K,K,vllm_fixed_N,vllm_fixed_N,endpoint_only,full_vocab,no,ablation
+vllm,uniform_n,fixed_K,K,vllm_fixed_N,vllm_fixed_N,N_uniform_targets_including_K,full_vocab,no,ablation_optional
+vllm,top_n,fixed_K,native_cdf_readout,vllm_fixed_N,vllm_fixed_N,min_N_native_exit_targets_including_native_endpoint,full_vocab,no,ablation
+hybrid,threshold,fixed_K,native_cdf_readout,hf_dynamic,vllm_fixed_N_grid,all_js_threshold_boundaries,full_vocab,yes,ablation

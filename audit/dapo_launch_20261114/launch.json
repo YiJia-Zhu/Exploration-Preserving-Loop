@@ -1,0 +1,25 @@
+{
+  "pid": 2888544,
+  "started_at": "2026-11-14T20:08:42.103256+08:00",
+  "cwd": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop",
+  "command": [
+    "bash",
+    "scripts/run_ablation.sh"
+  ],
+  "environment_overrides": {
+    "GPUS": "2,3",
+    "RUN_TAG": "20261114_200842_ouro_e_js_dapo64_len16384_seed42_gpu23",
+    "CUDA_DEVICE_ORDER": "PCI_BUS_ID",
+    "PYTHONUNBUFFERED": "1",
+    "OMP_NUM_THREADS": "4",
+    "TOKENIZERS_PARALLELISM": "false"
+  },
+  "output": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/ablations/20261114_200842_ouro_e_js_dapo64_len16384_seed42_gpu23",
+  "external_console": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/dapo_launch_20261114/launch.console.log",
+  "process_group": 2888544,
+  "initial_stage": "data_split_then_initial_native_evaluation",
+  "training_devices": [
+    2,
+    3
+  ]
+}

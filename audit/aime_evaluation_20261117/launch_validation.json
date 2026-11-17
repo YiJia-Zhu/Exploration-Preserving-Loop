@@ -1,0 +1,20 @@
+[
+  {
+    "route": "hf",
+    "evaluation": "AIME2024/2025/2026",
+    "questions": 90,
+    "samples_per_question": 16
+  },
+  {
+    "route": "vllm",
+    "evaluation": "AIME2024/2025/2026",
+    "questions": 90,
+    "samples_per_question": 16
+  },
+  {
+    "route": "hybrid",
+    "evaluation": "AIME2024/2025/2026",
+    "questions": 90,
+    "samples_per_question": 16
+  }
+]

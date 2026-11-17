@@ -1,0 +1,19 @@
+{
+  "checked_at": "2026-11-17T01:37:48.216421+08:00",
+  "status": "RUNNING",
+  "current_stage": "endpoint update1 on-policy generation; no completed optimizer update yet",
+  "launcher_pid": 301549,
+  "watchdog_pid": 301553,
+  "deadline": "2026-11-17T11:36:09.899799+08:00",
+  "process_count": 12,
+  "actual_vllm_engine_loops": 2,
+  "config_contract": "PASS",
+  "both_rank_generation_progress": {
+    "0": [
+      "\u001b[1;36m(EngineCore_DP0 pid=302408)\u001b[0;0m {\"event\": \"vllm_generation_progress\", \"timestamp\": \"2026-11-16T17:37:44.632823+00:00\", \"local_time\": \"2026-11-17T01:37:44.632831+08:00\", \"generated_tokens\": {\"0\": 1457, \"1\": 2140, \"2\": 1876, \"3\": 2718, \"4\": 1526}}"
+    ],
+    "1": [
+      "\u001b[1;36m(EngineCore_DP0 pid=302404)\u001b[0;0m {\"event\": \"vllm_generation_progress\", \"timestamp\": \"2026-11-16T17:37:44.417488+00:00\", \"local_time\": \"2026-11-17T01:37:44.417496+08:00\", \"generated_tokens\": {\"0\": 4366, \"1\": 4365}}"
+    ]
+  }
+}

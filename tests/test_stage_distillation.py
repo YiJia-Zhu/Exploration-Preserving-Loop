@@ -5,12 +5,14 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from contextlib import nullcontext
+from types import SimpleNamespace
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import torch
 
 from ep_loop.config import load_config,merge,validate_config
-from ep_loop.data import ByteTokenizer,filter_policy,normalize_record,prepare_training_records,prompt_ids
+from ep_loop.data import ByteTokenizer,canonical_hash,filter_policy,normalize_record,prepare_training_records,prompt_ids
 from ep_loop.inference import last_boxed,math_metrics,verify_integer_response
 from ep_loop.objective import DistillationObjective
 from ep_loop.ouro import OuroBackend,tiny_ouro
@@ -207,7 +209,7 @@ class DataAndConfigTests(unittest.TestCase):
             labels=[{"kind":"metadata","policy":filter_policy(config)}]
             for i,r in enumerate(raw):
                 normalized=normalize_record(r)
-                labels.append({"id":str(i),"problem_sha256":normalized["problem_sha256"],"correct":i==0,"unused_exit_depths":[99]})
+                labels.append({"id":str(i),"problem_sha256":normalized["problem_sha256"],"answer_sha256":canonical_hash(normalized['answer']),"correct":i==0,"unused_exit_depths":[99]})
             (root/"filter.jsonl").write_text("\n".join(json.dumps(r) for r in labels))
             records,report=prepare_training_records(config,ByteTokenizer(),root)
             self.assertEqual(len(records),1);self.assertEqual(report["correctness_rejected"],1)
@@ -223,6 +225,41 @@ class DataAndConfigTests(unittest.TestCase):
         metrics=math_metrics({"a":[True,False],"b":[False,True]})
         self.assertEqual(metrics["avg"],.5);self.assertEqual(metrics["pass_at_n"],1.)
 
+    def test_dapo_requested_answer_line_and_strict_boxed_default(self):
+        messages=[dict(role='user',content='Remember to put your answer on its own line after "Answer:".')]
+        for text in ['Answer: 42', 'Reasoning\nAnswer: $42$<|im_end|>', r'Answer: \boxed{42}',
+                     r'Final \boxed{42}.', 'Answer: 7\nAnswer: 42']:
+            self.assertTrue(verify_integer_response(text,'42',messages)['correct'], text)
+        for text in ['There are 42 possibilities.', r'First \boxed{42}.'+'\nAnswer: 7',
+                     r'First \boxed{42}.'+'\nAnswer: unknown', 'Answer: 42 or 43']:
+            self.assertFalse(verify_integer_response(text,'42',messages)['correct'], text)
+        self.assertFalse(verify_integer_response('Answer: 42','42')['correct'])
+
+    def test_data_conflict_policy_drops_entire_prompt_and_default_errors(self):
+        from scripts.prepare_stage_data import prepare
+        class Observer:
+            def progress(self, rows, **kwargs):return rows
+            def stage(self, *args, **kwargs):return nullcontext()
+            def metadata(self):return {}
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            source=root/'source.jsonl'
+            rows=[dict(id='a',problem='one?',answer='1'),dict(id='b',problem='two?',answer='2'),
+                  dict(id='c',problem='one?',answer='3')]
+            source.write_text(''.join(json.dumps(row)+'\n' for row in rows))
+            args=SimpleNamespace(input=[source],output=root/'clean.jsonl',deduplicate=True,
+                conflicting_answers='error',expected_examples=1,source_repo='test',source_revision='test')
+            with self.assertRaisesRegex(ValueError,'Conflicting answers'):
+                prepare(args,Observer())
+            self.assertFalse(args.output.exists())
+            args.conflicting_answers='drop'
+            prepare(args,Observer())
+            clean=[json.loads(line) for line in args.output.read_text().splitlines()]
+            self.assertEqual([row['id'] for row in clean],['b'])
+            manifest=json.loads(args.output.with_suffix('.manifest.json').read_text())
+            self.assertEqual(manifest['conflicting_prompts_dropped'],1)
+            self.assertEqual(manifest['unique_prompts_before_conflict_removal'],2)
+
     def test_overlong_prompts_do_not_require_unused_correctness_labels(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)
@@ -231,7 +268,7 @@ class DataAndConfigTests(unittest.TestCase):
             path=root/"train.jsonl";path.write_text("\n".join(json.dumps(r) for r in raw))
             config=merge(load_config(ROOT/"configs/d_native_js.json"),{"data":{"train_path":str(path),"expected_examples":2,"max_prompt_tokens":128,"correctness_cache":"labels.jsonl"}})
             labels=[{"kind":"metadata","policy":filter_policy(config)},
-                    {"id":"short","problem_sha256":normalize_record(raw[0])["problem_sha256"],"correct":True}]
+                    {"id":"short","problem_sha256":normalize_record(raw[0])["problem_sha256"],"answer_sha256":canonical_hash(normalize_record(raw[0])['answer']),"correct":True}]
             (root/"labels.jsonl").write_text("\n".join(json.dumps(r) for r in labels))
             records,report=prepare_training_records(config,ByteTokenizer(),root)
             self.assertEqual([r["id"] for r in records],["short"])

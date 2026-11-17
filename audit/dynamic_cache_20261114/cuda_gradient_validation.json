@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "family": "ouro",
+      "gradient_tensors": 27,
+      "bf16_shared_model_gradients_exact_after_generation": true
+    },
+    {
+      "family": "huginn",
+      "gradient_tensors": 77,
+      "bf16_shared_model_gradients_exact_after_generation": true
+    }
+  ]
+}

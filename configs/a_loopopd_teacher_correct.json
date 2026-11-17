@@ -1,0 +1,14 @@
+{
+  "extends": "a_loopopd.json",
+  "run_name": "a_loopopd_teacher_correct",
+  "distillation": {
+    "question_filter": "teacher_correct",
+    "require_eos": true
+  },
+  "paper": {
+    "status": "Opt-in correctness ablation; not the unfiltered main result"
+  },
+  "data": {
+    "correctness_cache": "data/filters/initial_teacher_correct.jsonl"
+  }
+}

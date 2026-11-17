@@ -1,0 +1,59 @@
+{
+  "checked_at": "2026-11-16T16:40:16.413488+08:00",
+  "training_updates": 20,
+  "results": [
+    {
+      "stage": "initial_native",
+      "correct": 40,
+      "problems": 64,
+      "accuracy": 0.625,
+      "mean_exit_depth": 4.0,
+      "generated_tokens": 505144,
+      "executed_token_loops": 2065788,
+      "generation_seconds": 23033.62747587543
+    },
+    {
+      "stage": "ours_update_000010",
+      "correct": 35,
+      "problems": 64,
+      "accuracy": 0.546875,
+      "mean_exit_depth": 3.431473784077031,
+      "generated_tokens": 572343,
+      "executed_token_loops": 2334471,
+      "generation_seconds": 19067.08458192856
+    },
+    {
+      "stage": "ours_update_000020",
+      "correct": 39,
+      "problems": 64,
+      "accuracy": 0.609375,
+      "mean_exit_depth": 3.2402661328993445,
+      "generated_tokens": 550552,
+      "executed_token_loops": 2246936,
+      "generation_seconds": 16890.942792824237
+    }
+  ],
+  "checkpoints": [
+    {
+      "update": 10,
+      "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/ablations/20261115_124332_ouro_e_js_dapo64_len16384_seed42_gpu23_memfix/ours/checkpoints/update_000010",
+      "required_files_present": true,
+      "bytes": 17216142291
+    },
+    {
+      "update": 20,
+      "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/experiments/ablations/20261115_124332_ouro_e_js_dapo64_len16384_seed42_gpu23_memfix/ours/checkpoints/update_000020",
+      "required_files_present": true,
+      "bytes": 17216142291
+    }
+  ],
+  "finished_at": "2026-11-16T16:21:40.962+08:00",
+  "all_train_eval_artifacts_complete": true,
+  "launcher_alive": false,
+  "wrapper_note": "After Python completed all work, the outer Bash reread a changed script offset and emitted a syntax error; launcher now execs Python to prevent this. Existing results and checkpoint files were not changed.",
+  "final_vs_native": {
+    "accuracy_difference_points": -1.5625,
+    "mean_exit_depth_reduction": 0.18993346677516387,
+    "total_token_loop_change": 0.0876895402626019
+  }
+}

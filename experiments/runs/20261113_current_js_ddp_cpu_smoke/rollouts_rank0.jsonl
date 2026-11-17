@@ -1,4 +1,0 @@
-{"update": 1, "id": "smoke-1", "sample": 0, "problem_sha256": "f0e54e4017abd75e1c1e503078df14d9f54c642fc48009c340ec05575c6ca800", "tokens": [211, 37, 44, 42], "text": "�!(&", "reached_eos": false, "student_executed_loops": 2}
-{"update": 1, "id": "smoke-1", "sample": 1, "problem_sha256": "f0e54e4017abd75e1c1e503078df14d9f54c642fc48009c340ec05575c6ca800", "tokens": [256, 134, 140, 182], "text": "����", "reached_eos": false, "student_executed_loops": 2}
-{"update": 2, "id": "smoke-4", "sample": 0, "problem_sha256": "ec85fb131f5c03b80e5760f4d89e6d7c490ee794f9561ff9a1990865f3f13966", "tokens": [161, 247, 55, 106], "text": "��3f", "reached_eos": false, "student_executed_loops": 2}
-{"update": 2, "id": "smoke-4", "sample": 1, "problem_sha256": "ec85fb131f5c03b80e5760f4d89e6d7c490ee794f9561ff9a1990865f3f13966", "tokens": [164, 108, 212, 172], "text": "�hШ", "reached_eos": false, "student_executed_loops": 2}

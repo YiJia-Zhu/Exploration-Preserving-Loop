@@ -1,0 +1,52 @@
+[2026-11-16T18:18:26.010+08:00] [rank=0 pid=1870460] run_start: fastpath_evaluation
+[2026-11-16T18:18:26.011+08:00] [rank=0 pid=1870460] stage_start: evaluation_run  started_at_local=2026-11-16T18:18:26.011+08:00
+[2026-11-16T18:27:16.928+08:00] [rank=0 pid=1870460] stage_end: evaluation_run status=completed seconds=530.9165685828775 started_at_local=2026-11-16T18:18:26.011+08:00 finished_at_local=2026-11-16T18:27:16.928+08:00
+[2026-11-16T18:27:16.928+08:00] [rank=0 pid=1870460] run_end: fastpath_evaluation status=completed seconds=530.9184583330061 started_at_local=2026-11-16T18:18:26.009+08:00 finished_at_local=2026-11-16T18:27:16.928+08:00
+{
+  "results": {
+    "learned_4": {
+      "avg": 0.75,
+      "pass_at_n": 0.75,
+      "problems": 4,
+      "completions": 4,
+      "samples_per_problem": [
+        1
+      ],
+      "selected_exit_depth_hist": [
+        0,
+        0,
+        28537,
+        9535
+      ],
+      "mean_selected_depth": 3.250446522378651,
+      "mean_actual_depth": 4.0,
+      "executed_token_loops": 154708,
+      "response_tokens": 38072,
+      "backfill_token_loops": 0,
+      "truncated_responses": 1
+    }
+  },
+  "settings": {
+    "max_new_tokens": 16384,
+    "temperature": 1.0,
+    "top_p": 0.7,
+    "samples_per_problem": 1,
+    "student_loops": [
+      4
+    ],
+    "scope": "AIME integer math; symbolic mathematics and code use external official evaluators",
+    "student_policy": "learned",
+    "use_cache": true
+  },
+  "gpus": [
+    "2",
+    "3"
+  ],
+  "wall_seconds": 530.9224134969991,
+  "data": {
+    "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_top20_20261116/eval_four_questions.jsonl",
+    "sha256": "db56dae5622be8ffbf4c1422e0f5d0d0e1bab5a9de61e55a81175d4df0ccb3e1"
+  },
+  "backend": "repo-local Ouro adapter on installed vLLM 0.11",
+  "scope": "Same per-problem seeds, gate policy and sampling settings. Fixed K execution; do not compare parallel throughput with isolated single-request latency."
+}

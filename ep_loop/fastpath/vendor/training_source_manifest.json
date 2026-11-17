@@ -1,0 +1,5 @@
+{
+  "source": "ep_loop/training.py",
+  "sha256": "1778d97c8997be4615c858d5bb10b5c7a1b3171b4d9564e5ac9e65bfadea7d81",
+  "purpose": "Isolated copied trainer; preserve optimizer, batch, teacher, stages, BCE, checkpoint and DDP averaging"
+}

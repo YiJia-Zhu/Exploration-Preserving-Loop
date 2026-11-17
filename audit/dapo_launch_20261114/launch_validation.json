@@ -1,0 +1,65 @@
+{
+  "checked_at": "2026-11-14T20:10:06.120650+08:00",
+  "launcher_pid": 2888544,
+  "launcher_alive": true,
+  "evaluation_pids": [
+    2888816
+  ],
+  "evaluation_gpu_allocations": [
+    "2888816, GPU-351e102b-8c81-a10b-a483-483f0d69828c, 10748 MiB"
+  ],
+  "partition_sizes": {
+    "train.jsonl": 256,
+    "dev.jsonl": 64,
+    "eval.jsonl": 64
+  },
+  "train_eval_prompt_disjoint": true,
+  "generation_caps": {
+    "train": 16384,
+    "eval": 16384
+  },
+  "unit_tests_passed": 72,
+  "source_conflicting_prompts_dropped": 7,
+  "active_events": [
+    {
+      "event": "stage_start",
+      "timestamp": "2026-11-14T12:09:33.215+00:00",
+      "pid": 2888816,
+      "stage": "prefill",
+      "id": null,
+      "sample": null,
+      "prompt_tokens": null,
+      "max_new_tokens": null
+    },
+    {
+      "event": "stage_end",
+      "timestamp": "2026-11-14T12:09:33.246+00:00",
+      "pid": 2888816,
+      "stage": "prefill",
+      "id": null,
+      "sample": null,
+      "prompt_tokens": null,
+      "max_new_tokens": null
+    },
+    {
+      "event": "stage_start",
+      "timestamp": "2026-11-14T12:09:33.253+00:00",
+      "pid": 2888816,
+      "stage": "decode",
+      "id": null,
+      "sample": null,
+      "prompt_tokens": null,
+      "max_new_tokens": null
+    }
+  ],
+  "status": "initial_native_evaluation_running; optimizer training follows automatically",
+  "initial_evaluation_completed_responses": 1,
+  "first_completion": {
+    "response_tokens": 1453,
+    "reached_eos": true,
+    "generation_seconds": 43.66842435696162,
+    "correct": true,
+    "parsed_integer": 18,
+    "verifier": "dapo_boxed_or_answer_integer_v1"
+  }
+}

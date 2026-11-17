@@ -1,0 +1,67 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+test_both_families_train_stage_and_stop_with_teacher_isolated (test_dynamic_student.DynamicBackendTests) ... ok
+test_dynamic_chunk_and_backbone_checkpoint_match_all_gradients (test_dynamic_student.DynamicBackendTests) ... ok
+test_generation_recomputes_prefix_when_next_token_needs_deeper_loops (test_dynamic_student.DynamicBackendTests) ... ok
+test_huginn_exit_head_full_checkpoint_reloads (test_dynamic_student.DynamicBackendTests) ... [2026-11-14 14:40:15,463] [WARNING] [real_accelerator.py:209:get_accelerator] Setting accelerator to CPU. If you have GPU or other accelerator, we were unable to detect it.
+[2026-11-14 14:40:15,468] [INFO] [real_accelerator.py:254:get_accelerator] Setting ds_accelerator to cpu (auto detect)
+/local_nvme/data/zhenning/miniconda3/envs/tokenrouter-blackwell/lib/python3.10/site-packages/deepspeed/runtime/config_utils.py:100: PydanticDeprecatedSince211: Accessing the 'model_fields' attribute on the instance is deprecated. Instead, you should access this attribute from the model class. Deprecated in Pydantic V2.11 to be removed in V3.0.
+  fields = self.model_fields
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/13 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 13/13 [00:00<00:00, 4018.42it/s]
+Some weights of the model checkpoint at /tmp/tmp0crnew8i were not used when initializing RavenForCausalLM: ['ep_loop_exit_head.bias', 'ep_loop_exit_head.weight']
+- This IS expected if you are initializing RavenForCausalLM from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing RavenForCausalLM from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+ok
+test_huginn_new_head_stops_without_teacher_and_uses_native_coda (test_dynamic_student.DynamicBackendTests) ... ok
+test_ouro_local_stop_executes_one_or_all_loops_and_matches_native (test_dynamic_student.DynamicBackendTests) ... ok
+test_all_dynamic_ablations_share_target_depths_and_stop_labels (test_dynamic_student.DynamicSelectionTests) ... ok
+test_cli_default_selects_new_main_method_and_old_baseline_is_fixed (test_dynamic_student.DynamicSelectionTests) ... ok
+test_no_top_cap_no_old_shallow_fallback_and_strict_threshold (test_dynamic_student.DynamicSelectionTests) ... ok
+test_proposal_tokens_a_b_c_keep_every_threshold_boundary (test_dynamic_student.DynamicSelectionTests) ... ok
+test_stop_bce_normalizes_per_token_and_masks_later_stages (test_dynamic_student.DynamicSelectionTests) ... ok
+test_chunk_backbone_checkpoint_gradient_equivalence_and_teacher_isolation (test_huginn_stage.HuginnTests) ... ok
+test_each_coda_readout_matches_official_fixed_depth (test_huginn_stage.HuginnTests) ... ok
+test_family_configs_context_and_filter_identity (test_huginn_stage.HuginnTests) ... ok
+test_generation_respects_native_end_turn_stopping_token (test_huginn_stage.HuginnTests) ... ok
+test_native_kl_orientation_uniform_first_check_and_actual_stop (test_huginn_stage.HuginnTests) ... ok
+test_reference_32_loop_teacher_supports_8_and_16_loop_students (test_huginn_stage.HuginnTests) ... ok
+test_reused_native_js_produces_same_stage_plan (test_huginn_stage.HuginnTests) ... ok
+test_saved_tied_weights_reload_without_silently_accepting_missing_weights (test_huginn_stage.HuginnTests) ... ok
+test_sharded_tied_checkpoint_resume_matches_all_parameters (test_huginn_stage.HuginnTests) ... ok
+test_teacher_prefix_trace_matches_native_adaptive_generation (test_huginn_stage.HuginnTests) ... ok
+test_lora_teacher_is_fixed_and_context_restores (test_losses.ObjectiveTests) ... /local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/tests/test_losses.py:46: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  self.assertGreater(float((layer(x)-initial).abs().max()),0)
+ok
+test_preservation_keeps_absolute_candidate_mass (test_losses.ObjectiveTests) ... ok
+test_reverse_kl_gradient_and_teacher_detach (test_losses.ObjectiveTests) ... ok
+test_zero_loss_when_equal (test_losses.ObjectiveTests) ... ok
+test_checkpoint_rng_is_safe_to_load_and_restores_all_global_streams (test_reproducibility.ReproducibilityTests) ... ok
+test_content_seed_is_independent_of_python_hash_seed (test_reproducibility.ReproducibilityTests) ... ok
+test_legacy_rng_checkpoints_remain_accepted (test_reproducibility.ReproducibilityTests) ... ok
+test_rank_streams_share_base_seed_and_have_stable_offsets (test_reproducibility.ReproducibilityTests) ... ok
+test_runtime_record_contains_versions_flags_and_current_source_hashes (test_reproducibility.ReproducibilityTests) ... ok
+test_seed_42_repeats_python_numpy_and_torch_without_changing_math_flags (test_reproducibility.ReproducibilityTests) ... ok
+test_correctness_cache_reuses_only_acceptance_and_matches_prefix_text (test_stage_distillation.DataAndConfigTests) ... ok
+test_integer_verifier_and_avg_pass_are_distinct (test_stage_distillation.DataAndConfigTests) ... ok
+test_native_template_repair_preserves_mathematical_backslashes (test_stage_distillation.DataAndConfigTests) ... ok
+test_overlong_prompts_do_not_require_unused_correctness_labels (test_stage_distillation.DataAndConfigTests) ... ok
+test_paper_settings_and_dynamic_warmup (test_stage_distillation.DataAndConfigTests) ... ok
+test_cached_decode_matches_independent_full_prefix (test_stage_distillation.OfficialOuroTests) ... ok
+test_chunk_checkpoint_gradients_match_unchunked_response_mean (test_stage_distillation.OfficialOuroTests) ... ok
+test_endpoint_loss_uses_response_prediction_positions_only (test_stage_distillation.OfficialOuroTests) ... ok
+test_frozen_teacher_stays_initial_current_teacher_refreshes (test_stage_distillation.OfficialOuroTests) ... ok
+test_gradient_checkpointing_backbone_is_compatible (test_stage_distillation.OfficialOuroTests) ... ok
+test_native_exits_match_official_causallm_readout (test_stage_distillation.OfficialOuroTests) ... ok
+test_largest_boundaries_ties_order_and_student_mapping (test_stage_distillation.SelectionTests) ... ok
+test_native_exit_stick_breaking_and_maximum_fallback (test_stage_distillation.SelectionTests) ... ok
+test_proposal_six_loops_boundary_three_to_four (test_stage_distillation.SelectionTests) ... ok
+test_stage_loss_formula_and_teacher_gradient_isolation (test_stage_distillation.SelectionTests) ... ok
+test_standard_js_bounds_symmetry_and_identity (test_stage_distillation.SelectionTests) ... ok
+test_terminal_fallback_and_no_boundaries_after_exit (test_stage_distillation.SelectionTests) ... ok
+test_uniform_control_matches_js_target_count_not_locations (test_stage_distillation.SelectionTests) ... ok
+
+----------------------------------------------------------------------
+Ran 49 tests in 4.808s
+
+OK

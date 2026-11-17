@@ -1,0 +1,995 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-11-14T08:28:10.383672+00:00",
+  "unit_tests": 58,
+  "default_seed": 42,
+  "default_student_cache": "exact_lazy_depth",
+  "sglang_or_vllm_integrated": false,
+  "authoritative_proposal_modified": false,
+  "proposal_sha256": "2d14292c12756855c0a54460a928fdb98ec4f672bbd51cf03d6f565f985193dd",
+  "two_family_full_precision_and_bf16_pretrained_checks": true,
+  "cached_training_repeat_and_resume": [
+    {
+      "family": "ouro",
+      "teacher": "frozen",
+      "repeated_metrics_and_weights_exact": true,
+      "resumed_metrics_and_weights_exact": true,
+      "updates": 2
+    },
+    {
+      "family": "ouro",
+      "teacher": "current",
+      "repeated_metrics_and_weights_exact": true,
+      "resumed_metrics_and_weights_exact": true,
+      "updates": 2
+    },
+    {
+      "family": "huginn",
+      "teacher": "frozen",
+      "repeated_metrics_and_weights_exact": true,
+      "resumed_metrics_and_weights_exact": true,
+      "updates": 2
+    },
+    {
+      "family": "huginn",
+      "teacher": "current",
+      "repeated_metrics_and_weights_exact": true,
+      "resumed_metrics_and_weights_exact": true,
+      "updates": 2
+    }
+  ],
+  "cuda_shared_model_gradient_validation": [
+    {
+      "family": "ouro",
+      "gradient_tensors": 27,
+      "bf16_shared_model_gradients_exact_after_generation": true
+    },
+    {
+      "family": "huginn",
+      "gradient_tensors": 77,
+      "bf16_shared_model_gradients_exact_after_generation": true
+    }
+  ],
+  "cached_checkpoint_evaluation": [
+    {
+      "family": "ouro",
+      "cached_evaluation_passed": true,
+      "per_problem_results_exact_after_reordering": true
+    },
+    {
+      "family": "huginn",
+      "cached_evaluation_passed": true,
+      "per_problem_results_exact_after_reordering": true
+    }
+  ],
+  "benchmarks": [
+    {
+      "file": "pretrained_ouro_bf16_cast_cache.json",
+      "cases": [
+        {
+          "family": "ouro",
+          "pretrained": true,
+          "case": "shallow",
+          "loops": 4,
+          "prompt_tokens": 128,
+          "new_tokens": 32,
+          "mixed_precision": "bf16",
+          "seed": 42,
+          "repeats": 3,
+          "forced_exit_depths": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "cached_seconds": [
+            0.24715989199467003,
+            0.2506073019467294,
+            0.2500387409236282
+          ],
+          "recompute_seconds": [
+            0.4120737260673195,
+            0.41475889598950744,
+            0.41193612618371844
+          ],
+          "median_speedup": 1.6480395179768692,
+          "cached_token_loops": 159,
+          "recompute_token_loops": 4592,
+          "backfill_token_loops": 0,
+          "cached_coda_token_positions": 0,
+          "cached_peak_allocated_bytes": [
+            8498413056,
+            8498413056,
+            8498413056
+          ],
+          "recompute_peak_allocated_bytes": [
+            8430922752,
+            8430922752,
+            8430922752
+          ],
+          "max_state_absolute_error": 0.08820629119873047,
+          "max_logit_absolute_error": 0.125,
+          "max_distribution_js_nats": 0.0004297630803193897,
+          "js_acceptance_threshold": 0.0005,
+          "validation": "PASS",
+          "huginn_initial_states": null
+        },
+        {
+          "family": "ouro",
+          "pretrained": true,
+          "case": "mixed",
+          "loops": 4,
+          "prompt_tokens": 128,
+          "new_tokens": 32,
+          "mixed_precision": "bf16",
+          "seed": 42,
+          "repeats": 3,
+          "forced_exit_depths": [
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3
+          ],
+          "cached_seconds": [
+            0.6149505050852895,
+            0.6169703849591315,
+            0.6126835450995713
+          ],
+          "recompute_seconds": [
+            0.9260874069295824,
+            0.9236607970669866,
+            0.9236447578296065
+          ],
+          "median_speedup": 1.5020083558413877,
+          "cached_token_loops": 634,
+          "recompute_token_loops": 11496,
+          "backfill_token_loops": 427,
+          "cached_coda_token_positions": 0,
+          "cached_peak_allocated_bytes": [
+            8760326144,
+            8760326144,
+            8760326144
+          ],
+          "recompute_peak_allocated_bytes": [
+            8437009408,
+            8437009408,
+            8437009408
+          ],
+          "max_state_absolute_error": 0.2780774235725403,
+          "max_logit_absolute_error": 0.765625,
+          "max_distribution_js_nats": 0.0004861961933784187,
+          "js_acceptance_threshold": 0.0005,
+          "validation": "PASS",
+          "huginn_initial_states": null
+        }
+      ]
+    },
+    {
+      "file": "pretrained_huginn_bf16.json",
+      "cases": [
+        {
+          "family": "huginn",
+          "pretrained": true,
+          "case": "shallow",
+          "loops": 4,
+          "prompt_tokens": 128,
+          "new_tokens": 32,
+          "mixed_precision": "bf16",
+          "seed": 42,
+          "repeats": 3,
+          "forced_exit_depths": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "cached_seconds": [
+            0.2677788380533457,
+            0.2672152689192444,
+            0.2672662490513176
+          ],
+          "recompute_seconds": [
+            0.37282881303690374,
+            0.37273627310059965,
+            0.37285429215990007
+          ],
+          "median_speedup": 1.3949715475122233,
+          "cached_token_loops": 159,
+          "recompute_token_loops": 4592,
+          "backfill_token_loops": 0,
+          "cached_coda_token_positions": 159,
+          "cached_peak_allocated_bytes": [
+            21497039360,
+            21497039360,
+            21497039360
+          ],
+          "recompute_peak_allocated_bytes": [
+            21480830464,
+            21480830464,
+            21480830464
+          ],
+          "max_state_absolute_error": 0.05170893669128418,
+          "max_logit_absolute_error": 0.0625,
+          "max_distribution_js_nats": 0.00011762231588363647,
+          "js_acceptance_threshold": 0.0005,
+          "validation": "PASS",
+          "huginn_initial_states": "native sampled once per position, shared reference tape"
+        },
+        {
+          "family": "huginn",
+          "pretrained": true,
+          "case": "mixed",
+          "loops": 4,
+          "prompt_tokens": 128,
+          "new_tokens": 32,
+          "mixed_precision": "bf16",
+          "seed": 42,
+          "repeats": 3,
+          "forced_exit_depths": [
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3
+          ],
+          "cached_seconds": [
+            0.5303615478333086,
+            0.530375957954675,
+            0.5303049879148602
+          ],
+          "recompute_seconds": [
+            0.7451571659184992,
+            0.7451454750262201,
+            0.7452601748518646
+          ],
+          "median_speedup": 1.4049984750265123,
+          "cached_token_loops": 634,
+          "recompute_token_loops": 11496,
+          "backfill_token_loops": 427,
+          "cached_coda_token_positions": 634,
+          "cached_peak_allocated_bytes": [
+            21600180224,
+            21600180224,
+            21600180224
+          ],
+          "recompute_peak_allocated_bytes": [
+            21491878912,
+            21491878912,
+            21491878912
+          ],
+          "max_state_absolute_error": 0.10280919075012207,
+          "max_logit_absolute_error": 0.125,
+          "max_distribution_js_nats": 0.0004390065441839397,
+          "js_acceptance_threshold": 0.0005,
+          "validation": "PASS",
+          "huginn_initial_states": "native sampled once per position, shared reference tape"
+        }
+      ]
+    },
+    {
+      "file": "pretrained_ouro_fp32.json",
+      "cases": [
+        {
+          "family": "ouro",
+          "pretrained": true,
+          "case": "shallow",
+          "loops": 4,
+          "prompt_tokens": 128,
+          "new_tokens": 32,
+          "mixed_precision": "none",
+          "seed": 42,
+          "repeats": 3,
+          "forced_exit_depths": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "cached_seconds": [
+            0.2766094780527055,
+            0.2747626770287752,
+            0.27486181701533496
+          ],
+          "recompute_seconds": [
+            0.8282824819907546,
+            0.8277667020447552,
+            0.8269685830455273
+          ],
+          "median_speedup": 3.0115740011955636,
+          "cached_token_loops": 159,
+          "recompute_token_loops": 4592,
+          "backfill_token_loops": 0,
+          "cached_coda_token_positions": 0,
+          "cached_peak_allocated_bytes": [
+            5958082048,
+            5965692416,
+            6049873408
+          ],
+          "recompute_peak_allocated_bytes": [
+            5860809216,
+            5907233280,
+            5952592384
+          ],
+          "max_state_absolute_error": 7.62939453125e-06,
+          "max_logit_absolute_error": 1.5527009963989258e-05,
+          "max_distribution_js_nats": 1.4439338258398493e-07,
+          "js_acceptance_threshold": 1e-06,
+          "validation": "PASS",
+          "huginn_initial_states": null
+        },
+        {
+          "family": "ouro",
+          "pretrained": true,
+          "case": "mixed",
+          "loops": 4,
+          "prompt_tokens": 128,
+          "new_tokens": 32,
+          "mixed_precision": "none",
+          "seed": 42,
+          "repeats": 3,
+          "forced_exit_depths": [
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3
+          ],
+          "cached_seconds": [
+            0.7086028209887445,
+            0.7085882709361613,
+            0.7098481999710202
+          ],
+          "recompute_seconds": [
+            1.96313156792894,
+            1.9717853460460901,
+            1.9700260260142386
+          ],
+          "median_speedup": 2.7801554942518787,
+          "cached_token_loops": 634,
+          "recompute_token_loops": 11496,
+          "backfill_token_loops": 427,
+          "cached_coda_token_positions": 0,
+          "cached_peak_allocated_bytes": [
+            6591185408,
+            6603809280,
+            6801752576
+          ],
+          "recompute_peak_allocated_bytes": [
+            6173509120,
+            6280275456,
+            6385370624
+          ],
+          "max_state_absolute_error": 0.00015044212341308594,
+          "max_logit_absolute_error": 0.0003132820129394531,
+          "max_distribution_js_nats": 1.4439338258398493e-07,
+          "js_acceptance_threshold": 1e-06,
+          "validation": "PASS",
+          "huginn_initial_states": null
+        }
+      ]
+    },
+    {
+      "file": "pretrained_huginn_fp32.json",
+      "cases": [
+        {
+          "family": "huginn",
+          "pretrained": true,
+          "case": "shallow",
+          "loops": 4,
+          "model_directory": "/local_nvme/data/zhenning/huggingface_models/huginn-0125",
+          "model_revision": "bb6621b65e90b6a4b9b29ef88dc83866d450470c",
+          "prompt_tokens": 64,
+          "new_tokens": 8,
+          "mixed_precision": "none",
+          "seed": 42,
+          "repeats": 1,
+          "forced_exit_depths": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "cached_seconds": [
+            0.11770347505807877
+          ],
+          "recompute_seconds": [
+            0.20948452595621347
+          ],
+          "median_speedup": 1.7797650056877838,
+          "cached_token_loops": 71,
+          "recompute_token_loops": 540,
+          "backfill_token_loops": 0,
+          "cached_coda_token_positions": 71,
+          "cached_peak_allocated_bytes": [
+            14343257088
+          ],
+          "recompute_peak_allocated_bytes": [
+            14321292800
+          ],
+          "max_state_absolute_error": 7.3909759521484375e-06,
+          "max_logit_absolute_error": 7.748603820800781e-06,
+          "max_distribution_js_nats": 5.2278551265771966e-08,
+          "js_acceptance_threshold": 1e-06,
+          "validation": "PASS",
+          "huginn_initial_states": "native sampled once per position, shared reference tape"
+        },
+        {
+          "family": "huginn",
+          "pretrained": true,
+          "case": "mixed",
+          "loops": 4,
+          "model_directory": "/local_nvme/data/zhenning/huggingface_models/huginn-0125",
+          "model_revision": "bb6621b65e90b6a4b9b29ef88dc83866d450470c",
+          "prompt_tokens": 64,
+          "new_tokens": 8,
+          "mixed_precision": "none",
+          "seed": 42,
+          "repeats": 1,
+          "forced_exit_depths": [
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3
+          ],
+          "cached_seconds": [
+            0.25524221709929407
+          ],
+          "recompute_seconds": [
+            0.440424287924543
+          ],
+          "median_speedup": 1.7255150536214376,
+          "cached_token_loops": 282,
+          "recompute_token_loops": 1354,
+          "backfill_token_loops": 199,
+          "cached_coda_token_positions": 282,
+          "cached_peak_allocated_bytes": [
+            14447316480
+          ],
+          "recompute_peak_allocated_bytes": [
+            14326261248
+          ],
+          "max_state_absolute_error": 1.4781951904296875e-05,
+          "max_logit_absolute_error": 1.239776611328125e-05,
+          "max_distribution_js_nats": 6.200708924097853e-08,
+          "js_acceptance_threshold": 1e-06,
+          "validation": "PASS",
+          "huginn_initial_states": "native sampled once per position, shared reference tape"
+        }
+      ]
+    },
+    {
+      "file": "tiny_benchmark.json",
+      "cases": [
+        {
+          "family": "ouro",
+          "pretrained": false,
+          "case": "shallow",
+          "loops": 4,
+          "prompt_tokens": 64,
+          "new_tokens": 16,
+          "mixed_precision": "none",
+          "seed": 42,
+          "repeats": 3,
+          "forced_exit_depths": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "cached_seconds": [
+            0.006636409088969231,
+            0.0065512889996171,
+            0.006652519106864929
+          ],
+          "recompute_seconds": [
+            0.035651654936373234,
+            0.03596754418686032,
+            0.035966775147244334
+          ],
+          "median_speedup": 5.419613930525598,
+          "cached_token_loops": 79,
+          "recompute_token_loops": 1144,
+          "backfill_token_loops": 0,
+          "cached_coda_token_positions": 0,
+          "cached_peak_allocated_bytes": [
+            null,
+            null,
+            null
+          ],
+          "recompute_peak_allocated_bytes": [
+            null,
+            null,
+            null
+          ],
+          "max_state_absolute_error": 9.5367431640625e-07,
+          "max_logit_absolute_error": 1.341104507446289e-07,
+          "max_distribution_js_nats": 1.6498240995588276e-08,
+          "js_acceptance_threshold": 1e-06,
+          "validation": "PASS",
+          "huginn_initial_states": null
+        },
+        {
+          "family": "ouro",
+          "pretrained": false,
+          "case": "mixed",
+          "loops": 4,
+          "prompt_tokens": 64,
+          "new_tokens": 16,
+          "mixed_precision": "none",
+          "seed": 42,
+          "repeats": 3,
+          "forced_exit_depths": [
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3
+          ],
+          "cached_seconds": [
+            0.01730188704095781,
+            0.017189997946843505,
+            0.01731114718131721
+          ],
+          "recompute_seconds": [
+            0.05152317206375301,
+            0.050637412117794156,
+            0.050012761959806085
+          ],
+          "median_speedup": 2.9266988044669917,
+          "cached_token_loops": 314,
+          "recompute_token_loops": 2868,
+          "backfill_token_loops": 211,
+          "cached_coda_token_positions": 0,
+          "cached_peak_allocated_bytes": [
+            null,
+            null,
+            null
+          ],
+          "recompute_peak_allocated_bytes": [
+            null,
+            null,
+            null
+          ],
+          "max_state_absolute_error": 9.5367431640625e-07,
+          "max_logit_absolute_error": 1.341104507446289e-07,
+          "max_distribution_js_nats": 1.6498240995588276e-08,
+          "js_acceptance_threshold": 1e-06,
+          "validation": "PASS",
+          "huginn_initial_states": null
+        },
+        {
+          "family": "huginn",
+          "pretrained": false,
+          "case": "shallow",
+          "loops": 4,
+          "prompt_tokens": 64,
+          "new_tokens": 16,
+          "mixed_precision": "none",
+          "seed": 42,
+          "repeats": 3,
+          "forced_exit_depths": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "cached_seconds": [
+            0.02245020610280335,
+            0.022332037100568414,
+            0.022460686042904854
+          ],
+          "recompute_seconds": [
+            0.03981051407754421,
+            0.04034582315944135,
+            0.04006622405722737
+          ],
+          "median_speedup": 1.7846706561960834,
+          "cached_token_loops": 79,
+          "recompute_token_loops": 1144,
+          "backfill_token_loops": 0,
+          "cached_coda_token_positions": 79,
+          "cached_peak_allocated_bytes": [
+            null,
+            null,
+            null
+          ],
+          "recompute_peak_allocated_bytes": [
+            null,
+            null,
+            null
+          ],
+          "max_state_absolute_error": 7.152557373046875e-07,
+          "max_logit_absolute_error": 4.76837158203125e-07,
+          "max_distribution_js_nats": 2.1506403768967175e-08,
+          "js_acceptance_threshold": 1e-06,
+          "validation": "PASS",
+          "huginn_initial_states": "native sampled once per position, shared reference tape"
+        },
+        {
+          "family": "huginn",
+          "pretrained": false,
+          "case": "mixed",
+          "loops": 4,
+          "prompt_tokens": 64,
+          "new_tokens": 16,
+          "mixed_precision": "none",
+          "seed": 42,
+          "repeats": 3,
+          "forced_exit_depths": [
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3,
+            1,
+            4,
+            2,
+            3
+          ],
+          "cached_seconds": [
+            0.05257007200270891,
+            0.052531281020492315,
+            0.052684392081573606
+          ],
+          "recompute_seconds": [
+            0.08143057813867927,
+            0.08533571707084775,
+            0.08229959686286747
+          ],
+          "median_speedup": 1.5655218592553308,
+          "cached_token_loops": 314,
+          "recompute_token_loops": 2868,
+          "backfill_token_loops": 211,
+          "cached_coda_token_positions": 314,
+          "cached_peak_allocated_bytes": [
+            null,
+            null,
+            null
+          ],
+          "recompute_peak_allocated_bytes": [
+            null,
+            null,
+            null
+          ],
+          "max_state_absolute_error": 1.430511474609375e-06,
+          "max_logit_absolute_error": 7.152557373046875e-07,
+          "max_distribution_js_nats": 2.1506403768967175e-08,
+          "js_acceptance_threshold": 1e-06,
+          "validation": "PASS",
+          "huginn_initial_states": "native sampled once per position, shared reference tape"
+        }
+      ]
+    }
+  ],
+  "whitespace_check": "PASS excluding pre-existing CRLF edits in user-owned authoritative proposal",
+  "retry_note": "Optional Huginn FP32 loading on GPU7 encountered concurrent external GPU allocation; retry on GPU6 passed. Failed attempt log retained.",
+  "formal_pretrained_training_started": false,
+  "task_gain_established": false,
+  "scope": "Exact cache implementation and controlled runtime validation only. FP32 numerical checks and same-initial-state Huginn comparisons passed; BF16 arithmetic varies with forward shape. Timings force exits/output tokens, exclude sampling and loading, and are not a LoopOPD task comparison. Huginn pretrained checks use K4, with K32 fill verified on tiny architecture.",
+  "artifacts": [
+    {
+      "path": "audit/dynamic_cache_20261114/pretrained_ouro_bf16_cast_cache.json",
+      "sha256": "9f70136327c90bf6b029d3b4878205f60f61fba200ffed847747b955c7a7d899"
+    },
+    {
+      "path": "audit/dynamic_cache_20261114/pretrained_huginn_bf16.json",
+      "sha256": "15931ab5bdfb25fd8bb69814658c8fd126419558b2e6ad7069c60c156ec67265"
+    },
+    {
+      "path": "audit/dynamic_cache_20261114/pretrained_ouro_fp32.json",
+      "sha256": "a88000fc13e78a158fb7a9edd3362d1a3ae81547f5d0a28f04133c4ab61e25bb"
+    },
+    {
+      "path": "audit/dynamic_cache_20261114/pretrained_huginn_fp32.json",
+      "sha256": "40db8960857e49561fa6b87d7b4b8547ada17208d954120c05aeb98fbe7933f5"
+    },
+    {
+      "path": "audit/dynamic_cache_20261114/tiny_benchmark.json",
+      "sha256": "18bf7232659164bcfdf444395356474a8b9102a9b712c2ca71dc3d8164e5a72c"
+    },
+    {
+      "path": "audit/dynamic_cache_20261114/unit_tests_final.log",
+      "sha256": "9df01ba3134e648a035aaedb4c429e643071e9115bae0617faadf44948ec1ef0"
+    },
+    {
+      "path": "audit/dynamic_cache_20261114/training_validation.json",
+      "sha256": "c792e4becdc80cc875fb4222111bea11aff0ce086d97a608fc3fa940e7b1439f"
+    },
+    {
+      "path": "audit/dynamic_cache_20261114/cuda_gradient_validation.json",
+      "sha256": "2dfeabcd8c0121587c167c94a88ad8657a29606aa217a4e2241e59915e9cf7dc"
+    },
+    {
+      "path": "audit/dynamic_cache_20261114/evaluation_validation.json",
+      "sha256": "b9fbf24b113461e272ca22068b52d33e4ec7c1381a314f00b425baa281c50cef"
+    },
+    {
+      "path": "audit/dynamic_cache_20261114/launcher_default.log",
+      "sha256": "7c0f0033af52f736cfcbad0e68b23ac119116ded27470951e53f26cd48d79646"
+    },
+    {
+      "path": "audit/dynamic_cache_20261114/launcher_recompute.log",
+      "sha256": "c13b12cfa2694fc157c0cbc82b0568e947ea4ad23d656de0dd796819e0db460d"
+    },
+    {
+      "path": "ep_loop/__init__.py",
+      "sha256": "f52b2608a9012469cddfeda07186436133ca9a906b76a30dcaf09b37641733c6"
+    },
+    {
+      "path": "ep_loop/backends.py",
+      "sha256": "a3034ccbd38024fa2f3daa273662fdbf752889d6023d08727cdfdc31124c874e"
+    },
+    {
+      "path": "ep_loop/cache.py",
+      "sha256": "ec1eb61c814a5d1b6982db87d84bf4ed337cc4aefb4c710290958d52090e039c"
+    },
+    {
+      "path": "ep_loop/config.py",
+      "sha256": "9367fdf1f9a3e54ff48045bd2be30981bd67b9a9eeb085645c85bfe223cd9c24"
+    },
+    {
+      "path": "ep_loop/data.py",
+      "sha256": "fe9e3104061447e679919be542a52d186b0fc58b204cb4b281826445fdc8388a"
+    },
+    {
+      "path": "ep_loop/huginn.py",
+      "sha256": "3dff85838da69d73e3850a217d9ded9db6fd5e4bf49123fe333e7cd6dae37a50"
+    },
+    {
+      "path": "ep_loop/inference.py",
+      "sha256": "54b3eb9dfd3771d1a98ab556d7a2d9e1b8ae0773b3726fe05c0b93598daa9751"
+    },
+    {
+      "path": "ep_loop/objective.py",
+      "sha256": "84ccbc672e81832bb0ecc60e48650894d7676a49ff728ce103ff10aac7d425ba"
+    },
+    {
+      "path": "ep_loop/ouro.py",
+      "sha256": "c411a41bf99e5e64e5ec9da4f2ddf118e579497888622429f988f8162dcf8af5"
+    },
+    {
+      "path": "ep_loop/reproducibility.py",
+      "sha256": "c54263ca887a1a8491de2d06b54eb1872139dc760aa789a827b97788967ad793"
+    },
+    {
+      "path": "ep_loop/runtime.py",
+      "sha256": "03c10d76fa918a7fc38d51ffbe630bfb71960149b1dc35334b484299e776f4ac"
+    },
+    {
+      "path": "ep_loop/selection.py",
+      "sha256": "0f1c5bd305522d0a88e5335a5544fb20e3261c91a81cc48e66d6fadb947d6a16"
+    },
+    {
+      "path": "ep_loop/training.py",
+      "sha256": "18b3c726204d247d1010d50dbe246edc35a40f5c2fc89badece618c97e26bd95"
+    },
+    {
+      "path": "scripts/benchmark_dynamic_cache.py",
+      "sha256": "9c7241ad5fff7640536984436136272231753e42863aef98dbc16e798b4013c6"
+    },
+    {
+      "path": "scripts/run_pilot.sh",
+      "sha256": "f2269cce1166f6b0ad2c5e6c39de283e05cd4e01eb96a90979112d853d3a3ae5"
+    },
+    {
+      "path": "scripts/evaluate_stage_distillation.py",
+      "sha256": "ff2b621208c40c445f63f14d6e753f3d8ea0ea5973693dd65d419962ea5f8aa4"
+    }
+  ]
+}

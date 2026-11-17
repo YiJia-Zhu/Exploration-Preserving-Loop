@@ -70,7 +70,9 @@ class DynamicSelectionTests(unittest.TestCase):
         self.assertEqual(baseline['algorithm'].get('student_policy','fixed'),'fixed')
         result=subprocess.run([sys.executable,'scripts/train_stage_distillation.py','--show-config'],cwd=ROOT,capture_output=True,text=True,check=True)
         self.assertEqual(json.loads(result.stdout)['algorithm']['stage_selection'],'threshold')
-        with self.assertRaises(ValueError):validate_config(merge(current,{'rollout':{'use_cache':True}}))
+        self.assertTrue(current['rollout']['use_cache'])
+        self.assertTrue(current['evaluation']['use_cache'])
+        validate_config(merge(current,{'rollout':{'use_cache':False}}))
 
 
 class DynamicBackendTests(unittest.TestCase):

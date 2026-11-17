@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "our_method_uses_learned_stopping": true,
+  "fixed_initial_reference_disabled_by_default": true,
+  "optional_fixed_reference_verified": true,
+  "pretrained_training_started": false
+}

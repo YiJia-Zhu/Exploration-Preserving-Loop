@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-11-16T21:31:46.455341+08:00",
+  "default_mode": "hf_dynamic",
+  "default_teacher_distribution": "full_vocab",
+  "default_teacher_top_k": null,
+  "shell_entries_default_to_original_hf": true,
+  "default_compatibility_training_uses_original_objective": true,
+  "default_cpu_two_step_weights_bitwise_equal": true,
+  "default_cpu_metrics_equal_except_timing": true,
+  "default_compatibility_cpu_evaluation_passed": true,
+  "optional_hf_top20_cpu_updates": 2,
+  "optional_modes": {
+    "vllm_top20": "fixed K execution, dynamic readout, top20 approximation",
+    "hf_top20": "true dynamic HF execution, top20 approximation"
+  },
+  "unit_tests_passed": 91,
+  "shell_syntax_passed": true,
+  "proposal_crlf_preserved": true,
+  "full_gpu_experiment_started": false,
+  "existing_results_and_checkpoints_modified": false
+}

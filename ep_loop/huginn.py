@@ -64,11 +64,62 @@ class HuginnBackend(OuroBackend):
             x = block(x, freqs, index, None, cache)
         return self.model.transformer.ln_f(x)
 
-    def trace(self, ids, loops, cache=None, use_cache=False, endpoint="fixed", exit_threshold=5e-4):
+    def learned_cached_trace(self, ids, loops, threshold, cache=None):
+        from .cache import ExactLoopCache
+        if not hasattr(self.model, "ep_loop_exit_head"):
+            raise ValueError("Learned student exit head is missing; use a trained dynamic checkpoint")
+        if not 0 < threshold <= 1:
+            raise ValueError("Student exit threshold must be a probability")
+        if self.model.config.test_time_noise:
+            raise ValueError("Exact learned KV caching requires test_time_noise=0")
+        cache = cache if cache is not None else ExactLoopCache(self.model, loops)
+        if not isinstance(cache, ExactLoopCache):
+            raise ValueError("Learned stopping requires its own exact loop cache")
+        cache.validate(self.model, loops)
+        offset, count = cache.levels[0].size, ids.shape[1]
+        end = offset + count
+        if end > self.max_context_length:
+            raise ValueError("Huginn context limit exceeded")
+        states, gates, cost = [], [], 0
+        with self.autocast():
+            positions = torch.arange(offset, end, device=ids.device)
+            embedded, _ = self.model.embed_inputs(ids, cache_position=positions, past_key_values=cache.kv)
+            cache.embedded.append(embedded)
+            # Draw native random initial states ONCE for each new position.
+            # Reusing cached states must never redraw historical positions.
+            cache.levels[0].append(self.model.initialize_state(embedded))
+            prelude = len(self.model.transformer.prelude)
+            core = len(self.model.transformer.core_block)
+            for depth in range(loops):
+                start = cache.levels[depth + 1].size
+                latents = cache.levels[depth].value()[:, start:end]
+                injection = cache.embedded.value()[:, start:end]
+                freqs = self.model.freqs_cis[:, start:end]
+                index = torch.tensor(prelude - 1 + depth * core, dtype=torch.long)
+                latents, _ = self.model.core_block_forward(
+                    latents, injection, freqs, None, cache.kv, index, depth)
+                cache.levels[depth + 1].append(latents)
+                cost += end - start
+                head_state = self._coda(latents, freqs, cache.coda[depth])
+                states.append(head_state[:, -count:])
+                gate = self.model.ep_loop_exit_head(self.model.transformer.ln_f(latents[:, -count:]))
+                gates.append(gate)
+                if bool((gate[:, -1, 0].sigmoid() >= threshold).all()):
+                    break
+        actual = len(states)
+        states.extend(torch.zeros_like(states[0]) for _ in range(loops - actual))
+        return LoopTrace(tuple(states), tuple(gates), cache=cache,
+            exits=torch.full(ids.shape, actual, dtype=torch.long, device=ids.device),
+            executed_token_loops=cost, backfill_token_loops=cost - actual * count,
+            coda_token_positions=cost)
+
+    def trace(self, ids, loops, cache=None, use_cache=False, endpoint="fixed", exit_threshold=5e-4, initial_state=None):
         if loops < 1 or ids.ndim != 2 or ids.shape[0] != 1 or ids.shape[1] < 1:
             raise ValueError("Huginn reference backend requires positive depth and one unpadded sequence")
         if endpoint not in {"fixed", "native", "learned"}:
             raise ValueError("Unknown Huginn endpoint")
+        if initial_state is not None and (use_cache or endpoint!='fixed' or torch.is_grad_enabled()):
+            raise ValueError('Explicit probe initial states require fixed-depth uncached no-grad readout')
         if endpoint == "native" and (not math.isfinite(exit_threshold) or exit_threshold <= 0):
             raise ValueError("Huginn KL exit threshold must be finite and positive")
         if endpoint == "native" and torch.is_grad_enabled():
@@ -76,10 +127,12 @@ class HuginnBackend(OuroBackend):
         if endpoint == "native" and not use_cache:
             raise ValueError("Native Huginn requires its independent adaptive KV stream")
         if endpoint == "learned":
+            if use_cache:
+                return self.learned_cached_trace(ids, loops, exit_threshold, cache)
             if not hasattr(self.model, "ep_loop_exit_head"):
                 raise ValueError("Learned student exit head is missing; use a trained dynamic checkpoint")
-            if not 0 < exit_threshold <= 1 or use_cache:
-                raise ValueError("Learned Huginn uses probability threshold and full-prefix recomputation")
+            if not 0 < exit_threshold <= 1:
+                raise ValueError("Learned Huginn uses a probability threshold")
         if cache is not None and not use_cache:
             raise ValueError("Cannot pass a KV cache when use_cache is false")
         if cache is None and use_cache:
@@ -92,7 +145,9 @@ class HuginnBackend(OuroBackend):
         previous = None
         with self.autocast():
             embedded, index = self.model.embed_inputs(ids, cache_position=positions, past_key_values=cache)
-            latents = self.model.initialize_state(embedded)
+            if initial_state is not None and (initial_state.shape!=embedded.shape or initial_state.dtype!=embedded.dtype):
+                raise ValueError('Probe initial state must match native shape and dtype')
+            latents = self.model.initialize_state(embedded) if initial_state is None else initial_state
             freqs = self.model.freqs_cis[:, positions]
             evaluator = self.module.KLExitEvaluator(self.model, exit_threshold) if endpoint == "native" else None
             if evaluator is not None:
@@ -137,7 +192,8 @@ class HuginnBackend(OuroBackend):
         # Padded depths are never eligible targets or boundaries. Keeping a
         # rectangular trace allows the same S/K stage planner for both families.
         states.extend(torch.zeros_like(states[0]) for _ in range(loops - executed))
-        return LoopTrace(tuple(states), tuple(gates), cache, exits, js, executed * ids.shape[1])
+        return LoopTrace(tuple(states), tuple(gates), cache, exits, js, executed * ids.shape[1],
+                         coda_token_positions=executed * ids.shape[1])
 
     def response_trace(self, ids, loops, start, endpoint="fixed", exit_threshold=5e-4):
         if endpoint == "fixed":

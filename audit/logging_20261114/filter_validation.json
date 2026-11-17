@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "scope": "Random tiny mocked loader only; no pretrained filter labels",
+  "three_answers_logged": true
+}

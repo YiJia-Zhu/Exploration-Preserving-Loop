@@ -1,3 +1,11 @@
 {
-  "extends": "e_dynamic_js.json"
+  "extends": "e_dynamic_js.json",
+  "algorithm": {
+    "teacher_distribution": "full_vocab",
+    "teacher_top_k": null
+  },
+  "implementation": {
+    "execution_mode": "hf_dynamic",
+    "rollout_backend": "hf"
+  }
 }

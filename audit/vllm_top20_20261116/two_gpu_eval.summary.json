@@ -1,0 +1,48 @@
+{
+  "results": {
+    "native_4": {
+      "avg": 0.0,
+      "pass_at_n": 0.0,
+      "problems": 4,
+      "completions": 4,
+      "samples_per_problem": [
+        1
+      ],
+      "selected_exit_depth_hist": [
+        0,
+        0,
+        0,
+        128
+      ],
+      "mean_selected_depth": 4.0,
+      "mean_actual_depth": 4.0,
+      "executed_token_loops": 2932,
+      "response_tokens": 128,
+      "backfill_token_loops": 0,
+      "truncated_responses": 4
+    }
+  },
+  "settings": {
+    "max_new_tokens": 32,
+    "temperature": 1.0,
+    "top_p": 0.7,
+    "samples_per_problem": 1,
+    "student_loops": [
+      4
+    ],
+    "scope": "AIME integer math; symbolic mathematics and code use external official evaluators",
+    "student_policy": "native",
+    "use_cache": true
+  },
+  "gpus": [
+    "2",
+    "3"
+  ],
+  "wall_seconds": 63.209934637881815,
+  "data": {
+    "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_top20_20261116/eval_four_questions.jsonl",
+    "sha256": "db56dae5622be8ffbf4c1422e0f5d0d0e1bab5a9de61e55a81175d4df0ccb3e1"
+  },
+  "backend": "repo-local Ouro adapter on installed vLLM 0.11",
+  "scope": "Same per-problem seeds, gate policy and sampling settings. Fixed K execution; do not compare parallel throughput with isolated single-request latency."
+}
