@@ -1,0 +1,80 @@
+{
+  "verified_at": "2026-11-19T16:11:28.333780+00:00",
+  "scope": "Code only; no training or GPU evaluation launched",
+  "intermediate": {
+    "every_updates": 5,
+    "model_only": true,
+    "evaluation": true,
+    "resume_state": false
+  },
+  "final": {
+    "model": true,
+    "evaluation": true,
+    "optimizer": true,
+    "all_rank_rng": true,
+    "embedded_resume": true
+  },
+  "evaluation": {
+    "dataset": "AIME2024",
+    "examples": 30,
+    "samples_per_problem": 16,
+    "ordinary_inference": true,
+    "response_text": true,
+    "token_counts": true,
+    "loop_counts": true,
+    "accuracy": true
+  },
+  "cpu_tests": {
+    "count": 178,
+    "result": "passed",
+    "log": "cpu_regression_final.log",
+    "final_resume_next_step_exact": true,
+    "two_rank_final_resume": true,
+    "failed_write_protection": true
+  },
+  "launch_dry_runs": {
+    "direct.final.dry_run.log": {
+      "plan_count": 1,
+      "save_every_updates": 5,
+      "eval_every_updates": 5,
+      "checkpoint_layout": "model_only",
+      "save_optimizer": false,
+      "save_final_resume": true
+    },
+    "primary.final.dry_run.log": {
+      "plan_count": 2,
+      "save_every_updates": 5,
+      "eval_every_updates": 5,
+      "checkpoint_layout": "model_only",
+      "save_optimizer": false,
+      "save_final_resume": true
+    }
+  },
+  "shell_syntax": "passed",
+  "scoped_diff_check": "passed",
+  "existing_run": {
+    "status": "stopped_by_user",
+    "completed_updates": 10,
+    "resume_completed_updates": 10,
+    "training_processes": [],
+    "outputs_preserved": true
+  },
+  "source_sha256": {
+    "ep_loop/config.py": "3919a84c7d6c4a0e83c4aac32ad6f806e816f682a05c9c8cb699b90c4ac0bd47",
+    "ep_loop/checkpointing.py": "52422e0bd2c38b229edac069ecc2856bb76d3ee0702a4aa4a29b97645e65f27b",
+    "ep_loop/fastpath/checkpoints.py": "64e13c501565889da8714d8c6f7b0f4e2f3b93d22d62cb422b187a94479da412",
+    "ep_loop/fastpath/evaluation.py": "86ffaf0031bd44e61f587bc7cdd23beca7332176ba153c340f773afc317327de",
+    "ep_loop/fastpath/training.py": "0e0b4805858b08f9c1acb8cb0a8a1ee86804db21acb27f7e4e4d904450b7c8ac",
+    "ep_loop/fastpath/rollout.py": "87397917b64af0a84c06ff3a047aa2451832648459e5920e13c1fa66e235036b",
+    "ep_loop/fastpath/teacher.py": "841291d42eb1cb44018fb8245a502fb7eee5008500d70860dcd3ae67b0b132ef",
+    "scripts/evaluate_fastpath.py": "1a8743f9a2f2a8a2b962a9e2e9bce1093bad087a762159a1515d08e16c23dc00",
+    "scripts/run_fastpath_ablation.sh": "5f8b801702aa265ab81306dfe389899ab099ab71e07f2457feb0294c35d924c3",
+    "scripts/run_three_route_ablation.sh": "7f305fe30a80c5eb6c5979488169b7dda819266007f58952144cf66c21c3fbce",
+    "configs/vllm_fixed_top_n.json": "7055bc1588e9a0e5b7d78ab3ac3233874f16184440b48ae36e2f207da26db48e",
+    "configs/hf_shared_ep_d_loopopd.json": "575e8cb1837853faf4ce5c54f0c0a270939f5913c290785c1a94e8be38bc8c25",
+    "tests/test_periodic_evaluation.py": "e3025dcde97a3c73ea87d6e5bc080dcc1199d4b4185de3ff1a7e6e03571fd9a4",
+    "tests/test_split_checkpoint.py": "c47e88d38c48abf2f7530a510b218322b8b7aaeb276d6c0df921d10a518225d5",
+    "docs/30_model_snapshots_and_latest_resume.md": "c7dbe855f4a83bd393b5288d5888983cd0e6bd96af79bcb7aba50ede64b9e7cd",
+    "docs/31_periodic_evaluation_model_only.md": "847c47c43777a1ec712b70cead41fd1f75c6919983e62bdbebc3542020a4de65"
+  }
+}

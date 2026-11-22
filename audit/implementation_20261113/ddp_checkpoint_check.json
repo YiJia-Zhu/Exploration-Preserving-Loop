@@ -1,8 +1,0 @@
-{
-  "status": "PASS",
-  "world_size": 2,
-  "native_backbone_checkpointing": true,
-  "readout_checkpointing": true,
-  "all_reduced_gradients_match_exactly": true,
-  "scope": "Random official tiny architecture on CPU, no GPU benchmark"
-}

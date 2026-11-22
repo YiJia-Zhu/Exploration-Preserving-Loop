@@ -1,6 +1,0 @@
-[2026-11-14T19:07:33.072+08:00] run_start: confidence_diagnostic
-[2026-11-14T19:07:33.074+08:00] stage_start: confidence_diagnostic
-[2026-11-14T19:07:33.689+08:00] stage_start: model_load
-[2026-11-14T19:07:34.725+08:00] stage_end: model_load (1.036s)
-[2026-11-14T19:07:34.960+08:00] stage_end: confidence_diagnostic (1.886s)
-[2026-11-14T19:07:34.960+08:00] run_end: confidence_diagnostic (1.888s)

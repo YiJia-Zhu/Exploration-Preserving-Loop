@@ -1,0 +1,120 @@
+{
+  "checkpoint": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/checkpoints/update_000005",
+  "questions": 4,
+  "samples_per_question": 16,
+  "max_new_tokens": 256,
+  "cases": [
+    {
+      "gpu": "0",
+      "prefix_cache": true,
+      "wall_seconds": 34.22705898573622,
+      "output_tokens": 16384,
+      "response_file": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_prefix_cache_20261120/wave0_gpu0_cache1.responses.jsonl",
+      "engine": {
+        "event": "rlt_engine_ready",
+        "ready": true,
+        "executed_loops": 2,
+        "backend": "vllm-rlt",
+        "attention_backend": "triton",
+        "async_scheduling": false,
+        "enable_prefix_caching": true,
+        "max_num_seqs": 8,
+        "max_num_batched_tokens": 128,
+        "prefill_chunk_size": 128,
+        "kv_tokens": 268336,
+        "speculative_config": null
+      },
+      "cached_prompt_tokens": 9456,
+      "prompt_tokens": 13344,
+      "tokens_per_second": 478.6855922043394
+    },
+    {
+      "gpu": "1",
+      "prefix_cache": false,
+      "wall_seconds": 35.51245075697079,
+      "output_tokens": 16384,
+      "response_file": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_prefix_cache_20261120/wave0_gpu1_cache0.responses.jsonl",
+      "engine": {
+        "event": "rlt_engine_ready",
+        "ready": true,
+        "executed_loops": 2,
+        "backend": "vllm-rlt",
+        "attention_backend": "triton",
+        "async_scheduling": false,
+        "enable_prefix_caching": false,
+        "max_num_seqs": 8,
+        "max_num_batched_tokens": 128,
+        "prefill_chunk_size": 128,
+        "kv_tokens": 268336,
+        "speculative_config": null
+      },
+      "cached_prompt_tokens": 0,
+      "prompt_tokens": 13344,
+      "tokens_per_second": 461.35931626132447
+    },
+    {
+      "gpu": "0",
+      "prefix_cache": false,
+      "wall_seconds": 35.87522621359676,
+      "output_tokens": 16384,
+      "response_file": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_prefix_cache_20261120/wave1_gpu0_cache0.responses.jsonl",
+      "engine": {
+        "event": "rlt_engine_ready",
+        "ready": true,
+        "executed_loops": 2,
+        "backend": "vllm-rlt",
+        "attention_backend": "triton",
+        "async_scheduling": false,
+        "enable_prefix_caching": false,
+        "max_num_seqs": 8,
+        "max_num_batched_tokens": 128,
+        "prefill_chunk_size": 128,
+        "kv_tokens": 268336,
+        "speculative_config": null
+      },
+      "cached_prompt_tokens": 0,
+      "prompt_tokens": 13344,
+      "tokens_per_second": 456.69398437940555
+    },
+    {
+      "gpu": "1",
+      "prefix_cache": true,
+      "wall_seconds": 34.487112631089985,
+      "output_tokens": 16384,
+      "response_file": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_prefix_cache_20261120/wave1_gpu1_cache1.responses.jsonl",
+      "engine": {
+        "event": "rlt_engine_ready",
+        "ready": true,
+        "executed_loops": 2,
+        "backend": "vllm-rlt",
+        "attention_backend": "triton",
+        "async_scheduling": false,
+        "enable_prefix_caching": true,
+        "max_num_seqs": 8,
+        "max_num_batched_tokens": 128,
+        "prefill_chunk_size": 128,
+        "kv_tokens": 268336,
+        "speculative_config": null
+      },
+      "cached_prompt_tokens": 9456,
+      "prompt_tokens": 13344,
+      "tokens_per_second": 475.0760139087403
+    }
+  ],
+  "exact_text_all_runs": 23,
+  "cache_off": {
+    "mean_wall_seconds": 35.69383848528378,
+    "mean_tokens_per_second": 459.026650320365,
+    "cache_fraction": 0.0
+  },
+  "cache_on": {
+    "mean_wall_seconds": 34.3570858084131,
+    "mean_tokens_per_second": 476.8808030565399,
+    "cache_fraction": 0.7086330935251799
+  },
+  "greedy_check": {
+    "completions": 64,
+    "max_new_tokens": 48,
+    "identical_token_sequences": 59
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "verified_at": "2026-11-19T17:07:15.852664+08:00",
+  "status": "completed",
+  "math_responses_rescored": 564,
+  "questions_per_variant": 94,
+  "responses_per_variant": 188,
+  "student_loops": 2,
+  "max_new_tokens": 16384,
+  "completed_accuracy_gpu_cases": 6,
+  "completed_screen_gpu_cases": 10,
+  "production": {
+    "ep_loop/fastpath/actor.py": {
+      "sha256": "e5ee268a027d643201000d648f3fb503aa68a04dc01b3be73aba71c36ce887b2",
+      "unchanged": true
+    },
+    "ep_loop/fastpath/vllm_server.py": {
+      "sha256": "275adfff203e5b21222b06e37af4f27b3774868e4f7ed1ae6886610d37bab0c9",
+      "unchanged": true
+    },
+    "ep_loop/fastpath/rollout.py": {
+      "sha256": "972c537b0500130b5aebb8b966b0308f6a632081de36e34982f6deeff8b4704d",
+      "unchanged": true
+    }
+  },
+  "inference_worker_source_matches_snapshot": true,
+  "processes": [
+    {
+      "source": "screen.launch.json",
+      "pid": 39379,
+      "original_process_active": false,
+      "current": null
+    },
+    {
+      "source": "gpu45/screen.launch.json",
+      "pid": 177800,
+      "original_process_active": false,
+      "current": null
+    },
+    {
+      "source": "extra_screen.launch.json",
+      "pid": 348687,
+      "original_process_active": false,
+      "current": null
+    },
+    {
+      "source": "accuracy_supervisor.launch.json",
+      "pid": 421643,
+      "original_process_active": false,
+      "current": null
+    },
+    {
+      "source": "greedy_check.launch.json",
+      "pid": 995283,
+      "original_process_active": false,
+      "current": null
+    },
+    {
+      "pid": 500488,
+      "original_process_active": false,
+      "current": null
+    },
+    {
+      "pid": 1632651,
+      "original_process_active": false,
+      "current": null
+    },
+    {
+      "pid": 1632652,
+      "original_process_active": false,
+      "current": null
+    }
+  ],
+  "gpu_state_after": [
+    {
+      "index": "4",
+      "uuid": "GPU-3f3add2a-399a-b17d-84ff-d9a43f747bb0",
+      "memory_used_MiB": 3,
+      "processes": []
+    },
+    {
+      "index": "5",
+      "uuid": "GPU-17f76845-5d79-933c-affa-2ef7cec12651",
+      "memory_used_MiB": 3,
+      "processes": []
+    }
+  ],
+  "source_and_artifact_sha256": {
+    "scripts/benchmark_ouro_accuracy.py": "82af05ef7a45e267d7297db05bcada7bea877c1ddddebd7cd0a1620a595706a9",
+    "tests/test_ouro_accuracy_benchmark.py": "d6b8042bc47a63b4239a8788af1042c41457507b46c661aaa63f0b02cfd2bdfe",
+    "docs/28_vllm_accuracy_recheck.md": "711c04212561b3bbd03aa426bffd5e1aab6b4ef8f56c518d2726b143f9de4cca",
+    "audit/vllm_accuracy_recheck_20261119_151324/summarize_accuracy.py": "a200aea7cfaf5fa6a7a274c55fa50d45c967440d3570fab7d856807dce3b8727",
+    "audit/vllm_accuracy_recheck_20261119_151324/extra_screen.py": "b17789967797d35bfbc0e14b378e3cc91451576bcfb8f35fe2a3941f9452db68",
+    "audit/vllm_accuracy_recheck_20261119_151324/run_accuracy.py": "68642c3e3cea02d224f098ef595b55ccc40f85e2157088ea413ada0e8d5ee0a0",
+    "audit/vllm_accuracy_recheck_20261119_151324/greedy_check.py": "dbe71821a963c0ea9d80b7f3ccd9cd0a4045bb4c93038941da149d645574e5d9",
+    "audit/vllm_accuracy_recheck_20261119_151324/RESULTS.md": "3376b281921ccc1b4e733137976ce6ce339433d024306e5918fe10acda6309b9",
+    "audit/vllm_accuracy_recheck_20261119_151324/accuracy_summary.json": "5eed5dbe73debdf500e85eeed4e56893be6cd056fc2c9c647d5e1a997a8c9214"
+  },
+  "optional_greedy_scope": "Not completed because unrelated GPU0 work appeared; no consistency pass claimed"
+}

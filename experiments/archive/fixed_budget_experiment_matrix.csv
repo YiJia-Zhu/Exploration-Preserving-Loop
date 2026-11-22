@@ -1,9 +1,0 @@
-id,teacher_update,teacher_endpoint,stage_selection,student_loops,teacher_max_loops,config,status,run_evidence,scope
-A_frozen,frozen,fixed,endpoint,2,4,configs/a_loopopd.json,implemented_cpu_validation,audit/implementation_20261113/validation.json,Paper-aligned implementation; benchmark replication not completed
-A_current,current,fixed,endpoint,2,4,configs/a_d_loopopd.json,implemented_cpu_validation,audit/implementation_20261113/validation.json,Paper-aligned implementation; benchmark replication not completed
-B_frozen,frozen,native,endpoint,2,4,configs/b_native_endpoint.json,implemented_cpu_validation,audit/implementation_20261113/validation.json,Paper-aligned implementation; benchmark replication not completed
-B_current,current,native,endpoint,2,4,configs/b_current_native_endpoint.json,implemented_cpu_validation,audit/implementation_20261113/validation.json,Paper-aligned implementation; benchmark replication not completed
-C_frozen,frozen,native,uniform,2,4,configs/c_native_uniform.json,implemented_cpu_validation,audit/implementation_20261113/validation.json,Paper-aligned implementation; benchmark replication not completed
-C_current,current,native,uniform,2,4,configs/c_current_native_uniform.json,implemented_cpu_validation,audit/implementation_20261113/validation.json,Paper-aligned implementation; benchmark replication not completed
-D_frozen,frozen,native,js,2,4,configs/d_native_js.json,implemented_cpu_validation,audit/implementation_20261113/validation.json,Paper-aligned implementation; benchmark replication not completed
-D_current,current,native,js,2,4,configs/d_current_native_js.json,implemented_cpu_validation,audit/implementation_20261113/validation.json,Paper-aligned implementation; benchmark replication not completed

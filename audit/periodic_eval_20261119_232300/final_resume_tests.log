@@ -1,0 +1,14 @@
+test_final_resume_restores_next_step_and_failed_write_preserves_weights (test_split_checkpoint.SplitCheckpointTests) ... ok
+test_intervals_do_not_save_each_update_and_final_is_recoverable (test_split_checkpoint.SplitCheckpointTests) ... ok
+test_publication_failure_keeps_old_resume_and_all_model_snapshots (test_split_checkpoint.SplitCheckpointTests) ... ok
+test_two_real_ranks_publish_all_rng_files_before_latest (test_split_checkpoint.SplitCheckpointTests) ... [Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+ok
+test_two_real_ranks_publish_final_optimizer_and_all_rng_files (test_split_checkpoint.SplitCheckpointTests) ... [Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 4.431s
+
+OK

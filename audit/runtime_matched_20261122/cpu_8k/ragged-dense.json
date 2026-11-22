@@ -1,0 +1,158 @@
+[
+  {
+    "batches": [
+      {
+        "client_seconds": 38.33199704485014,
+        "runtime": {},
+        "responses": [
+          {
+            "token_ids": [
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41
+            ],
+            "exit_depths": [
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4
+            ],
+            "executed_token_loops": 32828,
+            "backfill_token_loops": 0,
+            "physical_kv_token_slots": 32828,
+            "finish_reason": "length",
+            "request_timing": {
+              "time_to_first_token_seconds": 32.295092372689396,
+              "first_to_last_token_seconds": 5.8989803972654045
+            },
+            "id": "AIME2024_train-00000-of-00001_01",
+            "prompt_tokens": 8192,
+            "output_tokens": 16,
+            "seed": 2456673880369216989
+          }
+        ]
+      }
+    ],
+    "client_seconds": 38.33199704485014,
+    "output_tokens": 16,
+    "output_tok_s": 0.4174058549905263,
+    "prompt_tokens": 8192,
+    "stopped_at_limit": 1,
+    "correct": null,
+    "median_ttft_seconds": 32.295092372689396,
+    "median_tpot_seconds": 0.3932653598176936,
+    "decode_depth_histogram": [
+      0,
+      0,
+      0,
+      15
+    ],
+    "mean_decode_depth": 4,
+    "executed_token_loops": 32828,
+    "backfill_token_loops": 0,
+    "physical_kv_token_slots": 32828
+  },
+  {
+    "batches": [
+      {
+        "client_seconds": 39.10794020630419,
+        "runtime": {},
+        "responses": [
+          {
+            "token_ids": [
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41,
+              41
+            ],
+            "exit_depths": [
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4,
+              4
+            ],
+            "executed_token_loops": 32828,
+            "backfill_token_loops": 0,
+            "physical_kv_token_slots": 32828,
+            "finish_reason": "length",
+            "request_timing": {
+              "time_to_first_token_seconds": 32.70475633721799,
+              "first_to_last_token_seconds": 6.2655580239370465
+            },
+            "id": "AIME2024_train-00000-of-00001_01",
+            "prompt_tokens": 8192,
+            "output_tokens": 16,
+            "seed": 2456673880369216989
+          }
+        ]
+      }
+    ],
+    "client_seconds": 39.10794020630419,
+    "output_tokens": 16,
+    "output_tok_s": 0.4091240785271734,
+    "prompt_tokens": 8192,
+    "stopped_at_limit": 1,
+    "correct": null,
+    "median_ttft_seconds": 32.70475633721799,
+    "median_tpot_seconds": 0.41770386826246975,
+    "decode_depth_histogram": [
+      0,
+      0,
+      0,
+      15
+    ],
+    "mean_decode_depth": 4,
+    "executed_token_loops": 32828,
+    "backfill_token_loops": 0,
+    "physical_kv_token_slots": 32828
+  }
+]

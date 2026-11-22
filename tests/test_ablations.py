@@ -125,13 +125,21 @@ class AblationTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'duplicate'):prepare_training_records(config,ByteTokenizer(),root)
 
     def test_ablation_configs_remain_dynamic_and_invalid_combinations_rejected(self):
-        for prefix in ['','huginn_']:
-            for suffix in ['max_probability','entropy','probe_know']:
-                config=validate_config(load_config(ROOT/'configs'/f'{prefix}g_dynamic_{suffix}.json'))
-                self.assertIsNone(config['algorithm']['student_loops'])
-                self.assertEqual(config['algorithm']['student_policy'],'learned')
-            for target in ['teacher_correct']:
-                validate_config(load_config(ROOT/'configs'/f'{prefix}e_dynamic_js_{target}.json'))
+        for name in ('e_dynamic_js.json', 'huginn_e_dynamic_js.json'):
+            base = load_config(ROOT / 'configs' / name)
+            for signal in ('max_probability', 'normalized_entropy', 'probe_know'):
+                with self.subTest(config=name, signal=signal):
+                    variant = merge(base, {'algorithm': {
+                        'boundary_signal': signal, 'confidence_threshold': 0.05,
+                    }})
+                    config = validate_config(variant)
+                    self.assertIsNone(config['algorithm']['student_loops'])
+                    self.assertEqual(config['algorithm']['student_policy'], 'learned')
+            filtered = merge(base, {
+                'distillation': {'question_filter': 'teacher_correct', 'require_eos': True},
+                'data': {'correctness_cache': 'labels.jsonl'},
+            })
+            validate_config(filtered)
         config=load_config(ROOT/'configs/e_dynamic_js.json')
         for change in [dict(algorithm=dict(boundary_signal='other')),dict(algorithm=dict(boundary_signal='probe_true')),dict(distillation=dict(response_filter='student_correct')),
                        dict(distillation=dict(question_filter='teacher_correct')),dict(algorithm=dict(confidence_threshold=-1,boundary_signal='probe_know'))]:

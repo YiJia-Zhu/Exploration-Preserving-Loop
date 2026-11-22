@@ -1,4 +1,4 @@
-"""Evaluate configured dynamic policy, native base, or explicit fixed budgets."""
+"""Evaluate a trained policy, RAD-OPD Phase 0, or explicit fixed baselines."""
 import argparse
 import hashlib
 import json
@@ -17,6 +17,10 @@ def main():
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--device', default='cuda')
     p.add_argument('--loops', type=int, action='append', help='Explicit fixed-depth evaluation ablation')
+    p.add_argument('--threshold', type=float, action='append', help='RAD-OPD threshold; repeat to scan')
+    p.add_argument('--phase-zero', action='store_true', help='Compare base dense, static, backfill and ragged KV')
+    p.add_argument('--max-new-tokens', type=int, help='Use a smaller generation cap for a short check')
+    p.add_argument('--write-token-ids', action='store_true', help='Include token IDs for offline teacher export')
     p.add_argument('--samples-per-problem', type=int)
     p.add_argument('--smoke',action='store_true',help='CPU-only saved/random tiny architecture with ByteTokenizer')
     args = p.parse_args()
@@ -42,7 +46,7 @@ def evaluate(args, p, observer):
     from ep_loop.backends import load_backend
     from ep_loop.reproducibility import execution_provenance, sample_seed, seed_everything
     from ep_loop.observability import model_progress
-    from ep_loop.evaluation_data import load_evaluation_records, benchmark_math_metrics
+    from ep_loop.evaluation_data import load_evaluation_records, benchmark_math_metrics, rad_pass_metrics
     from ep_loop.cpu_runtime import configure_cpu_threads
     observer.event('cpu_runtime', echo=True, num_threads=configure_cpu_threads())
     root = Path(__file__).resolve().parents[1]
@@ -52,7 +56,12 @@ def evaluate(args, p, observer):
         config = smoke_config(config)
     validate_config(config)
     policy = config['evaluation'].get('student_policy',config['algorithm'].get('student_policy', 'fixed'))
-    if args.checkpoint is None and policy not in {'native','native_adaptive'}:
+    rad_eval = config['algorithm'].get('student_policy') == 'ragged'
+    if (args.phase_zero or args.threshold) and (not rad_eval or args.loops):
+        p.error('--phase-zero/--threshold require the RAD-OPD config and no --loops override')
+    if args.phase_zero and args.checkpoint is not None:
+        p.error('--phase-zero evaluates the original model from the config')
+    if args.checkpoint is None and policy not in {'native','native_adaptive'} and not args.phase_zero:
         p.error('--checkpoint is required for a trained student')
     # Hash the exact bytes being evaluated, once, before a potentially long run.
     data_span = observer.start('evaluation_data_load', echo=True, data=str(args.data))
@@ -83,19 +92,45 @@ def evaluate(args, p, observer):
     settings = dict(config['evaluation'])
     if args.smoke:
         settings.update(max_new_tokens=4,samples_per_problem=1,student_loops=[student_budget(config)])
+    if args.max_new_tokens is not None:
+        if not 1 <= args.max_new_tokens <= settings['max_new_tokens']:
+            p.error('--max-new-tokens must be positive and at most the configured cap')
+        settings['max_new_tokens'] = args.max_new_tokens
     if args.samples_per_problem is not None:
         if args.samples_per_problem < 1: p.error('--samples-per-problem must be positive')
         settings['samples_per_problem'] = args.samples_per_problem
-    modes = [('fixed',depth) for depth in (args.loops or settings['student_loops'])] if args.loops or policy == 'fixed' else [(policy,student_budget(config))]
+    if rad_eval:
+        budgets = sorted({min(n, settings['max_new_tokens']) for n in settings['budget_slices']})
+        settings.update(budget_slices=budgets, phase_zero=args.phase_zero)
+    if rad_eval and not args.loops and (policy == 'ragged' or args.phase_zero):
+        thresholds = args.threshold or settings['ragged_thresholds']
+        if not all(0 < t <= 1 for t in thresholds) or len(set(thresholds)) != len(thresholds):
+            p.error('RAD-OPD thresholds must be distinct and in (0, 1]')
+        settings['ragged_thresholds'] = thresholds
+        depth = student_budget(config)
+        modes = [('ragged', depth, tau) for tau in thresholds]
+        if args.phase_zero:
+            modes = [('fixed', k, 1.0) for k in (depth, 2, 1)] + [
+                ('native_backfill', depth, tau) for tau in thresholds
+            ] + modes
+    else:
+        threshold = (config['algorithm'].get('student_stop_threshold', .5) if policy == 'learned'
+                     else config['algorithm']['exit_threshold'])
+        modes = [('fixed', depth, threshold) for depth in (args.loops or settings['student_loops'])] if args.loops or policy == 'fixed' else [(policy,student_budget(config),threshold)]
+    if any(not 1 <= depth <= config['algorithm']['teacher_max_loops'] for _, depth, _ in modes):
+        p.error('Requested loop count is outside the configured maximum')
     args.output.parent.mkdir(parents=True,exist_ok=True)
     summaries = {}
     completions = observer.progress(total=len(records)*settings['samples_per_problem']*len(modes),
         desc='Evaluate completions', unit='response', position=0)
     with args.output.open('x') as f:
-        for endpoint,loops in modes:
-            mode_span = observer.start('evaluation_mode', echo=True, policy=endpoint, loops=loops)
+        for endpoint,loops,threshold in modes:
+            mode_span = observer.start('evaluation_mode', echo=True, policy=endpoint, loops=loops, exit_threshold=threshold)
             correctness,depths,selected_depths,seconds,token_loops = {},[],[],[],0
             backfill_token_loops, coda_token_positions = 0, 0
+            if rad_eval:
+                sliced = {cap: {record['id']: [] for record in records} for cap in budgets}
+                output_tokens = truncated = physical_slots = decode_tokens = decode_loops = depth_one = 0
             for record in records:
                 ids = prompt_ids(tokenizer,record,config['model']['enable_thinking'],config['model']['repair_template_newlines'])
                 if len(ids)>config['data']['max_prompt_tokens']:
@@ -106,7 +141,6 @@ def evaluate(args, p, observer):
                     completion_seed = sample_seed(config['seed'], record['problem_sha256'], sample)
                     seed_everything(completion_seed)
                     rng = torch.Generator(device=backend.device).manual_seed(completion_seed)
-                    threshold = config['algorithm'].get('student_stop_threshold',.5) if endpoint == 'learned' else config['algorithm']['exit_threshold']
                     response = generate(backend,ids,loops,settings['max_new_tokens'],settings['temperature'],settings['top_p'],rng,
                         endpoint=endpoint,exit_threshold=threshold,
                         use_cache=settings.get('use_cache',True), observer=observer,
@@ -120,6 +154,27 @@ def evaluate(args, p, observer):
                     token_loops += response.executed_token_loops
                     backfill_token_loops += response.backfill_token_loops
                     coda_token_positions += response.coda_token_positions
+                    extra = {}
+                    if args.write_token_ids:
+                        extra['tokens'] = response.token_ids
+                    if rad_eval:
+                        decode_depths = response.exit_depths[1:]
+                        output_tokens += len(response.token_ids)
+                        truncated += not response.reached_eos
+                        physical_slots += response.physical_kv_token_slots
+                        decode_tokens += len(decode_depths)
+                        decode_loops += sum(decode_depths)
+                        depth_one += decode_depths.count(1)
+                        slices = {}
+                        for cap in budgets:
+                            correct = (verdict['correct'] if cap >= len(response.token_ids) else
+                                       verify_integer_response(tokenizer.decode(response.token_ids[:cap]),
+                                                               record['answer'], record['messages'])['correct'])
+                            slices[cap] = correct
+                            sliced[cap][record['id']].append(correct)
+                        extra.update(exit_threshold=threshold,
+                                     physical_kv_token_slots=response.physical_kv_token_slots,
+                                     budget_correct=slices)
                     f.write(json.dumps(dict(id=record['id'],problem_sha256=record['problem_sha256'],
                         benchmark=record.get('benchmark','unspecified'),
                         policy=endpoint,max_loops=loops,sample=sample,
@@ -129,13 +184,16 @@ def evaluate(args, p, observer):
                         actual_execution_depths=response.execution_depths,
                         cache_policy=response.cache_policy,backfill_token_loops=response.backfill_token_loops,
                         coda_token_positions=response.coda_token_positions,
-                        generation_seconds=response.seconds,**verdict),ensure_ascii=False)+'\n')
+                        generation_seconds=response.seconds,**verdict,**extra),ensure_ascii=False)+'\n')
                     f.flush()
                     observer.finish(sample_span, response_tokens=len(response.token_ids), **verdict)
                     completions.update(1)
             ordered = sorted(depths)
             percentile = lambda q: ordered[min(len(ordered)-1,int(q*(len(ordered)-1)))]
-            summaries[f'{endpoint}_{loops}'] = dict(**math_metrics(correctness),
+            name = f'{endpoint}_{loops}'
+            if endpoint in {'ragged', 'native_backfill'}:
+                name += f'_tau_{threshold}'
+            summaries[name] = dict(**math_metrics(correctness),
                 benchmarks=benchmark_math_metrics(records,correctness),
                 actual_depth_hist=[depths.count(i) for i in range(1,loops+1)],mean_actual_depth=sum(depths)/len(depths),
                 selected_exit_depth_hist=[selected_depths.count(i) for i in range(1,loops+1)],
@@ -143,7 +201,16 @@ def evaluate(args, p, observer):
                 max_depth_fraction=depths.count(loops)/len(depths),executed_token_loops=token_loops,
                 backfill_token_loops=backfill_token_loops,coda_token_positions=coda_token_positions,
                 generation_seconds_sum=sum(seconds),mean_response_seconds=sum(seconds)/len(seconds))
-            observer.finish(mode_span, metrics=summaries[f'{endpoint}_{loops}'])
+            if rad_eval:
+                summaries[name].update(
+                    **rad_pass_metrics(correctness), exit_threshold=threshold, max_loops=loops,
+                    mean_decode_depth=decode_loops/decode_tokens if decode_tokens else None,
+                    decode_depth_one_fraction=depth_one/decode_tokens if decode_tokens else None,
+                    mean_response_tokens=output_tokens/len(seconds), truncation_rate=truncated/len(seconds),
+                    mean_executed_token_loops=token_loops/len(seconds),
+                    mean_physical_kv_token_slots=physical_slots/len(seconds),
+                    budget_slices={cap: rad_pass_metrics(scores) for cap, scores in sliced.items()})
+            observer.finish(mode_span, metrics=summaries[name])
     completions.close()
     report = dict(settings=settings,results=summaries,verifier='prompt_aligned_integer_v2',smoke=args.smoke,
         experiment=config.get('experiment',{}),

@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/scripts/benchmark_runtime.py", line 363, in <module>
+    main()
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/scripts/benchmark_runtime.py", line 317, in main
+    with reserve_gpu(args, work):
+  File "/local_nvme/data/zhenning/miniconda3/envs/tokenrouter-blackwell/lib/python3.10/contextlib.py", line 135, in __enter__
+    return next(self.gen)
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/scripts/benchmark_runtime.py", line 302, in reserve_gpu
+    work['gpu'], = require_idle_gpus([args.gpu])
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop/gpu_resources.py", line 23, in require_idle_gpus
+    devices={row['index']:row for row in gpu_status()}
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop/gpu_resources.py", line 14, in gpu_status
+    for row in query('index,uuid,memory.used','gpu') if row}
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop/gpu_resources.py", line 9, in query
+    raw=subprocess.check_output(['nvidia-smi',f'--query-{kind}={fields}',
+  File "/local_nvme/data/zhenning/miniconda3/envs/tokenrouter-blackwell/lib/python3.10/subprocess.py", line 421, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+  File "/local_nvme/data/zhenning/miniconda3/envs/tokenrouter-blackwell/lib/python3.10/subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['nvidia-smi', '--query-gpu=index,uuid,memory.used', '--format=csv,noheader,nounits']' returned non-zero exit status 255.

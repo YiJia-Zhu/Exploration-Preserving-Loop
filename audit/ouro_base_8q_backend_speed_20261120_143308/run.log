@@ -1,0 +1,218 @@
+rlt ready GPU 1 in 2.0s {'ready': True, 'executed_loops': 2, 'backend': 'vllm-rlt', 'attention_backend': 'triton', 'async_scheduling': False, 'enable_prefix_caching': False, 'max_num_seqs': 8, 'max_num_batched_tokens': 128, 'prefill_chunk_size': 128, 'kv_tokens': 268336, 'speculative_config': None}
+rlt warmup begin
+rlt warmup complete 128 tokens in 1.37s (93.39 tok/s)
+rlt short begin
+rlt short complete 8192 tokens in 17.87s (458.37 tok/s)
+rlt full begin
+vllm ready GPU 0 in 25.2s {'ready': True, 'policy': 'fixed', 'executed_loops': 2, 'cpu_threads': 16, 'vllm_version': '0.26.0', 'attention_backend': 'FLASHINFER', 'native_fixed_student': True, 'teacher_trace': False, 'max_num_seqs': None, 'tensor_parallel_size': 1, 'rollout_ngram': False, 'speculative_config': None, 'token_loop_accounting': 'Committed prefix/output only; excludes rejected drafts and KV recomputation'}
+vllm warmup begin
+vllm warmup complete 128 tokens in 0.20s (633.49 tok/s)
+vllm short begin
+vllm short complete 8192 tokens in 8.87s (923.94 tok/s)
+vllm full begin
+rlt full 1/8 AIME2024_train-00000-of-00001_08 2943 tokens at 61.1s
+rlt full 2/8 AIME2024_train-00000-of-00001_25 4893 tokens at 115.4s
+rlt full 3/8 AIME2024_train-00000-of-00001_24 7026 tokens at 182.6s
+rlt full 4/8 AIME2024_train-00000-of-00001_01 7434 tokens at 195.8s
+rlt full 5/8 AIME2024_train-00000-of-00001_09 12382 tokens at 362.2s
+vllm full complete 112877 tokens in 396.60s (284.61 tok/s)
+rlt full 6/8 AIME2024_train-00000-of-00001_05 16384 tokens at 497.4s
+rlt full 7/8 AIME2024_train-00000-of-00001_04 16384 tokens at 497.5s
+rlt full 8/8 AIME2024_train-00000-of-00001_21 16384 tokens at 497.5s
+rlt full complete 83830 tokens in 497.52s (168.50 tok/s)
+{
+  "short": {
+    "vllm": {
+      "seconds": 8.86637396691367,
+      "client_seconds": 8.869827926624566,
+      "output_tokens": 8192,
+      "tokens_per_second": 923.940274859801,
+      "stopped_at_limit": 8,
+      "correct": 0
+    },
+    "rlt": {
+      "seconds": 17.872015282977372,
+      "client_seconds": 17.872374093160033,
+      "output_tokens": 8192,
+      "tokens_per_second": 458.37024366259726,
+      "stopped_at_limit": 8,
+      "correct": 0
+    },
+    "throughput_ratio_vllm_over_rlt": 2.015707362408774,
+    "batch_speedup_vllm_over_rlt": 2.015707362408774,
+    "identical_sampled_completions": 0,
+    "questions": [
+      {
+        "id": "AIME2024_train-00000-of-00001_01",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length",
+        "vllm_correct": null,
+        "rlt_correct": null
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_04",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length",
+        "vllm_correct": null,
+        "rlt_correct": null
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_05",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length",
+        "vllm_correct": null,
+        "rlt_correct": null
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_08",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length",
+        "vllm_correct": null,
+        "rlt_correct": null
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_09",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length",
+        "vllm_correct": null,
+        "rlt_correct": null
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_21",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length",
+        "vllm_correct": null,
+        "rlt_correct": null
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_24",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length",
+        "vllm_correct": null,
+        "rlt_correct": null
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_25",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length",
+        "vllm_correct": null,
+        "rlt_correct": null
+      }
+    ]
+  },
+  "full": {
+    "vllm": {
+      "seconds": 396.59889189805835,
+      "client_seconds": 396.6169343488291,
+      "output_tokens": 112877,
+      "tokens_per_second": 284.61249465370133,
+      "stopped_at_limit": 5,
+      "correct": 3
+    },
+    "rlt": {
+      "seconds": 497.5219497708604,
+      "client_seconds": 497.52340756123886,
+      "output_tokens": 83830,
+      "tokens_per_second": 168.49507853594983,
+      "stopped_at_limit": 3,
+      "correct": 5
+    },
+    "throughput_ratio_vllm_over_rlt": 1.6891442594448056,
+    "batch_speedup_vllm_over_rlt": 1.2544713561598737,
+    "identical_sampled_completions": 0,
+    "questions": [
+      {
+        "id": "AIME2024_train-00000-of-00001_01",
+        "vllm_tokens": 16384,
+        "rlt_tokens": 7434,
+        "vllm_finish": "length",
+        "rlt_finish": "stop",
+        "vllm_correct": false,
+        "rlt_correct": true
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_04",
+        "vllm_tokens": 16384,
+        "rlt_tokens": 16384,
+        "vllm_finish": "length",
+        "rlt_finish": "length",
+        "vllm_correct": false,
+        "rlt_correct": false
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_05",
+        "vllm_tokens": 16384,
+        "rlt_tokens": 16384,
+        "vllm_finish": "length",
+        "rlt_finish": "length",
+        "vllm_correct": false,
+        "rlt_correct": false
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_08",
+        "vllm_tokens": 15975,
+        "rlt_tokens": 2943,
+        "vllm_finish": "stop",
+        "rlt_finish": "stop",
+        "vllm_correct": true,
+        "rlt_correct": true
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_09",
+        "vllm_tokens": 16384,
+        "rlt_tokens": 12382,
+        "vllm_finish": "length",
+        "rlt_finish": "stop",
+        "vllm_correct": false,
+        "rlt_correct": true
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_21",
+        "vllm_tokens": 16384,
+        "rlt_tokens": 16384,
+        "vllm_finish": "length",
+        "rlt_finish": "length",
+        "vllm_correct": false,
+        "rlt_correct": false
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_24",
+        "vllm_tokens": 10238,
+        "rlt_tokens": 7026,
+        "vllm_finish": "stop",
+        "rlt_finish": "stop",
+        "vllm_correct": true,
+        "rlt_correct": true
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_25",
+        "vllm_tokens": 4744,
+        "rlt_tokens": 4893,
+        "vllm_finish": "stop",
+        "rlt_finish": "stop",
+        "vllm_correct": true,
+        "rlt_correct": true
+      }
+    ]
+  },
+  "startup_seconds": {
+    "vllm": 25.165219695307314,
+    "rlt": 2.0286124972626567
+  }
+}

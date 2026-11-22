@@ -1,0 +1,113 @@
+{
+  "block128": {
+    "short": {
+      "seconds": 8.220834038220346,
+      "output_tokens": 4096.0,
+      "output_tok_s": 498.2606140621578,
+      "decode_after_all_first_tok_s": 502.0764708881539
+    },
+    "8192": {
+      "seconds": 9.50371895567514,
+      "output_tokens": 1024.0,
+      "output_tok_s": 107.74729482765419,
+      "decode_after_all_first_tok_s": 217.5254998549075
+    },
+    "14336": {
+      "seconds": 17.729783829534426,
+      "output_tokens": 1024.0,
+      "output_tok_s": 57.75592358263642,
+      "decode_after_all_first_tok_s": 146.67486404245903
+    }
+  },
+  "block256": {
+    "short": {
+      "seconds": 8.262121285079047,
+      "output_tokens": 4096.0,
+      "output_tok_s": 495.7657953593043,
+      "decode_after_all_first_tok_s": 499.7351957700164
+    },
+    "8192": {
+      "seconds": 9.679833025904372,
+      "output_tokens": 1024.0,
+      "output_tok_s": 105.81829779752371,
+      "decode_after_all_first_tok_s": 217.27629614286332
+    },
+    "14336": {
+      "seconds": 17.750032462645322,
+      "output_tokens": 1024.0,
+      "output_tok_s": 57.690056337290855,
+      "decode_after_all_first_tok_s": 146.42104019107572
+    }
+  },
+  "fallback": {
+    "short": {
+      "seconds": 17.080533729400486,
+      "output_tokens": 8192.0,
+      "output_tok_s": 479.6116257871993,
+      "decode_after_all_first_tok_s": 481.2632793685756
+    },
+    "8192": {
+      "seconds": 9.528587164124474,
+      "output_tokens": 1024.0,
+      "output_tok_s": 107.46614667287776,
+      "decode_after_all_first_tok_s": 205.98191108644312
+    },
+    "14336": {
+      "seconds": 17.616429205518216,
+      "output_tokens": 1024.0,
+      "output_tok_s": 58.127557410761284,
+      "decode_after_all_first_tok_s": 139.10986411439114
+    }
+  },
+  "native": {
+    "short": {
+      "seconds": 16.94191214023158,
+      "output_tokens": 8192.0,
+      "output_tok_s": 483.5461230505563,
+      "decode_after_all_first_tok_s": 485.22391213107295
+    },
+    "8192": {
+      "seconds": 9.468208000063896,
+      "output_tokens": 1024.0,
+      "output_tok_s": 108.15140702219482,
+      "decode_after_all_first_tok_s": 207.2113787138651
+    },
+    "14336": {
+      "seconds": 17.546338974963874,
+      "output_tokens": 1024.0,
+      "output_tok_s": 58.35975304983636,
+      "decode_after_all_first_tok_s": 139.4984768587708
+    }
+  },
+  "vllm": {
+    "short": {
+      "seconds": 8.830778988311067,
+      "output_tokens": 8192.0,
+      "output_tok_s": 927.6645301419064
+    },
+    "8192": {
+      "seconds": 5.851375376340002,
+      "output_tokens": 1024.0,
+      "output_tok_s": 175.00159234412234
+    },
+    "14336": {
+      "seconds": 10.257641100557521,
+      "output_tokens": 1024.0,
+      "output_tok_s": 99.82804040294087
+    }
+  },
+  "native_exact_token_sequences": {
+    "short": [
+      8,
+      8
+    ],
+    "8192": [
+      8,
+      8
+    ],
+    "14336": [
+      8,
+      8
+    ]
+  }
+}

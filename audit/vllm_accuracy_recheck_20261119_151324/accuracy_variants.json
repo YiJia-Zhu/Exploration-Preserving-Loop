@@ -1,0 +1,36 @@
+[
+  {
+    "name": "acc_baseline",
+    "options": {}
+  },
+  {
+    "name": "acc_ngram5",
+    "options": {
+      "memory_fraction": 0.75,
+      "block_size": 16,
+      "kv_cache_dtype": "auto",
+      "speculative_config": {
+        "method": "ngram",
+        "num_speculative_tokens": 5,
+        "prompt_lookup_min": 2,
+        "prompt_lookup_max": 5,
+        "rejection_sample_method": "standard"
+      }
+    }
+  },
+  {
+    "name": "acc_fp8_ngram5",
+    "options": {
+      "memory_fraction": 0.75,
+      "block_size": 16,
+      "kv_cache_dtype": "fp8_e4m3",
+      "speculative_config": {
+        "method": "ngram",
+        "num_speculative_tokens": 5,
+        "prompt_lookup_min": 2,
+        "prompt_lookup_max": 5,
+        "rejection_sample_method": "standard"
+      }
+    }
+  }
+]

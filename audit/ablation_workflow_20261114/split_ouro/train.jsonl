@@ -1,2 +1,0 @@
-{"id": "1", "messages": [{"role": "user", "content": "1+1?"}], "answer": "2", "problem_sha256": "cc65b384f235935dd378e28ba748ba395769116fe547f671da4c240af3876f52"}
-{"id": "0", "messages": [{"role": "user", "content": "0+1?"}], "answer": "1", "problem_sha256": "58eed4de3dba7217603c2a8c83353b213f0009d8d7f8d67425c7cf0c5767e4d6"}

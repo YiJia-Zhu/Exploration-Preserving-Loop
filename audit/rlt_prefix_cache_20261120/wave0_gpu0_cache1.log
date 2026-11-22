@@ -1,0 +1,90 @@
+[2026-11-20T13:42:38.193+08:00] [rank=0 pid=2060010] run_start: fastpath_evaluation
+[2026-11-20T13:42:38.194+08:00] [rank=0 pid=2060010] stage_start: evaluation_run  started_at_local=2026-11-20T13:42:38.194+08:00
+[2026-11-20T13:42:38.194+08:00] [rank=0] Evaluate fixed K=2:   0%|          | 0/64 [00:00<?, ?response/s][2026-11-20T13:42:45.615+08:00] [rank=0] Evaluate fixed K=2:   2%|▏         | 1/64 [00:07<07:47,  7.42s/response][2026-11-20T13:42:49.590+08:00] [rank=0] Evaluate fixed K=2:  14%|█▍        | 9/64 [00:11<00:57,  1.05s/response][2026-11-20T13:42:53.577+08:00] [rank=0] Evaluate fixed K=2:  27%|██▋       | 17/64 [00:15<00:34,  1.35response/s][2026-11-20T13:42:57.559+08:00] [rank=0] Evaluate fixed K=2:  39%|███▉      | 25/64 [00:19<00:24,  1.59response/s][2026-11-20T13:43:01.713+08:00] [rank=0] Evaluate fixed K=2:  52%|█████▏    | 33/64 [00:23<00:18,  1.70response/s][2026-11-20T13:43:05.697+08:00] [rank=0] Evaluate fixed K=2:  64%|██████▍   | 41/64 [00:27<00:12,  1.80response/s][2026-11-20T13:43:10.590+08:00] [rank=0] Evaluate fixed K=2:  77%|███████▋  | 49/64 [00:32<00:08,  1.74response/s][2026-11-20T13:43:14.674+08:00] [rank=0] Evaluate fixed K=2:  89%|████████▉ | 57/64 [00:36<00:03,  1.81response/s][2026-11-20T13:43:15.218+08:00] [rank=0] Evaluate fixed K=2: 100%|██████████| 64/64 [00:37<00:00,  1.73response/s]
+[2026-11-20T13:43:15.219+08:00] [rank=0 pid=2060010] stage_end: evaluation_run status=completed seconds=37.02549874410033 started_at_local=2026-11-20T13:42:38.194+08:00 finished_at_local=2026-11-20T13:43:15.219+08:00
+[2026-11-20T13:43:15.219+08:00] [rank=0 pid=2060010] run_end: fastpath_evaluation status=completed seconds=37.02692957408726 started_at_local=2026-11-20T13:42:38.193+08:00 finished_at_local=2026-11-20T13:43:15.219+08:00
+{
+  "results": {
+    "fixed_2": {
+      "avg": 0.0,
+      "pass_at_n": 0.0,
+      "problems": 4,
+      "completions": 64,
+      "samples_per_problem": [
+        16
+      ],
+      "avg_at_16": 0.0,
+      "pass_at_16": 0.0,
+      "benchmarks": {
+        "AIME2024": {
+          "avg": 0.0,
+          "pass_at_n": 0.0,
+          "problems": 4,
+          "completions": 64,
+          "samples_per_problem": [
+            16
+          ],
+          "avg_at_16": 0.0,
+          "pass_at_16": 0.0
+        }
+      },
+      "selected_exit_depth_hist": [
+        0,
+        16384
+      ],
+      "mean_selected_depth": 2.0,
+      "mean_actual_depth": 2.0,
+      "executed_token_loops": 59328,
+      "response_tokens": 16384,
+      "mean_response_tokens": 256.0,
+      "correct_responses": 0,
+      "accuracy": 0.0,
+      "backfill_token_loops": 0,
+      "truncated_responses": 64
+    }
+  },
+  "settings": {
+    "max_new_tokens": 256,
+    "temperature": 1.0,
+    "top_p": 0.7,
+    "samples_per_problem": 16,
+    "student_loops": [
+      2
+    ],
+    "scope": "AIME integer math; symbolic mathematics and code use external official evaluators",
+    "student_policy": "fixed",
+    "use_cache": true,
+    "every_updates": 0,
+    "data_path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_prefix_cache_20261120/questions.jsonl",
+    "suite": null,
+    "expected_examples": 4,
+    "inference_backend": "vllm-rlt",
+    "rlt_attention_backend": "triton",
+    "rlt_prefix_caching": true,
+    "rlt_async_scheduling": false
+  },
+  "gpus": [
+    "0"
+  ],
+  "wall_seconds": 37.03337928187102,
+  "checkpoint": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/checkpoints/update_000005",
+  "speculative_config": null,
+  "questions": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_prefix_cache_20261120/wave0_gpu0_cache1.responses.questions.jsonl",
+  "tensor_parallel_size": 1,
+  "inference_gpu_groups": [
+    "0"
+  ],
+  "cpu_threads_per_process": 8,
+  "data": {
+    "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_prefix_cache_20261120/questions.jsonl",
+    "sha256": "f81c9c8919c10c09b2959beada2bd91090ac8f148c364c0c37f22ddd11675a16",
+    "examples": 4,
+    "benchmarks": {
+      "AIME2024": 4
+    }
+  },
+  "backend": "vllm-rlt",
+  "inference_python": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python",
+  "attention_backend": "triton",
+  "scope": "Same per-problem seeds, gate policy and sampling settings. Fixed K execution; do not compare parallel throughput with isolated single-request latency."
+}

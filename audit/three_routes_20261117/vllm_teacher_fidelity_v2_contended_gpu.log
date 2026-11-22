@@ -1,7 +1,0 @@
-`torch_dtype` is deprecated! Use `dtype` instead!
-Traceback (most recent call last):
-  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/three_routes_20261117/check_vllm_teacher_fidelity_v2.py", line 29, in <module>
-    with tempfile.TemporaryDirectory(dir=output.parent) as temporary, VllmActor(model,'0',output.with_suffix('.engine.log'),loops=4,policy='fixed',
-  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop/fastpath/actor.py", line 46, in __init__
-    if ready.get('ready') is not True:raise RuntimeError(ready)
-RuntimeError: {'ready': False, 'error_type': 'RuntimeError', 'error': 'Engine core initialization failed. See root cause above. Failed core proc(s): {}'}

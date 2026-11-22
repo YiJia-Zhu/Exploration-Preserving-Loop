@@ -1,0 +1,150 @@
+{
+  "FLASHINFER": {
+    "short": [
+      {
+        "seconds": 8.851450331974775,
+        "output_tokens": 8192,
+        "output_tok_s": 925.4980475241903,
+        "all_first_tokens_s": 0.04168438911437988,
+        "engine_metrics": {
+          "vllm:num_preemptions": 0,
+          "vllm:prompt_tokens": 1212,
+          "vllm:generation_tokens": 8192
+        }
+      },
+      {
+        "seconds": 8.855832998640835,
+        "output_tokens": 8192,
+        "output_tok_s": 925.0400274324597,
+        "all_first_tokens_s": 0.0421450138092041,
+        "engine_metrics": {
+          "vllm:num_preemptions": 0,
+          "vllm:prompt_tokens": 1212,
+          "vllm:generation_tokens": 8192
+        }
+      }
+    ],
+    "8192": [
+      {
+        "seconds": 5.854150022380054,
+        "output_tokens": 1024,
+        "output_tok_s": 174.9186467865209,
+        "all_first_tokens_s": 2.332998037338257,
+        "engine_metrics": {
+          "vllm:num_preemptions": 0,
+          "vllm:prompt_tokens": 65536,
+          "vllm:generation_tokens": 1024
+        }
+      },
+      {
+        "seconds": 5.86474269721657,
+        "output_tokens": 1024,
+        "output_tok_s": 174.6027153903946,
+        "all_first_tokens_s": 2.3312556743621826,
+        "engine_metrics": {
+          "vllm:num_preemptions": 0,
+          "vllm:prompt_tokens": 65536,
+          "vllm:generation_tokens": 1024
+        }
+      }
+    ],
+    "14336": [
+      {
+        "seconds": 10.26311641605571,
+        "output_tokens": 1024,
+        "output_tok_s": 99.7747622153097,
+        "all_first_tokens_s": 4.815876245498657,
+        "engine_metrics": {
+          "vllm:num_preemptions": 0,
+          "vllm:prompt_tokens": 114688,
+          "vllm:generation_tokens": 1024
+        }
+      },
+      {
+        "seconds": 10.268085802905262,
+        "output_tokens": 1024,
+        "output_tok_s": 99.72647479340974,
+        "all_first_tokens_s": 4.828488349914551,
+        "engine_metrics": {
+          "vllm:num_preemptions": 0,
+          "vllm:prompt_tokens": 114688,
+          "vllm:generation_tokens": 1024
+        }
+      }
+    ]
+  },
+  "TRITON_ATTN": {
+    "short": [
+      {
+        "seconds": 8.592159496154636,
+        "output_tokens": 8192,
+        "output_tok_s": 953.4273663874926,
+        "all_first_tokens_s": 0.04393577575683594,
+        "engine_metrics": {
+          "vllm:num_preemptions": 0,
+          "vllm:prompt_tokens": 1212,
+          "vllm:generation_tokens": 8192
+        }
+      },
+      {
+        "seconds": 8.594439983833581,
+        "output_tokens": 8192,
+        "output_tok_s": 953.1743796465408,
+        "all_first_tokens_s": 0.046840667724609375,
+        "engine_metrics": {
+          "vllm:num_preemptions": 0,
+          "vllm:prompt_tokens": 1212,
+          "vllm:generation_tokens": 8192
+        }
+      }
+    ],
+    "8192": [
+      {
+        "seconds": 6.896697416901588,
+        "output_tokens": 1024,
+        "output_tok_s": 148.47686335933852,
+        "all_first_tokens_s": 3.395270824432373,
+        "engine_metrics": {
+          "vllm:num_preemptions": 0,
+          "vllm:prompt_tokens": 65536,
+          "vllm:generation_tokens": 1024
+        }
+      },
+      {
+        "seconds": 6.902946555055678,
+        "output_tokens": 1024,
+        "output_tok_s": 148.34244939214085,
+        "all_first_tokens_s": 3.4014341831207275,
+        "engine_metrics": {
+          "vllm:num_preemptions": 0,
+          "vllm:prompt_tokens": 65536,
+          "vllm:generation_tokens": 1024
+        }
+      }
+    ],
+    "14336": [
+      {
+        "seconds": 13.522667940240353,
+        "output_tokens": 1024,
+        "output_tok_s": 75.72470199854655,
+        "all_first_tokens_s": 8.084079027175903,
+        "engine_metrics": {
+          "vllm:num_preemptions": 0,
+          "vllm:prompt_tokens": 114688,
+          "vllm:generation_tokens": 1024
+        }
+      },
+      {
+        "seconds": 13.510312105994672,
+        "output_tokens": 1024,
+        "output_tok_s": 75.79395590318303,
+        "all_first_tokens_s": 8.074659824371338,
+        "engine_metrics": {
+          "vllm:num_preemptions": 0,
+          "vllm:prompt_tokens": 114688,
+          "vllm:generation_tokens": 1024
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,189 @@
+{
+  "tuning": {
+    "baseline_first": {
+      "short": {
+        "decode_tok_s": 504.39306542125405,
+        "e2e_seconds": 8.182296172017232,
+        "same_token_sequences_vs_first_baseline": [
+          8,
+          8
+        ]
+      },
+      "8192": {
+        "decode_tok_s": 217.84975537306485,
+        "e2e_seconds": 9.454913550522178,
+        "same_token_sequences_vs_first_baseline": [
+          8,
+          8
+        ]
+      }
+    },
+    "single_stream": {
+      "short": {
+        "decode_tok_s": 504.3147516462626,
+        "e2e_seconds": 8.183800321538001,
+        "same_token_sequences_vs_first_baseline": [
+          8,
+          8
+        ]
+      },
+      "8192": {
+        "decode_tok_s": 218.13891031290473,
+        "e2e_seconds": 9.45202145865187,
+        "same_token_sequences_vs_first_baseline": [
+          8,
+          8
+        ]
+      }
+    },
+    "static_buffers": {
+      "short": {
+        "decode_tok_s": 498.0251268242264,
+        "e2e_seconds": 8.286228196462616,
+        "same_token_sequences_vs_first_baseline": [
+          8,
+          8
+        ]
+      },
+      "8192": {
+        "decode_tok_s": 216.61909405615813,
+        "e2e_seconds": 9.489507866092026,
+        "same_token_sequences_vs_first_baseline": [
+          8,
+          8
+        ]
+      }
+    },
+    "no_uva": {
+      "short": {
+        "decode_tok_s": 508.64344478366036,
+        "e2e_seconds": 8.114535935455933,
+        "same_token_sequences_vs_first_baseline": [
+          8,
+          8
+        ]
+      },
+      "8192": {
+        "decode_tok_s": 218.35496258174874,
+        "e2e_seconds": 9.451282338704914,
+        "same_token_sequences_vs_first_baseline": [
+          8,
+          8
+        ]
+      }
+    },
+    "baseline": {
+      "short": {
+        "decode_tok_s": 505.27121287712805,
+        "e2e_seconds": 8.168857870390639,
+        "same_token_sequences_vs_first_baseline": [
+          8,
+          8
+        ]
+      },
+      "8192": {
+        "decode_tok_s": 218.03248750128077,
+        "e2e_seconds": 9.457266930723563,
+        "same_token_sequences_vs_first_baseline": [
+          8,
+          8
+        ]
+      }
+    },
+    "trace": {
+      "short": {
+        "decode_tok_s": 513.6884579706369,
+        "e2e_seconds": 8.036400396376848,
+        "same_token_sequences_vs_first_baseline": [
+          8,
+          8
+        ]
+      },
+      "8192": {
+        "decode_tok_s": 219.55376397759017,
+        "e2e_seconds": 9.539854507427663,
+        "same_token_sequences_vs_first_baseline": [
+          8,
+          8
+        ]
+      }
+    }
+  },
+  "vllm": {
+    "FLASHINFER": {
+      "short": {
+        "seconds": 8.853641665307805,
+        "all_first_tokens_s": 0.04191470146179199,
+        "output_tok_s": 925.269037478325
+      },
+      "8192": {
+        "seconds": 5.859446359798312,
+        "all_first_tokens_s": 2.3321268558502197,
+        "output_tok_s": 174.76068108845774
+      },
+      "14336": {
+        "seconds": 10.265601109480485,
+        "all_first_tokens_s": 4.822182297706604,
+        "output_tok_s": 99.75061850435972
+      }
+    },
+    "TRITON_ATTN": {
+      "short": {
+        "seconds": 8.593299739994109,
+        "all_first_tokens_s": 0.045388221740722656,
+        "output_tok_s": 953.3008730170168
+      },
+      "8192": {
+        "seconds": 6.899821985978633,
+        "all_first_tokens_s": 3.3983525037765503,
+        "output_tok_s": 148.4096563757397
+      },
+      "14336": {
+        "seconds": 13.516490023117512,
+        "all_first_tokens_s": 8.07936942577362,
+        "output_tok_s": 75.75932895086478
+      }
+    }
+  },
+  "profile": {
+    "short": {
+      "committed_tokens": 192,
+      "sum_gpu_activity_us": 337659.8670000057,
+      "attention_kernel_us": 17781.586000000007,
+      "sampler_cuda_us": 25855.308000002224,
+      "graph_counts": {
+        "replay": 48,
+        "capture": 0,
+        "fallback": 0
+      },
+      "attention_activity_share": 0.05266123616639258,
+      "sampler_activity_share": 0.0765720493516684
+    },
+    "8192": {
+      "committed_tokens": 192,
+      "sum_gpu_activity_us": 851677.2409999989,
+      "attention_kernel_us": 530113.5970000009,
+      "sampler_cuda_us": 25711.66700000063,
+      "graph_counts": {
+        "replay": 48,
+        "capture": 0,
+        "fallback": 0
+      },
+      "attention_activity_share": 0.6224348514674019,
+      "sampler_activity_share": 0.03018944943252354
+    },
+    "14336": {
+      "committed_tokens": 192,
+      "sum_gpu_activity_us": 1274494.11700002,
+      "attention_kernel_us": 952837.3110000012,
+      "sampler_cuda_us": 25700.434000002253,
+      "graph_counts": {
+        "replay": 48,
+        "capture": 0,
+        "fallback": 0
+      },
+      "attention_activity_share": 0.7476200151028128,
+      "sampler_activity_share": 0.020165204105058922
+    }
+  }
+}

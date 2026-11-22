@@ -20,6 +20,7 @@ class GeneratedResponse:
     backfill_token_loops: int = 0
     coda_token_positions: int = 0
     cache_policy: str = "none"
+    physical_kv_token_slots: int | None = None
 
 
 def sample_token(logits, temperature, top_p, generator):
@@ -35,7 +36,19 @@ def sample_token(logits, temperature, top_p, generator):
 @torch.no_grad()
 def generate(backend, input_ids, loops, max_new_tokens, temperature, top_p,
              generator, endpoint="fixed", exit_threshold=0.9, use_cache=True,
-             observer=None, log_context=None, progress=False, progress_desc="Generate", progress_position=2):
+             observer=None, log_context=None, progress=False, progress_desc="Generate", progress_position=2,
+             forced_token_ids=None, *, ignore_eos=False):
+    if forced_token_ids is not None:
+        if ignore_eos:
+            raise ValueError("Forced trajectories use their recorded EOS boundaries")
+        if endpoint != "ragged" or not 1 <= len(forced_token_ids) <= max_new_tokens:
+            raise ValueError("A forced RAD-OPD trajectory must fit the generation budget")
+        eos_ids = backend.stop_token_ids
+        if (any(type(token) is not int or not 0 <= token < backend.model.config.vocab_size
+                for token in forced_token_ids)
+                or any(token in eos_ids for token in forced_token_ids[:-1])):
+            raise ValueError("Invalid token IDs or nonterminal EOS in the offline trajectory")
+        max_new_tokens = len(forced_token_ids)
     fields = dict(log_context or {}, policy=endpoint, max_loops=loops,
                   prompt_tokens=len(input_ids), max_new_tokens=max_new_tokens, use_cache=use_cache)
     context = observer.stage("generation", **fields) if observer else nullcontext({})
@@ -44,7 +57,8 @@ def generate(backend, input_ids, loops, max_new_tokens, temperature, top_p,
             position=progress_position, leave=False, tokens=True) if observer and progress else None
         try:
             response = _generate(backend, input_ids, loops, max_new_tokens, temperature, top_p,
-                                 generator, endpoint, exit_threshold, use_cache, observer, bar)
+                                 generator, endpoint, exit_threshold, use_cache, observer, bar, forced_token_ids,
+                                 ignore_eos)
         finally:
             if bar is not None:
                 # Persist the actual final count even for sub-second responses
@@ -59,7 +73,7 @@ def generate(backend, input_ids, loops, max_new_tokens, temperature, top_p,
 
 
 def _generate(backend, input_ids, loops, max_new_tokens, temperature, top_p,
-              generator, endpoint, exit_threshold, use_cache, observer, bar):
+              generator, endpoint, exit_threshold, use_cache, observer, bar, forced_token_ids, ignore_eos):
     started = time.perf_counter()
     ids = torch.tensor([input_ids], dtype=torch.long, device=backend.device)
     if max_new_tokens < 1:
@@ -84,7 +98,7 @@ def _generate(backend, input_ids, loops, max_new_tokens, temperature, top_p,
             backfill += trace.backfill_token_loops
             coda += trace.coda_token_positions
             execution_depths.append((trace.executed_token_loops - trace.backfill_token_loops) // current.shape[1])
-            if endpoint in {"learned", "native_adaptive"}:
+            if endpoint in {"learned", "native_adaptive", "native_backfill", "ragged"}:
                 chosen = int(trace.exits[0, -1])
             elif endpoint == "native":
                 chosen = int(backend.native_exit_depths(trace, exit_threshold)[0,-1])
@@ -92,8 +106,11 @@ def _generate(backend, input_ids, loops, max_new_tokens, temperature, top_p,
                 chosen = loops
             else:
                 raise ValueError("Unknown generation endpoint")
-            logits = backend.head(trace.states[chosen-1][:,-1:])[0,0]
-            token = int(sample_token(logits, temperature, top_p, generator))
+            if forced_token_ids is None:
+                logits = backend.head(trace.states[chosen-1][:,-1:])[0,0]
+                token = int(sample_token(logits, temperature, top_p, generator))
+            else:
+                token = forced_token_ids[step]
             response.append(token)
             depths.append(chosen)
             if observer:
@@ -101,18 +118,23 @@ def _generate(backend, input_ids, loops, max_new_tokens, temperature, top_p,
                     executed_token_loops=token_loops,backfill_token_loops=backfill)
             if bar is not None and bar.update(1):
                 bar.set_postfix(depth=chosen, refresh=False)
-            if token in eos_ids:
+            if not ignore_eos and token in eos_ids:
                 break
-            ids = torch.cat([ids, ids.new_tensor([[token]])], dim=1)
+            new_token = ids.new_tensor([[token]])
             cache = trace.cache
-            current = ids[:,-1:] if use_cache else ids
+            current = new_token if use_cache else torch.cat((current, new_token), dim=1)
         if decode_stats is not None:
             decode_stats['response_tokens'] = len(response)-1
     if backend.device.type == "cuda":
         torch.cuda.synchronize(backend.device)
-    policy = "exact_lazy_depth" if endpoint in {"learned", "native_adaptive"} and use_cache else "native" if use_cache else "none"
-    return GeneratedResponse(response, depths, bool(response[-1] in eos_ids), token_loops,
-                             time.perf_counter()-started, execution_depths, backfill, coda, policy)
+    policy = getattr(trace.cache, "policy", "native") if use_cache else "none"
+    slots = None
+    if endpoint == "ragged":
+        slots = trace.cache.physical_slots
+    elif use_cache and endpoint in {"fixed", "native_backfill"}:
+        slots = token_loops
+    return GeneratedResponse(response, depths, not ignore_eos and response[-1] in eos_ids, token_loops,
+                             time.perf_counter()-started, execution_depths, backfill, coda, policy, slots)
 
 
 def last_boxed(text):

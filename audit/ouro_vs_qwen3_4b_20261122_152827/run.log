@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ouro_vs_qwen3_4b_20261122_152827/run.py", line 161, in <module>
+    worker(args.worker) if args.worker else main()
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ouro_vs_qwen3_4b_20261122_152827/run.py", line 140, in main
+    subprocess.run([str(VLLM_PYTHON),'-u',__file__,'--worker',case],
+  File "/local_nvme/data/zhenning/miniconda3/envs/tokenrouter-blackwell/lib/python3.10/subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_envs/vllm026/bin/python', '-u', '/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ouro_vs_qwen3_4b_20261122_152827/run.py', '--worker', 'ouro_k4']' returned non-zero exit status 1.

@@ -1,6 +1,6 @@
 {
   "assembled_at": "2026-11-07T15:21:51.047638+00:00",
-  "scope": "Fixed-version bibliography and primary-source snapshots; bounded local Ouro pilot is recorded separately in audit/runtime_validation.json. Original paper metrics have not been independently reproduced.",
+  "scope": "Fixed-version bibliography and primary-source snapshots; the local Ouro training result is documented in docs/loop_distillation_research_proposal_zh.md. Original paper metrics have not been independently reproduced.",
   "papers": [
     {
       "group": "related",
@@ -966,5 +966,5 @@
   "experiments_run": true,
   "training_implementation_included": true,
   "notes_updated_at": "2026-11-07T16:45:52.200206+00:00",
-  "pilot_report": "docs/07_pilot_results_20261108.md"
+  "research_proposal": "docs/loop_distillation_research_proposal_zh.md"
 }

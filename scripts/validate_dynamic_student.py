@@ -20,11 +20,11 @@ def digest(path):
 
 
 def main():
-    from ep_loop.config import DEFAULT_CONFIG, assets_status, load_config, validate_config
+    from ep_loop.config import assets_status, load_config, validate_config
     proposal = ROOT / "docs/loop_distillation_research_proposal_zh.md"
     assert digest(proposal) == digest(AUDIT / "before/docs/loop_distillation_research_proposal_zh.md")
     assert digest(proposal) == read(ROOT / "experiments/proposal_references_20261113.json")["proposal_sha256"]
-    default = validate_config(load_config(DEFAULT_CONFIG))
+    default = validate_config(load_config(ROOT / "configs/hf_dynamic_js.json"))
     assert default["algorithm"]["student_policy"] == "learned" and default["algorithm"]["stage_selection"] == "threshold"
     log = (AUDIT / "unit_tests.log").read_text()
     count = re.search(r"Ran (\d+) tests",log)
@@ -90,7 +90,7 @@ def main():
     evidence = [p for p in evidence if p.name != "validation.json"]+[AUDIT / "assets_preflight.json"]
     report = dict(status="PASS",checked_at=datetime.now(timezone.utc).isoformat(),
         source_proposal_sha256=digest(proposal),authoritative_proposal_modified=False,
-        default_config="configs/default.json",default_method="E: all JS-threshold stage ends plus learned stopping",
+        default_config="configs/hf_dynamic_js.json",default_method="E: all JS-threshold stage ends plus learned stopping",
         unit_tests_passed=int(count[1]),python_sources_compiled=len(sources),cpu_training_configurations=cases,
         two_family_four_case_optimizer_rng_resume_exact=True,two_family_cpu_ddp_world_size=2,
         dynamic_checkpoint_gradients_reduced_exactly=True,saved_student_and_native_evaluations_passed=6,

@@ -1,0 +1,118 @@
+{
+  "eager": {
+    "short": {
+      "cross_forward": [
+        {
+          "greedy_equal": true,
+          "exact_logprobs": true,
+          "max_abs_logprob_diff": 0.0,
+          "max_total_variation": 0.0
+        },
+        {
+          "greedy_equal": true,
+          "exact_logprobs": true,
+          "max_abs_logprob_diff": 0.0,
+          "max_total_variation": 0.0
+        }
+      ],
+      "repeat_native": {
+        "greedy_equal": true,
+        "exact_logprobs": true,
+        "max_abs_logprob_diff": 0.0,
+        "max_total_variation": 0.0
+      },
+      "repeat_unrolled": {
+        "greedy_equal": true,
+        "exact_logprobs": true,
+        "max_abs_logprob_diff": 0.0,
+        "max_total_variation": 0.0
+      }
+    },
+    "4096": {
+      "cross_forward": [
+        {
+          "greedy_equal": true,
+          "exact_logprobs": true,
+          "max_abs_logprob_diff": 0.0,
+          "max_total_variation": 0.0
+        },
+        {
+          "greedy_equal": true,
+          "exact_logprobs": true,
+          "max_abs_logprob_diff": 0.0,
+          "max_total_variation": 0.0
+        }
+      ],
+      "repeat_native": {
+        "greedy_equal": true,
+        "exact_logprobs": true,
+        "max_abs_logprob_diff": 0.0,
+        "max_total_variation": 0.0
+      },
+      "repeat_unrolled": {
+        "greedy_equal": true,
+        "exact_logprobs": true,
+        "max_abs_logprob_diff": 0.0,
+        "max_total_variation": 0.0
+      }
+    }
+  },
+  "compiled": {
+    "short": {
+      "cross_forward": [
+        {
+          "greedy_equal": true,
+          "exact_logprobs": true,
+          "max_abs_logprob_diff": 0.0,
+          "max_total_variation": 0.0
+        },
+        {
+          "greedy_equal": true,
+          "exact_logprobs": true,
+          "max_abs_logprob_diff": 0.0,
+          "max_total_variation": 0.0
+        }
+      ],
+      "repeat_native": {
+        "greedy_equal": true,
+        "exact_logprobs": true,
+        "max_abs_logprob_diff": 0.0,
+        "max_total_variation": 0.0
+      },
+      "repeat_unrolled": {
+        "greedy_equal": true,
+        "exact_logprobs": true,
+        "max_abs_logprob_diff": 0.0,
+        "max_total_variation": 0.0
+      }
+    },
+    "4096": {
+      "cross_forward": [
+        {
+          "greedy_equal": true,
+          "exact_logprobs": true,
+          "max_abs_logprob_diff": 0.0,
+          "max_total_variation": 0.0
+        },
+        {
+          "greedy_equal": true,
+          "exact_logprobs": true,
+          "max_abs_logprob_diff": 0.0,
+          "max_total_variation": 0.0
+        }
+      ],
+      "repeat_native": {
+        "greedy_equal": true,
+        "exact_logprobs": true,
+        "max_abs_logprob_diff": 0.0,
+        "max_total_variation": 0.0
+      },
+      "repeat_unrolled": {
+        "greedy_equal": true,
+        "exact_logprobs": true,
+        "max_abs_logprob_diff": 0.0,
+        "max_total_variation": 0.0
+      }
+    }
+  }
+}

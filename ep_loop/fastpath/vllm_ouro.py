@@ -356,7 +356,8 @@ class OuroModel(nn.Module):
             ["hidden_states", "residual"], config.hidden_size
         )
         self.norm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
-        self.early_exit_gate = RowParallelLinear(config.hidden_size, 1, bias=True)
+        self.early_exit_gate = RowParallelLinear(config.hidden_size, 1, bias=True,
+                                                input_is_parallel=False)
 
         self.total_ut_steps = getattr(self.config, "total_ut_steps", 4)
         self.readout_policy = getattr(config, 'ep_loop_readout_policy', 'learned')

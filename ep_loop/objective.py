@@ -26,11 +26,17 @@ class DistillationObjective(nn.Module):
         self.algorithm = dict(algorithm)
         self.observer = observer
         self.confidence_probe = confidence_probe
+        self.shared_replay=self.algorithm.get('teacher_reuse_student',False)
+        if self.shared_replay and (student is not teacher or self.algorithm.get('student_policy','fixed')!='fixed'):
+            raise ValueError('Shared replay requires the same fixed-depth student/teacher backend')
         self.chunk_size, self.checkpoint_readout = readout_chunk_size, checkpoint_readout
         if readout_chunk_size < 1:
             raise ValueError("Readout chunk size must be positive")
         if self.algorithm.get("student_policy", "fixed") == "learned":
             student.enable_student_exit()
+        if self.algorithm.get("student_policy") == "ragged":
+            student.model.model.early_exit_gate.requires_grad_(False)
+            student.model.config.ep_loop_student_policy = "ragged"
 
     def forward(self, response_ids, prompt_length, rollout_depths=None):
         if response_ids.ndim != 2 or response_ids.shape[0] != 1:
@@ -40,15 +46,29 @@ class DistillationObjective(nn.Module):
             raise ValueError("A nonempty prompt and generated response are required")
         a = self.algorithm
         dynamic = a.get("student_policy", "fixed") == "learned"
+        ragged = a.get("student_policy") == "ragged"
         k = a["teacher_max_loops"]
-        slots = a["student_max_loops"] if dynamic else a["student_loops"]
+        slots = a["student_max_loops"] if dynamic or ragged else a["student_loops"]
+        if ragged:
+            if rollout_depths is None:
+                raise ValueError("RAD-OPD requires the actual rollout depth at each predictor position")
+            rollout_depths = torch.as_tensor(rollout_depths, device=response_ids.device, dtype=torch.long).reshape(-1)
+            if (rollout_depths.numel() != n or ((rollout_depths < 1) | (rollout_depths > slots)).any()
+                    or rollout_depths[0] != slots):
+                raise ValueError("RAD-OPD depths must match the response and start with full-depth prefill")
         signal = a.get('boundary_signal','js')
         probe_changes = None
         probe_cost = dict(token_loops=0,coda_token_positions=0,forwards=0,positions=0)
         inputs, first = response_ids[:, :-1], prompt_length-1
-        with (self.observer.stage("teacher_forward", max_loops=k, response_tokens=n)
-              if self.observer else nullcontext()), torch.no_grad(), evaluation_mode(self.teacher.model):
-            teacher = self.teacher.response_trace(inputs, k, first, a["teacher_endpoint"], a["exit_threshold"])
+        if self.shared_replay:
+            with (self.observer.stage('shared_student_teacher_replay',student_loops=slots,teacher_loops=k,response_tokens=n)
+                  if self.observer else nullcontext()):
+                student,teacher=self.student.shared_response_trace(inputs,slots,k,first)
+        else:
+            with (self.observer.stage("teacher_forward", max_loops=k, response_tokens=n)
+                  if self.observer else nullcontext()), torch.no_grad(), evaluation_mode(self.teacher.model):
+                teacher = self.teacher.response_trace(inputs, k, first, a["teacher_endpoint"], a["exit_threshold"])
+        with torch.no_grad():
             exits = (teacher.exits if a['teacher_endpoint']=='native_adaptive' else self.teacher.native_exit_depths(teacher, a["exit_threshold"])
                      if a["teacher_endpoint"] == "native" else
                      torch.full((n,), k, device=inputs.device, dtype=torch.long))
@@ -63,7 +83,7 @@ class DistillationObjective(nn.Module):
         js_sum = torch.zeros((), device=inputs.device)
         js_count = torch.zeros((), device=inputs.device, dtype=torch.long)
         signal_sum = torch.zeros((), device=inputs.device)
-        target_depths = torch.full((n,), slots, device=inputs.device, dtype=torch.long)
+        target_depths = rollout_depths if ragged else torch.full((n,), slots, device=inputs.device, dtype=torch.long)
         plans = []
         with (self.observer.stage("stage_planning", response_tokens=n)
               if self.observer else nullcontext()), torch.no_grad():
@@ -91,9 +111,11 @@ class DistillationObjective(nn.Module):
                     target_depths[start:end] = plan.target_loops
                 elif a["stage_selection"] == "endpoint":
                     targets = torch.full((slots, end-start), -1, device=exits.device, dtype=torch.long)
-                    targets[-1] = selected_exits
-                    weights = torch.zeros_like(targets, dtype=torch.float32)
-                    weights[-1] = 1
+                    if ragged:
+                        targets[target_depths[start:end]-1, torch.arange(end-start, device=exits.device)] = selected_exits
+                    else:
+                        targets[-1] = selected_exits
+                    weights = (targets > 0).to(torch.float32)
                     plan = StagePlan(targets, weights, selected_exits, weights.new_zeros((k-1, end-start)))
                 elif teacher.adjacent_js is not None:
                     plan = make_stage_plan_from_js(teacher.adjacent_js[:, start:end], selected_exits,
@@ -120,9 +142,15 @@ class DistillationObjective(nn.Module):
                     js_count += valid.sum()
                 plans.append((start, end, plan))
         replay_loops = int(target_depths.max()) if dynamic else slots
-        with (self.observer.stage("student_replay", loops=replay_loops, response_tokens=n)
-              if self.observer else nullcontext()):
-            student = self.student.response_trace(inputs, replay_loops, first)
+        if not self.shared_replay:
+            with (self.observer.stage("student_replay", loops=replay_loops, response_tokens=n)
+                  if self.observer else nullcontext()):
+                if ragged:
+                    from .ragged import replay_trace
+                    student = replay_trace(self.student, inputs, replay_loops, first, rollout_depths,
+                                           detach_reused=a.get("rad_detach_reused_kv", False))
+                else:
+                    student = self.student.response_trace(inputs, replay_loops, first)
         readout_span = self.observer.start("loss_readout", response_tokens=n) if self.observer else None
         stage_loss = student.states[0].new_zeros((), dtype=torch.float32)
         for start, end, full_plan in plans:
@@ -168,6 +196,8 @@ class DistillationObjective(nn.Module):
             student_executed_loops=replay_loops,
             teacher_executed_token_loops=teacher.executed_token_loops,
             teacher_backfill_token_loops=teacher.backfill_token_loops,
+            teacher_reused_token_loops=teacher.reused_token_loops,
+            replay_unique_token_loops=teacher.executed_token_loops+student.executed_token_loops,
             student_executed_token_loops=student.executed_token_loops,
             teacher_coda_token_positions=teacher.executed_token_loops if self.teacher.has_coda else 0,
             endpoint_only_tokens=int(stage_hist[1]),

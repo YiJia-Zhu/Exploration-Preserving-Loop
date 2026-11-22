@@ -1,7 +1,0 @@
-{
-  "status": "PASS",
-  "world_size": 2,
-  "shared_data_rng": true,
-  "independent_rank_streams": true,
-  "per_rank_rng_saved": true
-}

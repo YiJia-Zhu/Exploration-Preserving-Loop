@@ -1,5 +1,5 @@
 {
-  "extends": "default.json",
+  "extends": "hf_dynamic_js.json",
   "run_name": "hybrid_dynamic_train_fixed_deployment",
   "algorithm": {"teacher_endpoint": "native"},
   "implementation": {"execution_mode": "hybrid", "rollout_backend": "hf"},

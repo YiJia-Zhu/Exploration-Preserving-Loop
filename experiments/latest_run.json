@@ -1,102 +1,350 @@
 {
-  "pid": 3286270,
-  "started_at": "2026-11-17T18:37:23.888376+08:00",
-  "estimated_deadline": "2026-11-18T04:37:23.888376+08:00",
-  "command": [
-    "bash",
-    "scripts/run_three_route_ablation.sh"
-  ],
-  "research_route": "vllm",
-  "status": "running",
+  "pid": 2782040,
+  "start_ticks": 231275377,
+  "started_at": "2026-11-19T18:37:03.910411+08:00",
+  "status": "stopped_by_user",
+  "method": "EP-D-LoopOPD",
+  "target_updates": 100,
+  "completed_updates": 10,
   "gpus": [
-    "6",
-    "7"
+    "0",
+    "1",
+    "4",
+    "5"
   ],
-  "environment_overrides": {
-    "ROUTE": "vllm",
-    "GPUS": "6,7",
-    "CPU_THREADS": "16",
-    "PYTHON_BIN": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python",
-    "RUN_TAG": "20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h",
-    "OUTPUT_ROOT": "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/three_route_ablations",
-    "ABLATION_GROUPS": "top_n,endpoint",
-    "MODEL_FAMILY": "ouro",
-    "MODEL_PATH": "/local_nvme/data/zhenning/huggingface_models/Ouro-1.4B-Thinking",
-    "TEACHER_MAX_LOOPS": "4",
-    "STUDENT_LOOPS": "2",
-    "TEACHER_UPDATE": "frozen",
-    "TEACHER_BACKEND": "vllm",
-    "TEACHER_ENDPOINT": "native",
-    "TEACHER_EXIT_THRESHOLD": "0.9",
-    "SHALLOW_TARGET_PLACEMENT": "prefix",
-    "PHASE_OFFLOAD": "1",
-    "TEACHER_TRACE_DIR": "/dev/shm/ep_loop_20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h",
-    "TRAIN_EXAMPLES": "all",
-    "DEV_EXAMPLES": "64",
-    "TRAIN_DECONTAMINATION_PATH": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/data/aime/eval.jsonl",
-    "UPDATES": "100",
-    "PROMPTS_PER_BATCH": "32",
-    "RESPONSES_PER_PROMPT": "8",
-    "SEED": "42",
-    "DATA_SOURCE": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/data/dapo_math17k/train.jsonl",
-    "SOURCE_EXPECTED_EXAMPLES": "17391",
-    "MAX_PROMPT_TOKENS": "1024",
-    "MAX_NEW_TOKENS": "16384",
-    "EVAL_MAX_NEW_TOKENS": "16384",
-    "EVAL_SUITE": "aime",
-    "EVAL_DATA_PATH": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/data/aime/aime2024.jsonl",
-    "EVAL_EXAMPLES": "30",
-    "EVAL_SAMPLES_PER_PROBLEM": "16",
-    "EVAL_TEMPERATURE": "1.0",
-    "EVAL_TOP_P": "0.7",
-    "RUN_EVAL": "1",
-    "EVAL_INITIAL": "0",
-    "EVAL_UPDATES": "100",
-    "SAVE_EVERY_UPDATES": "100",
-    "KEEP_LATEST_CHECKPOINTS": "1",
-    "MAX_RUNTIME_HOURS": "10",
-    "LEARNING_RATE": "1e-6",
-    "WEIGHT_DECAY": "0.01",
-    "WARMUP_STEPS": "0",
-    "TRAIN_TEMPERATURE": "1.0",
-    "TRAIN_TOP_P": "1.0",
-    "QUESTION_FILTER": "all",
-    "MIXED_PRECISION": "bf16",
-    "GRADIENT_CHECKPOINTING": "1",
-    "CHECKPOINT_READOUT": "1",
-    "READOUT_CHUNK_SIZE": "128",
-    "VLLM_MEMORY_FRACTION": "0.75",
-    "VLLM_EAGER": "0",
-    "CUDA_DEVICE_ORDER": "PCI_BUS_ID",
-    "CUDA_VISIBLE_DEVICES": "6,7",
-    "PYTHONUNBUFFERED": "1",
-    "PYTHONHASHSEED": "42",
-    "TOKENIZERS_PARALLELISM": "false",
-    "OMP_NUM_THREADS": "16",
-    "MKL_NUM_THREADS": "16",
-    "OPENBLAS_NUM_THREADS": "16",
-    "NUMEXPR_NUM_THREADS": "16"
+  "gpu_count": 4,
+  "teacher_update": "current",
+  "teacher_loops": 4,
+  "student_loops": 2,
+  "rollout_batch": 256,
+  "prompts_per_batch": 32,
+  "responses_per_prompt": 8,
+  "max_new_tokens": 16384,
+  "seed": 42,
+  "warmup_steps": 10,
+  "rollout_ngram": true,
+  "inference_speculation": false,
+  "weight_dtype": "bfloat16",
+  "kv_dtype": "bfloat16",
+  "model_checkpoints_every": 5,
+  "retain_all_model_checkpoints": true,
+  "resume_save_every": 5,
+  "resume_keep_latest": 1,
+  "started_from": "original_pretrained_weights",
+  "max_runtime_hours": 10,
+  "run": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n",
+  "output": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours",
+  "audit": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ep_d_ngram_launch_20261119_182732",
+  "external_console": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ep_d_ngram_launch_20261119_182732/training.console.log",
+  "last_health_check_at": "2026-11-19T23:18:42.096859+08:00",
+  "checkpoint_required_gib": 149.64755652844906,
+  "checkpoint_free_gib": 171.7826385498047,
+  "training_pid": 2782045,
+  "training_start_ticks": 231275402,
+  "training_started_at": "2026-11-19T18:37:04.130177+08:00",
+  "command": [
+    "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python",
+    "-u",
+    "-m",
+    "torch.distributed.run",
+    "--standalone",
+    "--nproc-per-node=4",
+    "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/scripts/train_fastpath_distillation.py",
+    "--config",
+    "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ep_d_ngram_launch_20261119_182732/production.config.json",
+    "--output",
+    "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours",
+    "--device",
+    "cuda"
+  ],
+  "resume_path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/resume/latest",
+  "tensorboard_pid": 2782046,
+  "tensorboard_url": "http://127.0.0.1:6007",
+  "rank_events": {
+    "0": {
+      "event": "stage_start",
+      "timestamp": "2026-11-19T15:18:25.473+00:00",
+      "local_time": "2026-11-19T23:18:25.473+08:00",
+      "session_id": "57a9c2f46339446ba251ae8f3877f3a5",
+      "name": "train",
+      "rank": 0,
+      "pid": 2782697,
+      "parent_session_id": null,
+      "elapsed_seconds": 16879.869789473247,
+      "stage": "backward",
+      "stage_id": 4650,
+      "parent_stage_id": 4644,
+      "started_at": "2026-11-19T15:18:25.473+00:00",
+      "update": 11,
+      "id": "ea8aa31c-a4de-43b2-bf3b-066cf8c188c9",
+      "sample": 3,
+      "unix_time_ns": 1795101505473145473,
+      "monotonic_ns": 2329635370182230,
+      "started_at_local": "2026-11-19T23:18:25.473+08:00"
+    },
+    "1": {
+      "event": "teacher_weights_refreshed",
+      "timestamp": "2026-11-19T15:18:19.091+00:00",
+      "local_time": "2026-11-19T23:18:19.091+08:00",
+      "session_id": "4351decc74ee4540b664fc3d19d9e273",
+      "name": "train",
+      "rank": 1,
+      "pid": 2782698,
+      "parent_session_id": null,
+      "elapsed_seconds": 16873.49198025465,
+      "update": 11,
+      "weight_version": 10,
+      "tensor_parallel_size": 1,
+      "inference_group_gpus": "1",
+      "readout_head": "shared_current_student_head",
+      "stop_gradient": true,
+      "unix_time_ns": 1795101499091856574,
+      "monotonic_ns": 2329628988940871
+    },
+    "2": {
+      "event": "heartbeat",
+      "timestamp": "2026-11-19T15:18:05.787+00:00",
+      "local_time": "2026-11-19T23:18:05.787+08:00",
+      "session_id": "124e709cd1bb4861aed56dcf130c7c7d",
+      "name": "train",
+      "rank": 2,
+      "pid": 2782699,
+      "parent_session_id": null,
+      "elapsed_seconds": 16860.186992929783,
+      "active_stages": [
+        {
+          "stage": "training_run",
+          "stage_id": 1,
+          "started_at": "2026-11-19T10:37:05.601+00:00",
+          "started_at_local": "2026-11-19T18:37:05.601+08:00",
+          "seconds": 16860.186381549574,
+          "config_path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ep_d_ngram_launch_20261119_182732/production.config.json",
+          "resume": null
+        },
+        {
+          "stage": "update",
+          "stage_id": 4562,
+          "started_at": "2026-11-19T14:59:50.499+00:00",
+          "started_at_local": "2026-11-19T22:59:50.499+08:00",
+          "seconds": 1095.288462898694,
+          "update": 11,
+          "total_updates": 100
+        },
+        {
+          "stage": "vllm_on_policy_batch",
+          "stage_id": 4564,
+          "started_at": "2026-11-19T14:59:54.186+00:00",
+          "started_at_local": "2026-11-19T22:59:54.186+08:00",
+          "seconds": 1091.6010852139443,
+          "update": 11,
+          "responses": 64,
+          "weight_version": 10,
+          "tensor_parallel_size": 1,
+          "inference_group_gpus": "4",
+          "inference_group_leader": 2
+        }
+      ],
+      "unix_time_ns": 1795101485787523659,
+      "monotonic_ns": 2329615684576926
+    },
+    "3": {
+      "event": "stage_start",
+      "timestamp": "2026-11-19T15:18:23.583+00:00",
+      "local_time": "2026-11-19T23:18:23.583+08:00",
+      "session_id": "241729d2d1644cc6b4193ab29fe6d909",
+      "name": "train",
+      "rank": 3,
+      "pid": 2782700,
+      "parent_session_id": null,
+      "elapsed_seconds": 16877.982331404928,
+      "stage": "backward",
+      "stage_id": 4664,
+      "parent_stage_id": 4658,
+      "started_at": "2026-11-19T15:18:23.583+00:00",
+      "update": 11,
+      "id": "26685f6d-408f-485e-977f-bab21359242b",
+      "sample": 5,
+      "unix_time_ns": 1795101503583011944,
+      "monotonic_ns": 2329633480048701,
+      "started_at_local": "2026-11-19T23:18:23.583+08:00"
+    }
   },
-  "panel": "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/three_route_ablations/20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h_panel",
-  "current_group_file": "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/three_route_ablations/20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h_panel/current_group.json",
-  "output": "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/three_route_ablations",
-  "group_runs": {
-    "top_n": "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/three_route_ablations/20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h_top_n",
-    "endpoint": "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/three_route_ablations/20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h_endpoint"
+  "model_checkpoints": [
+    "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/checkpoints/update_000005",
+    "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/checkpoints/update_000010"
+  ],
+  "allocated_gpu_processes": [
+    {
+      "index": "0",
+      "uuid": "GPU-79eb19c8-2acb-2445-b3c6-9f5728c1bb6c",
+      "memory_used_MiB": 44841,
+      "processes": [
+        {
+          "pid": 2782697,
+          "name": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python"
+        },
+        {
+          "pid": 2784260,
+          "name": "VLLM::EngineCore"
+        },
+        {
+          "pid": 2915107,
+          "name": "VLLM::EngineCore"
+        }
+      ]
+    },
+    {
+      "index": "1",
+      "uuid": "GPU-f6057057-a493-11bb-aee3-7b3df35011ef",
+      "memory_used_MiB": 58539,
+      "processes": [
+        {
+          "pid": 2782698,
+          "name": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python"
+        },
+        {
+          "pid": 2784118,
+          "name": "VLLM::EngineCore"
+        },
+        {
+          "pid": 2902733,
+          "name": "VLLM::EngineCore"
+        }
+      ]
+    },
+    {
+      "index": "4",
+      "uuid": "GPU-3f3add2a-399a-b17d-84ff-d9a43f747bb0",
+      "memory_used_MiB": 59531,
+      "processes": [
+        {
+          "pid": 2782699,
+          "name": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python"
+        },
+        {
+          "pid": 2784127,
+          "name": "VLLM::EngineCore"
+        },
+        {
+          "pid": 2930793,
+          "name": "VLLM::EngineCore"
+        }
+      ]
+    },
+    {
+      "index": "5",
+      "uuid": "GPU-17f76845-5d79-933c-affa-2ef7cec12651",
+      "memory_used_MiB": 44917,
+      "processes": [
+        {
+          "pid": 2782700,
+          "name": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python"
+        },
+        {
+          "pid": 2784149,
+          "name": "VLLM::EngineCore"
+        },
+        {
+          "pid": 2892579,
+          "name": "VLLM::EngineCore"
+        }
+      ]
+    }
+  ],
+  "last_metrics": {
+    "update": 10,
+    "mean_response_loss": 0.03171602161091869,
+    "responses": 256,
+    "response_tokens": 2072069,
+    "truncated_responses": 28,
+    "endpoint_only_tokens": 0,
+    "exit_not_deeper_than_student": 0,
+    "rollout_executed_token_loops": 4230490,
+    "teacher_loss_executed_token_loops": 8460980,
+    "mean_adjacent_js_nats": 0.027996656201642593,
+    "exit_hist": [
+      0,
+      0,
+      0,
+      2072069
+    ],
+    "stage_count_hist": [
+      0,
+      0,
+      2072069
+    ],
+    "teacher_depth_by_student_slot": [
+      [
+        1825418,
+        170281,
+        76370,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        2072069
+      ]
+    ],
+    "learning_rate": 1e-06,
+    "gradient_norm": 1.0415586233139038,
+    "teacher_weight_version": 9,
+    "student_loss_executed_token_loops": 4230490,
+    "teacher_coda_token_positions": 0,
+    "teacher_executed_loops": 4,
+    "student_executed_loops": 2,
+    "student_policy": "fixed",
+    "student_max_loops": 2,
+    "mean_stage_loss": 0.03171602161091869,
+    "mean_stop_loss": 0.0,
+    "target_student_depth_hist": [
+      0,
+      2072069
+    ],
+    "actual_student_depth_hist": [
+      0,
+      2072069
+    ],
+    "target_actual_depth_confusion": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        2072069
+      ]
+    ],
+    "mean_target_student_depth": 2.0,
+    "mean_actual_student_depth": 2.0,
+    "replay_additional_required_loops": 0,
+    "stop_depth_mean_absolute_error": 0.0,
+    "uncompressed_tokens": 0,
+    "target_at_max_tokens": 0,
+    "generation_seconds_sum": 212597.96102163196,
+    "rollout_backfill_token_loops": 0,
+    "rollout_coda_token_positions": 0,
+    "confidence_probe_token_loops": 0,
+    "confidence_probe_coda_token_positions": 0,
+    "confidence_probe_forwards": 0,
+    "boundary_signal": "js",
+    "mean_boundary_change": 0.027996656201642593,
+    "teacher_backfill_token_loops": 0,
+    "teacher_execution_policy": "native",
+    "teacher_max_loops": 4,
+    "rollout_compute_loops": 2,
+    "teacher_distribution": "full_vocab",
+    "teacher_backend": "vllm",
+    "phase_offload": true,
+    "native_exit_reduces_executed_loops": false,
+    "seconds": 1518.0222962978296
   },
-  "external_console": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/aime24_launch_20261117/20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h/launch.console.log",
-  "time_budget_file": "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/three_route_ablations/20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h_panel/time_budget.json",
-  "source_hashes": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/aime24_launch_20261117/20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h/source_sha256.json",
-  "source_archive": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/aime24_launch_20261117/20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h/sources.tar.gz",
-  "launch_script": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/aime24_launch_20261117/20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h/launch.sh",
-  "teacher_trace_dir": "/dev/shm/ep_loop_20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h",
-  "training_questions": 17309,
-  "evaluation": "AIME2024:30 questions x16 samples",
-  "checkpoint_policy": "Full model + optimizer + per-rank RNG, rolling latest1 and final100",
-  "scheduling": "top_n then endpoint; target100/group, shared10h hard limit; completion is not guaranteed",
-  "cleanup_monitor_pid": 3292407,
-  "cleanup_monitor_script": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/aime24_launch_20261117/20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h/finalize_run.py",
-  "last_health_check_at": "2026-11-17T18:40:11.694709+08:00",
-  "current_verified_stage": "top_n update1 student on-policy rollout",
-  "startup_verification": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/aime24_launch_20261117/20261117_183723_vllm_aime24_K4_N2_B256_u100_seed42_gpu67_10h/startup_verification.json"
+  "latest_resume_update": 10,
+  "error": "KeyboardInterrupt('User interrupted the training supervisor')",
+  "finished_at": "2026-11-19T23:18:36.655357+08:00",
+  "supervisor_cleanup_at": "2026-11-19T23:18:42.096821+08:00",
+  "stopped_at": "2026-11-19T23:19:16.060345+08:00",
+  "stop_requested_at": "2026-11-19T23:18:36.598779+08:00",
+  "user_stop_record": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ep_d_ngram_launch_20261119_182732/user_stop.json"
 }

@@ -1,0 +1,191 @@
+{
+  "completed_steps": 2,
+  "updates": {
+    "1": {
+      "seconds": {
+        "offload": 1.251,
+        "rollout": 1492.027,
+        "teacher": 88.806,
+        "restore": 0.332,
+        "hf_train_optimizer_sync": 407.182,
+        "checkpoint_logging": 10.366,
+        "tail": 0.005
+      },
+      "wall_seconds": 1999.969
+    },
+    "2": {
+      "seconds": {
+        "offload": 4.077,
+        "rollout": 1434.98,
+        "teacher": 55.739,
+        "restore": 1.93,
+        "hf_train_optimizer_sync": 402.643,
+        "checkpoint_logging": 10.142,
+        "tail": 1.54
+      },
+      "wall_seconds": 1911.051
+    }
+  },
+  "average_seconds": {
+    "offload": 2.6639999999999997,
+    "rollout": 1463.5035,
+    "teacher": 72.2725,
+    "restore": 1.131,
+    "hf_train_optimizer_sync": 404.9125,
+    "checkpoint_logging": 10.254,
+    "tail": 0.7725
+  },
+  "average_wall_seconds": 1955.51,
+  "average_percent": {
+    "offload": 0.13623044627744169,
+    "rollout": 74.8399905906899,
+    "teacher": 3.6958389371570584,
+    "restore": 0.057836574602021976,
+    "hf_train_optimizer_sync": 20.706235202070047,
+    "checkpoint_logging": 0.5243644880363689,
+    "tail": 0.03950376116716355
+  },
+  "raw_rank_stage_totals": {
+    "1": {
+      "0": {
+        "training_state_offload": 1.2614334197714925,
+        "vllm_on_policy_batch": 1491.7522778240964,
+        "vllm_teacher_label_batch": 88.80300907511264,
+        "training_state_restore": 0.3316651708446443,
+        "teacher_forward": 1.8936421927064657,
+        "stage_planning": 16.54939338983968,
+        "student_replay": 51.54104677494615,
+        "loss_readout": 29.9870303273201,
+        "objective_forward": 106.11646426515654,
+        "backward": 275.11139554856345,
+        "response": 407.0235668886453,
+        "optimizer_step": 0.09835266089066863,
+        "metrics_reduce": 0.00041863974183797836,
+        "checkpoint_save": 10.325164461042732,
+        "update": 1999.705831493251
+      },
+      "1": {
+        "training_state_offload": 1.2462239521555603,
+        "vllm_on_policy_batch": 1077.538476682268,
+        "vllm_teacher_label_batch": 92.74101113015786,
+        "training_state_restore": 0.34803222911432385,
+        "teacher_forward": 1.4464394059032202,
+        "stage_planning": 12.7410518694669,
+        "student_replay": 37.64775881776586,
+        "loss_readout": 21.427941129077226,
+        "objective_forward": 78.82065789820626,
+        "backward": 719.4262544116937,
+        "response": 817.4102301127277,
+        "optimizer_step": 0.10681660939007998,
+        "metrics_reduce": 0.000504631083458662,
+        "checkpoint_save": 10.325739121064544,
+        "update": 1999.8035633773543
+      },
+      "2": {
+        "training_state_offload": 1.2644315967336297,
+        "vllm_on_policy_batch": 1354.5304016550072,
+        "vllm_teacher_label_batch": 84.04041427606717,
+        "training_state_restore": 0.5818389798514545,
+        "teacher_forward": 1.623749999795109,
+        "stage_planning": 15.190989758819342,
+        "student_replay": 47.85862985579297,
+        "loss_readout": 27.617968294769526,
+        "objective_forward": 98.04040338099003,
+        "backward": 426.9107989934273,
+        "response": 548.9997831033543,
+        "optimizer_step": 0.10351855587214231,
+        "metrics_reduce": 0.0004233298823237419,
+        "checkpoint_save": 10.32576826121658,
+        "update": 1999.9417209117673
+      },
+      "3": {
+        "training_state_offload": 1.248799867928028,
+        "vllm_on_policy_batch": 1166.1734778853133,
+        "vllm_teacher_label_batch": 77.34264567121863,
+        "training_state_restore": 0.4160233289003372,
+        "teacher_forward": 1.7125369072891772,
+        "stage_planning": 13.733089931774884,
+        "student_replay": 41.463041466195136,
+        "loss_readout": 23.995213655754924,
+        "objective_forward": 87.15488626575097,
+        "backward": 636.8554771533236,
+        "response": 744.2689231103286,
+        "optimizer_step": 0.13661653641611338,
+        "metrics_reduce": 0.0004337509162724018,
+        "checkpoint_save": 10.325716010760516,
+        "update": 1999.9683829019777
+      }
+    },
+    "2": {
+      "0": {
+        "training_state_offload": 4.074680020101368,
+        "vllm_on_policy_batch": 905.1360498634167,
+        "vllm_teacher_label_batch": 42.21102976007387,
+        "training_state_restore": 0.8760382570326328,
+        "teacher_forward": 1.7242121738381684,
+        "stage_planning": 12.099369558505714,
+        "student_replay": 33.549750556237996,
+        "loss_readout": 19.23186947964132,
+        "objective_forward": 72.1919067017734,
+        "backward": 857.8774337787181,
+        "response": 947.0268807839602,
+        "optimizer_step": 0.0206574909389019,
+        "metrics_reduce": 0.00043624965474009514,
+        "checkpoint_save": 10.040566155221313,
+        "update": 1911.0503468960524
+      },
+      "1": {
+        "training_state_offload": 4.22503725765273,
+        "vllm_on_policy_batch": 1410.0920043261722,
+        "vllm_teacher_label_batch": 57.39176176022738,
+        "training_state_restore": 1.342157622333616,
+        "teacher_forward": 2.533354203682393,
+        "stage_planning": 15.364920269697905,
+        "student_replay": 49.750771946739405,
+        "loss_readout": 28.61385971494019,
+        "objective_forward": 102.43099443009123,
+        "backward": 298.76591523643583,
+        "response": 426.28196191508323,
+        "optimizer_step": 0.020142042078077793,
+        "metrics_reduce": 0.00034047942608594894,
+        "checkpoint_save": 10.041161425411701,
+        "update": 1909.5146405058913
+      },
+      "2": {
+        "training_state_offload": 4.176122422795743,
+        "vllm_on_policy_batch": 1260.4491937621497,
+        "vllm_teacher_label_batch": 52.72937680222094,
+        "training_state_restore": 1.3091246038675308,
+        "teacher_forward": 2.0717458920553327,
+        "stage_planning": 15.028755605220795,
+        "student_replay": 45.92843409162015,
+        "loss_readout": 26.607233794406056,
+        "objective_forward": 95.71876576915383,
+        "backward": 461.4977059904486,
+        "response": 580.6688308091834,
+        "optimizer_step": 0.020519291050732136,
+        "metrics_reduce": 0.0003454103134572506,
+        "checkpoint_save": 10.041210514958948,
+        "update": 1909.5145899928175
+      },
+      "3": {
+        "training_state_offload": 4.2556520770303905,
+        "vllm_on_policy_batch": 1434.799892866984,
+        "vllm_teacher_label_batch": 55.732761026825756,
+        "training_state_restore": 1.928855032660067,
+        "teacher_forward": 3.0187951899133623,
+        "stage_planning": 15.466091784182936,
+        "student_replay": 51.20827211206779,
+        "loss_readout": 29.600283741485327,
+        "objective_forward": 104.74665509769693,
+        "backward": 271.97047726716846,
+        "response": 402.6136844563298,
+        "optimizer_step": 0.019179482012987137,
+        "metrics_reduce": 0.00020631961524486542,
+        "checkpoint_save": 10.041207144968212,
+        "update": 1909.5136417648755
+      }
+    }
+  },
+  "note": "Nonoverlapping wall intervals between global stage-completion boundaries. Early-rank HF training overlaps late-rank rollout/teacher work; hf_train_optimizer_sync is the remaining wall contribution after all rank restores, not the entire HF compute duration. Rank stage timers are nested and overlap; do not add raw timers."
+}

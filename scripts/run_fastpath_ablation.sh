@@ -16,6 +16,8 @@ set -a
 EXECUTION_MODE="${EXECUTION_MODE:-hf_dynamic}" # Safe default also applies to this compatibility entry.
 GPUS="${GPUS:-2,3}"                       # Physical GPU IDs; one process per GPU.
 CPU_THREADS="${CPU_THREADS:-16}"          # CPU threads per process, independent of GPU/rank count.
+TENSORBOARD="${TENSORBOARD:-1}"             # Rank0 completed-update scalars.
+TENSORBOARD_FLUSH_SECONDS="${TENSORBOARD_FLUSH_SECONDS:-10}"
 METHOD="${METHOD:-ours}"                  # ours (default) | both | baseline | recompute
 # baseline/both are optional LoopOPD controls within this ablation stage.
 MODEL_FAMILY="${MODEL_FAMILY:-ouro}"      # ouro | huginn
@@ -87,8 +89,16 @@ TRAIN_EXAMPLES="${TRAIN_EXAMPLES:-all}"     # All usable source questions except
 DEV_EXAMPLES="${DEV_EXAMPLES:-64}"
 EVAL_SUITE="${EVAL_SUITE:-aime}"            # aime | dapo_dev.
 if [[ "$EVAL_SUITE" == aime ]]; then
-  EVAL_DATA_PATH="${EVAL_DATA_PATH:-data/aime/aime2024.jsonl}"
-  EVAL_EXAMPLES="${EVAL_EXAMPLES:-30}"
+  if [[ "$EXECUTION_MODE" == vllm_fixed ]]; then
+    EVAL_DATA_PATH="${EVAL_DATA_PATH:-data/aime/eval.jsonl}"
+  else
+    EVAL_DATA_PATH="${EVAL_DATA_PATH:-data/aime/aime2024.jsonl}"
+  fi
+  if [[ "$EVAL_DATA_PATH" == data/aime/eval.jsonl || "$EVAL_DATA_PATH" == */data/aime/eval.jsonl ]]; then
+    EVAL_EXAMPLES="${EVAL_EXAMPLES:-90}"
+  else
+    EVAL_EXAMPLES="${EVAL_EXAMPLES:-30}"
+  fi
   EVAL_SAMPLES_PER_PROBLEM="${EVAL_SAMPLES_PER_PROBLEM:-16}"
   TRAIN_DECONTAMINATION_PATH="${TRAIN_DECONTAMINATION_PATH:-data/aime/eval.jsonl}"
   SPLIT_EVAL_EXAMPLES="$DEV_EXAMPLES"
@@ -120,8 +130,22 @@ GRADIENT_CLIP_NORM="${GRADIENT_CLIP_NORM:-none}"
 MIXED_PRECISION="${MIXED_PRECISION:-bf16}"   # bf16 | none; master params are FP32.
 GRADIENT_CHECKPOINTING="${GRADIENT_CHECKPOINTING:-1}"
 CHECKPOINT_READOUT="${CHECKPOINT_READOUT:-1}"
-SAVE_EVERY_UPDATES="${SAVE_EVERY_UPDATES:-${UPDATES}}"
-KEEP_LATEST_CHECKPOINTS="${KEEP_LATEST_CHECKPOINTS:-1}" # Rotate one full recovery point; permanently retain the final snapshot.
+if [[ "$EXECUTION_MODE" == vllm_fixed ]]; then
+  SAVE_EVERY_UPDATES="${SAVE_EVERY_UPDATES:-5}"
+  KEEP_LATEST_CHECKPOINTS="${KEEP_LATEST_CHECKPOINTS:-0}"
+  CHECKPOINT_LAYOUT="${CHECKPOINT_LAYOUT:-model_only}"
+  SAVE_OPTIMIZER="${SAVE_OPTIMIZER:-0}"
+  SAVE_FINAL_RESUME="${SAVE_FINAL_RESUME:-1}"
+  EVAL_EVERY_UPDATES="${EVAL_EVERY_UPDATES:-5}"
+else
+  SAVE_EVERY_UPDATES="${SAVE_EVERY_UPDATES:-${UPDATES}}"
+  KEEP_LATEST_CHECKPOINTS="${KEEP_LATEST_CHECKPOINTS:-1}"
+  CHECKPOINT_LAYOUT="${CHECKPOINT_LAYOUT:-full}"
+  SAVE_OPTIMIZER="${SAVE_OPTIMIZER:-1}"
+  SAVE_FINAL_RESUME="${SAVE_FINAL_RESUME:-0}"
+  EVAL_EVERY_UPDATES="${EVAL_EVERY_UPDATES:-0}"
+fi
+RESUME_SAVE_EVERY_UPDATES="${RESUME_SAVE_EVERY_UPDATES:-${SAVE_EVERY_UPDATES}}"
 DISTRIBUTED_TIMEOUT_SECONDS="${DISTRIBUTED_TIMEOUT_SECONDS:-21600}" # Allow long, unequal on-policy rollouts across ranks.
 TRAIN_TEMPERATURE="${TRAIN_TEMPERATURE:-1.0}"
 TRAIN_TOP_P="${TRAIN_TOP_P:-1.0}"
@@ -149,6 +173,16 @@ esac
 FASTPATH_ROLLOUT_BACKEND="${FASTPATH_ROLLOUT_BACKEND:-$MODE_ROLLOUT_BACKEND}"
 VLLM_MEMORY_FRACTION="${VLLM_MEMORY_FRACTION:-0.45}"
 VLLM_EAGER="${VLLM_EAGER:-0}"
+VLLM_PYTHON_BIN="${VLLM_PYTHON_BIN:-}"
+if [[ "$EXECUTION_MODE" == vllm_fixed ]]; then
+  VLLM_ROLLOUT_NGRAM="${VLLM_ROLLOUT_NGRAM:-1}" # Training student rollout only; evaluation stays normal.
+  VLLM_PYTHON_BIN="${VLLM_PYTHON_BIN:-${PROJECT_ROOT}/ep_loop_envs/vllm026/bin/python}"
+else
+  VLLM_ROLLOUT_NGRAM="${VLLM_ROLLOUT_NGRAM:-0}"
+fi
+VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-}"
+VLLM_MAX_NUM_SEQS="${VLLM_MAX_NUM_SEQS:-0}" # 0: omit; positive: engine scheduler concurrency, not training batch.
+VLLM_TENSOR_PARALLEL_SIZE="${VLLM_TENSOR_PARALLEL_SIZE:-1}" # Adjacent GPU group; HF still uses one DDP rank per GPU.
 set +a
 # ========================================================================
 
@@ -275,6 +309,8 @@ try:
     if number('LOG_HEARTBEAT_SECONDS') < 0: fail('LOG_HEARTBEAT_SECONDS must be nonnegative')
     prompts,responses = integer('PROMPTS_PER_BATCH'),integer('RESPONSES_PER_PROMPT')
     if prompts % len(gpus): fail('PROMPTS_PER_BATCH must be divisible by the number of GPUs')
+    inference_tp=integer('VLLM_TENSOR_PARALLEL_SIZE')
+    if len(gpus)%inference_tp:fail('GPU count must be divisible by VLLM_TENSOR_PARALLEL_SIZE')
     run_eval = boolean('RUN_EVAL')
     split_eval_count = integer('SPLIT_EVAL_EXAMPLES')
     if split_eval_count > dev_count: fail('DAPO split evaluation size exceeds DEV_EXAMPLES')
@@ -298,7 +334,9 @@ try:
     selected_model = dict(path=str(absolute(os.environ['MODEL_PATH'])))
     if os.environ['MODEL_REVISION']: selected_model['revision'] = os.environ['MODEL_REVISION']
     common = dict(
-        experiment=dict(stage='ablation',purpose='method_selection_on_development_data'),
+        experiment=dict(stage='ablation',purpose='method_selection_on_development_data',
+            comparison_role=os.environ.get('COMPARISON_ROLE','method_ablation'),
+            opd_mode='d_loopopd' if teacher_update=='current' else 'loopopd'),
         model=selected_model,
         data=dict(train_path=str(split/'train.jsonl'),expected_examples=train_count,
                   max_prompt_tokens=integer('MAX_PROMPT_TOKENS'),correctness_cache=None),
@@ -312,16 +350,27 @@ try:
             max_new_tokens=integer('MAX_NEW_TOKENS'),temperature=number('TRAIN_TEMPERATURE'),top_p=number('TRAIN_TOP_P')),
         evaluation=dict(max_new_tokens=integer('EVAL_MAX_NEW_TOKENS'),
             suite=eval_suite,data_path=str(eval_path),expected_examples=eval_count,
+            **({'inference_backend':'vllm'} if fixed_vllm else {}),
             scope='AIME2024/2025/2026 integer-answer evaluation' if eval_suite=='aime' else 'Held-out DAPO development evaluation',
-            samples_per_problem=integer('EVAL_SAMPLES_PER_PROBLEM'),temperature=number('EVAL_TEMPERATURE'),top_p=number('EVAL_TOP_P')),
+            samples_per_problem=integer('EVAL_SAMPLES_PER_PROBLEM'),temperature=number('EVAL_TEMPERATURE'),top_p=number('EVAL_TOP_P'),
+            every_updates=integer('EVAL_EVERY_UPDATES',0) if run_eval and fixed_vllm else 0),
         implementation=dict(readout_chunk_size=integer('READOUT_CHUNK_SIZE'),
             teacher_trace_dir=str(absolute(os.environ['TEACHER_TRACE_DIR'])),
             execution_mode=os.environ['EXECUTION_MODE'],
             teacher_backend=os.environ['TEACHER_BACKEND'],phase_offload=boolean('PHASE_OFFLOAD'),
             checkpoint_readout=boolean('CHECKPOINT_READOUT'),save_every_updates=save_every,
+            save_optimizer=boolean('SAVE_OPTIMIZER'),
+            save_final_resume=boolean('SAVE_FINAL_RESUME'),
+            write_rollout_text=not fixed_vllm,write_rollout_records=not fixed_vllm,
             keep_latest_checkpoints=integer('KEEP_LATEST_CHECKPOINTS',0),
+            checkpoint_layout=os.environ['CHECKPOINT_LAYOUT'],
+            resume_save_every_updates=integer('RESUME_SAVE_EVERY_UPDATES'),
             rollout_backend=os.environ['FASTPATH_ROLLOUT_BACKEND'],
             vllm_memory_fraction=number('VLLM_MEMORY_FRACTION'),vllm_eager=boolean('VLLM_EAGER'),
+            vllm_python_bin=os.environ['VLLM_PYTHON_BIN'] or None,
+            vllm_max_num_seqs=integer('VLLM_MAX_NUM_SEQS',0),
+            vllm_tensor_parallel_size=inference_tp,
+            vllm_attention_backend=os.environ['VLLM_ATTENTION_BACKEND'] or None,
             distributed_timeout_seconds=integer('DISTRIBUTED_TIMEOUT_SECONDS')),seed=seed)
     if os.environ['QUESTION_FILTER'] not in {'all','teacher_correct','random_matched'}:fail('Invalid QUESTION_FILTER')
     filter_path=run/'teacher_correctness.jsonl'
@@ -367,6 +416,10 @@ try:
             config['algorithm']['student_loops'] = integer('BASELINE_STUDENT_LOOPS')
             config['rollout']['use_cache'] = method != 'recompute' and boolean('BASELINE_USE_CACHE')
             config['evaluation'].update(student_loops=[integer('BASELINE_STUDENT_LOOPS')],use_cache=config['rollout']['use_cache'])
+        config['implementation']['vllm_rollout_ngram']=(fixed_vllm and boolean('VLLM_ROLLOUT_NGRAM')
+            and config['algorithm'].get('student_policy','fixed')=='fixed')
+        if config['algorithm'].get('student_policy','fixed')!='fixed':
+            config['evaluation']['every_updates']=0
         validate_config(config)
         configs[method] = config
     # Shared pool is always selected by the same INITIAL native teacher,
@@ -393,8 +446,22 @@ try:
         teacher_backend=os.environ['TEACHER_BACKEND'],phase_offload=boolean('PHASE_OFFLOAD'),
         selection_uses_js_threshold=not fixed_vllm,
         rollout_backend=os.environ['FASTPATH_ROLLOUT_BACKEND'],
+        vllm_max_num_seqs=integer('VLLM_MAX_NUM_SEQS',0),
+        vllm_rollout_ngram=fixed_vllm and boolean('VLLM_ROLLOUT_NGRAM'),
+        vllm_python_bin=os.environ['VLLM_PYTHON_BIN'] or None,
+        evaluation_speculative_config=None,
+        checkpoint_layout=os.environ['CHECKPOINT_LAYOUT'],
+        save_every_updates=save_every,
+        resume_save_every_updates=integer('RESUME_SAVE_EVERY_UPDATES'),
+        save_optimizer=boolean('SAVE_OPTIMIZER'),
+        save_final_resume=boolean('SAVE_FINAL_RESUME'),
+        eval_every_updates=integer('EVAL_EVERY_UPDATES',0) if run_eval and fixed_vllm else 0,
+        vllm_tensor_parallel_size=inference_tp,inference_replicas=len(gpus)//inference_tp,
+        inference_gpu_groups=[gpus[start:start+inference_tp] for start in range(0,len(gpus),inference_tp)],
+        hf_training_world_size=len(gpus),
         methods=methods,gpus=gpus,model=family,teacher_update=teacher_update,stage_selection=stage_selection,
-        loopopd_role='optional_ablation_control',
+        opd_mode='d_loopopd' if teacher_update=='current' else 'loopopd',
+        loopopd_role='primary_comparison' if os.environ.get('COMPARISON_ROLE')=='primary_opd' else 'optional_ablation_control',
         seed=seed,python_hash_seed=os.environ['PYTHONHASHSEED'],
         evaluation_seed_scheme=SAMPLE_SEED_SCHEME,strict_deterministic_kernels=False,
         teacher_max_loops=integer('TEACHER_MAX_LOOPS'),baseline_student_loops=integer('BASELINE_STUDENT_LOOPS'),
@@ -464,6 +531,16 @@ try:
     # FP32 model + two Adam moments, rotating recovery points and weight transport.
     model_bytes=sum(path.stat().st_size for path in Path(probe['model']['path']).glob('*.safetensors'))
     required_space=model_bytes*6*(min(2,integer('KEEP_LATEST_CHECKPOINTS',0))+2)+model_bytes*4
+    if os.environ['CHECKPOINT_LAYOUT']=='split':
+        snapshots=len(set(range(save_every,updates+1,save_every))|{updates})
+        # FP32 retained weights; two optimizer versions during atomic publish;
+        # and per-rank FP32 weight transport. Recovery model files are hardlinks.
+        required_space=model_bytes*(2*snapshots+8+2*len(gpus))
+    elif os.environ['CHECKPOINT_LAYOUT']=='model_only':
+        snapshots=len(set(range(save_every,updates+1,save_every))|{updates})
+        # Final recovery adds two FP32 Adam moments to the retained weights.
+        final_resume_bytes=4 if boolean('SAVE_FINAL_RESUME') else 0
+        required_space=model_bytes*(2*snapshots+final_resume_bytes+2*len(gpus))
     output_volume=run.parent
     while not output_volume.exists(): output_volume=output_volume.parent
     if not args.prepare_only and shutil.disk_usage(output_volume).free < required_space:
@@ -571,7 +648,7 @@ try:
                      [integer('STUDENT_LOOPS')] if fixed_vllm else sorted({integer('BASELINE_STUDENT_LOOPS'),integer('TEACHER_MAX_LOOPS')}))
     for method in methods:
         command(train_command(method),gpus,label='train_'+method)
-        if run_eval:
+        if run_eval and not configs[method]['evaluation'].get('every_updates',0):
             # Evaluating saved snapshots after training is equivalent to inspecting
             # their weights at those updates, and does not interrupt optimizer RNG.
             for step in eval_steps:

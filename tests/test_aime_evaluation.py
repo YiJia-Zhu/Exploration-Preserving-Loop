@@ -63,6 +63,8 @@ class AimeEvaluationTests(unittest.TestCase):
         class Actor:
             def __init__(self,directory,gpu,log,**kwargs):
                 self.gpu=gpu;self.loops=kwargs['loops']
+                if kwargs.get('rollout_ngram') is not False:
+                    raise AssertionError('Evaluation must disable training n-gram even when the run config enables it')
                 if 'max_num_seqs' in kwargs: raise AssertionError('Use vLLM default')
             def __enter__(self): return self
             def __exit__(self,*args): pass
@@ -76,7 +78,8 @@ class AimeEvaluationTests(unittest.TestCase):
             root=Path(directory);data=root/'eval.jsonl';output=root/'result.jsonl';config_path=root/'config.json'
             data.write_text(''.join(json.dumps(row)+'\n' for row in examples()))
             config=load_config(ROOT/'configs/vllm_fixed_top_n.json')
-            config['evaluation'].update(suite='aime',expected_examples=90,samples_per_problem=16)
+            self.assertEqual(config['evaluation']['data_path'],'data/aime/eval.jsonl')
+            self.assertEqual(config['evaluation']['expected_examples'],90)
             config_path.write_text(json.dumps(config))
             args=['evaluate_fastpath.py','--config',str(config_path),'--checkpoint',directory,
                   '--data',str(data),'--output',str(output),'--gpus','2,3']
@@ -91,7 +94,16 @@ class AimeEvaluationTests(unittest.TestCase):
             self.assertTrue(all(s['avg_at_16']==1. and s['pass_at_16']==1. for s in scores['benchmarks'].values()))
             self.assertEqual(sorted(submissions),[('2',720),('3',720)])
             self.assertEqual(len(set(seeds)),1440)
-            self.assertEqual(len(output.read_text().splitlines()),1440)
+            responses=[json.loads(line) for line in output.read_text().splitlines()]
+            questions=[json.loads(line) for line in output.with_suffix('.questions.jsonl').read_text().splitlines()]
+            self.assertEqual(len(responses),1440)
+            self.assertEqual(len(questions),90)
+            self.assertEqual(report['questions'],str(output.with_suffix('.questions.jsonl').resolve()))
+            for row in responses:
+                question=questions[row['index']]
+                self.assertEqual((row['id'],row['problem'],row['messages'],row['reference_answer']),
+                                 (question['id'],question['problem'],question['messages'],question['reference_answer']))
+                self.assertTrue(row['text'])
 
 
 if __name__=='__main__': unittest.main()

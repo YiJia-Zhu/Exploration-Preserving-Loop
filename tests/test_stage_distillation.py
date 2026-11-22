@@ -190,8 +190,7 @@ class DataAndConfigTests(unittest.TestCase):
         self.assertEqual(tokenizer.chat_template,old)
 
     def test_paper_settings_and_dynamic_warmup(self):
-        for name in ("a_loopopd","a_d_loopopd","b_native_endpoint","c_native_uniform","d_native_js",
-                     "b_current_native_endpoint","c_current_native_uniform","d_current_native_js"):
+        for name in ("a_loopopd","a_d_loopopd","b_native_endpoint","d_native_js","d_current_native_js"):
             config=validate_config(load_config(ROOT/"configs"/(name+".json")))
             self.assertEqual(config["optimization"]["global_batch_size"],256)
             self.assertEqual(config["rollout"]["max_new_tokens"],31744)

@@ -1,7 +1,0 @@
-{
-  "group": "top_n",
-  "status": "prepared",
-  "output": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/loopopd_batch_alignment_20261117/prepared/legacy_subset_top_n",
-  "timestamp": "2026-11-17T17:56:34.694604+08:00",
-  "finished_at": "2026-11-17T17:56:39.824642+08:00"
-}

@@ -33,9 +33,46 @@ def load_config(path, seen=()):
     return config
 
 
+def validate_rad_opd(config):
+    a = config["algorithm"]
+    if (config["model"]["family"] != "ouro" or a["teacher_update"] != "frozen"
+            or a["teacher_endpoint"] != "fixed" or a["teacher_max_loops"] != 4
+            or a["stage_selection"] != "endpoint" or a.get("stop_loss_weight") != 0):
+        raise ValueError("RAD-OPD requires Ouro, a frozen dense four-loop endpoint teacher and zero gate loss")
+    if not config["rollout"]["use_cache"] or not config["evaluation"].get("use_cache", True):
+        raise ValueError("RAD-OPD requires a KV cache for rollout and evaluation")
+    if config["evaluation"].get("student_policy", "ragged") not in {"ragged", "fixed"}:
+        raise ValueError("RAD-OPD evaluation supports ragged and fixed policies")
+    if config.get("distillation", {}).get("question_filter", "all") != "all":
+        raise ValueError("The RAD-OPD MVP retains all questions and rollout responses")
+    if type(a.get("rad_detach_reused_kv", False)) is not bool:
+        raise ValueError("rad_detach_reused_kv must be a boolean")
+    tau = a.get("rad_tau")
+    if not isinstance(tau, dict):
+        raise ValueError("RAD-OPD requires a threshold mixture object")
+    valid_threshold = lambda value: type(value) in (int, float) and 0 < value <= 1
+    fixed = tau.get("fixed")
+    low, anchors, p = tau.get("low_range", []), tau.get("anchors", []), tau.get("low_probability")
+    if (type(p) not in (int, float) or not 0 <= p <= 1
+            or not isinstance(low, list) or len(low) != 2 or not all(map(valid_threshold, low)) or low[0] > low[1]
+            or not isinstance(anchors, list) or not anchors or not all(map(valid_threshold, anchors))
+            or (fixed is not None and not valid_threshold(fixed))):
+        raise ValueError("Invalid RAD-OPD threshold mixture")
+    thresholds = config["evaluation"].get("ragged_thresholds", [])
+    if (not isinstance(thresholds, list) or not thresholds or not all(map(valid_threshold, thresholds))
+            or len(set(thresholds)) != len(thresholds)):
+        raise ValueError("Provide distinct RAD-OPD evaluation thresholds in (0, 1]")
+    budgets = config["evaluation"].get("budget_slices", [])
+    if (not isinstance(budgets, list) or not budgets or any(type(cap) is not int or cap < 1 for cap in budgets)
+            or budgets != sorted(set(budgets)) or budgets[-1] != config["evaluation"]["max_new_tokens"]):
+        raise ValueError("RAD-OPD budget slices must increase to the evaluation generation cap")
+
+
 def validate_config(config):
     from .execution import validate_execution
     validate_execution(config)
+    from .fastpath.speculation import rollout_ngram_enabled
+    rollout_ngram_enabled(config)
     a, o, r, d = (config[k] for k in ("algorithm", "optimization", "rollout", "data"))
     if type(config["seed"]) is not int or not 0 <= config["seed"] < 2**32:
         raise ValueError("Seed must be an integer in [0, 2**32), default 42")
@@ -61,8 +98,8 @@ def validate_config(config):
         raise ValueError('Question filtering requires data.correctness_cache from the frozen initial teacher')
     if question_filter=='all' and d.get('correctness_cache'):
         raise ValueError('Remove correctness_cache for unfiltered questions or select teacher_correct')
-    if policy not in {"fixed", "learned", "native", "native_adaptive"}:
-        raise ValueError("Student policy must be fixed, learned or native")
+    if policy not in {"fixed", "learned", "native", "native_adaptive", "ragged"}:
+        raise ValueError("Unknown student policy")
     if policy == "fixed":
         if not isinstance(a["student_loops"], int) or not 1 <= a["student_loops"] <= a["teacher_max_loops"]:
             raise ValueError("Require integer 1 <= S <= K")
@@ -84,11 +121,31 @@ def validate_config(config):
         raise ValueError('shallow_target_placement must be prefix or last')
     teacher_backend=config['implementation'].get('teacher_backend','hf')
     if teacher_backend not in {'hf','vllm'}:raise ValueError('Unknown teacher backend')
-    if teacher_backend=='vllm' and (family!='ouro' or a['teacher_update']!='frozen' or
+    if teacher_backend=='vllm' and (family!='ouro' or
             config['implementation'].get('execution_mode')!='vllm_fixed'):
-        raise ValueError('The vLLM teacher supports frozen Ouro in vllm_fixed only')
+        raise ValueError('The vLLM teacher supports Ouro in vllm_fixed only')
     if type(config['implementation'].get('phase_offload',False)) is not bool:
         raise ValueError('phase_offload must be boolean')
+    hf_batch=config['implementation'].get('hf_rollout_batch_size',1)
+    if type(hf_batch) is not int or hf_batch<1:
+        raise ValueError('hf_rollout_batch_size must be a positive integer')
+    capacity=config['implementation'].get('hf_static_cache_capacity')
+    if capacity is not None and (type(capacity) is not int or capacity<1):
+        raise ValueError('hf_static_cache_capacity must be a positive integer or null')
+    if type(config['implementation'].get('optimizer_offload_for_rollout',False)) is not bool:
+        raise ValueError('optimizer_offload_for_rollout must be boolean')
+    if type(a.get('teacher_reuse_student',False)) is not bool:
+        raise ValueError('teacher_reuse_student must be boolean')
+    max_seqs=config['implementation'].get('vllm_max_num_seqs',0)
+    if type(max_seqs) is not int or max_seqs<0:
+        raise ValueError('vllm_max_num_seqs must be a nonnegative integer; 0 uses the engine default')
+    tp=config['implementation'].get('vllm_tensor_parallel_size',1)
+    if type(tp) is not int or tp<1:
+        raise ValueError('vllm_tensor_parallel_size must be a positive integer')
+    if tp>1 and (family!='ouro' or config['implementation'].get('execution_mode')!='vllm_fixed'
+                 or not config['implementation'].get('phase_offload',False)
+                 or config['implementation'].get('rollout_backend','vllm')!='vllm'):
+        raise ValueError('Paired TP inference requires Ouro vllm_fixed, vLLM rollout and phase_offload')
     if policy == "learned":
         if a["stage_selection"] not in {"threshold", "threshold_uniform", "threshold_endpoint"}:
             raise ValueError("Learned student must preserve all JS-threshold stage counts")
@@ -96,6 +153,11 @@ def validate_config(config):
             raise ValueError("Invalid student stop threshold/BCE coefficient")
     elif a["stage_selection"].startswith("threshold"):
         raise ValueError("Threshold-only phase counts require a learned dynamic student")
+    if policy == "ragged":
+        validate_rad_opd(config)
+    offline = d.get("rad_offline_responses")
+    if offline is not None and (policy != "ragged" or not isinstance(offline, str) or not offline.strip()):
+        raise ValueError("data.rad_offline_responses requires a RAD-OPD JSONL path")
     if (not math.isfinite(a["exit_threshold"]) or a["exit_threshold"] <= 0
             or (family == "ouro" and a["exit_threshold"] > 1)
             or not math.isfinite(a["js_threshold"]) or a["js_threshold"] < 0):
@@ -115,6 +177,37 @@ def validate_config(config):
     keep_latest = config['implementation'].get('keep_latest_checkpoints', 0)
     if type(keep_latest) is not int or keep_latest < 0:
         raise ValueError('keep_latest_checkpoints must be a nonnegative integer')
+    layout=config['implementation'].get('checkpoint_layout','full')
+    if layout not in {'full','split','model_only'}:
+        raise ValueError('checkpoint_layout must be full, split or model_only')
+    if layout=='model_only':
+        if config['implementation']['save_optimizer'] or keep_latest:
+            raise ValueError('model_only requires save_optimizer=false and keep_latest_checkpoints=0')
+    if type(config['implementation'].get('save_final_resume',False)) is not bool:
+        raise ValueError('save_final_resume must be boolean')
+    if layout=='split':
+        from .execution import execution_mode,VLLM_FIXED
+        if execution_mode(config)!=VLLM_FIXED:
+            raise ValueError('Split checkpoints currently require the fixed-vLLM training route')
+        interval=config['implementation'].get('resume_save_every_updates',config['implementation']['save_every_updates'])
+        if (type(interval) is not int or interval<1 or interval%config['implementation']['save_every_updates']):
+            raise ValueError('resume_save_every_updates must be a positive multiple of save_every_updates')
+        if not config['implementation']['save_optimizer']:
+            raise ValueError('Split recovery requires save_optimizer=true')
+    evaluation_every=config['evaluation'].get('every_updates',0)
+    if type(evaluation_every) is not int or evaluation_every<0:
+        raise ValueError('evaluation.every_updates must be a nonnegative integer')
+    if evaluation_every:
+        from .execution import execution_mode,VLLM_FIXED
+        if execution_mode(config)!=VLLM_FIXED or policy!='fixed':
+            raise ValueError('Periodic evaluation currently requires fixed-depth vLLM training')
+        if not config['implementation'].get('phase_offload',False):
+            raise ValueError('Periodic evaluation requires phase_offload=true to release training state')
+        save_every=config['implementation']['save_every_updates']
+        if type(save_every) is not int or save_every<1 or evaluation_every%save_every:
+            raise ValueError('evaluation.every_updates must be a multiple of save_every_updates')
+        from .fastpath.evaluation import evaluation_datasets
+        evaluation_datasets(config,Path(__file__).resolve().parents[1])
     for settings in (r, config["evaluation"]):
         if type(settings.get("use_cache", True)) is not bool:
             raise ValueError("use_cache must be a boolean")
@@ -138,6 +231,10 @@ def smoke_config(config):
     })
     if config["algorithm"].get("student_policy") == "learned":
         result["algorithm"]["js_threshold"] = config["algorithm"]["js_threshold"]
+    if config["algorithm"].get("student_policy") == "ragged":
+        result["evaluation"].update(expected_examples=None, suite=None)
+    if result['implementation'].get('checkpoint_layout')=='model_only':
+        result['implementation']['save_optimizer']=False
     if config["model"]["family"] == "huginn":
         # Real K=32/S=8 or16 remain in the original config; CPU smoke uses 4/2.
         dynamic = config["algorithm"].get("student_policy", "fixed") != "fixed"
@@ -170,6 +267,9 @@ def assets_status(config, root):
     else:
         with data.open() as f:
             rows = sum(bool(line.strip()) for line in f)
+    offline = config["data"].get("rad_offline_responses")
+    if offline is not None and not (root / offline).is_file():
+        missing.append(str(root / offline))
     count_matches = config["data"]["expected_examples"] is None or rows == config["data"]["expected_examples"]
     return dict(ready=not missing and revision_matches and count_matches,
                 missing=missing, observed_model_revision=observed_revision,

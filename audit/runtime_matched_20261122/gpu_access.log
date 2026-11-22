@@ -1,0 +1,3 @@
+Failed to initialize NVML: Unknown Error
+torch.cuda.is_available: False
+/dev/nvidiactl: errno=1, Operation not permitted

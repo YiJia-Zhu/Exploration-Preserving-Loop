@@ -1,1 +1,0 @@
-{"extends":"a_loopopd.json","run_name":"A_D_LoopOPD","algorithm":{"teacher_update":"current"},"optimization":{"warmup_steps":10}}

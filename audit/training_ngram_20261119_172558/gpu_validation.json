@@ -1,0 +1,112 @@
+{
+  "status": "completed",
+  "pid": 2262760,
+  "start_ticks": "230887202",
+  "started_at": "2026-11-19T17:32:22.143938+08:00",
+  "gpu": "4",
+  "training_started": false,
+  "optimizer_updates": 0,
+  "checks": [
+    {
+      "name": "student_ngram_enabled",
+      "runtime": {
+        "ready": true,
+        "policy": "fixed",
+        "executed_loops": 2,
+        "cpu_threads": 16,
+        "vllm_version": "0.26.0",
+        "attention_backend": "FLASHINFER",
+        "native_fixed_student": true,
+        "teacher_trace": false,
+        "max_num_seqs": null,
+        "tensor_parallel_size": 1,
+        "rollout_ngram": true,
+        "speculative_config": {
+          "method": "ngram",
+          "num_speculative_tokens": 5,
+          "prompt_lookup_min": 2,
+          "prompt_lookup_max": 5,
+          "rejection_sample_method": "standard"
+        },
+        "token_loop_accounting": "Committed prefix/output only; excludes rejected drafts and KV recomputation"
+      }
+    },
+    {
+      "name": "first_rollout",
+      "weight_version": 0,
+      "engine_metrics": {
+        "vllm:spec_decode_num_drafts": 9,
+        "vllm:spec_decode_num_draft_tokens": 45,
+        "vllm:spec_decode_num_accepted_tokens": 11,
+        "vllm:num_preemptions": 0,
+        "vllm:prompt_tokens": 377,
+        "vllm:generation_tokens": 128
+      }
+    },
+    {
+      "name": "teacher_normal_four_loop_readout",
+      "runtime": {
+        "ready": true,
+        "policy": "fixed",
+        "executed_loops": 4,
+        "cpu_threads": 16,
+        "vllm_version": "0.26.0",
+        "attention_backend": "FLASHINFER",
+        "native_fixed_student": false,
+        "teacher_trace": true,
+        "max_num_seqs": null,
+        "tensor_parallel_size": 1,
+        "rollout_ngram": false,
+        "speculative_config": null,
+        "token_loop_accounting": "Committed prefix/output only; excludes rejected drafts and KV recomputation"
+      }
+    },
+    {
+      "name": "second_rollout_after_weight_refresh_and_wake",
+      "weight_version": 1,
+      "engine_metrics": {
+        "vllm:spec_decode_num_drafts": 10,
+        "vllm:spec_decode_num_draft_tokens": 50,
+        "vllm:spec_decode_num_accepted_tokens": 7,
+        "vllm:num_preemptions": 0,
+        "vllm:prompt_tokens": 377,
+        "vllm:generation_tokens": 128
+      }
+    },
+    {
+      "name": "independent_inference_stays_normal_despite_training_environment",
+      "runtime": {
+        "ready": true,
+        "policy": "fixed",
+        "executed_loops": 2,
+        "cpu_threads": 16,
+        "vllm_version": "0.26.0",
+        "attention_backend": "FLASHINFER",
+        "native_fixed_student": true,
+        "teacher_trace": false,
+        "max_num_seqs": null,
+        "tensor_parallel_size": 1,
+        "rollout_ngram": false,
+        "speculative_config": null,
+        "token_loop_accounting": "Committed prefix/output only; excludes rejected drafts and KV recomputation"
+      }
+    }
+  ],
+  "admission": [
+    {
+      "index": "4",
+      "uuid": "GPU-3f3add2a-399a-b17d-84ff-d9a43f747bb0",
+      "memory_used_MiB": 3,
+      "processes": []
+    }
+  ],
+  "finished_at": "2026-11-19T17:34:51.804555+08:00",
+  "gpu_after": [
+    {
+      "index": "4",
+      "uuid": "GPU-3f3add2a-399a-b17d-84ff-d9a43f747bb0",
+      "memory_used_MiB": 3,
+      "processes": []
+    }
+  ]
+}

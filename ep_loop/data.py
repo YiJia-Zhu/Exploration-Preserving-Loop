@@ -71,6 +71,46 @@ def read_jsonl(path):
     return [json.loads(line) for line in Path(path).read_text().splitlines() if line.strip()]
 
 
+class OfflineResponses:
+    """Index pre-generated teacher trajectories without retaining all tokens in RAM."""
+
+    def __init__(self, path, records, responses_per_prompt):
+        self.path = Path(path)
+        prompts = {record['problem_sha256'] for record in records}
+        self.offsets = {}
+        digest = hashlib.sha256()
+        with self.path.open('rb') as stream:
+            while True:
+                offset = stream.tell()
+                line = stream.readline()
+                if not line:
+                    break
+                digest.update(line)
+                if not line.strip():
+                    continue
+                row = json.loads(line)
+                prompt, sample = row['problem_sha256'], row['sample']
+                if type(sample) is not int or sample < 0:
+                    raise ValueError('Offline response sample must be a nonnegative integer')
+                if prompt in prompts and sample < responses_per_prompt:
+                    key = prompt, sample
+                    if key in self.offsets or not isinstance(row.get('tokens'), list) or not row['tokens']:
+                        raise ValueError(f'Duplicate or empty offline response for {key}')
+                    self.offsets[key] = offset
+        expected = len(prompts) * responses_per_prompt
+        if len(self.offsets) != expected:
+            raise ValueError(f'Offline responses cover {len(self.offsets)}/{expected} required question/sample pairs')
+        self.sha256 = digest.hexdigest()
+
+    def tokens(self, problem_hash, sample):
+        with self.path.open('rb') as stream:
+            stream.seek(self.offsets[problem_hash, sample])
+            row = json.loads(stream.readline())
+        if (row['problem_sha256'], row['sample']) != (problem_hash, sample):
+            raise ValueError('Offline response file changed after indexing')
+        return row['tokens']
+
+
 def prompt_ids(tokenizer, record, enable_thinking=True, repair_template_newlines=True):
     # Repair only the Jinja template string, never the user's mathematical text.
     old = getattr(tokenizer, "chat_template", None)

@@ -1,0 +1,4 @@
+{"event": "rlt_engine_ready", "ready": true, "executed_loops": 2, "backend": "vllm-rlt", "attention_backend": "triton", "async_scheduling": false, "enable_prefix_caching": false, "max_num_seqs": 8, "max_num_batched_tokens": 128, "prefill_chunk_size": 128, "kv_tokens": 268336, "speculative_config": null}
+{"event": "rlt_batch_finished", "seconds": 2.303854424972087, "requests": 8, "prompt_tokens": 1056, "cached_prompt_tokens": 0}
+{"event": "rlt_batch_finished", "seconds": 18.59800039185211, "requests": 8, "prompt_tokens": 1212, "cached_prompt_tokens": 0}
+{"event": "rlt_batch_finished", "seconds": 628.5561645748094, "requests": 8, "prompt_tokens": 1212, "cached_prompt_tokens": 0}

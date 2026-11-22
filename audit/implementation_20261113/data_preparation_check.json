@@ -1,7 +1,0 @@
-{
-  "status": "PASS",
-  "scope": "Two-row synthetic parquet, not the paper dataset",
-  "original_messages_preserved": true,
-  "ground_truth_preserved": true,
-  "manifest_written": true
-}

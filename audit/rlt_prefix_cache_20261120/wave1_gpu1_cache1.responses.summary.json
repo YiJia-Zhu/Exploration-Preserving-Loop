@@ -1,0 +1,85 @@
+{
+  "results": {
+    "fixed_2": {
+      "avg": 0.0,
+      "pass_at_n": 0.0,
+      "problems": 4,
+      "completions": 64,
+      "samples_per_problem": [
+        16
+      ],
+      "avg_at_16": 0.0,
+      "pass_at_16": 0.0,
+      "benchmarks": {
+        "AIME2024": {
+          "avg": 0.0,
+          "pass_at_n": 0.0,
+          "problems": 4,
+          "completions": 64,
+          "samples_per_problem": [
+            16
+          ],
+          "avg_at_16": 0.0,
+          "pass_at_16": 0.0
+        }
+      },
+      "selected_exit_depth_hist": [
+        0,
+        16384
+      ],
+      "mean_selected_depth": 2.0,
+      "mean_actual_depth": 2.0,
+      "executed_token_loops": 59328,
+      "response_tokens": 16384,
+      "mean_response_tokens": 256.0,
+      "correct_responses": 0,
+      "accuracy": 0.0,
+      "backfill_token_loops": 0,
+      "truncated_responses": 64
+    }
+  },
+  "settings": {
+    "max_new_tokens": 256,
+    "temperature": 1.0,
+    "top_p": 0.7,
+    "samples_per_problem": 16,
+    "student_loops": [
+      2
+    ],
+    "scope": "AIME integer math; symbolic mathematics and code use external official evaluators",
+    "student_policy": "fixed",
+    "use_cache": true,
+    "every_updates": 0,
+    "data_path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_prefix_cache_20261120/questions.jsonl",
+    "suite": null,
+    "expected_examples": 4,
+    "inference_backend": "vllm-rlt",
+    "rlt_attention_backend": "triton",
+    "rlt_prefix_caching": true,
+    "rlt_async_scheduling": false
+  },
+  "gpus": [
+    "1"
+  ],
+  "wall_seconds": 37.35335692483932,
+  "checkpoint": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/checkpoints/update_000005",
+  "speculative_config": null,
+  "questions": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_prefix_cache_20261120/wave1_gpu1_cache1.responses.questions.jsonl",
+  "tensor_parallel_size": 1,
+  "inference_gpu_groups": [
+    "1"
+  ],
+  "cpu_threads_per_process": 8,
+  "data": {
+    "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_prefix_cache_20261120/questions.jsonl",
+    "sha256": "f81c9c8919c10c09b2959beada2bd91090ac8f148c364c0c37f22ddd11675a16",
+    "examples": 4,
+    "benchmarks": {
+      "AIME2024": 4
+    }
+  },
+  "backend": "vllm-rlt",
+  "inference_python": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python",
+  "attention_backend": "triton",
+  "scope": "Same per-problem seeds, gate policy and sampling settings. Fixed K execution; do not compare parallel throughput with isolated single-request latency."
+}

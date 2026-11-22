@@ -1,0 +1,184 @@
+rlt ready GPU 1 in 3.4s {'ready': True, 'executed_loops': 2, 'backend': 'vllm-rlt', 'attention_backend': 'triton', 'async_scheduling': False, 'enable_prefix_caching': False, 'max_num_seqs': 8, 'max_num_batched_tokens': 128, 'prefill_chunk_size': 128, 'kv_tokens': 268336, 'speculative_config': None}
+rlt warmup begin
+rlt warmup complete 128 tokens in 2.30s (55.56 tok/s)
+rlt short begin
+rlt short complete 8192 tokens in 18.60s (440.48 tok/s)
+rlt full begin
+vllm ready GPU 0 in 28.5s {'ready': True, 'policy': 'fixed', 'executed_loops': 2, 'cpu_threads': 16, 'vllm_version': '0.26.0', 'attention_backend': 'FLASHINFER', 'native_fixed_student': True, 'teacher_trace': False, 'max_num_seqs': None, 'tensor_parallel_size': 1, 'rollout_ngram': False, 'speculative_config': None, 'token_loop_accounting': 'Committed prefix/output only; excludes rejected drafts and KV recomputation'}
+vllm warmup begin
+vllm warmup complete 128 tokens in 0.20s (629.70 tok/s)
+vllm short begin
+vllm short complete 8192 tokens in 8.89s (921.41 tok/s)
+vllm full begin
+rlt full 1/8 AIME2024_train-00000-of-00001_01 3920 tokens at 90.3s
+rlt full 2/8 AIME2024_train-00000-of-00001_25 4398 tokens at 104.2s
+vllm full complete 96586 tokens in 347.25s (278.15 tok/s)
+rlt full 3/8 AIME2024_train-00000-of-00001_05 14638 tokens at 535.7s
+rlt full 4/8 AIME2024_train-00000-of-00001_04 16384 tokens at 628.5s
+rlt full 5/8 AIME2024_train-00000-of-00001_08 16384 tokens at 628.5s
+rlt full 6/8 AIME2024_train-00000-of-00001_09 16384 tokens at 628.5s
+rlt full 7/8 AIME2024_train-00000-of-00001_21 16384 tokens at 628.6s
+rlt full 8/8 AIME2024_train-00000-of-00001_24 16384 tokens at 628.6s
+rlt full complete 104876 tokens in 628.56s (166.85 tok/s)
+{
+  "runtime": {
+    "rlt": "0.2.0",
+    "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/vllm-rlt/vllm_rlt/__init__.py",
+    "torch": "2.8.0+cu128",
+    "cuda": "12.8",
+    "triton": "3.4.0"
+  },
+  "rlt_commit": "c08b9d79834bb8b4ff283b15bae2c14c559f6b52",
+  "short": {
+    "vllm": {
+      "seconds": 8.890700975898653,
+      "output_tokens": 8192,
+      "tokens_per_second": 921.4121611116237,
+      "stopped_at_limit": 8,
+      "correct": 0
+    },
+    "rlt": {
+      "seconds": 18.59800039185211,
+      "output_tokens": 8192,
+      "tokens_per_second": 440.47746141509714,
+      "stopped_at_limit": 8,
+      "correct": 0
+    },
+    "throughput_ratio_vllm_over_rlt": 2.0918486002699317,
+    "batch_speedup_vllm_over_rlt": 2.0918486002699312,
+    "questions": [
+      {
+        "id": "AIME2024_train-00000-of-00001_01",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_04",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_05",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_08",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_09",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_21",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_24",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_25",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      }
+    ]
+  },
+  "full": {
+    "vllm": {
+      "seconds": 347.2472439859994,
+      "output_tokens": 96586,
+      "tokens_per_second": 278.14763593600827,
+      "stopped_at_limit": 4,
+      "correct": 2
+    },
+    "rlt": {
+      "seconds": 628.5561645748094,
+      "output_tokens": 104876,
+      "tokens_per_second": 166.8522335962515,
+      "stopped_at_limit": 5,
+      "correct": 2
+    },
+    "throughput_ratio_vllm_over_rlt": 1.6670297420714728,
+    "batch_speedup_vllm_over_rlt": 1.8101113125037562,
+    "questions": [
+      {
+        "id": "AIME2024_train-00000-of-00001_01",
+        "vllm_tokens": 2708,
+        "rlt_tokens": 3920,
+        "vllm_finish": "stop",
+        "rlt_finish": "stop"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_04",
+        "vllm_tokens": 16384,
+        "rlt_tokens": 16384,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_05",
+        "vllm_tokens": 11021,
+        "rlt_tokens": 14638,
+        "vllm_finish": "stop",
+        "rlt_finish": "stop"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_08",
+        "vllm_tokens": 16384,
+        "rlt_tokens": 16384,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_09",
+        "vllm_tokens": 13440,
+        "rlt_tokens": 16384,
+        "vllm_finish": "stop",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_21",
+        "vllm_tokens": 16384,
+        "rlt_tokens": 16384,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_24",
+        "vllm_tokens": 16384,
+        "rlt_tokens": 16384,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_25",
+        "vllm_tokens": 3881,
+        "rlt_tokens": 4398,
+        "vllm_finish": "stop",
+        "rlt_finish": "stop"
+      }
+    ]
+  }
+}

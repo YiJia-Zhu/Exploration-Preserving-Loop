@@ -1,4 +1,4 @@
-"""Explicit execution choices; the default retains the full dynamic method."""
+"""Explicit execution choices for fixed and adaptive methods."""
 
 HF_DYNAMIC = 'hf_dynamic'
 VLLM_TOP20 = 'vllm_top20'
@@ -6,9 +6,11 @@ HF_TOP20 = 'hf_top20'
 VLLM_FIXED = 'vllm_fixed'
 HF_ADAPTIVE = 'hf_adaptive'
 HYBRID = 'hybrid'
-MODES = (HF_DYNAMIC, HF_ADAPTIVE, HYBRID, VLLM_TOP20, HF_TOP20, VLLM_FIXED)
+HF_SHARED = 'hf_shared'
+HF_RAD_OPD = 'hf_rad_opd'
+MODES = (HF_DYNAMIC, HF_ADAPTIVE, HYBRID, HF_SHARED, HF_RAD_OPD, VLLM_TOP20, HF_TOP20, VLLM_FIXED)
 VLLM_MODES = (VLLM_TOP20, VLLM_FIXED)
-HF_TRAIN_MODES = (HF_DYNAMIC, HF_ADAPTIVE, HYBRID)
+HF_TRAIN_MODES = (HF_DYNAMIC, HF_ADAPTIVE, HYBRID, HF_SHARED, HF_RAD_OPD)
 VLLM_EVAL_MODES = (*VLLM_MODES, HYBRID)
 
 
@@ -41,6 +43,22 @@ def validate_execution(config):
         if algorithm.get('teacher_top_k') != 20 or algorithm.get('teacher_distribution') != 'top20_original_mass_uniform_tail':
             raise ValueError(f'{mode} requires explicit teacher_top_k=20 and top20 distribution metadata')
     policy=algorithm.get('student_policy','fixed')
+    if (mode == HF_RAD_OPD) != (policy == 'ragged'):
+        raise ValueError('ragged training requires execution_mode=hf_rad_opd and student_policy=ragged')
+    if mode==HF_SHARED:
+        if (config['model']['family']!='ouro' or policy!='fixed' or
+                algorithm.get('teacher_update')!='current' or not algorithm.get('teacher_reuse_student') or
+                algorithm.get('teacher_endpoint') not in {'fixed','native'} or
+                implementation.get('teacher_backend','hf')!='hf'):
+            raise ValueError('hf_shared requires fixed-depth Ouro, current HF teacher and teacher_reuse_student')
+        if algorithm.get('stage_selection') not in {'endpoint','top_n','uniform_n'}:
+            raise ValueError('hf_shared uses endpoint, top_n or uniform_n supervision')
+        if implementation.get('phase_offload',False):
+            raise ValueError('hf_shared retains its single model on GPU; use optimizer_offload_for_rollout')
+        if not config['rollout']['use_cache']:
+            raise ValueError('hf_shared batched generation requires use_cache=true')
+    elif algorithm.get('teacher_reuse_student',False):
+        raise ValueError('teacher_reuse_student requires execution_mode=hf_shared')
     if mode==VLLM_FIXED:
         if policy not in {'fixed','native'} or algorithm.get('teacher_endpoint') not in {'fixed','native'}:
             raise ValueError('vllm_fixed requires fixed student depth and full-K teacher computation')

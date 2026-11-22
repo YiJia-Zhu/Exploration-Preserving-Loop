@@ -1,0 +1,15 @@
+{
+  "native": {
+    "graph": "/home/zhenning/.cache/vllm/torch_compile_cache/9b2eef5421/rank_0_0/backbone/computation_graph.py",
+    "attention_calls": 96,
+    "kv_cache_updates": 96,
+    "torch_ops": 772
+  },
+  "unrolled": {
+    "graph": "/home/zhenning/.cache/vllm/torch_compile_cache/5833d09d28/rank_0_0/backbone/computation_graph.py",
+    "attention_calls": 96,
+    "kv_cache_updates": 96,
+    "torch_ops": 772
+  },
+  "same_ordered_torch_ops": true
+}

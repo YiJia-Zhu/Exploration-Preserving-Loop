@@ -1,0 +1,183 @@
+{
+  "verified_at": "2026-11-19T18:38:40.333161+08:00",
+  "status": "training_running",
+  "supervisor_pid": 2782040,
+  "training_pid": 2782045,
+  "world_size": 4,
+  "gpus": [
+    "0",
+    "1",
+    "4",
+    "5"
+  ],
+  "current_update": 1,
+  "completed_updates": 0,
+  "stage": "student_ngram_generation",
+  "engines": [
+    {
+      "rank": 0,
+      "runtime": {
+        "event": "ep_loop_engine_ready",
+        "vllm_version": "0.26.0",
+        "attention_backend": "FLASHINFER",
+        "native_fixed_student": true,
+        "teacher_trace": false,
+        "max_num_seqs": null,
+        "tensor_parallel_size": 1,
+        "rollout_ngram": true,
+        "speculative_config": {
+          "method": "ngram",
+          "num_speculative_tokens": 5,
+          "prompt_lookup_min": 2,
+          "prompt_lookup_max": 5,
+          "rejection_sample_method": "standard"
+        },
+        "token_loop_accounting": "Committed prefix/output only; excludes rejected drafts and KV recomputation"
+      },
+      "generation_observed": true
+    },
+    {
+      "rank": 1,
+      "runtime": {
+        "event": "ep_loop_engine_ready",
+        "vllm_version": "0.26.0",
+        "attention_backend": "FLASHINFER",
+        "native_fixed_student": true,
+        "teacher_trace": false,
+        "max_num_seqs": null,
+        "tensor_parallel_size": 1,
+        "rollout_ngram": true,
+        "speculative_config": {
+          "method": "ngram",
+          "num_speculative_tokens": 5,
+          "prompt_lookup_min": 2,
+          "prompt_lookup_max": 5,
+          "rejection_sample_method": "standard"
+        },
+        "token_loop_accounting": "Committed prefix/output only; excludes rejected drafts and KV recomputation"
+      },
+      "generation_observed": true
+    },
+    {
+      "rank": 2,
+      "runtime": {
+        "event": "ep_loop_engine_ready",
+        "vllm_version": "0.26.0",
+        "attention_backend": "FLASHINFER",
+        "native_fixed_student": true,
+        "teacher_trace": false,
+        "max_num_seqs": null,
+        "tensor_parallel_size": 1,
+        "rollout_ngram": true,
+        "speculative_config": {
+          "method": "ngram",
+          "num_speculative_tokens": 5,
+          "prompt_lookup_min": 2,
+          "prompt_lookup_max": 5,
+          "rejection_sample_method": "standard"
+        },
+        "token_loop_accounting": "Committed prefix/output only; excludes rejected drafts and KV recomputation"
+      },
+      "generation_observed": true
+    },
+    {
+      "rank": 3,
+      "runtime": {
+        "event": "ep_loop_engine_ready",
+        "vllm_version": "0.26.0",
+        "attention_backend": "FLASHINFER",
+        "native_fixed_student": true,
+        "teacher_trace": false,
+        "max_num_seqs": null,
+        "tensor_parallel_size": 1,
+        "rollout_ngram": true,
+        "speculative_config": {
+          "method": "ngram",
+          "num_speculative_tokens": 5,
+          "prompt_lookup_min": 2,
+          "prompt_lookup_max": 5,
+          "rejection_sample_method": "standard"
+        },
+        "token_loop_accounting": "Committed prefix/output only; excludes rejected drafts and KV recomputation"
+      },
+      "generation_observed": true
+    }
+  ],
+  "checkpoint_policy": {
+    "layout": "split",
+    "permanent_model_every": 5,
+    "retain_all": true,
+    "latest_resume_every": 5,
+    "resume_path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/resume/latest",
+    "initial_checkpoint_due_at_update": 5
+  },
+  "tests": {
+    "cpu_regression": 169,
+    "checkpoint_tests": 3,
+    "cpu_training_smoke_updates": 2
+  },
+  "current_sources_match_archived": true,
+  "allocated_gpu_state": [
+    {
+      "index": "0",
+      "uuid": "GPU-79eb19c8-2acb-2445-b3c6-9f5728c1bb6c",
+      "memory_used_MiB": 56588,
+      "processes": [
+        {
+          "pid": 2782697,
+          "name": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python"
+        },
+        {
+          "pid": 2784260,
+          "name": "VLLM::EngineCore"
+        }
+      ]
+    },
+    {
+      "index": "1",
+      "uuid": "GPU-f6057057-a493-11bb-aee3-7b3df35011ef",
+      "memory_used_MiB": 56622,
+      "processes": [
+        {
+          "pid": 2782698,
+          "name": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python"
+        },
+        {
+          "pid": 2784118,
+          "name": "VLLM::EngineCore"
+        }
+      ]
+    },
+    {
+      "index": "4",
+      "uuid": "GPU-3f3add2a-399a-b17d-84ff-d9a43f747bb0",
+      "memory_used_MiB": 56640,
+      "processes": [
+        {
+          "pid": 2782699,
+          "name": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python"
+        },
+        {
+          "pid": 2784127,
+          "name": "VLLM::EngineCore"
+        }
+      ]
+    },
+    {
+      "index": "5",
+      "uuid": "GPU-17f76845-5d79-933c-affa-2ef7cec12651",
+      "memory_used_MiB": 56638,
+      "processes": [
+        {
+          "pid": 2782700,
+          "name": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python"
+        },
+        {
+          "pid": 2784149,
+          "name": "VLLM::EngineCore"
+        }
+      ]
+    }
+  ],
+  "output": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours"
+}

@@ -1,0 +1,126 @@
+{
+  "status": "completed",
+  "verified_at": "2026-11-19T17:39:46.068570+08:00",
+  "intent": "Enable BF16 ngram5 only for training student rollouts; keep teacher and independent inference/evaluation normal.",
+  "changed_files": [
+    {
+      "path": "ep_loop/config.py",
+      "before_sha256": "00a80ad30999652048144b4f62007455af67cb083939ada86b1a19935f3e5c53",
+      "after_sha256": "287901cd455f142c1f0cc18dfd08200a1da4591d8373ad850debaceb8fb6c615"
+    },
+    {
+      "path": "ep_loop/checkpointing.py",
+      "before_sha256": "65befc5f71f50971d829552db8f1df74ee973086ac160dd889aaba967cab8ef3",
+      "after_sha256": "012fe86d3b1261a2238ed863737ccb7def35fb09ffcc55d3ea6d72001295421d"
+    },
+    {
+      "path": "ep_loop/fastpath/actor.py",
+      "before_sha256": "e5ee268a027d643201000d648f3fb503aa68a04dc01b3be73aba71c36ce887b2",
+      "after_sha256": "2c0efc57970676ef998655db32378cfd50296b87a59a15ddecc74d72c0c7d093"
+    },
+    {
+      "path": "ep_loop/fastpath/rollout.py",
+      "before_sha256": "972c537b0500130b5aebb8b966b0308f6a632081de36e34982f6deeff8b4704d",
+      "after_sha256": "bb80c83705439cb3bdbee98433998c8879b8f62208b7d93669631e9069b2bd9f"
+    },
+    {
+      "path": "ep_loop/fastpath/teacher.py",
+      "before_sha256": "1a6c8500cafa298fbf80d40f7188f0ccd8f754b57cfe8896dabb2a4a00687054",
+      "after_sha256": "8a0aa3023ece37aa9357251f681e2febfa5039fb4711e38ac44996190813d589"
+    },
+    {
+      "path": "ep_loop/fastpath/vllm_server.py",
+      "before_sha256": "275adfff203e5b21222b06e37af4f27b3774868e4f7ed1ae6886610d37bab0c9",
+      "after_sha256": "cbe800d81c8adef62388e0f906b7aeffd7b2fc583a1d935ff523262e04e2e267"
+    },
+    {
+      "path": "ep_loop/fastpath/training.py",
+      "before_sha256": "4b5c4ba45c1a34a4c214f7eca43cc818aef5ab2af2ca08bff7baf71eeb09dc2f",
+      "after_sha256": "8f2c7ce659b3cdfcb2d4df90a6075cf2243d205bdae48d40f4b933991f51796a"
+    },
+    {
+      "path": "scripts/evaluate_fastpath.py",
+      "before_sha256": "5013007ffe16c88f85cbd6487d18599a9a79e1cf11688a3697ebf27a9666836f",
+      "after_sha256": "0d6d4d5dbadaf7f8145586406dd1ab5fa9dd744611646c2f9831ade0544ee9ac"
+    },
+    {
+      "path": "scripts/run_fastpath_ablation.sh",
+      "before_sha256": "ea0e7a38e006d92a8d4b84d0ec7cceb3b89e39db6fc0bf5b21f8978b3fdd3f88",
+      "after_sha256": "2f694ca99d3caf55e6ab2f90b72bf2d8bbff7dc0c0ef6837f69dea4d90d30494"
+    },
+    {
+      "path": "scripts/run_three_route_ablation.sh",
+      "before_sha256": "6dce471b68d70626171b49789c821a78073628178f97d352346c7fb569b17a51",
+      "after_sha256": "213a205fa4dc7b2f6bcac4d7a2affe4b1bf48fcc2ca2a5b5e005c412ecc479c8"
+    },
+    {
+      "path": "scripts/run_opd_comparison.sh",
+      "before_sha256": "e078cfd4e3a59d296685463d20ebc6eb476c563f417ab1c68bdc70f62449385d",
+      "after_sha256": "5a0067ec527e649def42503f911740e3617f14a7afba0f87d986ac94d2a6c831"
+    },
+    {
+      "path": "scripts/run_vllm026_timing.sh",
+      "before_sha256": "df1f48c92e9040f92526c298ab7035edf2aaee676fd328f7c137acc94f0da621",
+      "after_sha256": "8770caf2d3df89a106616a047cba29ed7361aa3f3040844552ec29a175842f93"
+    },
+    {
+      "path": "configs/vllm_fixed_top_n.json",
+      "before_sha256": "2bafae1cad1a28218fdf52eabb2e3ca3b9e41bc5d9fe16dda4e65dfa64fd5105",
+      "after_sha256": "ea58931ff8b16f3aab94dafd401adecf267c2da55516b32c0e5b50e5a0aa0e1b"
+    },
+    {
+      "path": "configs/hf_shared_ep_d_loopopd.json",
+      "before_sha256": "742b365e522fcdcfe023d2b8ec1c9182bd25e01b791ab74c92614495c8f2be5c",
+      "after_sha256": "d287230312a5ea73439de3eff7ad2d633c1870d5d3584c79c2bee52db99839b7"
+    },
+    {
+      "path": "ep_loop/fastpath/speculation.py",
+      "after_sha256": "6e8b0d0166cc1b5f18c93b25d3d4fe634a68cdd45ba73dd0fd1e649efe8555db"
+    },
+    {
+      "path": "tests/test_training_ngram.py",
+      "after_sha256": "48e928e98b613203a20cf868bc38bb6c57ad472f1025cc03245efae6b216786e"
+    },
+    {
+      "path": "docs/29_training_only_ngram.md",
+      "after_sha256": "7afed035d40517d09bd059a650315508917011e7a35075b7205fa80e4200a431"
+    },
+    {
+      "path": "tests/test_vllm_runtime.py",
+      "after_sha256": "cb6f0edbfbd6ff716b6a9d3d8e1d06400beb81f2fda1e7b5843f582bb0b39582"
+    },
+    {
+      "path": "tests/test_aime_evaluation.py",
+      "after_sha256": "c5ae494d794ff23475725e03c36370fd06a3feacb02a217ff8bbf14fb4304ce1"
+    },
+    {
+      "path": "tests/test_inference_parallel.py",
+      "after_sha256": "a6e5684b94d35ca0ef335a9faea58de51ee43e4068ed2d1f575dbe47f8ee173e"
+    }
+  ],
+  "checks": {
+    "full_cpu_regression": 165,
+    "focused_after_launcher_change": 15,
+    "final_runtime_and_resume": 13,
+    "real_weight_actor_validation": "completed",
+    "main_entry_dry_run": "passed"
+  },
+  "validation_scope": "Reloaded original weights as versions0/1, sleep/wake, normal K4 teacher readout and ordinary N2 inference; no optimizer updates or formal training run.",
+  "metadata_only_followup": "Teacher/student token-loop accounting descriptions were clarified after GPU validation; runtime and checkpoint CPU checks passed afterward.",
+  "gpu_after": [
+    {
+      "index": "4",
+      "uuid": "GPU-3f3add2a-399a-b17d-84ff-d9a43f747bb0",
+      "memory_used_MiB": 3,
+      "processes": []
+    }
+  ],
+  "validation_process_active": false,
+  "evidence": {
+    "cpu_tests.log": "e95d11f7c8c70d43d0e1845b4b3f3499d37bb40f5fdcbdaf6a5a12395c19d647",
+    "focused_tests.log": "e8339f6e9703585f85f090ea4579e8ec7e64f1f7d784e3debd0bc0572089f08b",
+    "final_runtime_tests.log": "d5b8331d0600aaeb192be81c0f115b790630a4c84a4f627d098f1bd69ff08acf",
+    "gpu_validation.json": "4831088d4b15e5035015dec9edc7a65bf271fcb90ad50f614e211fc2df188a52",
+    "main_launch_plan.log": "fed0f3ff6dd26d80b998c8ecf2e6c12454a0af84def5ab89f038982029298b19"
+  }
+}

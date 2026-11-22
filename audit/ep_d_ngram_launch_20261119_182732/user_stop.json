@@ -1,0 +1,440 @@
+{
+  "requested_at": "2026-11-19T23:18:36.598779+08:00",
+  "reason": "User explicitly requested stopping training",
+  "supervisor_pid": 2782040,
+  "supervisor_start_ticks": 231275377,
+  "supervisor_identity_matches": true,
+  "owned_processes": [
+    {
+      "pid": 2784259,
+      "ppid": 2783755,
+      "start_ticks": "231276840",
+      "state": "S"
+    },
+    {
+      "pid": 2784260,
+      "ppid": 2783755,
+      "start_ticks": "231276840",
+      "state": "S"
+    },
+    {
+      "pid": 2783755,
+      "ppid": 2782697,
+      "start_ticks": "231276336",
+      "state": "S"
+    },
+    {
+      "pid": 2892578,
+      "ppid": 2892149,
+      "start_ticks": "231362021",
+      "state": "S"
+    },
+    {
+      "pid": 2892579,
+      "ppid": 2892149,
+      "start_ticks": "231362021",
+      "state": "S"
+    },
+    {
+      "pid": 2915106,
+      "ppid": 2914906,
+      "start_ticks": "231379771",
+      "state": "S"
+    },
+    {
+      "pid": 2915107,
+      "ppid": 2914906,
+      "start_ticks": "231379771",
+      "state": "S"
+    },
+    {
+      "pid": 2902058,
+      "ppid": 2782698,
+      "start_ticks": "231370055",
+      "state": "S"
+    },
+    {
+      "pid": 3913534,
+      "ppid": 3912953,
+      "start_ticks": "232077439",
+      "state": "S"
+    },
+    {
+      "pid": 3913541,
+      "ppid": 3912953,
+      "start_ticks": "232077439",
+      "state": "S"
+    },
+    {
+      "pid": 3913544,
+      "ppid": 3912953,
+      "start_ticks": "232077440",
+      "state": "S"
+    },
+    {
+      "pid": 3913546,
+      "ppid": 3912953,
+      "start_ticks": "232077440",
+      "state": "S"
+    },
+    {
+      "pid": 3913548,
+      "ppid": 3912953,
+      "start_ticks": "232077440",
+      "state": "S"
+    },
+    {
+      "pid": 3913550,
+      "ppid": 3912953,
+      "start_ticks": "232077440",
+      "state": "S"
+    },
+    {
+      "pid": 3913552,
+      "ppid": 3912953,
+      "start_ticks": "232077441",
+      "state": "S"
+    },
+    {
+      "pid": 3913558,
+      "ppid": 3912953,
+      "start_ticks": "232077441",
+      "state": "S"
+    },
+    {
+      "pid": 2782040,
+      "ppid": 1,
+      "start_ticks": "231275377",
+      "state": "S"
+    },
+    {
+      "pid": 2930521,
+      "ppid": 2782699,
+      "start_ticks": "231393675",
+      "state": "S"
+    },
+    {
+      "pid": 2914906,
+      "ppid": 2782697,
+      "start_ticks": "231379279",
+      "state": "S"
+    },
+    {
+      "pid": 3913563,
+      "ppid": 3912953,
+      "start_ticks": "232077441",
+      "state": "S"
+    },
+    {
+      "pid": 2782045,
+      "ppid": 2782040,
+      "start_ticks": "231275402",
+      "state": "S"
+    },
+    {
+      "pid": 2782046,
+      "ppid": 2782040,
+      "start_ticks": "231275402",
+      "state": "S"
+    },
+    {
+      "pid": 3913565,
+      "ppid": 3912953,
+      "start_ticks": "232077441",
+      "state": "S"
+    },
+    {
+      "pid": 3913567,
+      "ppid": 3912953,
+      "start_ticks": "232077441",
+      "state": "S"
+    },
+    {
+      "pid": 3913569,
+      "ppid": 3912953,
+      "start_ticks": "232077442",
+      "state": "S"
+    },
+    {
+      "pid": 3913571,
+      "ppid": 3912953,
+      "start_ticks": "232077442",
+      "state": "S"
+    },
+    {
+      "pid": 2930792,
+      "ppid": 2930521,
+      "start_ticks": "231394140",
+      "state": "S"
+    },
+    {
+      "pid": 2930793,
+      "ppid": 2930521,
+      "start_ticks": "231394140",
+      "state": "S"
+    },
+    {
+      "pid": 3913576,
+      "ppid": 3912953,
+      "start_ticks": "232077442",
+      "state": "S"
+    },
+    {
+      "pid": 3913581,
+      "ppid": 3912953,
+      "start_ticks": "232077442",
+      "state": "S"
+    },
+    {
+      "pid": 3913586,
+      "ppid": 3912953,
+      "start_ticks": "232077443",
+      "state": "S"
+    },
+    {
+      "pid": 2892149,
+      "ppid": 2782700,
+      "start_ticks": "231361549",
+      "state": "S"
+    },
+    {
+      "pid": 2784117,
+      "ppid": 2783673,
+      "start_ticks": "231276739",
+      "state": "S"
+    },
+    {
+      "pid": 3913591,
+      "ppid": 3912953,
+      "start_ticks": "232077443",
+      "state": "S"
+    },
+    {
+      "pid": 2784118,
+      "ppid": 2783673,
+      "start_ticks": "231276740",
+      "state": "S"
+    },
+    {
+      "pid": 3913589,
+      "ppid": 3912953,
+      "start_ticks": "232077443",
+      "state": "S"
+    },
+    {
+      "pid": 3913594,
+      "ppid": 3912953,
+      "start_ticks": "232077443",
+      "state": "S"
+    },
+    {
+      "pid": 3913596,
+      "ppid": 3912953,
+      "start_ticks": "232077443",
+      "state": "S"
+    },
+    {
+      "pid": 3913598,
+      "ppid": 3912953,
+      "start_ticks": "232077444",
+      "state": "S"
+    },
+    {
+      "pid": 2784126,
+      "ppid": 2783692,
+      "start_ticks": "231276761",
+      "state": "S"
+    },
+    {
+      "pid": 2784127,
+      "ppid": 2783692,
+      "start_ticks": "231276761",
+      "state": "R"
+    },
+    {
+      "pid": 3913602,
+      "ppid": 3912953,
+      "start_ticks": "232077444",
+      "state": "S"
+    },
+    {
+      "pid": 3913607,
+      "ppid": 3912953,
+      "start_ticks": "232077444",
+      "state": "S"
+    },
+    {
+      "pid": 2782089,
+      "ppid": 2782046,
+      "start_ticks": "231275421",
+      "state": "S"
+    },
+    {
+      "pid": 3913609,
+      "ppid": 3912953,
+      "start_ticks": "232077444",
+      "state": "S"
+    },
+    {
+      "pid": 3913612,
+      "ppid": 3912953,
+      "start_ticks": "232077444",
+      "state": "S"
+    },
+    {
+      "pid": 3913617,
+      "ppid": 3912953,
+      "start_ticks": "232077445",
+      "state": "S"
+    },
+    {
+      "pid": 2784148,
+      "ppid": 2783693,
+      "start_ticks": "231276766",
+      "state": "S"
+    },
+    {
+      "pid": 2784149,
+      "ppid": 2783693,
+      "start_ticks": "231276766",
+      "state": "S"
+    },
+    {
+      "pid": 3913621,
+      "ppid": 3912953,
+      "start_ticks": "232077445",
+      "state": "S"
+    },
+    {
+      "pid": 3913623,
+      "ppid": 3912953,
+      "start_ticks": "232077445",
+      "state": "S"
+    },
+    {
+      "pid": 3913625,
+      "ppid": 3912953,
+      "start_ticks": "232077445",
+      "state": "S"
+    },
+    {
+      "pid": 3913629,
+      "ppid": 3912953,
+      "start_ticks": "232077445",
+      "state": "S"
+    },
+    {
+      "pid": 3913652,
+      "ppid": 3912953,
+      "start_ticks": "232077449",
+      "state": "S"
+    },
+    {
+      "pid": 3913655,
+      "ppid": 3912953,
+      "start_ticks": "232077449",
+      "state": "S"
+    },
+    {
+      "pid": 2783673,
+      "ppid": 2782698,
+      "start_ticks": "231276275",
+      "state": "S"
+    },
+    {
+      "pid": 2783692,
+      "ppid": 2782699,
+      "start_ticks": "231276293",
+      "state": "S"
+    },
+    {
+      "pid": 2783693,
+      "ppid": 2782700,
+      "start_ticks": "231276297",
+      "state": "S"
+    },
+    {
+      "pid": 2902732,
+      "ppid": 2902058,
+      "start_ticks": "231370517",
+      "state": "S"
+    },
+    {
+      "pid": 2902733,
+      "ppid": 2902058,
+      "start_ticks": "231370517",
+      "state": "R"
+    },
+    {
+      "pid": 2782697,
+      "ppid": 2782045,
+      "start_ticks": "231275485",
+      "state": "S"
+    },
+    {
+      "pid": 2782698,
+      "ppid": 2782045,
+      "start_ticks": "231275485",
+      "state": "S"
+    },
+    {
+      "pid": 2782699,
+      "ppid": 2782045,
+      "start_ticks": "231275486",
+      "state": "S"
+    },
+    {
+      "pid": 2782700,
+      "ppid": 2782045,
+      "start_ticks": "231275486",
+      "state": "S"
+    },
+    {
+      "pid": 3912953,
+      "ppid": 2782697,
+      "start_ticks": "232077286",
+      "state": "S"
+    }
+  ],
+  "checkpoints_preserved": true,
+  "verified_stopped_at": "2026-11-19T23:19:16.060345+08:00",
+  "all_captured_processes_exited": true,
+  "completed_updates": 10,
+  "latest_resume_update": 10,
+  "saved_models": [
+    {
+      "update": 5,
+      "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/checkpoints/update_000005"
+    },
+    {
+      "update": 10,
+      "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/checkpoints/update_000010"
+    }
+  ],
+  "gpus_after": [
+    {
+      "index": "0",
+      "uuid": "GPU-79eb19c8-2acb-2445-b3c6-9f5728c1bb6c",
+      "memory_used_MiB": 3,
+      "processes": []
+    },
+    {
+      "index": "1",
+      "uuid": "GPU-f6057057-a493-11bb-aee3-7b3df35011ef",
+      "memory_used_MiB": 3,
+      "processes": []
+    },
+    {
+      "index": "4",
+      "uuid": "GPU-3f3add2a-399a-b17d-84ff-d9a43f747bb0",
+      "memory_used_MiB": 3,
+      "processes": []
+    },
+    {
+      "index": "5",
+      "uuid": "GPU-17f76845-5d79-933c-affa-2ef7cec12651",
+      "memory_used_MiB": 3,
+      "processes": []
+    }
+  ]
+}

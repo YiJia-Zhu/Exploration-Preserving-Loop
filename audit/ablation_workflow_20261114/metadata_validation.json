@@ -1,7 +1,0 @@
-{
-  "status": "PASS",
-  "train_provenance_stage": "ablation",
-  "train_summary_stage": "ablation",
-  "evaluation_summary_stage": "ablation",
-  "scope": "Random tiny CPU model only, generic Python entrypoints retained"
-}

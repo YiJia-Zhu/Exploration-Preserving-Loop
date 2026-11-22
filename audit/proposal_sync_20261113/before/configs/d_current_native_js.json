@@ -1,1 +1,0 @@
-{"extends":"d_native_js.json","run_name":"D_current_native_JS_stage_ends","algorithm":{"teacher_update":"current"},"optimization":{"warmup_steps":10}}

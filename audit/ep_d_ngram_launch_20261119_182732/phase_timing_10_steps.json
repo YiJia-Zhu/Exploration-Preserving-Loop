@@ -1,0 +1,183 @@
+{
+  "run": "ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours",
+  "source_files": [
+    "metrics.jsonl",
+    "events_rank0.jsonl",
+    "events_rank1.jsonl",
+    "events_rank2.jsonl",
+    "events_rank3.jsonl"
+  ],
+  "boundaries": [
+    "earliest update start",
+    "latest training_state_offload end",
+    "latest vllm_on_policy_batch end",
+    "latest vllm_teacher_label_batch end",
+    "latest training_state_restore end",
+    "latest metrics_reduce end",
+    "latest update end"
+  ],
+  "clock": "nonoverlapping wall-clock intervals across four ranks; inference and HF may overlap across ranks",
+  "steps": [
+    {
+      "step": 1,
+      "started_at": "2026-11-19T10:37:11.619+00:00",
+      "finished_at": "2026-11-19T11:05:49.193+00:00",
+      "wall_seconds": 1717.574,
+      "response_tokens": 2327747,
+      "phase_seconds": {
+        "offload": 1.844,
+        "student_rollout": 1173.386,
+        "teacher_backbone_tail": 91.833,
+        "restore": 0.35,
+        "hf_training_tail": 450.116,
+        "checkpoint_and_logs": 0.045
+      }
+    },
+    {
+      "step": 2,
+      "started_at": "2026-11-19T11:05:49.192+00:00",
+      "finished_at": "2026-11-19T11:29:14.381+00:00",
+      "wall_seconds": 1405.189,
+      "response_tokens": 2009477,
+      "phase_seconds": {
+        "offload": 6.47,
+        "student_rollout": 961.564,
+        "teacher_backbone_tail": 53.075,
+        "restore": 2.914,
+        "hf_training_tail": 381.058,
+        "checkpoint_and_logs": 0.108
+      }
+    },
+    {
+      "step": 3,
+      "started_at": "2026-11-19T11:29:14.378+00:00",
+      "finished_at": "2026-11-19T11:56:46.530+00:00",
+      "wall_seconds": 1652.152,
+      "response_tokens": 2255332,
+      "phase_seconds": {
+        "offload": 6.037,
+        "student_rollout": 1135.364,
+        "teacher_backbone_tail": 58.008,
+        "restore": 1.154,
+        "hf_training_tail": 451.483,
+        "checkpoint_and_logs": 0.106
+      }
+    },
+    {
+      "step": 4,
+      "started_at": "2026-11-19T11:56:46.528+00:00",
+      "finished_at": "2026-11-19T12:20:26.641+00:00",
+      "wall_seconds": 1420.113,
+      "response_tokens": 2041276,
+      "phase_seconds": {
+        "offload": 5.978,
+        "student_rollout": 971.645,
+        "teacher_backbone_tail": 53.518,
+        "restore": 1.428,
+        "hf_training_tail": 387.437,
+        "checkpoint_and_logs": 0.107
+      }
+    },
+    {
+      "step": 5,
+      "started_at": "2026-11-19T12:20:26.639+00:00",
+      "finished_at": "2026-11-19T12:50:49.196+00:00",
+      "wall_seconds": 1822.557,
+      "response_tokens": 2425258,
+      "phase_seconds": {
+        "offload": 6.053,
+        "student_rollout": 1244.546,
+        "teacher_backbone_tail": 67.619,
+        "restore": 1.815,
+        "hf_training_tail": 495.369,
+        "checkpoint_and_logs": 7.155
+      }
+    },
+    {
+      "step": 6,
+      "started_at": "2026-11-19T12:50:49.193+00:00",
+      "finished_at": "2026-11-19T13:15:34.829+00:00",
+      "wall_seconds": 1485.636,
+      "response_tokens": 2264305,
+      "phase_seconds": {
+        "offload": 6.23,
+        "student_rollout": 1023.688,
+        "teacher_backbone_tail": 53.282,
+        "restore": 2.136,
+        "hf_training_tail": 400.193,
+        "checkpoint_and_logs": 0.107
+      }
+    },
+    {
+      "step": 7,
+      "started_at": "2026-11-19T13:15:34.828+00:00",
+      "finished_at": "2026-11-19T13:41:34.930+00:00",
+      "wall_seconds": 1560.102,
+      "response_tokens": 2299167,
+      "phase_seconds": {
+        "offload": 5.605,
+        "student_rollout": 1069.264,
+        "teacher_backbone_tail": 58.123,
+        "restore": 1.793,
+        "hf_training_tail": 425.212,
+        "checkpoint_and_logs": 0.105
+      }
+    },
+    {
+      "step": 8,
+      "started_at": "2026-11-19T13:41:34.929+00:00",
+      "finished_at": "2026-11-19T14:08:19.917+00:00",
+      "wall_seconds": 1604.988,
+      "response_tokens": 2437972,
+      "phase_seconds": {
+        "offload": 4.636,
+        "student_rollout": 1091.44,
+        "teacher_backbone_tail": 58.427,
+        "restore": 1.246,
+        "hf_training_tail": 449.13,
+        "checkpoint_and_logs": 0.109
+      }
+    },
+    {
+      "step": 9,
+      "started_at": "2026-11-19T14:08:19.913+00:00",
+      "finished_at": "2026-11-19T14:34:26.349+00:00",
+      "wall_seconds": 1566.436,
+      "response_tokens": 2266260,
+      "phase_seconds": {
+        "offload": 4.918,
+        "student_rollout": 1068.339,
+        "teacher_backbone_tail": 57.594,
+        "restore": 0.745,
+        "hf_training_tail": 434.734,
+        "checkpoint_and_logs": 0.106
+      }
+    },
+    {
+      "step": 10,
+      "started_at": "2026-11-19T14:34:26.348+00:00",
+      "finished_at": "2026-11-19T14:59:50.499+00:00",
+      "wall_seconds": 1524.151,
+      "response_tokens": 2072069,
+      "phase_seconds": {
+        "offload": 4.071,
+        "student_rollout": 1036.273,
+        "teacher_backbone_tail": 57.778,
+        "restore": 0.816,
+        "hf_training_tail": 418.984,
+        "checkpoint_and_logs": 6.229
+      }
+    }
+  ],
+  "mean_seconds": {
+    "offload": 5.184,
+    "student_rollout": 1077.551,
+    "teacher_backbone_tail": 60.926,
+    "restore": 1.44,
+    "hf_training_tail": 429.372,
+    "checkpoint_and_logs": 1.418,
+    "wall": 1575.89
+  },
+  "total_response_tokens": 22398863,
+  "total_update_wall_seconds": 15758.898
+}

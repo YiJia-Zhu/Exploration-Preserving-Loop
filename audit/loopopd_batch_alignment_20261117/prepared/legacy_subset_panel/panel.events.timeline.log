@@ -1,6 +1,0 @@
-[2026-11-17T17:56:34.692+08:00] [rank=0 pid=3136044] run_start: three_routes
-[2026-11-17T17:56:34.694+08:00] [rank=0 pid=3136044] stage_start: three_route_panel  started_at_local=2026-11-17T17:56:34.694+08:00
-[2026-11-17T17:56:34.694+08:00] [rank=0 pid=3136044] stage_start: subprocess  started_at_local=2026-11-17T17:56:34.694+08:00
-[2026-11-17T17:56:39.824+08:00] [rank=0 pid=3136044] stage_end: subprocess status=completed seconds=5.129647437017411 started_at_local=2026-11-17T17:56:34.694+08:00 finished_at_local=2026-11-17T17:56:39.824+08:00
-[2026-11-17T17:56:39.824+08:00] [rank=0 pid=3136044] stage_end: three_route_panel status=completed seconds=5.130286976229399 started_at_local=2026-11-17T17:56:34.694+08:00 finished_at_local=2026-11-17T17:56:39.824+08:00
-[2026-11-17T17:56:39.824+08:00] [rank=0 pid=3136044] run_end: three_routes status=completed seconds=5.13275148300454 started_at_local=2026-11-17T17:56:34.692+08:00 finished_at_local=2026-11-17T17:56:39.824+08:00

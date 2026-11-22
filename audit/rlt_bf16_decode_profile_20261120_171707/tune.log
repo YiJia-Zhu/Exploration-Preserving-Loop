@@ -1,0 +1,17 @@
+baseline {'short': 504.37, '8192': 216.86}
+Traceback (most recent call last):
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_bf16_decode_profile_20261120_171707/run.py", line 204, in <module>
+    benchmark(args.worker)
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_bf16_decode_profile_20261120_171707/run.py", line 100, in benchmark
+    engine = make_engine(settings)
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_bf16_decode_profile_20261120_171707/run.py", line 56, in make_engine
+    return StageEngine(
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/vllm-rlt/vllm_rlt/engine/stage_engine.py", line 172, in __init__
+    num_blocks, self.memory_plan = plan_cache(
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/benchmark-venv/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/vllm-rlt/vllm_rlt/core/memory.py", line 172, in plan_cache
+    blocks = min(budget_blocks(budget, per_block), useful_blocks)
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/vllm-rlt/vllm_rlt/core/memory.py", line 16, in budget_blocks
+    raise ValueError(
+ValueError: no memory remains for KV blocks; reduce execution limits or memory reserve

@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/three_routes_20261117/check_fixed_engine.py", line 23, in <module>
-    health=actor.request('health')
-  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop/fastpath/actor.py", line 52, in request
-    if response.get('ok') is not True:raise RuntimeError(response)
-RuntimeError: {'ok': False, 'error_type': 'ValueError', 'error': 'Unknown operation health'}

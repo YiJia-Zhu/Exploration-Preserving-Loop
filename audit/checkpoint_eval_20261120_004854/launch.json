@@ -1,0 +1,9 @@
+{
+  "pid": 2121421,
+  "audit": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/checkpoint_eval_20261120_004854",
+  "command": [
+    "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python",
+    "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/checkpoint_eval_20261120_004854/runner.py"
+  ],
+  "report_pid": 2154433
+}

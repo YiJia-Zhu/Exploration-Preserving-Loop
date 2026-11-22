@@ -72,7 +72,7 @@ def execution_provenance(root, device, seed, rank=0, world_size=1, phase="traini
     import torch
     root, device = Path(root), torch.device(device)
     packages = {}
-    for package in ("torch", "numpy", "transformers", "tokenizers", "accelerate", "safetensors", "tqdm"):
+    for package in ("torch", "numpy", "transformers", "tokenizers", "accelerate", "safetensors", "tqdm", "tensorboard"):
         try:
             packages[package] = importlib.metadata.version(package)
         except importlib.metadata.PackageNotFoundError:

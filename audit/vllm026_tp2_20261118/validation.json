@@ -1,0 +1,125 @@
+{
+  "gpu": "2,3",
+  "python_bin": "/home/zhenning/ep_loop_envs/vllm026/bin/python",
+  "tensor_parallel_size": 2,
+  "checks": [
+    {
+      "name": "all_tp_workers_loaded_weights",
+      "weight_version": 0,
+      "workers": [
+        {
+          "weight_version": 0,
+          "source_tensors": 269,
+          "loaded_parameters": 197
+        },
+        {
+          "weight_version": 0,
+          "source_tensors": 269,
+          "loaded_parameters": 197
+        }
+      ]
+    },
+    {
+      "name": "student_next_token_logprob",
+      "max_abs_logprob_error_vs_fp32_autocast": 0.38619422912597656,
+      "max_abs_logprob_error_vs_bf16": 0.30843162536621094,
+      "bf16_top1_agreement": [
+        true,
+        true
+      ],
+      "full_vocab_js_vs_fp32_autocast": [
+        6.699097866658121e-05,
+        6.307666808424983e-06
+      ],
+      "full_vocab_js_vs_bf16": [
+        1.9633461079138215e-07,
+        0.0005315565504133701
+      ],
+      "runtime": {
+        "ready": true,
+        "policy": "fixed",
+        "executed_loops": 2,
+        "cpu_threads": 16,
+        "vllm_version": "0.26.0",
+        "attention_backend": "FLASHINFER",
+        "native_fixed_student": true,
+        "teacher_trace": false,
+        "max_num_seqs": null,
+        "tensor_parallel_size": 2
+      }
+    },
+    {
+      "name": "student_batch128",
+      "seconds": 0.7913838620297611,
+      "tokens": 2048,
+      "engine_metrics": {
+        "vllm:num_preemptions": 0,
+        "vllm:prompt_tokens": 24128,
+        "vllm:generation_tokens": 2048
+      }
+    },
+    {
+      "name": "student_long_context",
+      "input_tokens": 17406,
+      "output_tokens": 2,
+      "seconds": 0.5875971089117229
+    },
+    {
+      "name": "teacher_all_loop_readout",
+      "example": 0,
+      "full_vocab_js": {
+        "vs_fp32_autocast": {
+          "max": 0.005807292647659779,
+          "mean": 0.00018284966063220054,
+          "p99": 0.0013225956354290247
+        },
+        "vs_bf16": {
+          "max": 0.014961645007133484,
+          "mean": 0.0002793446183204651,
+          "p99": 0.0022410526871681213
+        },
+        "hf_dtype_control": {
+          "max": 0.009411441162228584,
+          "mean": 0.0002482115232851356,
+          "p99": 0.002323082648217678
+        }
+      },
+      "native_exit_agreement": 1.0,
+      "input_positions": 171
+    },
+    {
+      "name": "teacher_all_loop_readout",
+      "example": 1,
+      "full_vocab_js": {
+        "vs_fp32_autocast": {
+          "max": 0.018466275185346603,
+          "mean": 0.00018941180314868689,
+          "p99": 0.0015770294703543186
+        },
+        "vs_bf16": {
+          "max": 0.2112153172492981,
+          "mean": 0.000584068417083472,
+          "p99": 0.003431712044402957
+        },
+        "hf_dtype_control": {
+          "max": 0.22882717847824097,
+          "mean": 0.0006190946442075074,
+          "p99": 0.0033600798342376947
+        }
+      },
+      "native_exit_agreement": 1.0,
+      "input_positions": 206
+    },
+    {
+      "name": "teacher_long_readout",
+      "input_positions": 17406,
+      "seconds": 1.3468983196653426
+    },
+    {
+      "name": "warm_student_teacher_switch",
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS",
+  "scope": "Real original Ouro weights, full-vocabulary teacher parity, native fixed-N2 student, batch128, 17408 context, weight refresh, co-resident sleeping actors. Not task efficacy or full DDP training."
+}

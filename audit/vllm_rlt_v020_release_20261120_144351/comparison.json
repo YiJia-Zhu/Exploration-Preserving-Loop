@@ -1,0 +1,162 @@
+{
+  "runtime": {
+    "rlt": "0.2.0",
+    "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/vllm-rlt/vllm_rlt/__init__.py",
+    "torch": "2.8.0+cu128",
+    "cuda": "12.8",
+    "triton": "3.4.0"
+  },
+  "rlt_commit": "c08b9d79834bb8b4ff283b15bae2c14c559f6b52",
+  "short": {
+    "vllm": {
+      "seconds": 8.890700975898653,
+      "output_tokens": 8192,
+      "tokens_per_second": 921.4121611116237,
+      "stopped_at_limit": 8,
+      "correct": 0
+    },
+    "rlt": {
+      "seconds": 18.59800039185211,
+      "output_tokens": 8192,
+      "tokens_per_second": 440.47746141509714,
+      "stopped_at_limit": 8,
+      "correct": 0
+    },
+    "throughput_ratio_vllm_over_rlt": 2.0918486002699317,
+    "batch_speedup_vllm_over_rlt": 2.0918486002699312,
+    "questions": [
+      {
+        "id": "AIME2024_train-00000-of-00001_01",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_04",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_05",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_08",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_09",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_21",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_24",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_25",
+        "vllm_tokens": 1024,
+        "rlt_tokens": 1024,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      }
+    ]
+  },
+  "full": {
+    "vllm": {
+      "seconds": 347.2472439859994,
+      "output_tokens": 96586,
+      "tokens_per_second": 278.14763593600827,
+      "stopped_at_limit": 4,
+      "correct": 2
+    },
+    "rlt": {
+      "seconds": 628.5561645748094,
+      "output_tokens": 104876,
+      "tokens_per_second": 166.8522335962515,
+      "stopped_at_limit": 5,
+      "correct": 2
+    },
+    "throughput_ratio_vllm_over_rlt": 1.6670297420714728,
+    "batch_speedup_vllm_over_rlt": 1.8101113125037562,
+    "questions": [
+      {
+        "id": "AIME2024_train-00000-of-00001_01",
+        "vllm_tokens": 2708,
+        "rlt_tokens": 3920,
+        "vllm_finish": "stop",
+        "rlt_finish": "stop"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_04",
+        "vllm_tokens": 16384,
+        "rlt_tokens": 16384,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_05",
+        "vllm_tokens": 11021,
+        "rlt_tokens": 14638,
+        "vllm_finish": "stop",
+        "rlt_finish": "stop"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_08",
+        "vllm_tokens": 16384,
+        "rlt_tokens": 16384,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_09",
+        "vllm_tokens": 13440,
+        "rlt_tokens": 16384,
+        "vllm_finish": "stop",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_21",
+        "vllm_tokens": 16384,
+        "rlt_tokens": 16384,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_24",
+        "vllm_tokens": 16384,
+        "rlt_tokens": 16384,
+        "vllm_finish": "length",
+        "rlt_finish": "length"
+      },
+      {
+        "id": "AIME2024_train-00000-of-00001_25",
+        "vllm_tokens": 3881,
+        "rlt_tokens": 4398,
+        "vllm_finish": "stop",
+        "rlt_finish": "stop"
+      }
+    ]
+  }
+}

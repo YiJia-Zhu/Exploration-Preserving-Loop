@@ -1,0 +1,49 @@
+{
+  "extends": "paper_ouro_base.json",
+  "run_name": "rad_opd",
+  "data": {
+    "train_path": "data/dapo_ablation/ouro_seed42_trainall_dev64_eval64_prompt1024_aime30_clean/train.jsonl",
+    "expected_examples": 17309
+  },
+  "algorithm": {
+    "student_policy": "ragged",
+    "student_loops": null,
+    "student_max_loops": 4,
+    "teacher_update": "frozen",
+    "teacher_endpoint": "fixed",
+    "exit_threshold": 1.0,
+    "stage_selection": "endpoint",
+    "teacher_distribution": "full_vocab",
+    "teacher_top_k": null,
+    "stop_loss_weight": 0.0,
+    "rad_detach_reused_kv": false,
+    "rad_tau": {
+      "low_probability": 0.8,
+      "low_range": [0.15, 0.40],
+      "anchors": [0.60, 1.0],
+      "fixed": null
+    }
+  },
+  "rollout": {"max_new_tokens": 16384, "use_cache": true},
+  "evaluation": {
+    "student_policy": "ragged",
+    "student_loops": [4],
+    "max_new_tokens": 16384,
+    "ragged_thresholds": [0.15, 0.20, 0.25, 0.30, 0.45, 0.75],
+    "budget_slices": [2048, 4096, 8192, 16384],
+    "samples_per_problem": 4,
+    "expected_examples": 30,
+    "suite": "aime",
+    "use_cache": true
+  },
+  "implementation": {
+    "execution_mode": "hf_rad_opd",
+    "rollout_backend": "hf",
+    "teacher_backend": "hf"
+  },
+  "distillation": {"question_filter": "all", "require_eos": false},
+  "paper": {
+    "status": "RAD-OPD MVP, frozen dense teacher and native-CDF zero-backfill rollout",
+    "new_method_thresholds": "Question-level threshold mixture with route-fixed no-detach replay"
+  }
+}

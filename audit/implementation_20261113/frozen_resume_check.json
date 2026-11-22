@@ -1,6 +1,0 @@
-{
-  "status": "PASS",
-  "all_checkpoint_tensors_exact": true,
-  "tensors": 27,
-  "initial_teacher_preserved": true
-}

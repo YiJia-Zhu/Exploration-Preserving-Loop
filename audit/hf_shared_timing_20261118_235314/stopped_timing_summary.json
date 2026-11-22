@@ -1,0 +1,107 @@
+{
+  "status": "stopped_by_user",
+  "completed_updates": 1,
+  "target_updates": 2,
+  "hf": {
+    "completed_updates": 1,
+    "wall_seconds": 3334.346,
+    "phase_seconds": {
+      "pre_generation": 0.0,
+      "generation": 2867.858,
+      "optimizer_restore": 0.318,
+      "shared_replay_kl_backward_optimizer_sync_tail": 457.207,
+      "checkpoint_and_cleanup": 8.963
+    },
+    "phase_percent": {
+      "pre_generation": 0.0,
+      "generation": 86.00961028039681,
+      "optimizer_restore": 0.009537102628221546,
+      "shared_replay_kl_backward_optimizer_sync_tail": 13.712044280947447,
+      "checkpoint_and_cleanup": 0.2688083360275148
+    },
+    "response_tokens": 1978018,
+    "responses": 256,
+    "rollout_tokens_per_second": 689.7196444175408,
+    "overall_tokens_per_second": 593.2251781908656,
+    "truncated_responses": 31,
+    "mean_response_loss": 0.03998050400696229,
+    "started_at": "2026-11-18T16:03:06.196000+00:00",
+    "finished_at": "2026-11-18T16:58:40.542000+00:00",
+    "gpus": [
+      "4",
+      "5",
+      "6",
+      "7"
+    ]
+  },
+  "vllm_reference": {
+    "completed_updates": 2,
+    "mean_wall_seconds": 1955.51,
+    "mean_generation_seconds": 1463.5035,
+    "mean_teacher_plus_training_tail_seconds": 477.185,
+    "mean_response_tokens": 2132350.5,
+    "rollout_tokens_per_second": 1457.017697600313,
+    "overall_tokens_per_second": 1090.431907788761
+  },
+  "ratios": {
+    "hf_wall_time_over_vllm": 1.7051030166043641,
+    "hf_generation_throughput_over_vllm": 0.4733776710835421,
+    "hf_per_update_output_token_change_percent": -7.2376703548502
+  },
+  "partial_update2": {
+    "status": "interrupted_during_generation",
+    "resumed_attempt_seconds": 255.636391,
+    "generated_tokens_lower_bound": 224973,
+    "rank_details": [
+      {
+        "rank": 0,
+        "started_at": "2026-11-18T17:08:47.466+00:00",
+        "seconds_until_stop_request": 255.583391,
+        "completed_generation_groups": 0,
+        "generated_tokens_lower_bound": 48548,
+        "last_progress_timestamp": "2026-11-18T17:12:50.373+00:00",
+        "last_active_responses": 1
+      },
+      {
+        "rank": 1,
+        "started_at": "2026-11-18T17:08:47.742+00:00",
+        "seconds_until_stop_request": 255.307391,
+        "completed_generation_groups": 0,
+        "generated_tokens_lower_bound": 61810,
+        "last_progress_timestamp": "2026-11-18T17:12:50.606+00:00",
+        "last_active_responses": 3
+      },
+      {
+        "rank": 2,
+        "started_at": "2026-11-18T17:08:47.437+00:00",
+        "seconds_until_stop_request": 255.612391,
+        "completed_generation_groups": 0,
+        "generated_tokens_lower_bound": 47510,
+        "last_progress_timestamp": "2026-11-18T17:12:50.267+00:00",
+        "last_active_responses": 1
+      },
+      {
+        "rank": 3,
+        "started_at": "2026-11-18T17:08:47.413+00:00",
+        "seconds_until_stop_request": 255.636391,
+        "completed_generation_groups": 0,
+        "generated_tokens_lower_bound": 67105,
+        "last_progress_timestamp": "2026-11-18T17:12:50.383+00:00",
+        "last_active_responses": 5
+      }
+    ]
+  },
+  "experiment_wall_seconds": 4242.455421,
+  "stop_requested_at": "2026-11-18T17:13:03.049391+00:00",
+  "stopped_at": "2026-11-18T17:13:06.144570+00:00",
+  "complete_checkpoint": "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/hf_shared_timing/20261118_235314_HF_shared_EP_D_LoopOPD_K4_N2_B256_u2_seed42_r2_top_n/ours/checkpoints/update_000001",
+  "remaining_owned_processes": [],
+  "scope": "Completed update: global four-rank wall boundaries including checkpoint. Partial generation, preflight, diagnostics and restart gap excluded.",
+  "caveats": [
+    "One complete HF update; no two-step HF average is available.",
+    "Reference is the average of two prior vLLM updates, not paired identical trajectories.",
+    "HF batches 8 responses per rank; vLLM submits 64 per rank and uses continuous scheduling.",
+    "Shared continuation and rollout backend both changed; output lengths and sampling streams differ.",
+    "Update2 first failed before generation due checkpoint storage cycles; fixed and resumed, then stopped by the user."
+  ]
+}

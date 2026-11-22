@@ -1,7 +1,0 @@
-{
-  "extends": "d_native_js.json",
-  "run_name": "F_fixed_top_s",
-  "algorithm": {
-    "js_threshold": 0.05
-  }
-}

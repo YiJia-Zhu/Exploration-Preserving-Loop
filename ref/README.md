@@ -1,10 +1,10 @@
 # EP 参考论文
 
-当前主方案是[JS阈值阶段数与动态学生退出](../docs/loop_distillation_research_proposal_zh.md)。本表保留已有背景与近邻，价值选择、概率修正等不自动等于当前主损失；新增引用见[计划引用索引](../experiments/proposal_references_20261113.json)，仅登记的引用不计作已下载全文。
+正文、主线与动态分支见[研究方案](../docs/loop_distillation_research_proposal_zh.md)。
 
-六篇[核心论文](../docs/03_paper_notes.md)存放于 papers；本目录另有十七篇参考论文。固定版本、来源、哈希、阅读范围与证据定位见 [manifest.json](manifest.json)，原文快照在 [sources/](sources/)。
+核心与相关论文的固定版本、来源、哈希、阅读范围与证据定位见[核心清单](../papers/manifest.json)和[参考清单](manifest.json)。本目录的原文快照见 [sources/](sources/)。
 
-其中 **Cross-Loop Query Handoff 已选为 EP 的主要动机证据论文**，用于支持“部分中间循环更新有任务价值”。其存储位置仍在本目录；详细干预结果及与 LoopOPD 改进的关系见[证据说明](../docs/06_loopopd_motivation_evidence.md)。
+Cross-Loop Query Handoff 的查询冻结和移植实验是阶段蒸馏的动机证据之一。
 
 ## 监督价值与候选修正
 
@@ -38,8 +38,4 @@
 | LatentHarness | [PDF](2609.39740v1_latent_harness.pdf) | 何时 Think、Recall、Exit | 已有循环状态上的单步反事实动作蒸馏 |
 | FlexLoop | [PDF](2609.34488v1_flexloop.pdf) | 保留深层策略能力并改善浅层执行 | 相邻深度蒸馏与自适应停止；主要是控制任务 |
 
-正文区别见[相关工作](../docs/05_related_work.md)。这些论文提供背景和对照，不代表全部方法已独立实现或复现。部分条目只核对摘要和特定方法段落，具体范围以清单为准。
-
-Huginn 原生代码接入和当前计划逐步对应见[实现文档](../docs/08_implementation_and_reproduction.md)。`huginn-0125` 是本项目选用的官方基模；Best-of-Depth 没有公开足以确认相同 checkpoint 的加载配置，不能由参数量相近直接认定。
-
-当前默认方法已加入学生继续／停止学习；旧固定预算Top-S为F对照。阶段数标签S_t与实测学生轮数分别报告，不能由标签均值推出速度。
+部分条目只核对了摘要和特定方法段落，阅读深度以清单为准。

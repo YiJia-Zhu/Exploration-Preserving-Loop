@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "verified_at": "2026-11-19T22:02:54.949935+00:00",
+  "responses_per_checkpoint": 480,
+  "questions_per_checkpoint": 30,
+  "problem_and_answer_text": true,
+  "identical_prompt_sample_pairs": true,
+  "ordinary_inference": true,
+  "summary_recomputed": true
+}

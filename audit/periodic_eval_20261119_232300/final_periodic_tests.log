@@ -1,0 +1,16 @@
+test_actual_trainer_publishes_final_resume_before_evaluation (test_periodic_evaluation.PeriodicEvaluationTests) ... ok
+test_dataset_names_cannot_escape_the_evaluation_directory (test_periodic_evaluation.PeriodicEvaluationTests) ... ok
+test_default_fixed_profiles_evaluate_every_five_and_resume_only_at_final (test_periodic_evaluation.PeriodicEvaluationTests) ... ok
+test_evaluation_uses_saved_weights_and_normal_inference_for_each_dataset (test_periodic_evaluation.PeriodicEvaluationTests) ... ok
+test_existing_resume_can_change_output_and_evaluation_cadence (test_periodic_evaluation.PeriodicEvaluationTests) ... ok
+test_model_only_does_not_call_torch_save_or_create_resume_files (test_periodic_evaluation.PeriodicEvaluationTests) ... ok
+test_two_ranks_evaluate_once_and_restore_all_random_streams (test_periodic_evaluation.PeriodicEvaluationTests) ... [Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 6.504s
+
+OK

@@ -1,0 +1,84 @@
+[
+  {
+    "step": 5,
+    "avg": 0.22916666666666666,
+    "pass_at_n": 0.6,
+    "problems": 30,
+    "completions": 480,
+    "samples_per_problem": [
+      16
+    ],
+    "avg_at_16": 0.22916666666666666,
+    "pass_at_16": 0.6,
+    "benchmarks": {
+      "AIME2024": {
+        "avg": 0.22916666666666666,
+        "pass_at_n": 0.6,
+        "problems": 30,
+        "completions": 480,
+        "samples_per_problem": [
+          16
+        ],
+        "avg_at_16": 0.22916666666666666,
+        "pass_at_16": 0.6
+      }
+    },
+    "selected_exit_depth_hist": [
+      0,
+      6227682
+    ],
+    "mean_selected_depth": 2.0,
+    "mean_actual_depth": 2.0,
+    "executed_token_loops": 12599428,
+    "response_tokens": 6227682,
+    "mean_response_tokens": 12974.3375,
+    "correct_responses": 110,
+    "accuracy": 0.22916666666666666,
+    "backfill_token_loops": 0,
+    "truncated_responses": 254,
+    "seconds": 9258.5299525382,
+    "responses": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/evaluation/update_000005/aime2024.responses.jsonl",
+    "questions": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/evaluation/update_000005/aime2024.responses.questions.jsonl"
+  },
+  {
+    "step": 10,
+    "avg": 0.24166666666666667,
+    "pass_at_n": 0.5666666666666667,
+    "problems": 30,
+    "completions": 480,
+    "samples_per_problem": [
+      16
+    ],
+    "avg_at_16": 0.24166666666666667,
+    "pass_at_16": 0.5666666666666667,
+    "benchmarks": {
+      "AIME2024": {
+        "avg": 0.24166666666666667,
+        "pass_at_n": 0.5666666666666667,
+        "problems": 30,
+        "completions": 480,
+        "samples_per_problem": [
+          16
+        ],
+        "avg_at_16": 0.24166666666666667,
+        "pass_at_16": 0.5666666666666667
+      }
+    },
+    "selected_exit_depth_hist": [
+      0,
+      6340964
+    ],
+    "mean_selected_depth": 2.0,
+    "mean_actual_depth": 2.0,
+    "executed_token_loops": 12825992,
+    "response_tokens": 6340964,
+    "mean_response_tokens": 13210.341666666667,
+    "correct_responses": 116,
+    "accuracy": 0.24166666666666667,
+    "backfill_token_loops": 0,
+    "truncated_responses": 276,
+    "seconds": 9489.783337383997,
+    "responses": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/evaluation/update_000010/aime2024.responses.jsonl",
+    "questions": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/evaluation/update_000010/aime2024.responses.questions.jsonl"
+  }
+]

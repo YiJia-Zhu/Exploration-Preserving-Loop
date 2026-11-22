@@ -1,0 +1,17 @@
+{
+  "device": "cpu",
+  "device_name": "x86_64",
+  "torch_version": "2.8.0+cu128",
+  "threads": 16,
+  "model": "/local_nvme/data/zhenning/huggingface_models/Ouro-1.4B-Thinking",
+  "dtype": "bf16",
+  "weight_storage_dtype": "torch.bfloat16",
+  "questions": 8,
+  "request_schedule": "one request at a time",
+  "temperature": 1.0,
+  "top_p": 0.7,
+  "mix": true,
+  "max_new_tokens": 32,
+  "source_workload": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_v020_bf16_vs_vllm_20261120_152301/workload.json",
+  "results": {}
+}

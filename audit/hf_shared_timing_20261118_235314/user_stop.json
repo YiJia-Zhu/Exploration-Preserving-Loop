@@ -1,0 +1,185 @@
+{
+  "requested_at": "2026-11-18T17:13:03.049391+00:00",
+  "reason": "User requested stop and timing statistics",
+  "launch_before_stop": {
+    "pid": 2850779,
+    "start_ticks": 224984512,
+    "started_at": "2026-11-19T00:02:23.689149+08:00",
+    "status": "running",
+    "method": "EP-D-LoopOPD",
+    "execution_mode": "hf_shared",
+    "target_updates": 2,
+    "completed_updates": 1,
+    "teacher_update": "current",
+    "teacher_reuses_student_forward": true,
+    "model_instances_per_rank": 1,
+    "teacher_loops": 4,
+    "student_loops": 2,
+    "rollout_batch": 256,
+    "prompts_per_batch": 32,
+    "responses_per_prompt": 8,
+    "hf_rollout_batch_size": 8,
+    "hf_static_cache_capacity": 17408,
+    "max_new_tokens": 16384,
+    "seed": 42,
+    "warmup_steps": 10,
+    "started_from": "original_pretrained_weights",
+    "rollout_backend": "hf",
+    "teacher_backend": "hf_shared_continuation",
+    "max_runtime_hours": 10,
+    "audit": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/hf_shared_timing_20261118_235314",
+    "external_console": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/hf_shared_timing_20261118_235314/resume.console.log",
+    "reference_timing": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ep_d_loopopd_launch_20261118_213142/step_phase_breakdown.json",
+    "last_health_check_at": "2026-11-19T01:12:58.703090+08:00",
+    "gpus": [
+      "4",
+      "5",
+      "7",
+      "0"
+    ],
+    "gpu_count": 4,
+    "preflight_output": "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/validation/20261118_235314_HF_shared_EP_D_LoopOPD_K4_N2_B256_u2_seed42_r2_B32_u2",
+    "preflight_pid": 2535617,
+    "run": "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/hf_shared_timing/20261118_235314_HF_shared_EP_D_LoopOPD_K4_N2_B256_u2_seed42_r2_top_n",
+    "output": "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/hf_shared_timing/20261118_235314_HF_shared_EP_D_LoopOPD_K4_N2_B256_u2_seed42_r2_top_n/ours",
+    "panel": "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/hf_shared_timing/20261118_235314_HF_shared_EP_D_LoopOPD_K4_N2_B256_u2_seed42_r2_panel",
+    "training_started_at": "2026-11-19T00:02:58.365164+08:00",
+    "preflight_validation": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/hf_shared_timing_20261118_235314/preflight.validation.json",
+    "source_hashes": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/hf_shared_timing_20261118_235314/source_sha256.json",
+    "source_archive": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/hf_shared_timing_20261118_235314/sources.tar.gz",
+    "command": [
+      "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/.venv/bin/python",
+      "-u",
+      "-m",
+      "torch.distributed.run",
+      "--standalone",
+      "--nproc-per-node=4",
+      "scripts/train_stage_distillation.py",
+      "--config",
+      "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/hf_shared_timing_20261118_235314/production.config.json",
+      "--output",
+      "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/hf_shared_timing/20261118_235314_HF_shared_EP_D_LoopOPD_K4_N2_B256_u2_seed42_r2_top_n/ours",
+      "--device",
+      "cuda",
+      "--resume",
+      "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/hf_shared_timing/20261118_235314_HF_shared_EP_D_LoopOPD_K4_N2_B256_u2_seed42_r2_top_n/ours/checkpoints/update_000001"
+    ],
+    "training_pid": 2850795,
+    "training_start_ticks": 224984545,
+    "watchdog_pid": 2850796,
+    "gpu_ownership_verified_at": "2026-11-19T01:08:38.150350+08:00",
+    "tensorboard_pid": 2538148,
+    "tensorboard_url": "http://127.0.0.1:6007",
+    "hf_generation_progress": {
+      "0": {
+        "update": 2,
+        "batch_index": 0,
+        "generated_tokens": 48548,
+        "active_responses": 1,
+        "decode_steps": 12354,
+        "seconds": 240.08582326490432,
+        "timestamp": "2026-11-18T17:12:50.373+00:00"
+      },
+      "1": {
+        "update": 2,
+        "batch_index": 0,
+        "generated_tokens": 61810,
+        "active_responses": 3,
+        "decode_steps": 10085,
+        "seconds": 240.09174926299602,
+        "timestamp": "2026-11-18T17:12:50.606+00:00"
+      },
+      "2": {
+        "update": 2,
+        "batch_index": 0,
+        "generated_tokens": 47510,
+        "active_responses": 1,
+        "decode_steps": 11451,
+        "seconds": 240.0631985249929,
+        "timestamp": "2026-11-18T17:12:50.267+00:00"
+      },
+      "3": {
+        "update": 2,
+        "batch_index": 0,
+        "generated_tokens": 67105,
+        "active_responses": 5,
+        "decode_steps": 9287,
+        "seconds": 240.10782095603645,
+        "timestamp": "2026-11-18T17:12:50.383+00:00"
+      }
+    },
+    "complete_checkpoints": [
+      "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/hf_shared_timing/20261118_235314_HF_shared_EP_D_LoopOPD_K4_N2_B256_u2_seed42_r2_top_n/ours/checkpoints/update_000001"
+    ],
+    "resumed_at": "2026-11-19T01:08:35.248908+08:00",
+    "resume_checkpoint": "/home/zhenning/ep_loop_runs/Exploration-Preserving-Loop/hf_shared_timing/20261118_235314_HF_shared_EP_D_LoopOPD_K4_N2_B256_u2_seed42_r2_top_n/ours/checkpoints/update_000001",
+    "initial_gpus": [
+      "4",
+      "5",
+      "6",
+      "7"
+    ],
+    "interruption": "Update 2 failed before generation: torch.save retained CUDA optimizer storage cycles.",
+    "memory_fix": "gc.collect after moving optimizer moments, before allocating rollout KV",
+    "recovery_evidence": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/hf_shared_timing_20261118_235314/long_replay_probe_rank0.json",
+    "resume_source_hashes": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/hf_shared_timing_20261118_235314/resume_source_sha256.json"
+  },
+  "processes": [
+    {
+      "pid": 2850779,
+      "ppid": 1,
+      "start_ticks": "224984512",
+      "state": "S"
+    },
+    {
+      "pid": 2850795,
+      "ppid": 2850779,
+      "start_ticks": "224984545",
+      "state": "S"
+    },
+    {
+      "pid": 2850796,
+      "ppid": 2850779,
+      "start_ticks": "224984545",
+      "state": "S"
+    },
+    {
+      "pid": 2850861,
+      "ppid": 2850795,
+      "start_ticks": "224984640",
+      "state": "R"
+    },
+    {
+      "pid": 2850862,
+      "ppid": 2850795,
+      "start_ticks": "224984640",
+      "state": "R"
+    },
+    {
+      "pid": 2850860,
+      "ppid": 2850795,
+      "start_ticks": "224984640",
+      "state": "R"
+    },
+    {
+      "pid": 2850863,
+      "ppid": 2850795,
+      "start_ticks": "224984640",
+      "state": "R"
+    },
+    {
+      "pid": 2538148,
+      "ppid": 1,
+      "start_ticks": "224591089",
+      "state": "S"
+    },
+    {
+      "pid": 2860819,
+      "ppid": 1531804,
+      "start_ticks": "224994004",
+      "state": "S"
+    }
+  ],
+  "stopped_at": "2026-11-18T17:13:06.144570+00:00",
+  "remaining_owned_processes": []
+}

@@ -1,0 +1,7 @@
+{
+  "source_url": "https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/model_executor/models/ouro.py",
+  "version": "0.26.0",
+  "sha256": "cf0792c6c8024ded45dba10553b5f0d24b7b6542dd8f8f0e0e6899807ec0c4ff",
+  "changes": "Preserve normalized loop states and gates for the frozen teacher, with the same clone semantics as the validated v0.11 local adapter. Native fixed-N student uses installed unmodified model.",
+  "adapter": "ep_loop/fastpath/vllm_ouro_v026.py"
+}

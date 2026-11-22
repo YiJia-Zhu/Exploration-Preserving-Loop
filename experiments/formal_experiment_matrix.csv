@@ -1,3 +1,5 @@
-group,role,model,teacher_compute_loops,teacher_endpoint,student_rollout_loops,student_replay_loops,student_eval_loops,teacher_update,selection,question_filter,global_batch,updates_target,seed,evaluation,samples_per_problem
-endpoint,only_baseline,Ouro-1.4B-Thinking,4,fixed4,2,2,2,frozen,endpoint_only,all,256,100,42,AIME2024,16
-top_n,proposed_method,Ouro-1.4B-Thinking,4,native_cdf_0.9,2,2,2,frozen,js_top_n_keep_endpoint_prefix_shallow,all,256,100,42,AIME2024,16
+group,role,model,teacher_compute_loops,teacher_endpoint,student_rollout_loops,student_replay_loops,student_eval_loops,teacher_update,selection,question_filter,global_batch,updates_target,seed,evaluation,samples_per_problem,warmup_steps
+loopopd_endpoint,primary_baseline,Ouro-1.4B-Thinking,4,fixed4,2,2,2,frozen,endpoint_only,all,256,100,42,AIME2024,16,0
+loopopd_top_n,proposed_method_frozen_teacher,Ouro-1.4B-Thinking,4,native_cdf_0.9,2,2,2,frozen,js_top_n_keep_endpoint_prefix_shallow,all,256,100,42,AIME2024,16,0
+d_loopopd_endpoint,primary_baseline,Ouro-1.4B-Thinking,4,fixed4,2,2,2,current,endpoint_only,all,256,100,42,AIME2024,16,10
+d_loopopd_top_n,proposed_method_current_teacher,Ouro-1.4B-Thinking,4,native_cdf_0.9,2,2,2,current,js_top_n_keep_endpoint_prefix_shallow,all,256,100,42,AIME2024,16,10

@@ -9,3 +9,4 @@ numpy==2.2.6
 tqdm==4.68.4
 # Read the pinned DAPO/AIME parquet source files during data preparation.
 pyarrow==25.0.0
+tensorboard==2.20.0

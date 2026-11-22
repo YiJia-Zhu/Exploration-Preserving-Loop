@@ -5,17 +5,23 @@ import os
 import torch
 from ep_loop.inference import GeneratedResponse
 from .actor import VllmActor
+from .parallel import InferenceGroup
 from .inference import generate as hf_generate
 from ep_loop.config import student_budget
+from .speculation import rollout_ngram_enabled
 
 
 class RolloutBatcher:
-    def __init__(self,student,config,output,local_rank,observer):
+    def __init__(self,student,config,output,local_rank,observer,inference_group=None):
         if config['model']['family']!='ouro':raise ValueError('vLLM fastpath currently supports Ouro only')
         self.student,self.config,self.output,self.observer=student,config,Path(output),observer
         self.sampling_device=student.device
         visible=os.environ.get('CUDA_VISIBLE_DEVICES','').split(',')
         self.gpu=visible[local_rank] if visible!=[''] else str(local_rank)
+        if config['implementation'].get('vllm_tensor_parallel_size',1)>1 and inference_group is None:
+            raise ValueError('Paired rollout requires an initialized inference group')
+        self.group=inference_group or InferenceGroup(self.gpu)
+        self.gpu=self.group.gpu
         self.actor=None;self.pending=deque()
 
     def prepare(self,records,indices,rank,world,update,generator):
@@ -33,27 +39,10 @@ class RolloutBatcher:
             top_p=rollout['top_p'],max_new_tokens=rollout['max_new_tokens'],seed=seed)
             for (record,sample),seed in zip(ordered,seeds)]
         with self.observer.stage('vllm_on_policy_batch',echo=True,update=update+1,
-                responses=len(requests),weight_version=update):
+                responses=len(requests),weight_version=update,tensor_parallel_size=self.group.size,
+                inference_group_gpus=self.gpu,inference_group_leader=self.group.leader):
             torch.cuda.empty_cache()
-            if self.actor is None:
-                self.actor=VllmActor(c['model']['path'],self.gpu,self.output/f'vllm_rank{rank}.log',
-                    loops=loops,policy='fixed' if fixed else 'learned',
-                    stop_threshold=a.get('student_stop_threshold',.5),native_threshold=a['exit_threshold'],
-                    max_model_len=c['data']['max_prompt_tokens']+rollout['max_new_tokens'],
-                    memory_fraction=i.get('vllm_memory_fraction',.45),
-                    eager=i.get('vllm_eager',False),sleep=True)
-            # One transient file, removed after synchronous loading. Never copy
-            # the base model directory or leave dense rollout/teacher shards.
-            from safetensors.torch import save_file
-            weights=self.output/f'.vllm_weights_rank{rank}.safetensors'
-            try:
-                save_file(self.student.model.state_dict(),str(weights))
-                acknowledgement=self.actor.request('weights',path=str(weights),version=update)
-                if acknowledgement['weight_version']!=update:raise RuntimeError('Stale rollout weights')
-            finally:
-                weights.unlink(missing_ok=True)
-            try:result=self.actor.generate(requests,logprobs=None)
-            finally:self.actor.request('sleep')
+            result=self.group.execute(requests,lambda merged:self._generate(merged,rank,update,loops,fixed))
             if fixed and result.get('executed_loops')!=loops:
                 raise RuntimeError('Fixed-depth actor did not execute the configured student N')
             for (record,sample),seed,response in zip(ordered,seeds,result['responses']):
@@ -65,9 +54,41 @@ class RolloutBatcher:
                     result['seconds'],[loops]*len(token_ids),0,0,'vllm_fixed_depth' if fixed else 'vllm_fixed_k_gate_readout')))
                 self.observer.event('vllm_rollout_ready',update=update+1,id=record['id'],sample=sample,
                     sampling_seed=seed,response_tokens=len(token_ids),weight_version=update)
-            self.observer.event('vllm_batch_metrics',update=update+1,batch_seconds=result['seconds'],
-                response_tokens=sum(len(r['token_ids']) for r in result['responses']),
-                timing='Batch wall time; response.seconds is common submission-to-batch-completion latency')
+
+    def _generate(self,requests,rank,update,loops,fixed):
+        c=self.config;rollout=c['rollout'];a=c['algorithm'];i=c['implementation']
+        if self.actor is None:
+            ngram = rollout_ngram_enabled(c)
+            self.actor=VllmActor(c['model']['path'],self.gpu,self.output/f'vllm_rank{rank}.log',
+                loops=loops,policy='fixed' if fixed else 'learned',
+                stop_threshold=a.get('student_stop_threshold',.5),native_threshold=a['exit_threshold'],
+                max_model_len=c['data']['max_prompt_tokens']+rollout['max_new_tokens'],
+                memory_fraction=i.get('vllm_memory_fraction',.45),
+                eager=i.get('vllm_eager',False),sleep=True,tensor_parallel_size=self.group.size,
+                python_bin=i.get('vllm_python_bin'),attention_backend=i.get('vllm_attention_backend'),
+                rollout_ngram=ngram,**({'max_logprobs':0} if ngram else {}),
+                **({'max_num_seqs':i['vllm_max_num_seqs']} if i.get('vllm_max_num_seqs') else {}))
+            self.observer.event('vllm_runtime',update=update+1,**getattr(self.actor,'runtime',{}))
+        # Only the group's leader stages weights. DDP model weights are equal;
+        # every TP worker shards and acknowledges the same update version.
+        from safetensors.torch import save_file
+        weights=self.output/f'.vllm_weights_rank{rank}.safetensors'
+        try:
+            save_file(self.student.model.state_dict(),str(weights))
+            acknowledgement=self.actor.request('weights',path=str(weights),version=update)
+            if acknowledgement['weight_version']!=update:raise RuntimeError('Stale rollout weights')
+        finally:
+            weights.unlink(missing_ok=True)
+        try:result=self.actor.generate(requests,logprobs=None)
+        finally:self.actor.request('sleep')
+        self.observer.event('vllm_batch_metrics',update=update+1,batch_seconds=result['seconds'],
+            response_tokens=sum(len(r['token_ids']) for r in result['responses']),
+            responses=len(requests),generate_calls=1,max_num_seqs=i.get('vllm_max_num_seqs') or None,
+            tensor_parallel_size=self.group.size,inference_group_gpus=self.gpu,
+            rollout_ngram=rollout_ngram_enabled(c),
+            engine_metrics=result.get('engine_metrics',{}),runtime=result.get('runtime',{}),
+            timing='One call per inference group; batch time also includes its other HF ranks')
+        return result
 
     def pop(self,context):
         ident,sample,response=self.pending.popleft()
@@ -75,7 +96,8 @@ class RolloutBatcher:
         return response
 
     def close(self):
-        if self.actor:self.actor.close()
+        if self.actor:
+            self.actor.close();self.actor=None
 
 
 def generate(backend,*args,**kwargs):

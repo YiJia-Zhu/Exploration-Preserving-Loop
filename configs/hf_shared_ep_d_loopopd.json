@@ -1,0 +1,18 @@
+{
+  "extends": "vllm_fixed_top_n_current.json",
+  "run_name": "HF_shared_EP_D_LoopOPD",
+  "data": {
+    "train_path": "data/dapo_ablation/ouro_seed42_trainall_dev64_eval64_prompt1024_aime30_clean/train.jsonl",
+    "expected_examples": 17309
+  },
+  "algorithm": {"teacher_reuse_student": true},
+  "rollout": {"max_new_tokens": 16384, "use_cache": true},
+  "evaluation": {"max_new_tokens": 16384, "every_updates": 0},
+  "implementation": {
+    "execution_mode": "hf_shared", "rollout_backend": "hf", "teacher_backend": "hf",
+    "vllm_rollout_ngram": false,
+    "checkpoint_layout": "full", "save_optimizer": true,
+    "phase_offload": false, "hf_rollout_batch_size": 8, "optimizer_offload_for_rollout": true,
+    "vllm_python_bin": null, "vllm_tensor_parallel_size": 1
+  }
+}

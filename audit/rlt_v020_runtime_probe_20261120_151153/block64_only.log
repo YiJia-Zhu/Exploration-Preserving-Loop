@@ -1,0 +1,2 @@
+short {'output_tokens': 4096, 'seconds': 8.512483914848417, 'output_tok_s': 481.17565225060844, 'first_token_mean_s': 0.19175492058275267, 'all_first_tokens_s': 0.25287691690027714, 'decode_after_all_first_tok_s': 494.0913049511685}
+8192 {'output_tokens': 1024, 'seconds': 56.9424785268493, 'output_tok_s': 17.98305986131544, 'first_token_mean_s': 51.43232968094526, 'all_first_tokens_s': 52.076148190069944, 'decode_after_all_first_tok_s': 206.31562810519543}

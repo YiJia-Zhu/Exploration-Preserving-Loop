@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/logging_20261114/verify_runs.py", line 27, in <module>
-    launch(['scripts/train_stage_distillation.py','--config',cfg,'--smoke','--device','cpu','--output',str(folder)],label)
-  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/logging_20261114/verify_runs.py", line 14, in launch
-    assert r.returncode==expected,(label,r.returncode)
-AssertionError: ('ouro_frozen', 1)

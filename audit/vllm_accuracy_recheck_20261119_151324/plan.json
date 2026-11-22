@@ -1,0 +1,88 @@
+{
+  "status": "completed",
+  "authorized_gpus": [
+    "0",
+    "4",
+    "5",
+    "7"
+  ],
+  "selected_gpus": [
+    "4",
+    "5"
+  ],
+  "user_constraint": "Prefer unchanged task accuracy; FP8 KV allowed if measured accuracy is acceptable.",
+  "student_loops": 2,
+  "max_new_tokens": 16384,
+  "weight_dtype": "bfloat16",
+  "production_defaults_changed": false,
+  "screening": [
+    "BF16 baseline per GPU",
+    "FlashInfer CUDA-core decode",
+    "KV block size 32 / 64",
+    "ngram speculative decoding with standard rejection",
+    "FP8 E4M3 KV"
+  ],
+  "evaluation": {
+    "dapo_dev_questions": 64,
+    "aime2024_questions": 30,
+    "samples_per_problem": 2,
+    "dapo_top_p": 1.0,
+    "aime_top_p": 0.7,
+    "temperature": 1.0,
+    "max_new_tokens": 16384,
+    "uncertainty": "Paired per-question bootstrap; pilot Avg@2 and Pass@2, not the standard 16-sample AIME evaluation"
+  },
+  "skipped_gpu7": "Unrelated CUDA reservation observed; never terminate or share it",
+  "source_sha256": "82af05ef7a45e267d7297db05bcada7bea877c1ddddebd7cd0a1620a595706a9",
+  "measurement_directory": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_accuracy_recheck_20261119_151324/gpu45",
+  "admission_conflict": {
+    "gpu": "0",
+    "cause": "Unrelated compute process appeared during screening; only our experiment was terminated",
+    "preserved_report": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_accuracy_recheck_20261119_151324/screen.json"
+  },
+  "selected_variants": [
+    {
+      "name": "acc_baseline",
+      "options": {}
+    },
+    {
+      "name": "acc_ngram5",
+      "options": {
+        "memory_fraction": 0.75,
+        "block_size": 16,
+        "kv_cache_dtype": "auto",
+        "speculative_config": {
+          "method": "ngram",
+          "num_speculative_tokens": 5,
+          "prompt_lookup_min": 2,
+          "prompt_lookup_max": 5,
+          "rejection_sample_method": "standard"
+        }
+      }
+    },
+    {
+      "name": "acc_fp8_ngram5",
+      "options": {
+        "memory_fraction": 0.75,
+        "block_size": 16,
+        "kv_cache_dtype": "fp8_e4m3",
+        "speculative_config": {
+          "method": "ngram",
+          "num_speculative_tokens": 5,
+          "prompt_lookup_min": 2,
+          "prompt_lookup_max": 5,
+          "rejection_sample_method": "standard"
+        }
+      }
+    }
+  ],
+  "accuracy_directory": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_accuracy_recheck_20261119_151324/gpu45",
+  "source_files_sha256": {
+    "extra_screen.py": "b17789967797d35bfbc0e14b378e3cc91451576bcfb8f35fe2a3941f9452db68",
+    "run_accuracy.py": "68642c3e3cea02d224f098ef595b55ccc40f85e2157088ea413ada0e8d5ee0a0",
+    "summarize_accuracy.py": "caf865007d59bafcb41ddc2bd7e3e89e5a56ef3b0f4a0618a29cb19792a588e5",
+    "monitor.py": "7b5ada0b9ae0f1fbdaf431a5f964986caf2949c8b2114a0fe4329db66ffc02c4"
+  },
+  "finished_at": "2026-11-19T17:07:15.852664+08:00",
+  "verification": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_accuracy_recheck_20261119_151324/final_verification.json"
+}

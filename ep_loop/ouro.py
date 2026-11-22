@@ -65,6 +65,7 @@ class LoopTrace:
     executed_token_loops: object = None
     backfill_token_loops: int = 0
     coda_token_positions: int = 0
+    reused_token_loops: int = 0
 
 
 class OuroBackend:
@@ -136,7 +137,8 @@ and the original cached fixed-depth baseline remain on the author's path.
         return LoopTrace(tuple(states), tuple(gates), exits=exits,
                          executed_token_loops=ids.shape[1]*actual)
 
-    def learned_cached_trace(self, ids, loops, threshold, cache=None, stop_rule='local'):
+    def learned_cached_trace(self, ids, loops, threshold, cache=None, stop_rule='local',
+                             force_full=False):
         from .cache import ExactLoopCache, causal_suffix_mask
         if ids.ndim != 2 or ids.shape[0] != 1 or ids.shape[1] < 1 or loops < 1 or not 0 < threshold <= 1:
             raise ValueError("Invalid learned-exit suffix/depth/threshold")
@@ -175,6 +177,8 @@ and the original cached fixed-depth baseline remain on the author's path.
                 states.append(cache.levels[depth + 1].value()[:, -ids.shape[1]:])
                 gate = backbone.early_exit_gate(states[-1])
                 gates.append(gate)
+                if force_full:
+                    continue
                 if stop_rule == 'local':
                     stop = gate[:, -1, 0].sigmoid() >= threshold
                 elif stop_rule == 'native_cdf':
@@ -185,6 +189,11 @@ and the original cached fixed-depth baseline remain on the author's path.
                         pdf.append(remaining if index==loops-1 else probability*remaining)
                         remaining=remaining*(1-probability)
                     stop=torch.stack(pdf,-1).cumsum(-1)[...,-1]>=threshold
+                elif stop_rule == 'rad_cdf':
+                    from .ragged import reached_native_threshold
+                    if depth + 1 == loops or reached_native_threshold(gates, threshold):
+                        break
+                    continue
                 else:
                     raise ValueError('Unknown cached stop rule')
                 if bool(stop.all()):
@@ -220,7 +229,16 @@ and the original cached fixed-depth baseline remain on the author's path.
                                   cache_enabled=getattr(self, "_generation_cast_cache", False))
         return nullcontext()
 
-    def trace(self, ids, loops, cache=None, use_cache=False, endpoint="fixed", exit_threshold=0.9):
+    def trace(self, ids, loops, cache=None, use_cache=False, endpoint="fixed", exit_threshold=0.9,
+              attention_mask=None, position_ids=None, cache_position=None):
+        if endpoint in {"ragged", "native_backfill"}:
+            if not use_cache or any(x is not None for x in (attention_mask, position_ids, cache_position)):
+                raise ValueError("RAD rollout requires internal caching and unpadded positions")
+            if endpoint == "ragged":
+                from .ragged import rollout_trace
+                return rollout_trace(self, ids, loops, exit_threshold, cache)
+            return self.learned_cached_trace(ids, loops, exit_threshold, cache,
+                                             stop_rule="rad_cdf", force_full=cache is None)
         if endpoint == "learned":
             if use_cache:
                 return self.learned_cached_trace(ids, loops, exit_threshold, cache)
@@ -234,11 +252,60 @@ and the original cached fixed-depth baseline remain on the author's path.
         with fixed_depth(self.model, loops), self.autocast():
             output, states, gates = self.model.model(
                 input_ids=ids, past_key_values=cache, use_cache=use_cache,
+                attention_mask=attention_mask,position_ids=position_ids,cache_position=cache_position,
             )
         if len(states) != loops or len(gates) != loops:
             raise RuntimeError("Native backbone did not execute the requested depth")
         return LoopTrace(tuple(states), tuple(gates), output.past_key_values,
                          executed_token_loops=ids.shape[1] * loops)
+
+    def shared_response_trace(self, ids, student_loops, teacher_loops, start):
+        """One forward: differentiable shallow loops, detached deep continuation.
+
+        The first S normalized states are simultaneously student outputs and
+        detached teacher readouts. Only the K-S additional loops are charged
+        as teacher backbone work. No inference KV or stale activations enter.
+        """
+        if ids.ndim!=2 or ids.shape[0]!=1 or not 1<=student_loops<=teacher_loops or not 0<=start<ids.shape[1]:
+            raise ValueError('Invalid shared student/teacher replay shape or depths')
+        if self.model.config.attention_dropout!=0:
+            raise ValueError('Shared replay currently requires zero attention dropout')
+        backbone=self.model.model
+        module=sys.modules[type(self.model).__module__]
+        shallow_states,shallow_gates=[],[]
+        with self.autocast():
+            hidden=backbone.embed_tokens(ids)
+            positions=torch.arange(ids.shape[1],device=ids.device)
+            position_ids=positions[None]
+            kwargs=dict(config=backbone.config,input_embeds=hidden,attention_mask=None,
+                        cache_position=positions,past_key_values=None,position_ids=position_ids)
+            masks={'full_attention':module.create_causal_mask(**kwargs)}
+            if backbone.has_sliding_layers:
+                masks['sliding_attention']=module.create_sliding_window_causal_mask(**kwargs)
+            rotary=backbone.rotary_emb(hidden,position_ids)
+            def loop(state,depth):
+                for layer in backbone.layers[:backbone.config.num_hidden_layers]:
+                    state=layer(state,attention_mask=masks[layer.attention_type],
+                        position_ids=position_ids,past_key_value=None,use_cache=False,
+                        cache_position=positions,position_embeddings=rotary,current_ut=depth)
+                return backbone.norm(state)
+            for depth in range(student_loops):
+                hidden=loop(hidden,depth)
+                shallow_states.append(hidden[0,start:])
+                shallow_gates.append(backbone.early_exit_gate(hidden)[0,start:])
+            teacher_states=[state.detach() for state in shallow_states]
+            teacher_gates=[gate.detach() for gate in shallow_gates]
+            with torch.no_grad(),evaluation_mode(self.model):
+                hidden=hidden.detach()
+                for depth in range(student_loops,teacher_loops):
+                    hidden=loop(hidden,depth)
+                    teacher_states.append(hidden[0,start:])
+                    teacher_gates.append(backbone.early_exit_gate(hidden)[0,start:])
+        shallow_cost=ids.shape[1]*student_loops
+        student=LoopTrace(tuple(shallow_states),tuple(shallow_gates),executed_token_loops=shallow_cost)
+        teacher=LoopTrace(tuple(teacher_states),tuple(teacher_gates),
+            executed_token_loops=ids.shape[1]*(teacher_loops-student_loops),reused_token_loops=shallow_cost)
+        return student,teacher
 
     def head(self, states):
         # Native states already passed through final norm, including the state

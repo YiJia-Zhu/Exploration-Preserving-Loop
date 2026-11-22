@@ -1,0 +1,13 @@
+{
+  "extends": "vllm_fixed_top_n_current.json",
+  "evaluation": {
+    "inference_backend": "vllm-rlt",
+    "rlt_attention_backend": "triton",
+    "rlt_prefix_caching": true,
+    "rlt_async_scheduling": false,
+    "max_new_tokens": 16384,
+    "temperature": 1.0,
+    "top_p": 0.7,
+    "samples_per_problem": 16
+  }
+}

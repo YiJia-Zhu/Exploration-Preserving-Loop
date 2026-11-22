@@ -1,0 +1,151 @@
+{
+  "questions": 4,
+  "samples_per_question": 16,
+  "max_new_tokens": 256,
+  "results": [
+    {
+      "cache": false,
+      "vllm": "0.26.0",
+      "runs": [
+        {
+          "method": "native_n16",
+          "seconds": 3.9599877540022135,
+          "output_tokens": 16384,
+          "cache_counters": {
+            "vllm:prompt_tokens": 13344
+          }
+        },
+        {
+          "method": "manual",
+          "seconds": 3.9394532912410796,
+          "output_tokens": 16384,
+          "cache_counters": {
+            "vllm:prompt_tokens": 13344
+          }
+        },
+        {
+          "method": "manual",
+          "seconds": 3.9304657438769937,
+          "output_tokens": 16384,
+          "cache_counters": {
+            "vllm:prompt_tokens": 13344
+          }
+        },
+        {
+          "method": "native_n16",
+          "seconds": 3.9246805757284164,
+          "output_tokens": 16384,
+          "cache_counters": {
+            "vllm:prompt_tokens": 13344
+          }
+        },
+        {
+          "method": "native_n16",
+          "seconds": 3.929132774937898,
+          "output_tokens": 16384,
+          "cache_counters": {
+            "vllm:prompt_tokens": 13344
+          }
+        },
+        {
+          "method": "manual",
+          "seconds": 3.930339064914733,
+          "output_tokens": 16384,
+          "cache_counters": {
+            "vllm:prompt_tokens": 13344
+          }
+        }
+      ],
+      "native_api_requests": 4,
+      "manual_api_requests": 64,
+      "identical_output_sequences": 64,
+      "pair_size": 64,
+      "repeats_identical": {
+        "native_n16": false,
+        "manual": false
+      },
+      "median_seconds": {
+        "native_n16": 3.929132774937898,
+        "manual": 3.9304657438769937
+      }
+    },
+    {
+      "cache": true,
+      "vllm": "0.26.0",
+      "runs": [
+        {
+          "method": "native_n16",
+          "seconds": 2.7096465029753745,
+          "output_tokens": 16384,
+          "cache_counters": {
+            "vllm:prefix_cache_queries": 13344,
+            "vllm:prefix_cache_hits": 12000,
+            "vllm:prompt_tokens": 13344
+          }
+        },
+        {
+          "method": "manual",
+          "seconds": 2.71071306290105,
+          "output_tokens": 16384,
+          "cache_counters": {
+            "vllm:prefix_cache_queries": 13344,
+            "vllm:prefix_cache_hits": 12000,
+            "vllm:prompt_tokens": 13344
+          }
+        },
+        {
+          "method": "manual",
+          "seconds": 2.7358448142185807,
+          "output_tokens": 16384,
+          "cache_counters": {
+            "vllm:prefix_cache_queries": 13344,
+            "vllm:prefix_cache_hits": 12000,
+            "vllm:prompt_tokens": 13344
+          }
+        },
+        {
+          "method": "native_n16",
+          "seconds": 2.725204677321017,
+          "output_tokens": 16384,
+          "cache_counters": {
+            "vllm:prefix_cache_queries": 13344,
+            "vllm:prefix_cache_hits": 12000,
+            "vllm:prompt_tokens": 13344
+          }
+        },
+        {
+          "method": "native_n16",
+          "seconds": 2.710332822985947,
+          "output_tokens": 16384,
+          "cache_counters": {
+            "vllm:prefix_cache_queries": 13344,
+            "vllm:prefix_cache_hits": 12000,
+            "vllm:prompt_tokens": 13344
+          }
+        },
+        {
+          "method": "manual",
+          "seconds": 2.7062377650290728,
+          "output_tokens": 16384,
+          "cache_counters": {
+            "vllm:prefix_cache_queries": 13344,
+            "vllm:prefix_cache_hits": 12000,
+            "vllm:prompt_tokens": 13344
+          }
+        }
+      ],
+      "native_api_requests": 4,
+      "manual_api_requests": 64,
+      "identical_output_sequences": 64,
+      "pair_size": 64,
+      "repeats_identical": {
+        "native_n16": false,
+        "manual": true
+      },
+      "median_seconds": {
+        "native_n16": 2.710332822985947,
+        "manual": 2.71071306290105
+      }
+    }
+  ]
+}

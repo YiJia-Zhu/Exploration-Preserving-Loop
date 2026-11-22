@@ -1,0 +1,120 @@
+{
+  "run_name": "20261118_235314_HF_shared_EP_D_LoopOPD_K4_N2_B256_u2_seed42_r2",
+  "paper": {
+    "version": "2610.10623v2",
+    "sources": [
+      "Appendix B Algorithms 1/2",
+      "Appendix C Table 4",
+      "Appendix D Tables 7/8/9"
+    ],
+    "reported_hardware": "4 NVIDIA H200",
+    "status": "Pure-HF shared-model timing experiment; not a paper-score reproduction",
+    "unspecified_choices": [
+      "seed=42",
+      "AdamW betas=(0.9,0.999), eps=1e-8",
+      "drop overlength prompts",
+      "linear warmup then constant LR",
+      "FP32 master parameters with BF16 forward",
+      "unsharded DDP and sequential microbatches",
+      "repair escaped newline literals in the pinned chat template"
+    ],
+    "new_method_thresholds": "exit_threshold=0.9 and JS threshold=0.01 nats are initial development values, not values reported by LoopOPD"
+  },
+  "model": {
+    "family": "ouro",
+    "path": "/local_nvme/data/zhenning/huggingface_models/Ouro-1.4B-Thinking",
+    "revision": "3aaa2224253a92ca45cf2e3d427c360e1ef9c93d",
+    "enable_thinking": true,
+    "repair_template_newlines": true
+  },
+  "data": {
+    "train_path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/data/dapo_ablation/ouro_seed42_trainall_dev64_eval64_prompt1024_aime30_clean/train.jsonl",
+    "expected_examples": 17309,
+    "max_prompt_tokens": 1024,
+    "correctness_cache": null
+  },
+  "algorithm": {
+    "teacher_update": "current",
+    "teacher_max_loops": 4,
+    "student_loops": 2,
+    "teacher_endpoint": "native",
+    "exit_threshold": 0.9,
+    "stage_selection": "top_n",
+    "js_threshold": 0.0,
+    "count_matched_uniform": true,
+    "teacher_top_k": null,
+    "teacher_distribution": "full_vocab",
+    "student_policy": "fixed",
+    "shallow_target_placement": "prefix",
+    "stop_loss_weight": 0.0,
+    "teacher_reuse_student": true
+  },
+  "optimization": {
+    "updates": 2,
+    "global_batch_size": 256,
+    "optimizer": "AdamW",
+    "learning_rate": 1e-06,
+    "weight_decay": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "warmup_steps": 10,
+    "gradient_clip_norm": null,
+    "parameter_dtype": "float32",
+    "mixed_precision": "bf16",
+    "gradient_checkpointing": true
+  },
+  "rollout": {
+    "prompts_per_batch": 32,
+    "responses_per_prompt": 8,
+    "max_new_tokens": 16384,
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "use_cache": true
+  },
+  "evaluation": {
+    "max_new_tokens": 16384,
+    "temperature": 1.0,
+    "top_p": 0.7,
+    "samples_per_problem": 16,
+    "student_loops": [
+      2
+    ],
+    "scope": "AIME2024/2025/2026 integer-answer evaluation",
+    "suite": "aime",
+    "data_path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/data/aime/aime2024.jsonl",
+    "expected_examples": 30,
+    "student_policy": "fixed",
+    "use_cache": true
+  },
+  "implementation": {
+    "microbatch_responses": 1,
+    "readout_chunk_size": 128,
+    "checkpoint_readout": true,
+    "save_every_updates": 2,
+    "save_optimizer": true,
+    "write_rollout_text": true,
+    "execution_mode": "hf_shared",
+    "teacher_backend": "hf",
+    "phase_offload": false,
+    "keep_latest_checkpoints": 1,
+    "rollout_backend": "hf",
+    "distributed_timeout_seconds": 21600,
+    "hf_rollout_batch_size": 8,
+    "optimizer_offload_for_rollout": true,
+    "hf_static_cache_capacity": 17408
+  },
+  "seed": 42,
+  "experiment": {
+    "stage": "timing",
+    "purpose": "pure_HF_shared_continuation_two_step_timing",
+    "comparison_role": "backend_timing",
+    "opd_mode": "d_loopopd"
+  },
+  "distillation": {
+    "question_filter": "all",
+    "require_eos": true
+  }
+}

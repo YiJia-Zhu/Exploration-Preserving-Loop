@@ -1,7 +1,0 @@
-id,family,config,student_policy,stage_selection,teacher_update,teacher_max_loops,student_budget,status,run_evidence,experiment_stage
-A,ouro,configs/native_base.json,native,endpoint,frozen,4,dynamic_1_to_4,inference_baseline,audit/dynamic_student_20261113/validation.json,ablation
-B,ouro,configs/a_loopopd.json,fixed,endpoint,frozen,4,2,cpu_verified_fixed_baseline,audit/dynamic_student_20261113/validation.json,ablation
-C,ouro,configs/c_dynamic_endpoint.json,learned,threshold_endpoint,frozen,4,dynamic_1_to_4,cpu_validation,audit/dynamic_student_20261113/validation.json,ablation
-D,ouro,configs/d_dynamic_uniform.json,learned,threshold_uniform,frozen,4,dynamic_1_to_4,cpu_validation,audit/dynamic_student_20261113/validation.json,ablation
-E,ouro,configs/e_dynamic_js.json,learned,threshold,frozen,4,dynamic_1_to_4,cpu_validation,audit/dynamic_student_20261113/validation.json,ablation
-F,ouro,configs/f_fixed_top_s.json,fixed,js,frozen,4,2,cpu_validation,audit/dynamic_student_20261113/validation.json,ablation

@@ -1,7 +1,0 @@
-{
-  "extends": "huginn_d_current_native_js.json",
-  "run_name": "huginn_d_current_native_js_s16",
-  "algorithm": {
-    "student_loops": 16
-  }
-}

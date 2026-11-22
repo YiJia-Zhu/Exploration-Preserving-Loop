@@ -1,0 +1,86 @@
+{
+  "trajectory": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/runtime_matched_20261122/cpu_natural/ragged.json",
+  "trajectory_sha256": "e8207cde9c79c6d9f7543b8f2eb6df8ea3cac25f6413c03a84524e689ae5a3ba",
+  "id": "AIME2024_train-00000-of-00001_01",
+  "prompt_tokens": 174,
+  "response_tokens": 32,
+  "route": [
+    4,
+    1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    2,
+    1,
+    2,
+    2,
+    2,
+    1,
+    2,
+    4,
+    4,
+    4,
+    3,
+    4,
+    3,
+    3,
+    1,
+    3,
+    1,
+    2,
+    2,
+    2,
+    2,
+    1,
+    1
+  ],
+  "device": "cpu",
+  "threads": 16,
+  "torch_version": "2.8.0+cu128",
+  "checkpoint_sha256": "6730581fd366f6d1689728c61637520228385cdfc17c0b24f19aa840b00565fb",
+  "results": {
+    "fixed4": {
+      "total_seconds": 3.2051235139369965,
+      "phase_seconds": {
+        "teacher_forward": 0.5590255204588175,
+        "stage_planning": 0.00020379014313220978,
+        "student_replay": 0.6159723782911897,
+        "loss_readout": 0.00997428921982646,
+        "backward": 2.0195459071546793
+      },
+      "loss": 0.0,
+      "student_token_loops": 820,
+      "teacher_token_loops": 820
+    },
+    "ragged4": {
+      "total_seconds": 3.0704927491024137,
+      "phase_seconds": {
+        "teacher_forward": 0.5723701198585331,
+        "stage_planning": 0.0002490202896296978,
+        "student_replay": 0.5733519392088056,
+        "loss_readout": 0.006441319826990366,
+        "backward": 1.9174352902919054
+      },
+      "loss": 0.0,
+      "student_token_loops": 820,
+      "teacher_token_loops": 820
+    },
+    "ragged_dynamic": {
+      "total_seconds": 2.9347584838978946,
+      "phase_seconds": {
+        "teacher_forward": 0.5581280603073537,
+        "stage_planning": 0.00025855982676148415,
+        "student_replay": 0.5720228287391365,
+        "loss_readout": 0.006504919845610857,
+        "backward": 1.7972491248510778
+      },
+      "loss": 0.12496315687894821,
+      "student_token_loops": 820,
+      "teacher_token_loops": 820
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "hf": {
+    "client_seconds": 39.86256617377512,
+    "output_tok_s": 6.422065259338363,
+    "output_tokens": 256.0,
+    "stopped_at_limit": 8.0,
+    "median_ttft_seconds": 0.46005364530719817,
+    "mean_decode_depth": 4.0,
+    "executed_token_loops": 5840.0,
+    "backfill_token_loops": 0.0,
+    "physical_kv_token_slots": 5840.0,
+    "client_seconds_each": [
+      39.85964720416814,
+      39.8654851433821
+    ]
+  },
+  "backfill-dense": {
+    "client_seconds": 39.33114858274348,
+    "output_tok_s": 6.509313407206745,
+    "output_tokens": 256.0,
+    "stopped_at_limit": 8.0,
+    "median_ttft_seconds": 0.46816126245539635,
+    "mean_decode_depth": 4.0,
+    "executed_token_loops": 5840.0,
+    "backfill_token_loops": 0.0,
+    "physical_kv_token_slots": 5840.0,
+    "client_seconds_each": [
+      39.667943198699504,
+      38.99435396678746
+    ]
+  },
+  "ragged-dense": {
+    "client_seconds": 42.657612633891404,
+    "output_tok_s": 6.001277798567282,
+    "output_tokens": 256.0,
+    "stopped_at_limit": 8.0,
+    "median_ttft_seconds": 0.4710736038396135,
+    "mean_decode_depth": 4.0,
+    "executed_token_loops": 5840.0,
+    "backfill_token_loops": 0.0,
+    "physical_kv_token_slots": 5840.0,
+    "client_seconds_each": [
+      42.693741941824555,
+      42.62148332595825
+    ]
+  }
+}

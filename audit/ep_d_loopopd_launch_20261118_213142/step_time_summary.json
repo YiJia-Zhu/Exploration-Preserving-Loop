@@ -1,0 +1,39 @@
+{
+  "status": "stopped_by_user",
+  "completed_updates": 2,
+  "steps": [
+    {
+      "update": 1,
+      "wall_seconds_including_checkpoint": 1999.969,
+      "wall_minutes": 33.333,
+      "before_checkpoint_seconds": 1989.376,
+      "responses": 256,
+      "response_tokens": 2121064,
+      "mean_response_tokens": 8285.4,
+      "max_rank_rollout_stage_seconds": 1491.752,
+      "max_rank_teacher_stage_seconds": 92.741,
+      "max_rank_response_stage_seconds": 817.41,
+      "started_at": "2026-11-18T13:37:14.969000+00:00",
+      "finished_at": "2026-11-18T14:10:34.938000+00:00"
+    },
+    {
+      "update": 2,
+      "wall_seconds_including_checkpoint": 1911.051,
+      "wall_minutes": 31.851,
+      "before_checkpoint_seconds": 1899.468,
+      "responses": 256,
+      "response_tokens": 2143637,
+      "mean_response_tokens": 8373.6,
+      "max_rank_rollout_stage_seconds": 1434.8,
+      "max_rank_teacher_stage_seconds": 57.392,
+      "max_rank_response_stage_seconds": 947.027,
+      "started_at": "2026-11-18T14:10:34.937000+00:00",
+      "finished_at": "2026-11-18T14:42:25.988000+00:00"
+    }
+  ],
+  "mean_step_minutes": 32.591833333333334,
+  "excluded_partial_updates": [
+    3
+  ],
+  "scope": "Four GPUs, B=32 prompts x8 responses=256, max_new_tokens=16384. Includes checkpoints; excludes engineering preflight and initial model/data setup."
+}

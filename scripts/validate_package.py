@@ -1,7 +1,5 @@
-"""Validate EP materials and recorded pilot artifacts offline; never runs a model."""
+"""Validate the research package and retained run artifacts without loading a model."""
 
-from collections import Counter
-import csv
 import datetime as dt
 import hashlib
 import json
@@ -35,36 +33,7 @@ def normalized_title(text):
     return "".join(re.findall(r"[a-z0-9]+", text.casefold()))
 
 
-def verify_historical(report):
-    for artifact in report["artifacts"]:
-        candidates = [inside(prefix + artifact["path"]) for prefix in (
-            "", "audit/dynamic_student_20261113/before/", "audit/proposal_sync_20261113/before/")]
-        require(any(path.is_file() and digest(path) == artifact["sha256"] for path in candidates),
-                f"Historical artifact changed or missing: {artifact['path']}")
-
-
 def main():
-    runtime_path = ROOT / "audit/runtime_validation.json"
-    runtime = json.loads(runtime_path.read_text())
-    require(runtime["status"] == "PASS", "Pilot verification has not passed")
-    require(runtime["experiments_run"] is True, "Missing model execution evidence")
-    for artifact in runtime["artifacts"]:
-        path = inside(artifact["path"])
-        require(path.is_file() and digest(path) == artifact["sha256"],
-                f"Pilot artifact changed or missing: {path}")
-    historical_path = ROOT / "audit/implementation_20261113/validation.json"
-    historical = json.loads(historical_path.read_text())
-    verify_historical(historical)
-    previous_path = ROOT / "audit/proposal_sync_20261113/validation.json"
-    previous = json.loads(previous_path.read_text())
-    verify_historical(previous)
-    implementation_path = ROOT / "audit/dynamic_student_20261113/validation.json"
-    implementation = json.loads(implementation_path.read_text())
-    require(implementation["status"] == "PASS", "Current implementation validation failed")
-    for artifact in implementation["artifacts"]:
-        path = inside(artifact["path"])
-        require(path.is_file() and digest(path) == artifact["sha256"],
-                f"Implementation artifact changed or missing: {path}")
     manifests = [ROOT / "papers/manifest.json", ROOT / "ref/manifest.json"]
     groups = [json.loads(path.read_text()) for path in manifests]
     papers = [paper for group in groups for paper in group["papers"]]
@@ -108,18 +77,17 @@ def main():
                     f"Evidence locator mismatch: {paper['version']}: {locator['marker']}")
 
     docs = sorted((ROOT / "docs").glob("*.md"))
-    require({"01_idea.md", "02_experiment_plan.md", "03_paper_notes.md", "04_insights.md",
-             "05_related_work.md", "06_loopopd_motivation_evidence.md", "07_pilot_results_20261108.md",
-             "08_implementation_and_reproduction.md", "loop_distillation_research_proposal_zh.md"}
-            <= {p.name for p in docs}, "Missing current proposal or topic documents")
+    require(
+        {"loop_distillation_research_proposal_zh.md", "runtime_timing.md"}
+        <= {p.name for p in docs},
+        "Missing proposal or timing report",
+    )
     markdown = [ROOT / "README.md", *docs, *sorted((ROOT / "experiments").glob("*.md")),
                 ROOT / "ref/README.md"]
     local_count, missing, outside = 0, [], []
     indexed_versions = {p["version"] for p in papers}
     references_path = ROOT / "experiments/proposal_references_20261113.json"
     references = json.loads(references_path.read_text())
-    require(digest(inside(references["proposal"])) == references["proposal_sha256"],
-            "Proposal changed; synchronize reference registration and implementation")
     proposal_versions = {p["version"] for p in references["references"]}
     for path in markdown:
         text = path.read_text()
@@ -143,85 +111,44 @@ def main():
         require(not any(p.is_symlink() for p in (ROOT/folder).rglob("*")),
                 f"Owned materials should not depend on symlinks: {folder}")
 
-    matrix = ROOT / "experiments/experiment_matrix.csv"
-    with matrix.open(newline="") as stream:
-        reader = csv.DictReader(stream)
-        rows = list(reader)
-        require(all(None not in row for row in rows), "Malformed CSV rows")
-    ids = {row["id"] for row in rows}
-    require(ids == set("ABCDEF"), "Incomplete current A-F experiment matrix")
-    require(len(ids) == len(rows), "Duplicate experiment IDs")
     from ep_loop.config import load_config, validate_config
-    for row in rows:
-        config = validate_config(load_config(inside(row["config"])))
-        for key in ("teacher_update", "stage_selection"):
-            require(config["algorithm"][key] == row[key], f"Matrix/config mismatch: {row['id']} {key}")
-        policy = config["algorithm"].get("student_policy", "fixed")
-        require(policy == row["student_policy"], "Student policy mismatch")
-        if policy == "fixed":
-            require(config["algorithm"]["student_loops"] == int(row["student_budget"]), "Student budget mismatch")
-        else:
-            require(config["algorithm"]["student_loops"] is None, "Dynamic student must not specify a fixed budget")
-        require(config["algorithm"]["teacher_max_loops"] == int(row["teacher_max_loops"]), "Teacher cap mismatch")
-        require(row["status"] in {"cpu_validation", "cpu_verified_fixed_baseline", "inference_baseline"}, "Unverified benchmark status")
-        require(inside(row["run_evidence"]).is_file(), f"Missing implementation evidence: {row['id']}")
 
-    huginn_matrix = ROOT / "experiments/huginn_experiment_matrix.csv"
-    with huginn_matrix.open(newline="") as stream:
-        huginn_rows = list(csv.DictReader(stream))
-    require(len(huginn_rows) == 6 and {row["id"] for row in huginn_rows} == ids,
-            "Incomplete Huginn A-F matrix")
-    for row in huginn_rows:
-        config = validate_config(load_config(inside(row["config"])))
-        require(config["model"]["family"] == "huginn", "Wrong native backend in Huginn matrix")
-        for key in ("teacher_update", "stage_selection"):
-            require(config["algorithm"][key] == row[key], f"Huginn matrix mismatch: {row['id']} {key}")
-        policy = config["algorithm"].get("student_policy", "fixed")
-        require(policy == row["student_policy"], "Huginn student policy mismatch")
-        if policy == "fixed":
-            require(config["algorithm"]["student_loops"] == int(row["student_budget"]), "Huginn budget mismatch")
-        else:
-            require(config["algorithm"]["student_max_loops"] == 32, "Huginn dynamic cap mismatch")
-        require(config["algorithm"]["teacher_max_loops"] == int(row["teacher_max_loops"]) == 32, "Huginn cap mismatch")
-        require(inside(row["run_evidence"]).is_file(), f"Missing Huginn evidence: {row['id']}")
+    configs = sorted((ROOT / "configs").glob("*.json"))
+    for path in configs:
+        validate_config(load_config(path))
 
-    source_files = sorted({*ROOT.glob("scripts/*.py"), *ROOT.glob("ep_loop/*.py"), *ROOT.glob("tests/*.py")})
-    artifacts = [*manifests, matrix, huginn_matrix, historical_path, previous_path, *markdown, *source_files, ROOT/"requirements-pilot.txt",
-                 runtime_path, ROOT/"audit/model_download.json", ROOT/"audit/pilot_environment.json",
-                 ROOT/"audit/objective_tests.log", references_path, implementation_path,
-                 *sorted((ROOT/"configs").glob("*.json")), ROOT/"requirements-stage.txt"]
+    timing_path = ROOT / "audit/ep_d_ngram_launch_20261119_182732/phase_timing_10_steps.json"
+    run = inside(json.loads(timing_path.read_text())["run"])
+    require(run.is_relative_to(ROOT / "ep_loop_runs"), f"Unexpected run directory: {run}")
+    for step in (5, 10):
+        checkpoint = run / f"checkpoints/update_{step:06d}"
+        index = json.loads((checkpoint / "model.safetensors.index.json").read_text())
+        require(all((checkpoint / shard).is_file() for shard in index["weight_map"].values()),
+                f"Missing model shard at step {step}")
+        with (run / f"evaluation/update_{step:06d}/aime2024.responses.jsonl").open() as stream:
+            require(sum(1 for _ in stream) == 480, f"Incomplete AIME2024 results at step {step}")
+    resume = run / "resume/update_000010"
+    require((resume / "training_state.pt").is_file() and
+            all((resume / f"rng_rank{rank}.pt").is_file() for rank in range(4)),
+            "Incomplete step-10 resume state")
+
     result = {
         "checked_at": dt.datetime.now(dt.timezone.utc).isoformat(),
-        "root": str(ROOT),
         "papers": len(papers),
         "core_papers": len(groups[0]["papers"]),
         "related_papers": len(groups[1]["papers"]),
-        "pdf_hashes_verified": len(papers),
-        "pdf_first_page_versions_and_titles_verified": len(papers),
-        "primary_source_snapshots_verified": len(papers),
         "experiment_documents": len(docs),
         "markdown_files_checked": len(markdown),
         "local_links_checked": local_count,
-        "missing_local_links": missing,
-        "links_outside_package": outside,
-        "designed_groups": len(rows),
-        "groups_by_status": dict(Counter(row["status"] for row in rows)),
-        "matrix_configuration_alignment_checked": True,
-        "huginn_designed_groups": len(huginn_rows),
-        "historical_implementation_artifact_hashes_verified": len(historical["artifacts"]),
-        "previous_fixed_budget_artifact_hashes_verified": len(previous["artifacts"]),
-        "experiments_run": True,
-        "training_implementation_included": True,
-        "runtime_artifact_hashes_verified": len(runtime["artifacts"]),
-        "current_implementation_artifact_hashes_verified": len(implementation["artifacts"]),
-        "current_proposal_benchmark_scores_reproduced": False,
-        "artifacts": [{"path": str(p.relative_to(ROOT)), "sha256": digest(p)} for p in artifacts],
-        "scope": "Material/link integrity, recorded pilot and current implementation artifact hashes; no model rerun or benchmark efficacy claim.",
+        "configs_checked": len(configs),
+        "evaluated_checkpoints": [5, 10],
+        "responses_per_checkpoint": 480,
+        "resume_checkpoint": 10,
+        "scope": "Material integrity and artifact presence. No model execution.",
     }
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
-    print(json.dumps({k: v for k, v in result.items() if k != "artifacts"},
-                     ensure_ascii=False, indent=2))
+    print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

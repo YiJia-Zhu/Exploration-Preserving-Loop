@@ -167,10 +167,8 @@ class HuginnTests(unittest.TestCase):
                 read_checkpoint_weights(restored.model, folder)
 
     def test_family_configs_context_and_filter_identity(self):
-        configs = [p for p in (ROOT / "configs").glob("huginn_[abcd]_*.json") if "dynamic" not in p.name and "correct" not in p.name]
-        self.assertEqual(len(configs), 9)
-        for path in configs:
-            config = validate_config(load_config(path))
+        for name in ("huginn_a_loopopd.json", "huginn_d_native_js.json", "huginn_d_current_native_js.json"):
+            config = validate_config(load_config(ROOT / "configs" / name))
             self.assertEqual(config["algorithm"]["teacher_max_loops"], 32)
             self.assertIn(config["algorithm"]["student_loops"], [8, 16])
             self.assertEqual(config["data"]["max_prompt_tokens"] + config["rollout"]["max_new_tokens"], 4096)

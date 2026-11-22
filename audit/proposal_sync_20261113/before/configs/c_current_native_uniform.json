@@ -1,1 +1,0 @@
-{"extends":"c_native_uniform.json","run_name":"C_current_native_uniform_count_matched","algorithm":{"teacher_update":"current"},"optimization":{"warmup_steps":10}}

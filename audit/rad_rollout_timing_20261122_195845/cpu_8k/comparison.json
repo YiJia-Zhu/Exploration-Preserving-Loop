@@ -1,0 +1,53 @@
+{
+  "device": "cpu",
+  "device_name": "x86_64",
+  "torch_version": "2.8.0+cu128",
+  "threads": 16,
+  "model": "/local_nvme/data/zhenning/huggingface_models/Ouro-1.4B-Thinking",
+  "dtype": "bf16",
+  "weight_storage_dtype": "torch.bfloat16",
+  "questions": 1,
+  "request_schedule": "one request at a time",
+  "prefix": "8192",
+  "temperature": 1.0,
+  "top_p": 0.7,
+  "mix": false,
+  "max_new_tokens": 16,
+  "source_workload": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_v020_bf16_vs_vllm_20261120_152301/workload.json",
+  "results": {
+    "exact_dense_4": {
+      "responses": 1,
+      "generated_tokens": 16,
+      "total_seconds": 43.99313938384876,
+      "output_tok_s": 0.3636930717855088,
+      "prefill_seconds": 39.66950569907203,
+      "steady_decode_seconds": 4.314954258035868,
+      "decode_tok_s": 3.476282505675478,
+      "mean_decode_depth": 4.0,
+      "decode_hist": [
+        0,
+        0,
+        0,
+        15
+      ],
+      "total_physical_kv_slots": 32828
+    },
+    "rad_dense_4": {
+      "responses": 1,
+      "generated_tokens": 16,
+      "total_seconds": 43.43683544220403,
+      "output_tok_s": 0.3683509592057921,
+      "prefill_seconds": 37.57832406274974,
+      "steady_decode_seconds": 5.851429391186684,
+      "decode_tok_s": 2.5634762033688254,
+      "mean_decode_depth": 4.0,
+      "decode_hist": [
+        0,
+        0,
+        0,
+        15
+      ],
+      "total_physical_kv_slots": 32828
+    }
+  }
+}

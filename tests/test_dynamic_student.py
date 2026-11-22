@@ -12,7 +12,7 @@ from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import torch
 
-from ep_loop.config import DEFAULT_CONFIG, load_config, merge, smoke_config, validate_config
+from ep_loop.config import load_config, merge, smoke_config, validate_config
 from ep_loop.huginn import HuginnBackend, load_huginn, tiny_huginn
 from ep_loop.inference import generate
 from ep_loop.objective import DistillationObjective
@@ -60,8 +60,8 @@ class DynamicSelectionTests(unittest.TestCase):
         self.assertEqual(gates.grad[2,1,0],0)
         self.assertTrue(torch.count_nonzero(gates.grad[1:,0])==0)
 
-    def test_cli_default_selects_new_main_method_and_old_baseline_is_fixed(self):
-        current=validate_config(load_config(DEFAULT_CONFIG))
+    def test_legacy_dynamic_config_and_fixed_baseline_remain_available(self):
+        current=validate_config(load_config(ROOT/'configs/hf_dynamic_js.json'))
         self.assertEqual(current['algorithm']['student_policy'],'learned')
         self.assertEqual(current['algorithm']['stage_selection'],'threshold')
         self.assertIsNone(current['algorithm']['student_loops'])
@@ -69,7 +69,7 @@ class DynamicSelectionTests(unittest.TestCase):
         baseline=validate_config(load_config(ROOT/'configs/a_loopopd.json'))
         self.assertEqual(baseline['algorithm'].get('student_policy','fixed'),'fixed')
         result=subprocess.run([sys.executable,'scripts/train_stage_distillation.py','--show-config'],cwd=ROOT,capture_output=True,text=True,check=True)
-        self.assertEqual(json.loads(result.stdout)['algorithm']['stage_selection'],'threshold')
+        self.assertEqual(json.loads(result.stdout)['algorithm']['student_policy'],'ragged')
         self.assertTrue(current['rollout']['use_cache'])
         self.assertTrue(current['evaluation']['use_cache'])
         validate_config(merge(current,{'rollout':{'use_cache':False}}))

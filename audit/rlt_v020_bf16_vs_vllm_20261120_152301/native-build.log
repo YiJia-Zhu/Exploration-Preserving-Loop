@@ -1,0 +1,38 @@
+Cloning into '/home/zhenning/data/working_tmp/Exploration-Preserving-Loop/audit/rlt_v020_bf16_vs_vllm_20261120_152301/native-source'...
+Note: switching to 'c08b9d79834bb8b4ff283b15bae2c14c559f6b52'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+Using Python 3.12.3 environment at: /home/zhenning/data/working_tmp/Exploration-Preserving-Loop/audit/rlt_v020_bf16_vs_vllm_20261120_152301/native-venv
+Resolved 2 packages in 1.09s
+Prepared 1 package in 152ms
+warning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.
+         If the cache and target directories are on different filesystems, hardlinking may not be supported.
+         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.
+Installed 1 package in 20ms
+ + wheel==0.48.0
+Using Python 3.12.3 environment at: /home/zhenning/data/working_tmp/Exploration-Preserving-Loop/audit/rlt_v020_bf16_vs_vllm_20261120_152301/native-venv
+Resolved 66 packages in 1.90s
+   Building vllm-rlt @ file:///local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_v020_bf16_vs_vllm_20261120_152301/native-source
+      Built vllm-rlt @ file:///local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_v020_bf16_vs_vllm_20261120_152301/native-source
+Prepared 1 package in 11.37s
+warning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.
+         If the cache and target directories are on different filesystems, hardlinking may not be supported.
+         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.
+Installed 1 package in 1ms
+ + vllm-rlt==0.2.0 (from file:///local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_v020_bf16_vs_vllm_20261120_152301/native-source)
+2.11.0+cu130 13.0 /local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_v020_bf16_vs_vllm_20261120_152301/native-source/vllm_rlt/__init__.py
+native CUDA op loaded

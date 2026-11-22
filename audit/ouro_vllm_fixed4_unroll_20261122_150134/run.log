@@ -1,0 +1,54 @@
+Traceback (most recent call last):
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ouro_vllm_fixed4_unroll_20261122_150134/run.py", line 114, in <module>
+    main()
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/ouro_vllm_fixed4_unroll_20261122_150134/run.py", line 83, in main
+    require_idle_gpus([GPU])
+  File "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop/gpu_resources.py", line 27, in require_idle_gpus
+    if busy:raise RuntimeError(f'GPUs are occupied or reserved; no inference/training started: {busy}')
+RuntimeError: GPUs are occupied or reserved; no inference/training started: [{'index': '0', 'uuid': 'GPU-79eb19c8-2acb-2445-b3c6-9f5728c1bb6c', 'memory_used_MiB': 1259, 'processes': [{'pid': 2989289, 'name': '/opt/venv/bin/python'}]}]
+native started in 46.69 seconds
+native short seconds [3.833, 3.83, 3.835]
+native 4096 seconds [6.464, 6.467, 6.429]
+unrolled started in 52.77 seconds
+unrolled short seconds [3.841, 3.846, 3.844]
+unrolled 4096 seconds [6.47, 6.467, 6.464]
+{
+  "short": {
+    "native_seconds": [
+      3.833470276091248,
+      3.829559904988855,
+      3.834540985058993
+    ],
+    "unrolled_seconds": [
+      3.8413468757644296,
+      3.846023476216942,
+      3.8437981260940433
+    ],
+    "native_median_seconds": 3.833470276091248,
+    "unrolled_median_seconds": 3.8437981260940433,
+    "output_tokens": 2048,
+    "stochastic_sequences_equal": 2,
+    "greedy_four_tokens_equal": true,
+    "vocab_logprobs_positions": 4,
+    "vocab_logprobs_max_abs_diff": 0.25
+  },
+  "4096": {
+    "native_seconds": [
+      6.464418655261397,
+      6.4671376850456,
+      6.429100920911878
+    ],
+    "unrolled_seconds": [
+      6.470316994935274,
+      6.467383385170251,
+      6.4644810748286545
+    ],
+    "native_median_seconds": 6.464418655261397,
+    "unrolled_median_seconds": 6.467383385170251,
+    "output_tokens": 1024,
+    "stochastic_sequences_equal": 7,
+    "greedy_four_tokens_equal": true,
+    "vocab_logprobs_positions": 4,
+    "vocab_logprobs_max_abs_diff": 0.24997901916503906
+  }
+}

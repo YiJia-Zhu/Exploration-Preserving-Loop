@@ -11,7 +11,7 @@ import torch
 
 class OuroWorkerExtension:
     def ep_begin_teacher_trace(self, output):
-        """Capture teacher-forced prefill states on pinned vLLM 0.11.
+        """Capture teacher-forced prefill states on the V1 runner.
 
         The runner always calls this bookkeeping method with all scheduled
         hidden states, including when prompt_logprobs is not requested. This
@@ -20,6 +20,10 @@ class OuroWorkerExtension:
         model=self.get_model()
         if not model.model.teacher_trace:
             raise ValueError('Teacher RPC requires the all-loop readout engine')
+        # Layer outputs are replicated after TP reductions. Capture only the
+        # leader to avoid duplicate CPU transfers and shared-file collisions.
+        if getattr(self, 'rank', 0) != 0:
+            return False
         if getattr(self,'_ep_teacher_original',None) is not None:
             raise RuntimeError('Teacher trace is already active')
         self._ep_teacher_output=Path(output);self._ep_teacher_output.mkdir(parents=True,exist_ok=True)
@@ -41,6 +45,8 @@ class OuroWorkerExtension:
         return True
 
     def ep_end_teacher_trace(self):
+        if getattr(self, 'rank', 0) != 0:
+            return {}
         from safetensors.torch import save_file
         original=getattr(self,'_ep_teacher_original',None)
         if original is None:raise RuntimeError('No teacher trace is active')
@@ -115,7 +121,7 @@ class OuroWorkerExtension:
         """Called while idle, after wake-up and before any next-update request."""
         from safetensors import safe_open
         if int(version)<=getattr(self,'_ep_weight_version',-1):
-            raise ValueError('Student weight versions must increase monotonically')
+            raise ValueError('Inference weight versions must increase monotonically')
         with safe_open(str(Path(filename)),framework='pt',device='cpu') as source:
             names=list(source.keys())
             loaded=self.get_model().load_weights((name,source.get_tensor(name)) for name in names)

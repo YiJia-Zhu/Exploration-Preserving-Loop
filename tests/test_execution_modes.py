@@ -17,7 +17,8 @@ ROOT=Path(__file__).resolve().parents[1]
 class ExecutionModeTests(unittest.TestCase):
     def test_default_and_optional_profiles_are_explicit(self):
         for path,mode,backend,k in [
-            (DEFAULT_CONFIG,'hf_dynamic','hf',None),
+            (DEFAULT_CONFIG,'hf_rad_opd','hf',None),
+            (ROOT/'configs/hf_dynamic_js.json','hf_dynamic','hf',None),
             (ROOT/'configs/e_dynamic_js_vllm_top20.json','vllm_top20','vllm',20),
             (ROOT/'configs/e_dynamic_js_hf_top20.json','hf_top20','hf',20),
         ]:
@@ -27,7 +28,7 @@ class ExecutionModeTests(unittest.TestCase):
             self.assertEqual(config['algorithm']['teacher_top_k'],k)
         default=load_config(DEFAULT_CONFIG)
         self.assertEqual(default['algorithm']['teacher_distribution'],'full_vocab')
-        self.assertEqual(default['algorithm']['student_policy'],'learned')
+        self.assertEqual(default['algorithm']['student_policy'],'ragged')
         self.assertIsNone(default['algorithm']['student_loops'])
 
     def test_approximation_cannot_be_labeled_as_the_full_default(self):

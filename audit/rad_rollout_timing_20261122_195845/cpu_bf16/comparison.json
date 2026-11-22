@@ -1,0 +1,86 @@
+{
+  "device": "cpu",
+  "device_name": "x86_64",
+  "torch_version": "2.8.0+cu128",
+  "threads": 16,
+  "model": "/local_nvme/data/zhenning/huggingface_models/Ouro-1.4B-Thinking",
+  "dtype": "bf16",
+  "weight_storage_dtype": "torch.bfloat16",
+  "questions": 8,
+  "request_schedule": "one request at a time",
+  "temperature": 1.0,
+  "top_p": 0.7,
+  "mix": true,
+  "max_new_tokens": 32,
+  "source_workload": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/rlt_v020_bf16_vs_vllm_20261120_152301/workload.json",
+  "results": {
+    "hf_fixed_2": {
+      "responses": 8,
+      "generated_tokens": 256,
+      "total_seconds": 18.889096803031862,
+      "output_tok_s": 13.552791997916481,
+      "prefill_seconds": 1.7518142089247704,
+      "steady_decode_seconds": 17.08252878114581,
+      "decode_tok_s": 14.517756895203977,
+      "mean_decode_depth": 2.0,
+      "decode_hist": [
+        0,
+        248,
+        0,
+        0
+      ],
+      "total_physical_kv_slots": 2920
+    },
+    "hf_fixed_4": {
+      "responses": 8,
+      "generated_tokens": 256,
+      "total_seconds": 36.09210242284462,
+      "output_tok_s": 7.0929644663194775,
+      "prefill_seconds": 3.5459130154922605,
+      "steady_decode_seconds": 32.49178302520886,
+      "decode_tok_s": 7.632699006009869,
+      "mean_decode_depth": 4.0,
+      "decode_hist": [
+        0,
+        0,
+        0,
+        248
+      ],
+      "total_physical_kv_slots": 5840
+    },
+    "rad_dense_4": {
+      "responses": 8,
+      "generated_tokens": 256,
+      "total_seconds": 36.80957573046908,
+      "output_tok_s": 6.95471205304049,
+      "prefill_seconds": 3.557698981370777,
+      "steady_decode_seconds": 33.196622936055064,
+      "decode_tok_s": 7.470639422501185,
+      "mean_decode_depth": 4.0,
+      "decode_hist": [
+        0,
+        0,
+        0,
+        248
+      ],
+      "total_physical_kv_slots": 5840
+    },
+    "rad_dynamic": {
+      "responses": 8,
+      "generated_tokens": 256,
+      "total_seconds": 23.979152359999716,
+      "output_tok_s": 10.6759403400364,
+      "prefill_seconds": 3.5896252025850117,
+      "steady_decode_seconds": 20.334174828138202,
+      "decode_tok_s": 12.196216571169654,
+      "mean_decode_depth": 2.3629032258064515,
+      "decode_hist": [
+        47,
+        87,
+        91,
+        23
+      ],
+      "total_physical_kv_slots": 5434
+    }
+  }
+}

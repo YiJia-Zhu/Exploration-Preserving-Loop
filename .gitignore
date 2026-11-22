@@ -46,6 +46,9 @@ dist/
 events.out.tfevents.*
 /checkpoints/
 /outputs/
+/ep_loop_runs/
+/ep_loop_envs/
+/output_remote/
 /logs/
 /wandb/
 /tensorboard/
@@ -69,3 +72,5 @@ Thumbs.db
 
 # Research Markdown, PDF/source references, configs, audit reports, and small
 # JSON/JSONL/CSV experiment records are intentionally kept in version control.
+
+ref/git_rep

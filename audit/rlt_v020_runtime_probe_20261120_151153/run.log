@@ -1,0 +1,160 @@
+packed_async_block64 exit 0
+packed_prefill exit 0
+packed_async exit 0
+baseline exit 0
+{
+  "gpus": {
+    "baseline": "0",
+    "packed_prefill": "1",
+    "packed_async": "2",
+    "packed_async_block64": "3"
+  },
+  "exits": {
+    "baseline": 0,
+    "packed_prefill": 0,
+    "packed_async": 0,
+    "packed_async_block64": 0
+  },
+  "cases": {
+    "baseline": {
+      "settings": {
+        "chunk": 128,
+        "packed": false,
+        "async_scheduling": false,
+        "block": 16
+      },
+      "hardware": {
+        "name": "NVIDIA RTX PRO 5000 72GB Blackwell",
+        "sm": [
+          12,
+          0
+        ],
+        "torch": "2.8.0+cu128",
+        "cuda": "12.8",
+        "explicit_fa4": "Paged FlashAttention-4 is not supported on SM120 by flash-attn-4==4.0.0b30; use --attention-backend triton until a compatible paged implementation is available."
+      },
+      "metrics": {
+        "short": {
+          "output_tok_s": 474.1812400160291,
+          "all_first_tokens_s": 0.24916805257089436,
+          "decode_after_all_first_tok_s": 486.4773938678864
+        },
+        "8192": {
+          "output_tok_s": 18.26733204687784,
+          "all_first_tokens_s": 50.243803216610104,
+          "decode_after_all_first_tok_s": 170.84049608479677
+        },
+        "14336": {
+          "output_tok_s": 7.074750054481845,
+          "all_first_tokens_s": 135.8728856984526,
+          "decode_after_all_first_tok_s": 113.09339241234858
+        }
+      }
+    },
+    "packed_prefill": {
+      "settings": {
+        "chunk": 1024,
+        "packed": true,
+        "async_scheduling": false,
+        "block": 16
+      },
+      "hardware": {
+        "name": "NVIDIA RTX PRO 5000 72GB Blackwell",
+        "sm": [
+          12,
+          0
+        ],
+        "torch": "2.8.0+cu128",
+        "cuda": "12.8",
+        "explicit_fa4": "Paged FlashAttention-4 is not supported on SM120 by flash-attn-4==4.0.0b30; use --attention-backend triton until a compatible paged implementation is available."
+      },
+      "metrics": {
+        "short": {
+          "output_tok_s": 486.67462069720534,
+          "all_first_tokens_s": 0.0835698046721518,
+          "decode_after_all_first_tok_s": 490.59574907482966
+        },
+        "8192": {
+          "output_tok_s": 94.81610077617508,
+          "all_first_tokens_s": 4.941198197426274,
+          "decode_after_all_first_tok_s": 171.37040526836046
+        },
+        "14336": {
+          "output_tok_s": 51.51143006452968,
+          "all_first_tokens_s": 11.025401778751984,
+          "decode_after_all_first_tok_s": 113.39915722438414
+        }
+      }
+    },
+    "packed_async": {
+      "settings": {
+        "chunk": 1024,
+        "packed": true,
+        "async_scheduling": true,
+        "block": 16
+      },
+      "hardware": {
+        "name": "NVIDIA RTX PRO 5000 72GB Blackwell",
+        "sm": [
+          12,
+          0
+        ],
+        "torch": "2.8.0+cu128",
+        "cuda": "12.8",
+        "explicit_fa4": "Paged FlashAttention-4 is not supported on SM120 by flash-attn-4==4.0.0b30; use --attention-backend triton until a compatible paged implementation is available."
+      },
+      "metrics": {
+        "short": {
+          "output_tok_s": 490.37564847152726,
+          "all_first_tokens_s": 0.07826514192856848,
+          "decode_after_all_first_tok_s": 494.04709878860467
+        },
+        "8192": {
+          "output_tok_s": 94.61376149439343,
+          "all_first_tokens_s": 5.012483361875638,
+          "decode_after_all_first_tok_s": 172.79163402253062
+        },
+        "14336": {
+          "output_tok_s": 51.25390005062947,
+          "all_first_tokens_s": 11.179588672704995,
+          "decode_after_all_first_tok_s": 114.09897051305055
+        }
+      }
+    },
+    "packed_async_block64": {
+      "settings": {
+        "chunk": 1024,
+        "packed": true,
+        "async_scheduling": true,
+        "block": 64
+      },
+      "hardware": {
+        "name": "NVIDIA RTX PRO 5000 72GB Blackwell",
+        "sm": [
+          12,
+          0
+        ],
+        "torch": "2.8.0+cu128",
+        "cuda": "12.8",
+        "explicit_fa4": "Paged FlashAttention-4 is not supported on SM120 by flash-attn-4==4.0.0b30; use --attention-backend triton until a compatible paged implementation is available."
+      },
+      "metrics": {
+        "short": {
+          "output_tok_s": 508.41561461785705,
+          "all_first_tokens_s": 0.07668773108161986,
+          "decode_after_all_first_tok_s": 512.2991437654689
+        },
+        "8192": {
+          "output_tok_s": 105.9910970350959,
+          "all_first_tokens_s": 4.856900388374925,
+          "decode_after_all_first_tok_s": 208.979959907225
+        },
+        "14336": {
+          "output_tok_s": 56.76190885418225,
+          "all_first_tokens_s": 10.83295676484704,
+          "decode_after_all_first_tok_s": 139.30301679063274
+        }
+      }
+    }
+  }
+}

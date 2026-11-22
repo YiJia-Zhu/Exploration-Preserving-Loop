@@ -1,1 +1,0 @@
-{"extends":"paper_ouro_base.json","run_name":"A_LoopOPD","algorithm":{"teacher_update":"frozen","teacher_endpoint":"fixed","stage_selection":"endpoint"}}

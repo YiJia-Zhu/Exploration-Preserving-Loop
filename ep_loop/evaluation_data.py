@@ -1,5 +1,6 @@
 """Audited external evaluation records, per-benchmark metrics and exact overlaps."""
 from collections import Counter
+from math import comb
 import hashlib
 import json
 from pathlib import Path
@@ -33,6 +34,15 @@ def benchmark_math_metrics(records, correctness):
     for record in records:
         groups.setdefault(record.get('benchmark','unspecified'), {})[record['id']] = correctness[record['id']]
     return {name:math_metrics(group) for name,group in groups.items()}
+
+
+def rad_pass_metrics(correctness):
+    """Mean per-problem pass@1 and the standard without-replacement pass@4."""
+    counts = [(len(samples), sum(samples)) for samples in correctness.values()]
+    pass_one = sum(correct/total for total,correct in counts)/len(counts)
+    pass_four = (sum(1 - comb(total-correct, 4)/comb(total, 4) for total,correct in counts)/len(counts)
+                 if all(total >= 4 for total, _ in counts) else None)
+    return dict(p_at_1=pass_one, p_at_4=pass_four)
 
 
 def exclude_evaluation_overlaps(records, evaluation):

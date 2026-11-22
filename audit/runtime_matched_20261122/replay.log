@@ -1,0 +1,4 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+fixed4: 3.21s
+ragged4: 3.07s
+ragged_dynamic: 2.93s

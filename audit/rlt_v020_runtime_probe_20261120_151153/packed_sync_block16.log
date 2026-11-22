@@ -1,0 +1,6 @@
+short {'output_tokens': 4096, 'seconds': 8.387608422432095, 'output_tok_s': 488.3394400059883, 'first_token_mean_s': 0.05561842396855354, 'all_first_tokens_s': 0.07842078106477857, 'decode_after_all_first_tok_s': 491.98551969724207}
+short {'output_tokens': 4096, 'seconds': 8.37973961001262, 'output_tok_s': 488.7980045472834, 'first_token_mean_s': 0.05502788978628814, 'all_first_tokens_s': 0.07733668014407158, 'decode_after_all_first_tok_s': 492.38756954243905}
+8192 {'output_tokens': 1024, 'seconds': 10.796517504844815, 'output_tok_s': 94.84539802213924, 'first_token_mean_s': 4.52356395800598, 'all_first_tokens_s': 4.94412012770772, 'decode_after_all_first_tok_s': 171.553627565041}
+8192 {'output_tokens': 1024, 'seconds': 10.792061822954565, 'output_tok_s': 94.88455651930813, 'first_token_mean_s': 4.522180282743648, 'all_first_tokens_s': 4.942463046871126, 'decode_after_all_first_tok_s': 171.6357033075389}
+14336 {'output_tokens': 1024, 'seconds': 19.874908026773483, 'output_tok_s': 51.52225100214652, 'first_token_mean_s': 10.428029735398013, 'all_first_tokens_s': 11.02792836399749, 'decode_after_all_first_tok_s': 113.48505798248509}
+14336 {'output_tokens': 1024, 'seconds': 19.8747232966125, 'output_tok_s': 51.52272988749147, 'first_token_mean_s': 10.427634991530795, 'all_first_tokens_s': 11.028262424748391, 'decode_after_all_first_tok_s': 113.4917131881734}

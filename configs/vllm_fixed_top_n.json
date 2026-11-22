@@ -7,6 +7,6 @@
     "teacher_distribution": "full_vocab", "teacher_top_k": null,
     "js_threshold": 0.0, "stop_loss_weight": 0.0
   },
-  "implementation": {"execution_mode": "vllm_fixed", "rollout_backend": "vllm", "teacher_backend": "vllm", "phase_offload": true},
-  "evaluation": {"student_policy": "fixed", "student_loops": [2], "use_cache": true}
+  "implementation": {"execution_mode": "vllm_fixed", "rollout_backend": "vllm", "teacher_backend": "vllm", "phase_offload": true, "vllm_rollout_ngram": true, "vllm_python_bin": "ep_loop_envs/vllm026/bin/python", "checkpoint_layout": "model_only", "save_every_updates": 5, "save_optimizer": false, "save_final_resume": true, "keep_latest_checkpoints": 0, "write_rollout_text": false, "write_rollout_records": false},
+  "evaluation": {"inference_backend": "vllm", "student_policy": "fixed", "student_loops": [2], "use_cache": true, "every_updates": 5, "data_path": "data/aime/eval.jsonl", "suite": "aime", "expected_examples": 90}
 }

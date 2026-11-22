@@ -16,6 +16,8 @@ set -a
 EXECUTION_MODE="${EXECUTION_MODE:-hf_dynamic}" # Default: full HF dynamic; optional: vllm_fixed | vllm_top20 | hf_top20.
 GPUS="${GPUS:-2,3}"                       # Physical GPU IDs; one process per GPU.
 CPU_THREADS="${CPU_THREADS:-16}"          # CPU threads per process, independent of GPU/rank count.
+TENSORBOARD="${TENSORBOARD:-1}"             # Rank0 completed-update scalars.
+TENSORBOARD_FLUSH_SECONDS="${TENSORBOARD_FLUSH_SECONDS:-10}"
 METHOD="${METHOD:-ours}"                  # ours (default) | both | baseline | recompute
 # baseline/both are optional LoopOPD controls within this ablation stage.
 MODEL_FAMILY="${MODEL_FAMILY:-ouro}"      # ouro | huginn
@@ -273,7 +275,9 @@ try:
     selected_model = dict(path=str(absolute(os.environ['MODEL_PATH'])))
     if os.environ['MODEL_REVISION']: selected_model['revision'] = os.environ['MODEL_REVISION']
     common = dict(
-        experiment=dict(stage='ablation',purpose='method_selection_on_development_data'),
+        experiment=dict(stage='ablation',purpose='method_selection_on_development_data',
+            comparison_role=os.environ.get('COMPARISON_ROLE','method_ablation'),
+            opd_mode='d_loopopd' if teacher_update=='current' else 'loopopd'),
         model=selected_model,
         data=dict(train_path=str(split/'train.jsonl'),expected_examples=train_count,
                   max_prompt_tokens=integer('MAX_PROMPT_TOKENS'),correctness_cache=None),
@@ -356,7 +360,8 @@ try:
         teacher_execution='actual_cdf_early_stop_with_exact_backfill' if execution_mode=='hf_adaptive' else 'full_K_then_native_readout',
         deployment_budgets=configs['ours']['evaluation']['student_loops'] if 'ours' in configs else None,
         methods=methods,gpus=gpus,model=family,teacher_update=teacher_update,stage_selection=stage_selection,
-        loopopd_role='optional_ablation_control',
+        opd_mode='d_loopopd' if teacher_update=='current' else 'loopopd',
+        loopopd_role='primary_comparison' if os.environ.get('COMPARISON_ROLE')=='primary_opd' else 'optional_ablation_control',
         seed=seed,python_hash_seed=os.environ['PYTHONHASHSEED'],
         evaluation_seed_scheme=SAMPLE_SEED_SCHEME,strict_deterministic_kernels=False,
         teacher_max_loops=integer('TEACHER_MAX_LOOPS'),baseline_student_loops=integer('BASELINE_STUDENT_LOOPS'),

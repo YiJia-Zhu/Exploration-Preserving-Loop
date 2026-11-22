@@ -16,8 +16,8 @@ def main():
     parser.add_argument("--smoke", action="store_true", help="Random tiny official architecture, CPU semantic check only")
     parser.add_argument("--show-config", action="store_true", help="Resolve/validate configuration without loading models")
     parser.add_argument("--check-assets", action="store_true", help="Check pinned local model and dataset without starting training")
-    parser.add_argument("--resume", type=Path)
-    parser.add_argument("--stop-after-updates", type=int)
+    parser.add_argument("--resume", type=Path,help="Complete checkpoint directory, including optimizer and per-rank RNG")
+    parser.add_argument("--stop-after-updates", type=int,help="Stop at this absolute completed update; retain the configured final target")
     args = parser.parse_args()
     if args.check_assets and args.smoke:
         parser.error("--check-assets checks pretrained assets; use --smoke separately")

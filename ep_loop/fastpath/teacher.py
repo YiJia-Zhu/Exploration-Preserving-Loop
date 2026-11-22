@@ -1,4 +1,4 @@
-"""Frozen vLLM teacher prefills with compact, full-information loop readouts."""
+"""Frozen/current vLLM teacher prefills with full-information loop readouts."""
 from collections import deque
 from contextlib import nullcontext
 import copy
@@ -13,6 +13,7 @@ from safetensors.torch import load_file
 from ep_loop.ouro import LoopTrace
 from ep_loop.selection import native_ouro_exits
 from .actor import VllmActor
+from .parallel import InferenceGroup
 
 
 def teacher_readout_directory(config, output, required_bytes):
@@ -30,52 +31,94 @@ class VllmTeacher:
     native_exit_reduces_executed_loops=False
     has_coda=False
 
-    def __init__(self,student,config,output,local_rank,observer):
-        if config['model']['family']!='ouro' or config['algorithm']['teacher_update']!='frozen':
-            raise ValueError('The vLLM teacher currently requires frozen initial Ouro weights')
-        # Keep only the INITIAL vocabulary head for exact KL/JS readout in
-        # the training process; no duplicate HF teacher backbone is allocated.
-        self.model=copy.deepcopy(student.model.lm_head).cpu().eval().requires_grad_(False)
+    def __init__(self,student,config,output,local_rank,observer,inference_group=None):
+        if config['model']['family']!='ouro' or config['algorithm']['teacher_update'] not in {'frozen','current'}:
+            raise ValueError('The vLLM teacher requires frozen/current Ouro weights')
+        self.student=student
+        self.current=config['algorithm']['teacher_update']=='current'
+        # D-LoopOPD shares the live head; the objective stops target gradients.
+        # Only LoopOPD retains an INITIAL frozen head. Neither allocates a
+        # second HF backbone or changes the student's requires_grad flags.
+        self.model=(student.model.lm_head if self.current else
+                    copy.deepcopy(student.model.lm_head).cpu().eval().requires_grad_(False))
+        self.weight_version=None if self.current else 'initial'
         self.config,self.output,self.observer=config,Path(output),observer
         visible=os.environ.get('CUDA_VISIBLE_DEVICES','').split(',')
         self.gpu=visible[local_rank] if visible!=[''] else str(local_rank)
+        if config['implementation'].get('vllm_tensor_parallel_size',1)>1 and inference_group is None:
+            raise ValueError('Paired teacher requires an initialized inference group')
+        self.group=inference_group or InferenceGroup(self.gpu)
+        self.gpu=self.group.gpu
         self.rank=local_rank;self.actor=None;self.pending=deque();self.temporary=None;self.active=None
 
     def prepare(self,responses,records,update):
         self.clear_batch()
+        self.weight_version=update if self.current else 'initial'
         c=self.config;i=c['implementation'];k=c['algorithm']['teacher_max_loops']
         prompts={record['id']:record['input_ids'] for record in records}
         requests=[dict(input_ids=prompts[ident]+response.token_ids[:-1]) for ident,_,response in responses]
-        # BF16 normalized states and gates, with conservative per-file overhead.
-        # Reserve enough headroom for all ranks sharing the same transient volume.
-        required = (sum(len(r['input_ids'])*k*(self.model.in_features+1)*2 for r in requests)
-                    + len(requests)*1024**2)*int(os.environ.get('WORLD_SIZE','1'))
-        self.temporary=teacher_readout_directory(c,self.output,required)
-        self.observer.event('teacher_trace_storage',update=update+1,path=self.temporary.name,
-                            required_headroom_bytes=required)
         with self.observer.stage('vllm_teacher_label_batch',echo=True,update=update+1,
-                                 responses=len(requests),teacher_loops=k):
+                                 responses=len(requests),teacher_loops=k,
+                                 weight_version=self.weight_version,
+                                 tensor_parallel_size=self.group.size,inference_group_gpus=self.gpu):
             torch.cuda.empty_cache()
-            if self.actor is None:
-                self.actor=VllmActor(c['model']['path'],self.gpu,self.output/f'vllm_teacher_rank{self.rank}.log',
-                    loops=k,policy='fixed',teacher_trace=True,sleep=True,
-                    max_model_len=c['data']['max_prompt_tokens']+c['rollout']['max_new_tokens'],
-                    memory_fraction=i.get('vllm_memory_fraction',.45),eager=i.get('vllm_eager',False))
-            try:result=self.actor.teacher_trace(requests,self.temporary.name)
-            finally:self.actor.request('sleep')
+            result=self.group.execute(requests,lambda merged:self._label(merged,update,k))
             if result['executed_loops']!=k or len(result['responses'])!=len(responses):
                 raise RuntimeError('Teacher readout count or physical depth mismatch')
+            if result['weight_version']!=self.weight_version:
+                raise RuntimeError('Stale teacher batch weights')
             for (ident,sample,_),request,trace in zip(responses,requests,result['responses']):
                 if trace['input_positions']!=len(request['input_ids']):
                     raise RuntimeError('Teacher did not label exactly the supplied student prefix')
-                self.pending.append((ident,sample,trace))
-            self.observer.event('teacher_batch_metrics',update=update+1,batch_seconds=result['seconds'],
-                teacher_executed_token_loops=sum(t['executed_token_loops'] for t in result['responses']),
-                transport='Normalized hidden states and gates; full vocabulary is reconstructed chunkwise')
+                self.pending.append((ident,sample,dict(trace,weight_version=self.weight_version)))
+
+    def _label(self,requests,update,k):
+        c=self.config;i=c['implementation']
+        # Only the leader owns the directory. Unique response files are handed
+        # back to their HF ranks, then consumed/deleted once during the objective.
+        replicas=int(os.environ.get('WORLD_SIZE','1'))//self.group.size
+        required=(sum(len(r['input_ids'])*k*(self.model.in_features+1)*2 for r in requests)
+                  +len(requests)*1024**2)*replicas
+        self.temporary=teacher_readout_directory(c,self.output,required)
+        self.observer.event('teacher_trace_storage',update=update+1,path=self.temporary.name,
+                            required_headroom_bytes=required)
+        if self.actor is None:
+            self.actor=VllmActor(c['model']['path'],self.gpu,self.output/f'vllm_teacher_rank{self.rank}.log',
+                loops=k,policy='fixed',teacher_trace=True,sleep=True,tensor_parallel_size=self.group.size,
+                rollout_ngram=False,
+                max_model_len=c['data']['max_prompt_tokens']+c['rollout']['max_new_tokens'],
+                memory_fraction=i.get('vllm_memory_fraction',.45),eager=i.get('vllm_eager',False),
+                python_bin=i.get('vllm_python_bin'),attention_backend=i.get('vllm_attention_backend'),
+                **({'max_num_seqs':i['vllm_max_num_seqs']} if i.get('vllm_max_num_seqs') else {}))
+            self.observer.event('vllm_teacher_runtime',update=update+1,**getattr(self.actor,'runtime',{}))
+        try:
+            if self.current:
+                from safetensors.torch import save_file
+                weights=self.output/f'.vllm_teacher_weights_rank{self.rank}.safetensors'
+                try:
+                    save_file(self.student.model.state_dict(),str(weights))
+                    acknowledgement=self.actor.request('weights',path=str(weights),version=update)
+                    if acknowledgement['weight_version']!=update:
+                        raise RuntimeError('Stale teacher weights')
+                finally:weights.unlink(missing_ok=True)
+                self.observer.event('teacher_weights_refreshed',update=update+1,weight_version=update,
+                    tensor_parallel_size=self.group.size,inference_group_gpus=self.gpu,
+                    readout_head='shared_current_student_head',stop_gradient=True)
+            result=self.actor.teacher_trace(requests,self.temporary.name)
+        finally:self.actor.request('sleep')
+        result=dict(result,weight_version=update if self.current else 'initial')
+        self.observer.event('teacher_batch_metrics',update=update+1,batch_seconds=result['seconds'],
+            weight_version=result['weight_version'],teacher_update=c['algorithm']['teacher_update'],
+            responses=len(requests),tensor_parallel_size=self.group.size,inference_group_gpus=self.gpu,
+            teacher_executed_token_loops=sum(t['executed_token_loops'] for t in result['responses']),
+            transport='TP leader writes normalized states/gates once; HF ranks reconstruct full vocab chunkwise')
+        return result
 
     def use_response(self,ident,sample):
         expected_ident,expected_sample,trace=self.pending.popleft()
         if (ident,sample)!=(expected_ident,expected_sample):raise RuntimeError('Teacher/student response order mismatch')
+        if trace.get('weight_version',self.weight_version)!=self.weight_version:
+            raise RuntimeError('Teacher trace belongs to a different weight version')
         self.active=trace
 
     def response_trace(self,ids,loops,start,endpoint='fixed',exit_threshold=.9):
@@ -105,5 +148,6 @@ class VllmTeacher:
 
     def close(self):
         try:
-            if self.actor:self.actor.close()
+            if self.actor:
+                self.actor.close();self.actor=None
         finally:self.clear_batch()

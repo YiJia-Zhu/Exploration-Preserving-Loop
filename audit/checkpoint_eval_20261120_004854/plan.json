@@ -1,0 +1,41 @@
+{
+  "audit": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/checkpoint_eval_20261120_004854",
+  "status": "prepared",
+  "gpus": [
+    "0",
+    "1"
+  ],
+  "config": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/checkpoint_eval_20261120_004854/evaluation.config.json",
+  "checkpoints": [
+    {
+      "step": 5,
+      "checkpoint": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/checkpoints/update_000005",
+      "folder": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/evaluation/update_000005",
+      "max_prompt_tokens": 458
+    },
+    {
+      "step": 10,
+      "checkpoint": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/checkpoints/update_000010",
+      "folder": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/ep_loop_runs/Exploration-Preserving-Loop/ep_d_loopopd/20261119_182732_EP_D_LoopOPD_ngram5_K4_N2_B256_u100_seed42_gpu0145_top_n/ours/evaluation/update_000010",
+      "max_prompt_tokens": 458
+    }
+  ],
+  "dataset": {
+    "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/data/aime/aime2024.jsonl",
+    "sha256": "961c61670f8f5f05f0721a3628ee82b492882cea57a6c926eef55a70b120b72c",
+    "examples": 30,
+    "benchmarks": {
+      "AIME2024": 30
+    }
+  },
+  "samples_per_problem": 16,
+  "student_loops": 2,
+  "max_new_tokens": 16384,
+  "temperature": 1.0,
+  "top_p": 0.7,
+  "base_seed": 42,
+  "ngram": false,
+  "weight_dtype": "bfloat16",
+  "kv_dtype": "bfloat16",
+  "training_resumed": false
+}

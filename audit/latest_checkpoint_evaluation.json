@@ -1,0 +1,5 @@
+{
+  "audit": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/checkpoint_eval_20261120_004854",
+  "status_file": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/checkpoint_eval_20261120_004854/status.json",
+  "comparison_when_complete": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/checkpoint_eval_20261120_004854/comparison.md"
+}

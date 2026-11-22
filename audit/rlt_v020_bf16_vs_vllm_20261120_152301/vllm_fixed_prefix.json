@@ -1,0 +1,74 @@
+{
+  "short": [
+    {
+      "seconds": 8.8328278507106,
+      "output_tokens": 8192,
+      "output_tok_s": 927.4492991891553,
+      "all_first_tokens_s": 0.0419459342956543,
+      "engine_metrics": {
+        "vllm:num_preemptions": 0,
+        "vllm:prompt_tokens": 1212,
+        "vllm:generation_tokens": 8192
+      }
+    },
+    {
+      "seconds": 8.828730125911534,
+      "output_tokens": 8192,
+      "output_tok_s": 927.8797610946575,
+      "all_first_tokens_s": 0.04308152198791504,
+      "engine_metrics": {
+        "vllm:num_preemptions": 0,
+        "vllm:prompt_tokens": 1212,
+        "vllm:generation_tokens": 8192
+      }
+    }
+  ],
+  "8192": [
+    {
+      "seconds": 5.850849760230631,
+      "output_tokens": 1024,
+      "output_tok_s": 175.01731235013554,
+      "all_first_tokens_s": 2.3331034183502197,
+      "engine_metrics": {
+        "vllm:num_preemptions": 0,
+        "vllm:prompt_tokens": 65536,
+        "vllm:generation_tokens": 1024
+      }
+    },
+    {
+      "seconds": 5.851900992449373,
+      "output_tokens": 1024,
+      "output_tok_s": 174.98587233810912,
+      "all_first_tokens_s": 2.339526653289795,
+      "engine_metrics": {
+        "vllm:num_preemptions": 0,
+        "vllm:prompt_tokens": 65536,
+        "vllm:generation_tokens": 1024
+      }
+    }
+  ],
+  "14336": [
+    {
+      "seconds": 10.252993380185217,
+      "output_tokens": 1024,
+      "output_tok_s": 99.87327232444792,
+      "all_first_tokens_s": 4.820128917694092,
+      "engine_metrics": {
+        "vllm:num_preemptions": 0,
+        "vllm:prompt_tokens": 114688,
+        "vllm:generation_tokens": 1024
+      }
+    },
+    {
+      "seconds": 10.262288820929825,
+      "output_tokens": 1024,
+      "output_tok_s": 99.78280848143382,
+      "all_first_tokens_s": 4.832059860229492,
+      "engine_metrics": {
+        "vllm:num_preemptions": 0,
+        "vllm:prompt_tokens": 114688,
+        "vllm:generation_tokens": 1024
+      }
+    }
+  ]
+}

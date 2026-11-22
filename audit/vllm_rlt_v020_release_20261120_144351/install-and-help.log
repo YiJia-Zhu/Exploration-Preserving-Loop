@@ -1,0 +1,28 @@
+c08b9d79834bb8b4ff283b15bae2c14c559f6b52 docs: preserve highlights navigation anchor
+v0.2.0
+uv 0.13.9 (x86_64-unknown-linux-gnu)
+Using Python 3.10.20 environment at: /local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/venv
+Resolved 69 packages in 5.39s
+   Building vllm-rlt @ file:///local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/vllm-rlt
+Downloading tokenizers (3.2MiB)
+Downloading numpy (16.0MiB)
+Downloading networkx (1.6MiB)
+Downloading transformers (12.2MiB)
+Downloading nvidia-cudnn-cu13 (527.5MiB)
+Downloading aiohttp (1.8MiB)
+Downloading pydantic-core (2.2MiB)
+Downloading nvidia-nvjitlink (44.5MiB)
+Downloading nvidia-nccl-cu13 (206.0MiB)
+Downloading nvidia-cusparselt-cu13 (162.3MiB)
+Downloading nvidia-cublas (403.5MiB)
+Downloading torch (528.9MiB)
+Downloading triton (236.4MiB)
+Downloading cuda-bindings (6.8MiB)
+      Built vllm-rlt @ file:///local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/vllm-rlt
+ Downloaded networkx
+ Downloaded aiohttp
+ Downloaded pydantic-core
+ Downloaded tokenizers
+ Downloaded cuda-bindings
+ Downloaded transformers
+Terminated

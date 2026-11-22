@@ -211,10 +211,20 @@ class ThreeRouteTests(unittest.TestCase):
             self.assertFalse(list(Path(folder).glob('.vllm_weights*')))
 
     def test_paper_batch_submits_all_128_responses_per_rank_together(self):
+        self.check_paper_batch_submission(None)
+
+    def test_max64_still_submits_128_once_per_rank_and_distills_all_256(self):
+        self.check_paper_batch_submission(64)
+
+    def test_four_ranks_submit_64_each_and_distill_all_256(self):
+        self.check_paper_batch_submission(None,world=4)
+
+    def check_paper_batch_submission(self,maximum,world=2):
         from ep_loop.fastpath.rollout import RolloutBatcher
-        submissions=[]
+        submissions=[];limits=[]
         class Actor:
-            def __init__(self,*args,**kwargs): self.loops=kwargs['loops']
+            def __init__(self,*args,**kwargs):
+                self.loops=kwargs['loops'];limits.append(kwargs.get('max_num_seqs'))
             def request(self,op,**kwargs):
                 return {'weight_version':kwargs['version']} if op=='weights' else None
             def generate(self,requests,**kwargs):
@@ -227,20 +237,22 @@ class ThreeRouteTests(unittest.TestCase):
             def stage(self,*args,**kwargs): return nullcontext()
             def event(self,*args,**kwargs): pass
         config=load_config(ROOT/'configs/vllm_fixed_top_n.json')
+        if maximum is not None:config['implementation']['vllm_max_num_seqs']=maximum
         self.assertEqual(config['rollout']['prompts_per_batch'],32)
         self.assertEqual(config['rollout']['responses_per_prompt'],8)
         records=[dict(id=str(i),input_ids=[1,20,30]) for i in range(32)]
         consumed=0
         with tempfile.TemporaryDirectory() as directory,patch('ep_loop.fastpath.rollout.VllmActor',Actor),patch('torch.cuda.empty_cache'):
-            for rank in range(2):
+            for rank in range(world):
                 batcher=RolloutBatcher(self.backend(),config,directory,rank,Observer())
-                batcher.prepare(records,list(range(32)),rank,2,0,torch.Generator().manual_seed(42+rank))
-                for record in records[rank::2]:
+                batcher.prepare(records,list(range(32)),rank,world,0,torch.Generator().manual_seed(42+rank))
+                for record in records[rank::world]:
                     for sample in range(8):
                         batcher.pop(dict(id=record['id'],sample=sample));consumed+=1
                 self.assertFalse(batcher.pending)
                 batcher.close()
-        self.assertEqual(submissions,[128,128])
+        self.assertEqual(submissions,[256//world]*world)
+        self.assertEqual(limits,[maximum]*world)
         self.assertEqual(consumed,256)
 
     def test_hybrid_evaluates_one_checkpoint_at_all_fixed_budgets(self):

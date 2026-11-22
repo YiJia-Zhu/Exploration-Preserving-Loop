@@ -25,7 +25,10 @@ from ep_loop.config import assets_status, load_config, smoke_config, validate_co
 from ep_loop.backends import load_backend
 from ep_loop.data import ByteTokenizer, canonical_hash, prepare_training_records, sample_rollout_indices
 from ep_loop.cpu_runtime import configure_cpu_threads
+from ep_loop.checkpointing import inspect_resume_checkpoint, validate_resume_state, validate_resume_data, copy_resume_metrics
+from ep_loop.tensorboard_logging import ScalarLogger, tensorboard_enabled
 from .rollout import generate, RolloutBatcher
+from .speculation import ngram_speculative_config, rollout_ngram_enabled
 from .objective import DistillationObjective as ApproximateObjective
 from ep_loop.objective import DistillationObjective as FullVocabularyObjective
 from ep_loop.execution import execution_mode, VLLM_FIXED
@@ -68,7 +71,7 @@ def read_checkpoint_weights(model, folder):
 
 
 def save_checkpoint(folder, student, tokenizer, optimizer, completed, config,
-                    data_rng, generator, rank, world_size):
+                    data_rng, generator, rank, world_size, data_identity=None):
     if rank == 0:
         folder.mkdir(parents=True, exist_ok=False)
         student.model.save_pretrained(folder, safe_serialization=True)
@@ -80,17 +83,19 @@ def save_checkpoint(folder, student, tokenizer, optimizer, completed, config,
         write_json(folder / "run_config.json", config)
         if config["implementation"]["save_optimizer"]:
             torch.save(dict(optimizer=optimizer.state_dict(), completed_updates=completed,
-                            world_size=world_size, config_hash=canonical_hash(config)),
+                            world_size=world_size, config_hash=canonical_hash(config),data_identity=data_identity),
                        folder / "training_state.pt")
     if world_size > 1:
         dist.barrier()
-    torch.save(dict(data_rng=data_rng.getstate(), rollout_rng=generator.get_state(),
-                    **capture_rng_state(student.device)),
-               folder / f"rng_rank{rank}.pt")
+    if config['implementation']['save_optimizer']:
+        torch.save(dict(data_rng=data_rng.getstate(), rollout_rng=generator.get_state(),
+                        **capture_rng_state(student.device)),
+                   folder / f"rng_rank{rank}.pt")
     if world_size > 1:
         dist.barrier()
     if rank == 0:
         write_json(folder/'checkpoint.complete.tmp',dict(completed_updates=completed,world_size=world_size,
+                    format_version=2,data_identity=data_identity,
                     config_hash=canonical_hash(config),resumable=config['implementation']['save_optimizer']))
         (folder/'checkpoint.complete.tmp').replace(folder/'checkpoint.complete.json')
 
@@ -154,16 +159,30 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
     output.mkdir(parents=True, exist_ok=True)
     lock = None
     batcher = None
+    tensorboard = None
+    resume_info = None
     try:
+        inference_group=None
+        evaluation_group=None
+        if config['evaluation'].get('every_updates',0) and not smoke and world>1:
+            evaluation_group=dist.new_group(backend='gloo',timeout=timedelta(
+                seconds=config['implementation'].get('distributed_timeout_seconds',21600)))
+        if not smoke and (vllm_teacher or config['implementation'].get('rollout_backend','vllm')=='vllm'):
+            from .parallel import create_inference_group
+            inference_group=create_inference_group(config,local_rank)
+            observer.event('inference_parallelism',echo=True,
+                tensor_parallel_size=inference_group.size,data_parallel_replicas=world//inference_group.size,
+                group_ranks=inference_group.ranks,group_gpus=inference_group.gpu,
+                group_leader=inference_group.leader,hf_training_world_size=world)
+        if resume:resume_info = inspect_resume_checkpoint(resume,config,world)
         if rank == 0:
             lock = (output / "run.lock").open("a")
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             if (output / "metrics.jsonl").exists() and not resume:
                 raise FileExistsError("Use a new run output or --resume; existing observations are protected")
             if resume and (output / "metrics.jsonl").exists():
-                saved_state = torch.load(Path(resume)/"training_state.pt", map_location="cpu", weights_only=True)
                 logged = [json.loads(line)["update"] for line in (output/"metrics.jsonl").read_text().splitlines()]
-                if logged and max(logged) > saved_state["completed_updates"]:
+                if logged and max(logged) > resume_info["completed_updates"]:
                     raise ValueError("Run log has updates newer than the chosen checkpoint; resume into a new output")
         if world > 1:
             dist.barrier()
@@ -182,7 +201,7 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
         with observer.stage("teacher_student_setup", echo=True):
             if vllm_teacher:
                 from .teacher import VllmTeacher
-                teacher=VllmTeacher(student,config,output,local_rank,observer)
+                teacher=VllmTeacher(student,config,output,local_rank,observer,inference_group)
             elif config["algorithm"]["teacher_update"] == "frozen":
                 teacher = type(student)(copy.deepcopy(student.model).eval().requires_grad_(False), student.mixed_precision)
             else:
@@ -194,6 +213,7 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                 read_checkpoint_weights(student.model, resume)
         with observer.stage("data_prepare", echo=True):
             records, data_report = prepare_training_records(config, tokenizer, ROOT, smoke, observer=observer)
+        validate_resume_data(resume_info,data_report)
         if rank == 0:
             write_json(output / "resolved_config.json", config)
             write_json(output / "data_report.json", data_report)
@@ -205,10 +225,20 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                 training_seed_mapping="persistent_rank_generator_to_per_response_vllm_seed" if not smoke and config["implementation"].get("rollout_backend","vllm")=="vllm" else "original_hf_rank_stream",
                 teacher_distribution=config['algorithm']['teacher_distribution'],
                 teacher_backend='vllm' if vllm_teacher else 'hf',phase_offload=phase_offload,
+                inference_python=config['implementation'].get('vllm_python_bin') or os.environ.get('VLLM_PYTHON_BIN') or sys.executable,
+                inference_attention_backend=config['implementation'].get('vllm_attention_backend') or os.environ.get('VLLM_ATTENTION_BACKEND'),
+                inference_max_num_seqs=config['implementation'].get('vllm_max_num_seqs') or None,
+                training_rollout_speculative_config=(ngram_speculative_config()
+                    if rollout_ngram_enabled(config) and not smoke else None),
+                evaluation_speculative_config=None,
+                inference_tensor_parallel_size=config['implementation'].get('vllm_tensor_parallel_size',1),
+                inference_data_parallel_replicas=world//config['implementation'].get('vllm_tensor_parallel_size',1),
                 original_training_code_used=False, original_paper_scores_reproduced=False,
                 source_proposal="docs/loop_distillation_research_proposal_zh.md",
                 model_source_directory=str(model_dir), smoke=smoke,
                 teacher_parameter_refresh=config["algorithm"]["teacher_update"],
+                teacher_readout_head=('shared_current_student_head' if config['algorithm']['teacher_update']=='current'
+                                      else 'frozen_initial_head') if vllm_teacher else 'hf_backend',
                 native_exit_reduces_executed_loops=student.native_exit_reduces_executed_loops,
                 model_family=config["model"]["family"],
                 experiment=config.get('experiment',{}),
@@ -216,7 +246,9 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                 learned_student_uses_full_prefix_recomputation=config["algorithm"].get("student_policy") == "learned" and not config["rollout"]["use_cache"],
                 rollout_cache_policy=("vllm_fixed_depth" if full_vocabulary else "vllm_fixed_k_gate_readout") if config["implementation"].get("rollout_backend","vllm")=="vllm" and not smoke else ("exact_lazy_depth" if config["algorithm"].get("student_policy") == "learned"
                                       else "native") if config["rollout"]["use_cache"] else "none",
-                token_loop_accounting="Forward backbone only; excludes checkpoint replay, backward, LM head; teacher coda token-positions logged separately",
+                token_loop_accounting=("Student rollout counts cover committed prefix/output only, excluding rejected drafts and KV recomputation; teacher scheduled prefill positions logged separately; excludes HF replay, backward and LM head"
+                    if rollout_ngram_enabled(config) and not smoke else
+                    "Forward backbone only; excludes checkpoint replay, backward, LM head; teacher coda token-positions logged separately"),
                 reproducibility=execution_provenance(ROOT, device, config["seed"], rank, world),
                 observability=observer.metadata(),
             ))
@@ -249,15 +281,19 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
         if resume:
             resume_span = observer.start("resume_optimizer_rng", echo=True)
             state = torch.load(Path(resume)/"training_state.pt", map_location="cpu", weights_only=True)
-            if state["config_hash"] != canonical_hash(config) or state["world_size"] != world:
-                raise ValueError("Resume requires the same configuration and world size")
+            validate_resume_state(state,resume_info)
             optimizer.load_state_dict(state["optimizer"])
             completed = state["completed_updates"]
             rng = torch.load(Path(resume)/f"rng_rank{rank}.pt", map_location="cpu", weights_only=True)
             data_rng.setstate(rng["data_rng"])
             generator.set_state(rng["rollout_rng"])
             restore_rng_state(rng, device)
-            observer.finish(resume_span, completed_updates=completed)
+            observer.finish(resume_span, completed_updates=completed,target_extended=resume_info['target_extended'])
+        if rank==0 and resume:copy_resume_metrics(resume,output,completed)
+        if rank==0 and tensorboard_enabled():
+            tensorboard = ScalarLogger(output,resumed_at=completed if resume else None,device=device)
+            tensorboard.backfill(output/'metrics.jsonl',through_step=completed)
+            observer.event('tensorboard_ready',echo=True,path=str(tensorboard.directory),resume_step=completed)
         k, s = config["algorithm"]["teacher_max_loops"], student_budget(config)
         dynamic = config["algorithm"].get("student_policy", "fixed") == "learned"
         rollout = config["rollout"]
@@ -267,7 +303,7 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
             desc="Train updates", unit="update", position=0)
         use_vllm = config['implementation'].get('rollout_backend', 'vllm') == 'vllm' and not smoke
         if use_vllm:
-            batcher = RolloutBatcher(student, config, output, local_rank, observer)
+            batcher = RolloutBatcher(student, config, output, local_rank, observer,inference_group)
             student._ep_rollout_batcher = batcher
         for update in range(completed, final_update):
             update_span = observer.start("update", echo=True, update=update+1, total_updates=opt["updates"])
@@ -360,15 +396,16 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                     target_hist += info["target_depth_hist"]
                     actual_hist += torch.bincount(torch.tensor(response.exit_depths,device=device),minlength=s+1)[1:]
                     confusion += info["target_actual_confusion"]
-                    append_json(output/f"rollouts_rank{rank}.jsonl", dict(
-                        update=update+1, id=record["id"], sample=sample,
-                        problem_sha256=record["problem_sha256"], tokens=response.token_ids,
-                        text=decoded if config["implementation"]["write_rollout_text"] else None,
-                        reached_eos=response.reached_eos, student_executed_loops=None if dynamic else s,
-                        student_exit_depths=response.exit_depths,
-                        cache_policy=response.cache_policy,backfill_token_loops=response.backfill_token_loops,
-                        coda_token_positions=response.coda_token_positions,
-                        executed_token_loops=response.executed_token_loops))
+                    if config['implementation'].get('write_rollout_records',True):
+                        append_json(output/f"rollouts_rank{rank}.jsonl", dict(
+                            update=update+1, id=record["id"], sample=sample,
+                            problem_sha256=record["problem_sha256"], tokens=response.token_ids,
+                            text=decoded if config["implementation"]["write_rollout_text"] else None,
+                            reached_eos=response.reached_eos, student_executed_loops=None if dynamic else s,
+                            student_exit_depths=response.exit_depths,
+                            cache_policy=response.cache_policy,backfill_token_loops=response.backfill_token_loops,
+                            coda_token_positions=response.coda_token_positions,
+                            executed_token_loops=response.executed_token_loops))
                     micro += 1
                     observer.finish(response_span, response_tokens=len(response.token_ids), loss=loss_value)
                     response_bar.update(1)
@@ -394,7 +431,8 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                 mean_adjacent_js_nats=float(totals[8]/totals[9]) if totals[9]>0 else None,
                 exit_hist=exit_hist.tolist(), stage_count_hist=stage_hist.tolist(),
                 teacher_depth_by_student_slot=mapping.tolist(), learning_rate=optimizer.param_groups[0]["lr"],
-                gradient_norm=float(grad_norm), teacher_weight_version=update if teacher is student else 'initial',
+                gradient_norm=float(grad_norm),
+                teacher_weight_version=update if config['algorithm']['teacher_update']=='current' else 'initial',
                 student_loss_executed_token_loops=int(totals[10]),
                 teacher_coda_token_positions=int(totals[11]),
                 teacher_executed_loops=info["teacher_executed_loops"], student_executed_loops=None if dynamic else s,
@@ -422,16 +460,29 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                 seconds=time.perf_counter()-start)
             if rank==0:
                 append_json(output/"metrics.jsonl",row)
+                if tensorboard is not None:tensorboard.record(row)
                 from tqdm.auto import tqdm
                 tqdm.write(json.dumps(row), file=sys.stdout)
                 observer.event("update_metrics", update=completed, metrics=row)
             updates_bar.set_postfix(loss=row["mean_response_loss"], depth=row["mean_actual_student_depth"], refresh=False)
             updates_bar.update(1)
             keep_latest = config['implementation'].get('keep_latest_checkpoints', 0)
-            if keep_latest or completed % config["implementation"]["save_every_updates"] == 0 or completed == final_update:
+            if config['implementation'].get('checkpoint_layout','full') in {'split','model_only'}:
+                from .checkpoints import checkpoint_due,save_split_checkpoint
+                model_due,resume_due=checkpoint_due(config['implementation'],completed,final_update)
+                if model_due or resume_due:
+                    with observer.stage('checkpoint_save',echo=True,update=completed,
+                            checkpoint=str(output/'checkpoints'/f'update_{completed:06d}'),
+                            storage_layout=config['implementation']['checkpoint_layout'],
+                            save_model=model_due,save_resume=resume_due):
+                        save_split_checkpoint(output,student,tokenizer,optimizer,completed,config,
+                            data_rng,generator,rank,world,ROOT,save_model=model_due,save_resume=resume_due,
+                            data_identity=data_report['usable_prompt_hash'],is_final=completed==final_update)
+            elif keep_latest or completed % config["implementation"]["save_every_updates"] == 0 or completed == final_update:
                 folder = output/"checkpoints"/f"update_{completed:06d}"
                 with observer.stage("checkpoint_save", echo=True, update=completed, checkpoint=str(folder)):
-                    save_checkpoint(folder, student, tokenizer, optimizer, completed, config, data_rng, generator, rank, world)
+                    save_checkpoint(folder, student, tokenizer, optimizer, completed, config, data_rng, generator, rank, world,
+                                    data_identity=data_report['usable_prompt_hash'])
                 if rank == 0 and keep_latest:
                     for previous in sorted(folder.parent.glob('update_*')):
                         step = int(previous.name.removeprefix('update_'))
@@ -444,6 +495,10 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                 # the next inference phase moves training tensors to CPU.
                 del loss,info,ids
                 wrapped=None
+            from .evaluation import evaluation_due,run_periodic_evaluation
+            if not smoke and evaluation_due(config,completed,final_update):
+                run_periodic_evaluation(config,output,completed,student,optimizer,batcher,teacher,
+                    device,data_rng,generator,rank,world,evaluation_group,ROOT,observer)
             observer.finish(update_span, update_metrics_seconds=row["seconds"])
         updates_bar.close()
         if rank==0:
@@ -476,5 +531,6 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
             if world>1 and dist.is_initialized() and sys.exc_info()[0] is None:
                 cleanup.callback(dist.destroy_process_group)
             if lock is not None:cleanup.callback(lock.close)
+            if tensorboard is not None:cleanup.callback(tensorboard.close)
             if vllm_teacher and 'teacher' in locals():cleanup.callback(teacher.close)
             if batcher is not None:cleanup.callback(batcher.close)

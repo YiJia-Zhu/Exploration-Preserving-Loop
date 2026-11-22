@@ -1,0 +1,6 @@
+{
+  "extends": "vllm_fixed_endpoint.json",
+  "run_name": "vllm_fixed_D_LoopOPD",
+  "algorithm": {"teacher_update": "current"},
+  "optimization": {"warmup_steps": 10}
+}

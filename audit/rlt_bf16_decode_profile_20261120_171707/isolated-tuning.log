@@ -1,0 +1,5 @@
+baseline {'short': 504.39, '8192': 217.85}
+single_stream {'short': 504.31, '8192': 218.14}
+static_buffers {'short': 498.03, '8192': 216.62}
+no_uva {'short': 508.64, '8192': 218.35}
+baseline {'short': 505.27, '8192': 218.03}

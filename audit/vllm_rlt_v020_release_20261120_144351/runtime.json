@@ -1,0 +1,8 @@
+{
+  "commit": "c08b9d79834bb8b4ff283b15bae2c14c559f6b52",
+  "rlt": "0.2.0",
+  "path": "/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/vllm-rlt/vllm_rlt/__init__.py",
+  "torch": "2.8.0+cu128",
+  "cuda": "12.8",
+  "triton": "3.4.0"
+}

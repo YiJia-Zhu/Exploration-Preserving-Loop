@@ -1,0 +1,2 @@
+{"event": "rlt_engine_ready", "ready": true, "executed_loops": 2, "backend": "vllm-rlt", "attention_backend": "triton", "async_scheduling": false, "enable_prefix_caching": false, "max_num_seqs": 8, "max_num_batched_tokens": 128, "prefill_chunk_size": 128, "kv_tokens": 268336, "speculative_config": null}
+{"event": "rlt_batch_finished", "seconds": 9.138567575719208, "requests": 64, "prompt_tokens": 13344, "cached_prompt_tokens": 0}

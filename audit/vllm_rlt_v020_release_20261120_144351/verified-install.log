@@ -1,0 +1,158 @@
+c08b9d79834bb8b4ff283b15bae2c14c559f6b52 docs: preserve highlights navigation anchor
+v0.2.0
+uv 0.13.9 (x86_64-unknown-linux-gnu)
+Using Python 3.10.20 environment at: /home/zhenning/data/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/benchmark-venv
+Resolved 50 packages in 4.06s
+   Building vllm-rlt @ file:///local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/vllm-rlt
+      Built vllm-rlt @ file:///local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/vllm-rlt
+Prepared 1 package in 301ms
+warning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.
+         If the cache and target directories are on different filesystems, hardlinking may not be supported.
+         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.
+Installed 1 package in 1ms
+ + vllm-rlt==0.2.0 (from file:///local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/vllm-rlt)
+/home/zhenning/data/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/benchmark-venv/bin/vllm-rlt-serve
+usage: vllm-rlt-serve [-h] --model MODEL [--revision REVISION]
+                      [--tokenizer TOKENIZER]
+                      [--tokenizer-revision TOKENIZER_REVISION]
+                      [--served-model-name SERVED_MODEL_NAME]
+                      [--device {cpu,cuda}] [--dtype {bfloat16,float32}]
+                      [--attention-backend {auto,torch,triton,flash_attn,flash_attn_2,flash_attn_3,flash_attn_4}]
+                      [--mode {refill,no_refill,mixed}]
+                      [--num-blocks NUM_BLOCKS] [--block-size BLOCK_SIZE]
+                      [--max-num-seqs MAX_NUM_SEQS]
+                      [--max-num-batched-tokens MAX_NUM_BATCHED_TOKENS]
+                      [--max-requests MAX_REQUESTS]
+                      [--output-buffer OUTPUT_BUFFER]
+                      [--max-body-bytes MAX_BODY_BYTES]
+                      [--request-timeout REQUEST_TIMEOUT]
+                      [--write-timeout WRITE_TIMEOUT]
+                      [--shutdown-timeout SHUTDOWN_TIMEOUT]
+                      [--cpu-threads CPU_THREADS] [--host HOST] [--port PORT]
+                      [--profile] [--profile-dir PROFILE_DIR]
+                      [--profile-activities PROFILE_ACTIVITIES]
+                      [--profile-record-shapes] [--profile-with-stack]
+                      [--profile-memory] [--profile-with-flops]
+                      [--profile-wait PROFILE_WAIT]
+                      [--profile-warmup PROFILE_WARMUP]
+                      [--profile-active PROFILE_ACTIVE]
+                      [--profile-repeat PROFILE_REPEAT]
+                      [--speculative-tokens SPECULATIVE_TOKENS]
+                      [--speculative-mode {block,pipeline}]
+                      [--draft-loops DRAFT_LOOPS]
+                      [--target-loops TARGET_LOOPS] [--enable-prefix-caching]
+                      [--incremental-kv] [--kv-watermark KV_WATERMARK]
+                      [--scheduling-policy {fcfs,priority}]
+                      [--enable-preemption] [--prefill-uva] [--no-uva]
+                      [--kv-layout {last_exited,shared}]
+                      [--gpu-memory-utilization GPU_MEMORY_UTILIZATION]
+                      [--kv-cache-memory-bytes KV_CACHE_MEMORY_BYTES]
+                      [--memory-reserve-bytes MEMORY_RESERVE_BYTES]
+                      [--exit-mode {ouro,ouro_delayed,random_lookahead,trace}]
+                      [--exit-trace EXIT_TRACE]
+                      [--lookahead-seed LOOKAHEAD_SEED] [--async-scheduling]
+                      [--cuda-graphs]
+                      [--cuda-graph-max-batch-size CUDA_GRAPH_MAX_BATCH_SIZE]
+                      [--cuda-graph-max-graphs CUDA_GRAPH_MAX_GRAPHS]
+                      [--cuda-graph-memory-reserve-bytes CUDA_GRAPH_MEMORY_RESERVE_BYTES]
+                      [--single-stream] [--static-buffers]
+                      [--pad-to-power-of-two]
+                      [--prefill-chunk-size PREFILL_CHUNK_SIZE]
+                      [--wavefront-chunked-prefill]
+                      [--max-prefill-batches-before-decode MAX_PREFILL_BATCHES_BEFORE_DECODE]
+                      [--admission-scan-limit ADMISSION_SCAN_LIMIT]
+                      [--max-admission-bypasses MAX_ADMISSION_BYPASSES]
+                      [--min-coda-batch-size MIN_CODA_BATCH_SIZE]
+
+Serve one Ouro model with OpenAI completions
+
+options:
+  -h, --help            show this help message and exit
+  --model MODEL         Local checkpoint path or HuggingFace repository ID
+  --revision REVISION
+  --tokenizer TOKENIZER
+  --tokenizer-revision TOKENIZER_REVISION
+  --served-model-name SERVED_MODEL_NAME
+  --device {cpu,cuda}
+  --dtype {bfloat16,float32}
+  --attention-backend {auto,torch,triton,flash_attn,flash_attn_2,flash_attn_3,flash_attn_4}
+  --mode {refill,no_refill,mixed}
+  --num-blocks NUM_BLOCKS
+                        Override automatic KV sizing
+  --block-size BLOCK_SIZE
+  --max-num-seqs MAX_NUM_SEQS
+  --max-num-batched-tokens MAX_NUM_BATCHED_TOKENS
+  --max-requests MAX_REQUESTS
+  --output-buffer OUTPUT_BUFFER
+  --max-body-bytes MAX_BODY_BYTES
+  --request-timeout REQUEST_TIMEOUT
+  --write-timeout WRITE_TIMEOUT
+  --shutdown-timeout SHUTDOWN_TIMEOUT
+  --cpu-threads CPU_THREADS
+  --host HOST
+  --port PORT
+  --speculative-tokens SPECULATIVE_TOKENS
+                        Enable fixed-loop self-speculation with K draft tokens
+  --speculative-mode {block,pipeline}
+  --draft-loops DRAFT_LOOPS
+  --target-loops TARGET_LOOPS
+  --enable-prefix-caching
+  --incremental-kv
+  --kv-watermark KV_WATERMARK
+  --scheduling-policy {fcfs,priority}
+  --enable-preemption
+  --prefill-uva         Use packed prefill metadata staging (requires packed
+                        attention)
+  --no-uva              Copy metadata to the GPU instead of reading mapped
+                        host memory
+  --kv-layout {last_exited,shared}
+  --gpu-memory-utilization GPU_MEMORY_UTILIZATION
+  --kv-cache-memory-bytes KV_CACHE_MEMORY_BYTES
+  --memory-reserve-bytes MEMORY_RESERVE_BYTES
+  --exit-mode {ouro,ouro_delayed,random_lookahead,trace}
+                        ouro_delayed reuses the Ouro gate; random_lookahead
+                        uses an untrained head
+  --exit-trace EXIT_TRACE
+                        JSON file with depths_by_request
+  --lookahead-seed LOOKAHEAD_SEED
+  --async-scheduling
+  --cuda-graphs         Capture decode/wavefront recurrent cores and
+                        speculative coda; sampling stays eager
+  --cuda-graph-max-batch-size CUDA_GRAPH_MAX_BATCH_SIZE
+                        Graph row limit; unset covers async speculative
+                        verification rows, else 128
+  --cuda-graph-max-graphs CUDA_GRAPH_MAX_GRAPHS
+  --cuda-graph-memory-reserve-bytes CUDA_GRAPH_MEMORY_RESERVE_BYTES
+                        Automatic KV planning headroom per CUDA Graph pool
+                        (plus retained spec logits)
+  --single-stream       Disable multi-stream CUDA execution independently of
+                        async scheduling
+  --static-buffers
+  --pad-to-power-of-two
+  --prefill-chunk-size PREFILL_CHUNK_SIZE
+  --wavefront-chunked-prefill
+                        Batch ready prompt chunks across recurrence depths
+  --max-prefill-batches-before-decode MAX_PREFILL_BATCHES_BEFORE_DECODE
+  --admission-scan-limit ADMISSION_SCAN_LIMIT
+  --max-admission-bypasses MAX_ADMISSION_BYPASSES
+  --min-coda-batch-size MIN_CODA_BATCH_SIZE
+
+PyTorch profiling:
+  --profile
+  --profile-dir PROFILE_DIR
+  --profile-activities PROFILE_ACTIVITIES
+                        comma-separated cpu,cuda
+  --profile-record-shapes
+  --profile-with-stack
+  --profile-memory
+  --profile-with-flops
+  --profile-wait PROFILE_WAIT
+  --profile-warmup PROFILE_WARMUP
+  --profile-active PROFILE_ACTIVE
+  --profile-repeat PROFILE_REPEAT
+/home/zhenning/data/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/benchmark-venv/bin/python
+0.2.0
+/local_nvme/data/zhenning/working_tmp/Exploration-Preserving-Loop/audit/vllm_rlt_v020_release_20261120_144351/vllm-rlt/vllm_rlt/__init__.py
+2.8.0+cu128
+12.8
+None

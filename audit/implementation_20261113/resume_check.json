@@ -1,6 +1,0 @@
-{
-  "status": "PASS",
-  "all_checkpoint_tensors_exact": true,
-  "tensors": 27,
-  "next_update_loss_and_sampling_exact": true
-}

@@ -1,0 +1,6 @@
+{
+  "extends": "vllm_fixed_top_n.json",
+  "run_name": "vllm_fixed_gate_JS_current_teacher",
+  "algorithm": {"teacher_update": "current"},
+  "optimization": {"warmup_steps": 10}
+}
