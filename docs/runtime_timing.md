@@ -17,6 +17,27 @@
 
 ### GPU 复测命令
 
+推理矩阵可作为一个作业提交，资源为同一节点的两张空闲 GPU。主要测试依次使用第一张卡，TP/DP 对照使用两张卡。每组单独写结果和日志，个别组失败后继续跑其余组，结束时报告失败状态。单卡矩阵共 17 组，另有短输入、8K 与 14K 的三组两卡对照。四卡整步训练使用独立的训练协议。[单作业入口](../scripts/run_runtime_gpu_suite.sh)
+
+当前节点通过 Slurm 的 `quota` 分区提交。脚本从 `SLURM_JOB_GPUS` 读取调度器分配的两张卡。提交后先经过集群的配额审批，`squeue -j 作业号` 可查看状态。
+
+```bash
+run_dir="audit/runtime_matched_slurm_$(date +%Y%m%d_%H%M%S)"
+mkdir -- "$run_dir"
+sbatch --parsable --job-name=ouro-runtime-suite --partition=quota --nodes=1 --ntasks=1 \
+  --gres=gpu:pilot:2 --cpus-per-task=32 --mem=64G --time=12:00:00 \
+  --chdir="$PWD" --output="$PWD/$run_dir/slurm-%j.log" \
+  --wrap="export CPU_THREADS=16; bash scripts/run_runtime_gpu_suite.sh slurm '$run_dir/results'"
+```
+
+在已有 GPU 访问的终端中，也可直接指定两张卡。
+
+```bash
+bash scripts/run_runtime_gpu_suite.sh 0,1 audit/runtime_matched_gpu
+```
+
+命令末尾加 `--dry-run` 可在 CPU 上校验全部单卡清单和两卡输入，输出目录需独立。以下命令也可用于单独复跑一组。
+
 以 `GPU=0` 为设备参数示例。每次运行使用新的输出目录。加 `--dry-run` 可生成和校验输入清单，实际执行会检查设备占用。
 
 ```bash
@@ -93,7 +114,21 @@ done
 
 Ragged KV 相比固定四轮省约 40% 的墙钟。同阈值下，这批题在 Ragged KV 中退出得更深，耗时比 exact backfill 多 4.52 秒。共用的四轮 prefill 占 4,848 token-loop，解码阶段另外用 501 和 703 token-loop，分别对应 Ragged 和 exact backfill，后者含回填。这里的 32 token 上限用于计时验证，完整答题质量需要 16,384-token 对照。[自然 EOS 小样原始结果](../audit/runtime_matched_20261122/cpu_natural/)
 
+#### CPU 训练组件，固定同一条轨迹
+
+复用上表第一题的 Ragged 轨迹，174 个提示 token 和 32 个生成 token。使用同源 BF16 学生和冻结四轮教师，开启学生梯度检查点。每组预热一次，记录一次教师前向、学生重放及反向时间。计时范围到反向结束，整步训练吞吐仍需四卡实测。
+
+| 学生路径 | 教师前向 | 学生重放 | 反向 | 合计墙钟 | 学生前向 token-loop |
+|:---|---:|---:|---:|---:|---:|
+| 固定四轮 | 0.56 s | 0.62 s | 2.02 s | 3.21 s | 820 |
+| Ragged，固定四轮轨迹 | 0.57 s | 0.57 s | 1.92 s | 3.07 s | 820 |
+| Ragged，真实动态轨迹 | 0.56 s | 0.57 s | 1.80 s | 2.93 s | 820 |
+
+当前可微重放仍对全部位置算满四轮，再按记录的退出深度选择有效 KV 与读出。三组的重放前向工作量相同，单次测量的时间差需要重复验证。[回放入口](../scripts/benchmark_runtime_replay.py) · [回放结果](../audit/runtime_matched_20261122/cpu_replay/replay.json)
+
 ## 历史记录
+
+以下表保留归档中的设备、配置和计时边界。固定输出量的结果用于回看等工作量性能，自然 EOS 的结果同时看实际生成量，训练路径表用于回看各次运行的阶段耗时。
 
 ### EP-D-LoopOPD 十步训练
 

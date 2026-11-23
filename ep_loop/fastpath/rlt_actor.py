@@ -1,12 +1,41 @@
 """Evaluation adapter for the standalone vLLM-RLT engine."""
 import json
 from pathlib import Path
+import subprocess
 import sys
 
 from .actor import VllmActor
 
 
+RELEASE = Path(__file__).resolve().parents[2] / 'audit/vllm_rlt_v020_release_20261120_144351'
+RLT_COMMIT = 'c08b9d79834bb8b4ff283b15bae2c14c559f6b52'
+
+
+def verified_release():
+    python_bin = RELEASE / 'benchmark-venv/bin/python'
+    checkout = RELEASE / 'vllm-rlt'
+    version, source = json.loads(subprocess.check_output([str(python_bin), '-I', '-c',
+        'import importlib.metadata as m, importlib.util as u, json; '
+        'print(json.dumps([m.version("vllm-rlt"), u.find_spec("vllm_rlt").origin]))'], text=True))
+    commit = subprocess.check_output(['git', '-C', str(checkout), 'rev-parse', 'HEAD'], text=True).strip()
+    dirty = subprocess.check_output(['git', '-C', str(checkout), 'status', '--porcelain', '--untracked-files=no'], text=True)
+    if version != '0.2.0' or commit != RLT_COMMIT or dirty or not Path(source).resolve().is_relative_to(checkout):
+        raise RuntimeError('Expected the installed, unmodified RLT v0.2.0 release')
+    return dict(version=version, commit=commit, source=source, python_bin=str(python_bin))
+
+
 class RltActor(VllmActor):
+    @classmethod
+    def from_release(cls, model, gpu, log_path, **options):
+        release = verified_release()
+        actor = cls(model, gpu, log_path, python_bin=release['python_bin'], **options)
+        source = actor.runtime.get('module_path')
+        if not source or Path(source).resolve() != Path(release['source']).resolve():
+            actor.close()
+            raise RuntimeError('The running RLT worker imported a different module')
+        actor.runtime.update(release)
+        return actor
+
     def __init__(self, model, gpu, log_path, *, loops, max_model_len, eager=False,
                  max_num_seqs=None, max_num_batched_tokens=None, prefill_chunk_size=None,
                  attention_backend='triton', async_scheduling=False, prefix_caching=False,

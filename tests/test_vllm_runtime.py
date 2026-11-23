@@ -1,6 +1,7 @@
 """Runtime separation and fixed native decode protocol, without GPU execution."""
 import io
 import json
+import os
 from pathlib import Path
 import runpy
 import tempfile
@@ -40,7 +41,7 @@ class VllmRuntimeTests(unittest.TestCase):
                                 poll=lambda:0)
         with tempfile.TemporaryDirectory() as tmp, \
              patch('ep_loop.fastpath.actor.subprocess.Popen',return_value=process) as spawn, \
-             patch.dict('os.environ',{'RANK':'1','WORLD_SIZE':'2','MASTER_PORT':'12345'}):
+             patch.dict('os.environ',{'PATH':'/usr/bin','RANK':'1','WORLD_SIZE':'2','MASTER_PORT':'12345'}):
             with VllmActor('unused','3',Path(tmp)/'engine.log',policy='fixed',
                            python_bin='/isolated/python',attention_backend='FLASHINFER') as actor:
                 self.assertEqual(actor.runtime['vllm_version'],'0.26.0')
@@ -49,6 +50,7 @@ class VllmRuntimeTests(unittest.TestCase):
             self.assertEqual(command[-2:],['--attention-backend','FLASHINFER'])
             env=spawn.call_args.kwargs['env']
             self.assertEqual(env['CUDA_VISIBLE_DEVICES'],'3')
+            self.assertEqual(env['PATH'].split(os.pathsep), ['/isolated', '/usr/bin'])
             self.assertFalse({'RANK','WORLD_SIZE','MASTER_PORT'} & set(env))
 
     def test_modern_native_student_keeps_requested_depth_and_batch_submission(self):

@@ -10,7 +10,7 @@
 .venv/bin/python scripts/train_stage_distillation.py --check-assets
 ```
 
-Phase 0 用原始权重执行固定 1／2／4 轮、动态精确回填和动态零回填对照。
+Phase 0 先用非 Thinking Ouro 和 BBH 复现 Ragged KV 图 1(c)，随后在 AIME 2024 上用原始 Thinking 权重执行固定 1／2／4 轮、动态精确回填和动态零回填对照。[复现方案](docs/ragged_kv_reproduction.md)
 
 ```bash
 .venv/bin/python scripts/evaluate_stage_distillation.py --phase-zero \

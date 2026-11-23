@@ -17,8 +17,6 @@ sys.path.insert(0, str(ROOT))
 AIME = ROOT / 'audit/rlt_v020_bf16_vs_vllm_20261120_152301/workload.json'
 PREFIXES = ROOT / 'audit/rlt_v020_runtime_probe_20261120_151153/workload.json'
 REPEATED = ROOT / 'audit/vllm_native_n16_20261120/workload.json'
-RELEASE = ROOT / 'audit/vllm_rlt_v020_release_20261120_144351'
-RLT_COMMIT = 'c08b9d79834bb8b4ff283b15bae2c14c559f6b52'
 CONTEXT = 17408
 FIXED_CAPS = {'short': 1024, '8192': 128, '14336': 128, 'repeated': 256}
 CASES = {
@@ -178,24 +176,9 @@ def gpu_actor(work, case, output):
             raise RuntimeError('Expected the official vLLM 0.26 native fixed-depth model')
         return actor
     from ep_loop.fastpath.rlt_actor import RltActor
-    python_bin = RELEASE / 'benchmark-venv/bin/python'
-    checkout = RELEASE / 'vllm-rlt'
-    version, source = json.loads(subprocess.check_output([str(python_bin), '-I', '-c',
-        'import importlib.metadata as m, importlib.util as u, json; '
-        'print(json.dumps([m.version("vllm-rlt"), u.find_spec("vllm_rlt").origin]))'], text=True))
-    commit = subprocess.check_output(['git', '-C', str(checkout), 'rev-parse', 'HEAD'], text=True).strip()
-    dirty = subprocess.check_output(['git', '-C', str(checkout), 'status', '--porcelain', '--untracked-files=no'], text=True)
-    if version != '0.2.0' or commit != RLT_COMMIT or dirty or not Path(source).resolve().is_relative_to(checkout):
-        raise RuntimeError('Expected the installed, unmodified RLT v0.2.0 release')
-    actor = RltActor(model, gpu, output / f'{case}.log', python_bin=python_bin,
-                     max_num_batched_tokens=CONTEXT,
-                     kv_block_size={'rlt-block16': 16, 'rlt-block128': 128}.get(case, 64),
-                     **common)
-    if Path(actor.runtime['module_path']).resolve() != Path(source).resolve():
-        actor.close()
-        raise RuntimeError('The running RLT worker imported a different module')
-    actor.runtime.update(version=version, commit=commit, source=source)
-    return actor
+    return RltActor.from_release(model, gpu, output / f'{case}.log', max_num_batched_tokens=CONTEXT,
+                                 kv_block_size={'rlt-block16': 16, 'rlt-block128': 128}.get(case, 64),
+                                 **common)
 
 
 def engine_request(actor, case, requests):

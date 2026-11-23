@@ -281,7 +281,7 @@ class ThreeRouteTests(unittest.TestCase):
             self.assertEqual(len(results),40)
             self.assertEqual({row['max_loops'] for row in results},{1,2,3,4})
             self.assertTrue(all(row['policy']=='fixed' and row['actual_execution_depths']==[row['max_loops']] for row in results))
-            self.assertEqual({row[0] for row in captures},{directory})
+            self.assertEqual({Path(row[0]) for row in captures},{root.resolve()})
             self.assertTrue(all(row[2]=='fixed' for row in captures))
             self.assertEqual(sorted(submissions),[(gpu,depth,5) for gpu in ['2','3'] for depth in [1,2,3,4]])
 

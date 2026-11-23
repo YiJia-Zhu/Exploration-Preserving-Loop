@@ -54,7 +54,7 @@ class RolloutProtocolTests(unittest.TestCase):
             config = {'implementation':{'teacher_trace_dir':str(configured)}}
             with teacher_readout_directory(config, root/'output', 1024) as selected:
                 path = Path(selected)
-                self.assertEqual(path.parent, configured)
+                self.assertEqual(path.parent, configured.resolve())
                 (path/'transient').write_bytes(b'loop states')
             self.assertFalse(path.exists())
             with patch('ep_loop.fastpath.teacher.shutil.disk_usage', return_value=SimpleNamespace(free=1)):

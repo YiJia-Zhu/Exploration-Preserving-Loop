@@ -6,7 +6,7 @@
 
 ## 1. 问题界定：深度曲线左段的精度塌缩（$\bar{B} \in [1.5, 2.25]$）
 
-结合 *Ragged KV*（`2610.09013`）图 1c 在 Ouro-1.4B / 2.6B 上的实测曲线，零回填动态早退的性能随平均解码深度（Average Decode Depth）呈现明显的两段式分化：
+结合 *Ragged KV*（`2610.09013`）图 1c 在非 Thinking Ouro-1.4B / 2.6B 的 BBH 实测曲线，零回填动态早退的性能随平均解码深度（Average Decode Depth）呈现明显的两段式分化：
 
 1. **右段高原（$\bar{B} \in [2.25, 4.0]$）已基本无损**：平均深度从 $4.0$ 压到约 $2.25$ 时，Ouro-2.6B 的 P@1 稳在 $75\%$ 至 $78\%$（P@4 约 $89\%$），Ouro-1.4B 的 P@1 稳在 $58\%$ 至 $65\%$（P@4 约 $81\%$）。此时原生门极少在第 $1$ 轮退出，跨轮跳变很小。
 2. **左段悬崖（$\bar{B} < 2.25$）是真正的瓶颈**：阈值稍微从 $0.30 / 0.28$ 压到 $0.20$（深度降至 $1.67$ 至 $1.75$），Ouro-2.6B 的 P@1 立刻从约 $75\%$ 跌至约 $51.5\%$，Ouro-1.4B 从约 $58\%$ 跌至约 $40\%$。
@@ -34,7 +34,7 @@
 
 ## 3. Phase 0：零训练证伪（1 至 2 天）
 
-在写训练代码前，用现成权重（Ouro-1.4B-Thinking，AIME 2024，16K 上限并切片统计 2K / 4K / 8K / 16K）实测并复现图 1c 的左段缺口（可参考开源仓库 `kschwethelm/loop-sglang` 的 Ouro 动态退出实现）：
+先用非 Thinking Ouro-1.4B 和 BBH 按 Appendix E.1 复现图 1c 的左段掉点。随后用原始 Ouro-1.4B-Thinking 在 AIME 2024 上做回填对照，检查目标模型和 16K 生成预算下是否出现同类缺口。按 2K / 4K / 8K / 16K 做切片评分。[复现参数与入口](ragged_kv_reproduction.md)
 
 * **测试组**：用原生退出门扫描阈值 $\tau \in \{0.15, 0.20, 0.25, 0.30, 0.45, 0.75\}$（对应 $\bar{B}$ 覆盖约 $1.5$ 到 $4.0$），同时对比：
   1. **Dense 4-Loop**（满 $4$ 轮上界）；
@@ -81,7 +81,7 @@
 | 实验组 | 推理方式 | 训练方式 | 核心对比目的 |
 |---|---|---|---|
 | **Dense 4-Loop** | 固定 4 轮 | 原始基座 | 满深度精度上界参照 |
-| **Zero-Train Ragged KV** | 单模型扫 $\tau$ | 无训练（`2610.09013`） | 直接复现图 1c 原生左段塌缩曲线 |
+| **Zero-Train Ragged KV** | 单模型扫 $\tau$ | 无训练（`2610.09013`） | 检查目标模型的原生左段曲线 |
 | **Static LoopOPD** | 固定 2 轮 / 1 轮 | 静态 OPD（`2610.10623`） | 回应 `2610.32246` 评测红线：同等实测平均深度下，检验动态单模型能否打赢静态浅轮专家（尤其 2K 至 8K 短预算） |
 | **Offline Ragged-Aware KD** | 单模型扫 $\tau$ | 相同随机 $\tau$ + 可微 Ragged 重放，但全程用离线教师 CoT | **最严格对照组**：精准隔离 On-Policy Rollout 相对纯离线 Ragged 蒸馏的独立增益 |
 | **RAD-OPD（Ours, 路线 A）** | **单模型扫 $\tau$** | **单阶段随机 $\tau$ 在策略 Ragged-OPD** | 主方法：验证单个模型在 $\bar{B} \in [1.5, 2.25]$ 上将 P@1 曲线整体拉平逼近满 $4$ 轮，且不损右段上界 |
@@ -114,7 +114,7 @@
 
 ## 7. 两周极简执行排期
 
-* **Day 1 至 Day 2（Phase 0）**：用现成 Ouro-1.4B-Thinking 在 AIME 2024 跑出 $\tau \in [0.15, 0.75]$ 的零训练 `Ragged KV` vs. `Backfill` 曲线（P@1 & P@4），实锤左段掉点。（注：若用 vLLM 跑 Ouro rollout，注意锁死 `vllm==0.26.0`，或直接参考开源 `loop-sglang`）。
+* **Day 1 至 Day 2（Phase 0）**：先复现图 1c 的 BBH 左段，再用现成 Ouro-1.4B-Thinking 在 AIME 2024 跑出 $\tau \in [0.15, 0.75]$ 的零训练 `Ragged KV` 与 `Backfill` 曲线（P@1 & P@4）。[复现方案](ragged_kv_reproduction.md)
 * **Day 3 至 Day 5（最小代码接入）**：在现有 OPD 训练代码中加入随机 $\tau$ 采样与 Step 3 两行 `torch.where` 的 No-Detach 可微 Ragged 重放函数（总改动量极小）。
 * **Day 6 至 Day 10（MVP 三路对决）**：在 Ouro-1.4B-Thinking 上跑通 **RAD-OPD（路线 A）vs. Offline Ragged-Aware KD vs. Static LoopOPD**，用单个 checkpoint 扫出整条深度-精度曲线，直接对比图 1c。
 * **Day 11 至 Day 14（诊断与按需加料）**：补齐三项极简消融；若低深度区间受限于原生门选词质量，顺滑接入**升级 1（无预算连续收敛度门控，路线 B）**；稳赢后扩尺度至 Ouro-2.6B-Thinking 与全套基准。

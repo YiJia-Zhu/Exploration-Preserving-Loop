@@ -8,6 +8,16 @@ import time
 import traceback
 
 
+def execution_token_loops(output, params, prefill_loops):
+    depths = output.exit_depths
+    if (not depths or len(depths) != len(output.token_ids) or depths[0] != prefill_loops
+            or any(not params.min_loops <= depth <= prefill_loops for depth in depths[1:])
+            or (params.exit_threshold == 1.0 and any(depth != prefill_loops for depth in depths))):
+        raise RuntimeError('vLLM-RLT returned an invalid prefill or decode exit depth')
+    # The first output comes from prefill. The final sampled token has no KV row.
+    return prefill_loops * len(output.prompt_token_ids) + sum(depths[1:])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--model', required=True)
@@ -41,7 +51,7 @@ def main():
 
             source, revision, config = prepare_model(args.model)
             if config.model_type != 'ouro' or not 1 <= args.loops <= config.total_ut_steps:
-                raise ValueError('vLLM-RLT evaluation requires Ouro and a supported fixed depth')
+                raise ValueError('vLLM-RLT evaluation requires Ouro and a supported prefill depth')
             if args.max_model_len > config.max_position_embeddings:
                 raise ValueError('Evaluation exceeds the checkpoint context limit')
             # RLT runs the full configured depth at prefill, including the first
@@ -72,6 +82,7 @@ def main():
             ready=True, executed_loops=args.loops, backend='vllm-rlt',
             module_path=vllm_rlt.__file__,
             attention_backend=args.attention_backend, async_scheduling=args.async_scheduling,
+            kv_layout='last_exited', torch_version=torch.__version__, cuda_version=torch.version.cuda,
             cuda_graphs=not args.eager,
             enable_prefix_caching=args.enable_prefix_caching,
             max_num_seqs=effective.max_num_seqs,
@@ -92,15 +103,19 @@ def main():
             cached_before = engine.cache_manager.prefix_hits
             start = time.perf_counter()
             first_token_times = {}
+            params_by_id = {}
             with redirect_stdout(sys.stderr):
                 for index, request in enumerate(message['requests']):
                     if len(request['input_ids']) + request['max_new_tokens'] > args.max_model_len:
                         raise ValueError('Request exceeds the evaluation context limit')
                     stop_options = {'ignore_eos': True} if request.get('ignore_eos') else {}
-                    engine.add_request(str(index), request['input_ids'], SamplingParams(
+                    params = SamplingParams(
                         max_tokens=request['max_new_tokens'], temperature=request['temperature'],
                         top_p=request['top_p'], seed=request['seed'],
-                        min_loops=args.loops, max_loops=args.loops, exit_threshold=1.0, **stop_options))
+                        min_loops=request.get('min_loops', args.loops), max_loops=args.loops,
+                        exit_threshold=request.get('exit_threshold', 1.0), **stop_options)
+                    params_by_id[str(index)] = params
+                    engine.add_request(str(index), request['input_ids'], params)
                 while engine.has_unfinished_requests():
                     for output in engine.step():
                         elapsed = time.perf_counter() - start
@@ -109,8 +124,7 @@ def main():
                         if not output.finished:
                             continue
                         ids = output.token_ids
-                        if output.exit_depths != [args.loops] * len(ids):
-                            raise RuntimeError('vLLM-RLT did not execute the requested fixed depth')
+                        token_loops = execution_token_loops(output, params_by_id[output.request_id], args.loops)
                         first_token = first_token_times.get(output.request_id)
                         timing = (dict(time_to_first_token_seconds=first_token,
                                        first_to_last_token_seconds=elapsed-first_token)
@@ -118,7 +132,7 @@ def main():
                         emit(dict(ok=True, index=int(output.request_id), seconds=elapsed,
                                   response=dict(token_ids=ids, exit_depths=output.exit_depths,
                                       finish_reason=output.finish_reason, request_timing=timing,
-                                      executed_token_loops=args.loops * (len(output.prompt_token_ids) + len(ids) - 1))))
+                                      executed_token_loops=token_loops)))
             prompt_tokens = sum(len(request['input_ids']) for request in message['requests'])
             print(json.dumps(dict(event='rlt_batch_finished', seconds=time.perf_counter()-start,
                 requests=len(message['requests']), prompt_tokens=prompt_tokens,

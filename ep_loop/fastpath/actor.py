@@ -78,6 +78,10 @@ class VllmActor:
              **cpu_thread_environment(),'TOKENIZERS_PARALLELISM':'false',
              'MAX_JOBS':os.environ.get('MAX_JOBS','16'),
              'PYTHONPATH':os.pathsep.join([str(root),*map(str,python_paths),os.environ.get('PYTHONPATH','')])}
+        # The selected Python environment can supply JIT tools such as ninja.
+        bin_dir = os.path.dirname(command[0])
+        if bin_dir:
+            env['PATH'] = os.pathsep.join((str((root / bin_dir).resolve()), env.get('PATH') or os.defpath))
         # The rollout actor owns a separate TP communicator. Never let a
         # torchrun trainer's rank/store leak into its subprocess hierarchy.
         for key in list(env):
