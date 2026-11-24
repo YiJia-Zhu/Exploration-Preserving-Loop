@@ -32,6 +32,19 @@ def split_training_records(records, train_count, dev_count, eval_count, seed):
     return {'train.jsonl':shuffled[:count], 'dev.jsonl':dev, 'eval.jsonl':dev[:eval_count]}
 
 
+def split_manifest_matches(saved, current):
+    """Match the split and its input hashes across different storage locations."""
+    def without_paths(manifest):
+        result = dict(manifest)
+        result.pop('source', None)
+        for key in ('evaluation_dataset', 'training_decontamination_dataset'):
+            if isinstance(result.get(key), dict):
+                result[key] = {field: value for field, value in result[key].items() if field != 'path'}
+        return result
+
+    return isinstance(saved, dict) and without_paths(saved) == without_paths(current)
+
+
 def canonical_hash(value):
     text = json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
     return hashlib.sha256(text.encode()).hexdigest()

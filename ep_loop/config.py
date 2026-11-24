@@ -7,6 +7,12 @@ import math
 DEFAULT_CONFIG = Path(__file__).resolve().parents[1] / "configs/default.json"
 
 
+def project_relative_path(path, root):
+    """Store paths inside the project relative to its root, preserving asset links."""
+    path, root = Path(path).absolute(), Path(root).absolute()
+    return str(path.relative_to(root) if path.is_relative_to(root) else path)
+
+
 def student_budget(config):
     a = config["algorithm"]
     return a["student_max_loops"] if a.get("student_policy", "fixed") != "fixed" else a["student_loops"]

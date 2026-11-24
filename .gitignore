@@ -19,8 +19,9 @@ dist/
 .ipynb_checkpoints/
 
 # Shared model links, local datasets, and downloaded third-party repositories.
-/models/
-/data/
+/models/*
+!/models/.gitkeep
+/data
 /datasets/
 /external/
 .cache/

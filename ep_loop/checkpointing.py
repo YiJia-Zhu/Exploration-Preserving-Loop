@@ -5,6 +5,8 @@ from pathlib import Path
 
 from .data import canonical_hash
 
+ROOT = Path(__file__).resolve().parents[1]
+
 
 def validate_resume_config(saved, current, completed):
     """The implemented warmup/constant LR depends on step, not total updates."""
@@ -13,11 +15,20 @@ def validate_resume_config(saved, current, completed):
     new_total = new['optimization'].pop('updates')
     if new_total < old_total or new_total < completed:
         raise ValueError('Resume may keep or extend the total updates; it cannot reduce the saved target')
-    # These affect persistence/observability, never the training objective or RNG.
     for config in (old,new):
+        # A path can be written relative to the project or through an asset link.
+        for section, key in (('model', 'path'), ('data', 'train_path'),
+                             ('data', 'correctness_cache'), ('data', 'rad_offline_responses')):
+            path = config.get(section, {}).get(key)
+            if path:
+                config[section][key] = str((ROOT / path).resolve())
+        executable = config['implementation'].get('vllm_python_bin')
+        if executable and '/' in executable:
+            config['implementation']['vllm_python_bin'] = str(ROOT / executable)
         # Absent in historical checkpoints means normal rollout. Enabling
         # speculation changes random-number consumption and must not be hidden.
         config['implementation'].setdefault('vllm_rollout_ngram',False)
+        # Persistence and observability do not affect the training objective or RNG.
         for key in ('save_every_updates','keep_latest_checkpoints','tensorboard','tensorboard_flush_seconds',
                     'checkpoint_layout','resume_save_every_updates','save_optimizer','save_final_resume',
                     'write_rollout_text','write_rollout_records'):

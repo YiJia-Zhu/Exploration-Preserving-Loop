@@ -9,7 +9,7 @@ GPUS="${GPUS:-2,3}"
 CPU_THREADS="${CPU_THREADS:-16}"             # CPU threads per process, independent of GPU/rank count.
 TENSORBOARD="${TENSORBOARD:-1}"             # Rank0 scalars under each run's ours/tensorboard/.
 TENSORBOARD_FLUSH_SECONDS="${TENSORBOARD_FLUSH_SECONDS:-10}"
-PYTHON_BIN="${PYTHON_BIN:-${PROJECT_ROOT}/.venv/bin/python}"
+PYTHON_BIN="${PYTHON_BIN:-.venv/bin/python}"
 VLLM_PYTHON_BIN="${VLLM_PYTHON_BIN:-}"       # Empty: trainer environment; otherwise isolated inference environment.
 VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-}" # Empty: auto; FLASHINFER or FLASH_ATTN.
 VLLM_MAX_NUM_SEQS="${VLLM_MAX_NUM_SEQS:-0}" # Per-engine concurrency; 0 leaves the vLLM default unchanged.
@@ -175,7 +175,7 @@ for index,(opd,group) in enumerate(run_groups):
     if a.route=='vllm':overrides.update(STOP_LOSS_WEIGHT='0',BASELINE_STUDENT_LOOPS=os.environ['STUDENT_LOOPS'],
         VLLM_ROLLOUT_NGRAM=os.environ['VLLM_ROLLOUT_NGRAM'])
     entry='run_fastpath_ablation.sh' if a.route=='vllm' else 'run_ablation.sh'
-    cmd=['bash',str(root/'scripts'/entry)]
+    cmd=['bash',f'scripts/{entry}']
     if a.dry_run:cmd+=['--dry-run']
     elif a.check:cmd+=['--check']
     elif a.prepare_only:cmd+=['--prepare-only']

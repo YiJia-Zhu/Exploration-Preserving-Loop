@@ -22,13 +22,13 @@ vLLM-RLT 的 `LAST_EXITED` 执行原生 CDF 早退。它把退出轮的 KV 值�
 
 ## AIME 2024 · 目标模型和回填对照
 
-使用现有的 `data/aime/aime2024.jsonl` 全部 30 道题，原始 `Ouro-1.4B-Thinking`（revision `3aaa222`），0-shot Thinking chat template，温度 1.0，top-p 0.7，top-k 0，种子 42，每题 4 条，EOS 或 16,384 个新 token。按现有配置加载 FP32 权重并以 BF16 autocast 执行 PyTorch SDPA。从同一条回答截取 2K／4K／8K／16K 评分，用严格 `\boxed{整数}` 判分。论文 Table 6 的 AIME 使用 8 条／题、32,768 上限与 Qwen 判分。这里检验的是 RAD-OPD 计划中实际要训练的模型和预算。[AIME 数据清单](../data/aime/manifest.json) · [现有 RAD-OPD 配置](../configs/rad_opd.json) · [论文 Table 6](https://arxiv.org/abs/2610.09013v1)
+使用现有的 `data/aime/aime2024.jsonl` 全部 30 道题，原始 `Ouro-1.4B-Thinking`（revision `3aaa222`），0-shot Thinking chat template，温度 1.0，top-p 0.7，top-k 0，种子 42，每题 4 条，EOS 或 16,384 个新 token。按现有配置加载 FP32 权重并以 BF16 autocast 执行 PyTorch SDPA。从同一条回答截取 2K／4K／8K／16K 评分，用严格 `\boxed{整数}` 判分。论文 Table 6 的 AIME 使用 8 条／题、32,768 上限与 Qwen 判分。这里检验的是 RAD-OPD 计划中实际要训练的模型和预算。AIME 数据清单位于 `data/aime/manifest.json`。[现有 RAD-OPD 配置](../configs/rad_opd.json) · [论文 Table 6](https://arxiv.org/abs/2610.09013v1)
 
 固定 1／2／4 轮作为锚点。精确回填需要重新计算缺失的深轮状态，统一用本仓库 PyTorch 运行这个机制对照。动态精确回填与动态零回填均用四轮 prefill、相同原生门，扫 `0.15, 0.20, 0.25, 0.30, 0.45, 0.75`，共 15 组和 1,800 条生成。按同阈值、同题和同样本号报告配对对照，也按实测平均 decode 深度比较两条曲线在 `[1.5, 2.0]` 的重叠区间。比较精度时同时报告回填额外的 token-loop。观察到回填在相近深度下优于静态浅轮、零回填的 P@1 低于回填且 P@4 降幅更小，才具备计划所需的证据。[RAD-OPD Phase 0](rad_opd_mvp.md#3-phase-0零训练证伪1-至-2-天) · [AIME 评测入口](../scripts/evaluate_stage_distillation.py)
 
 ## 命令
 
-准备脚本把原始数据、官方提示和冻结题集存到 `~/data/huggingface_datasets/BBH`。评测计划默认读取其中的 `frontier_135_seed1234/eval.jsonl`。准备输入与校验模型文件均在 CPU 上完成。重新冻结计划时指定一个新目录。
+准备脚本把原始数据和官方提示缓存到 `.cache/huggingface_datasets/BBH`，评测计划默认读取 `data/bbh_frontier/eval.jsonl`。准备输入与校验模型文件均在 CPU 上完成。重新冻结计划时指定一个新目录。
 
 ```bash
 .venv/bin/python scripts/prepare_ragged_bbh.py

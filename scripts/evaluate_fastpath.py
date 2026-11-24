@@ -9,7 +9,8 @@ import queue
 import sys
 import time
 
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
 
 
 def main():
@@ -87,7 +88,7 @@ def main():
     settings['samples_per_problem']=samples
     records,data_metadata=load_evaluation_records(args.data,settings.get('expected_examples'),settings.get('suite'))
     if not records or len({row['id'] for row in records})!=len(records):raise ValueError('Unique nonempty evaluation records required')
-    directory=(args.checkpoint or Path(config['model']['path'])).resolve()
+    directory=(args.checkpoint or ROOT/config['model']['path']).resolve()
     tokenizer=AutoTokenizer.from_pretrained(directory,local_files_only=True)
     encoded=[prompt_ids(tokenizer,record,config['model']['enable_thinking'],
         config['model']['repair_template_newlines']) for record in records]

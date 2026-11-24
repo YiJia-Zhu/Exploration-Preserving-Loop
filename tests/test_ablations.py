@@ -12,13 +12,23 @@ import torch
 
 from ep_loop.confidence import PromptConfidence, confidence_changes
 from ep_loop.config import load_config,merge,smoke_config,validate_config
-from ep_loop.data import ByteTokenizer,canonical_hash,filter_policy,normalize_record,prepare_training_records
+from ep_loop.data import ByteTokenizer,canonical_hash,filter_policy,normalize_record,prepare_training_records,split_manifest_matches
 from ep_loop.huginn import tiny_huginn
 from ep_loop.objective import DistillationObjective
 from ep_loop.ouro import tiny_ouro
 from ep_loop.selection import adjacent_js_from_log_probs,make_dynamic_stage_plan
 
 ROOT=Path(__file__).resolve().parents[1]
+
+
+def test_ablation_split_matches_relocated_inputs_by_hash():
+    saved = dict(source='/old/project/data/train.jsonl', source_sha256='train',
+                 evaluation_dataset=dict(path='/old/project/data/aime/eval.jsonl', sha256='evaluation'))
+    current = dict(source='data/train.jsonl', source_sha256='train',
+                   evaluation_dataset=dict(path='data/aime/eval.jsonl', sha256='evaluation'))
+    assert split_manifest_matches(saved, current)
+    current['evaluation_dataset']['sha256'] = 'changed'
+    assert not split_manifest_matches(saved, current)
 
 
 class AblationTests(unittest.TestCase):

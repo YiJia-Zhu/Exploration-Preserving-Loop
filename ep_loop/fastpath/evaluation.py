@@ -12,6 +12,7 @@ import sys
 import torch
 import torch.distributed as dist
 
+from ep_loop.config import project_relative_path
 from ep_loop.reproducibility import capture_rng_state,restore_rng_state
 
 
@@ -36,9 +37,8 @@ def evaluation_datasets(config, root):
         if not re.fullmatch(r'[A-Za-z0-9_-]+',name) or name in names:
             raise ValueError('Evaluation dataset names must be distinct safe file names')
         names.add(name)
-        path=Path(spec['path'])
-        path=path if path.is_absolute() else Path(root)/path
-        result.append(dict(spec,name=name,path=str(path.resolve())))
+        path=Path(root)/spec['path']
+        result.append(dict(spec,name=name,path=str(path.absolute())))
     return result
 
 
@@ -68,7 +68,7 @@ def evaluate_checkpoint(config, checkpoint, folder, devices, root):
         for dataset in evaluation_datasets(config,root):
             load_evaluation_records(dataset['path'],dataset.get('expected_examples'),dataset.get('suite'))
             task=copy.deepcopy(config)
-            task['evaluation'].update(data_path=dataset['path'],suite=dataset.get('suite'),
+            task['evaluation'].update(data_path=project_relative_path(dataset['path'],root),suite=dataset.get('suite'),
                 expected_examples=dataset.get('expected_examples'),every_updates=0)
             task['evaluation'].pop('datasets',None)
             task['implementation']['vllm_rollout_ngram']=False

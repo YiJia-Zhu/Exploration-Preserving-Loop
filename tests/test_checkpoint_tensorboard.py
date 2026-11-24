@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 import torch
@@ -28,6 +29,24 @@ class CheckpointTensorboardTests(unittest.TestCase):
         bad=copy.deepcopy(current);bad['optimization']['learning_rate']*=2
         with self.assertRaisesRegex(ValueError,'unchanged'):validate_resume_config(saved,bad,5)
         with self.assertRaisesRegex(ValueError,'cannot reduce'):validate_resume_config(current,saved,5)
+
+    def test_resume_accepts_the_same_assets_through_project_links(self):
+        saved = load_config(ROOT / 'configs/vllm_fixed_top_n.json')
+        current = copy.deepcopy(saved)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shared = root / 'shared-data'
+            shared.mkdir()
+            (shared / 'train.jsonl').touch()
+            (root / 'data').symlink_to(shared.name, target_is_directory=True)
+            saved['data']['train_path'] = str(shared / 'train.jsonl')
+            current['data']['train_path'] = 'data/train.jsonl'
+            saved['implementation']['vllm_python_bin'] = str(root / current['implementation']['vllm_python_bin'])
+            with patch('ep_loop.checkpointing.ROOT', root):
+                validate_resume_config(saved, current, 5)
+                current['data']['train_path'] = 'data/other.jsonl'
+                with self.assertRaisesRegex(ValueError, 'unchanged'):
+                    validate_resume_config(saved, current, 5)
 
     def test_incomplete_world_size_and_data_identity_are_rejected(self):
         config=load_config(ROOT/'configs/vllm_fixed_top_n.json')

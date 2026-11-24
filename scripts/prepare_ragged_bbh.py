@@ -12,9 +12,10 @@ from tempfile import TemporaryDirectory
 from urllib.request import urlopen
 
 
-DEFAULT_CACHE_DIR = Path.home() / 'data' / 'huggingface_datasets'
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_CACHE_DIR = ROOT / '.cache' / 'huggingface_datasets'
 FRONTIER_DIR = 'frontier_135_seed1234'
-DEFAULT_FRONTIER_DIR = DEFAULT_CACHE_DIR / 'BBH' / FRONTIER_DIR
+DEFAULT_FRONTIER_DIR = ROOT / 'data' / 'bbh_frontier'
 DATASET = 'lukaemon/bbh'
 DATASET_REVISION = '982bb89fd79532a8ac676a61fc42eb1aeec63f99'
 PROMPTS = 'suzgunmirac/BIG-Bench-Hard'
@@ -90,12 +91,12 @@ def write_frozen(path, contents):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--cache-dir', type=Path, default=DEFAULT_CACHE_DIR,
-                        help='Shared huggingface_datasets directory')
-    parser.add_argument('--output-dir', type=Path, help=f'Defaults to BBH/{FRONTIER_DIR} under --cache-dir')
+    parser.add_argument('--cache-dir', type=Path, help='Root for raw inputs (defaults to .cache/huggingface_datasets)')
+    parser.add_argument('--output-dir', type=Path,
+                        help=f'Defaults to data/bbh_frontier, or BBH/{FRONTIER_DIR} with --cache-dir')
     args = parser.parse_args()
-    cache_dir = args.cache_dir / 'BBH'
-    output_dir = args.output_dir or cache_dir / FRONTIER_DIR
+    cache_dir = (args.cache_dir or DEFAULT_CACHE_DIR) / 'BBH'
+    output_dir = args.output_dir or (cache_dir / FRONTIER_DIR if args.cache_dir else DEFAULT_FRONTIER_DIR)
     with ThreadPoolExecutor(max_workers=8) as executor:
         tasks = list(executor.map(lambda task: build_task(task, cache_dir), TASKS))
     examples = [example for task_examples, _ in tasks for example in task_examples]

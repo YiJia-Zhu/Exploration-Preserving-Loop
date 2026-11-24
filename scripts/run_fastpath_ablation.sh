@@ -21,7 +21,7 @@ TENSORBOARD_FLUSH_SECONDS="${TENSORBOARD_FLUSH_SECONDS:-10}"
 METHOD="${METHOD:-ours}"                  # ours (default) | both | baseline | recompute
 # baseline/both are optional LoopOPD controls within this ablation stage.
 MODEL_FAMILY="${MODEL_FAMILY:-ouro}"      # ouro | huginn
-PYTHON_BIN="${PYTHON_BIN:-${PROJECT_ROOT}/.venv/bin/python}"
+PYTHON_BIN="${PYTHON_BIN:-.venv/bin/python}"
 PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}" # Reduce fragmentation between long responses.
 
 # Model defaults depend on family. MODEL_PATH/TEACHER_MAX_LOOPS may be overridden.
@@ -94,7 +94,7 @@ if [[ "$EVAL_SUITE" == aime ]]; then
   else
     EVAL_DATA_PATH="${EVAL_DATA_PATH:-data/aime/aime2024.jsonl}"
   fi
-  if [[ "$EVAL_DATA_PATH" == data/aime/eval.jsonl || "$EVAL_DATA_PATH" == */data/aime/eval.jsonl ]]; then
+  if [[ "/$EVAL_DATA_PATH" == */data/aime/eval.jsonl ]]; then
     EVAL_EXAMPLES="${EVAL_EXAMPLES:-90}"
   else
     EVAL_EXAMPLES="${EVAL_EXAMPLES:-30}"
@@ -176,7 +176,7 @@ VLLM_EAGER="${VLLM_EAGER:-0}"
 VLLM_PYTHON_BIN="${VLLM_PYTHON_BIN:-}"
 if [[ "$EXECUTION_MODE" == vllm_fixed ]]; then
   VLLM_ROLLOUT_NGRAM="${VLLM_ROLLOUT_NGRAM:-1}" # Training student rollout only; evaluation stays normal.
-  VLLM_PYTHON_BIN="${VLLM_PYTHON_BIN:-${PROJECT_ROOT}/ep_loop_envs/vllm026/bin/python}"
+  VLLM_PYTHON_BIN="${VLLM_PYTHON_BIN:-ep_loop_envs/vllm026/bin/python}"
 else
   VLLM_ROLLOUT_NGRAM="${VLLM_ROLLOUT_NGRAM:-0}"
 fi
@@ -229,8 +229,8 @@ import time
 
 from ep_loop.cpu_runtime import cpu_thread_environment
 os.environ.update(cpu_thread_environment())
-from ep_loop.config import assets_status, load_config, merge, validate_config
-from ep_loop.data import normalize_record, prompt_ids, split_training_records, PROMPT_SAMPLING
+from ep_loop.config import assets_status, load_config, merge, project_relative_path, validate_config
+from ep_loop.data import normalize_record, prompt_ids, split_manifest_matches, split_training_records, PROMPT_SAMPLING
 from ep_loop.evaluation_data import load_evaluation_records, exclude_evaluation_overlaps
 from ep_loop.reproducibility import SAMPLE_SEED_SCHEME, seed_everything
 from ep_loop.observability import RunLogger, run_command, utc_now
@@ -268,8 +268,7 @@ def boolean(name):
     return value in {'1', 'true'}
 
 def absolute(value):
-    path = Path(value).expanduser()
-    return path.resolve() if path.is_absolute() else (root/path).resolve()
+    return root / Path(value).expanduser()
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -331,14 +330,14 @@ try:
         eval_steps = sorted({int(value.strip()) for value in os.environ['EVAL_UPDATES'].split(',')})
     if run_eval and any(step < 1 or step > updates or (step != updates and step % save_every) for step in eval_steps):
         fail('EVAL_UPDATES must refer to saved checkpoints within UPDATES')
-    selected_model = dict(path=str(absolute(os.environ['MODEL_PATH'])))
+    selected_model = dict(path=project_relative_path(absolute(os.environ['MODEL_PATH']),root))
     if os.environ['MODEL_REVISION']: selected_model['revision'] = os.environ['MODEL_REVISION']
     common = dict(
         experiment=dict(stage='ablation',purpose='method_selection_on_development_data',
             comparison_role=os.environ.get('COMPARISON_ROLE','method_ablation'),
             opd_mode='d_loopopd' if teacher_update=='current' else 'loopopd'),
         model=selected_model,
-        data=dict(train_path=str(split/'train.jsonl'),expected_examples=train_count,
+        data=dict(train_path=project_relative_path(split/'train.jsonl',root),expected_examples=train_count,
                   max_prompt_tokens=integer('MAX_PROMPT_TOKENS'),correctness_cache=None),
         algorithm=dict(teacher_update=teacher_update,teacher_max_loops=integer('TEACHER_MAX_LOOPS'),
             teacher_top_k=None if fixed_vllm else 20,teacher_distribution='full_vocab' if fixed_vllm else 'top20_original_mass_uniform_tail'),
@@ -349,7 +348,7 @@ try:
         rollout=dict(prompts_per_batch=prompts,responses_per_prompt=responses,
             max_new_tokens=integer('MAX_NEW_TOKENS'),temperature=number('TRAIN_TEMPERATURE'),top_p=number('TRAIN_TOP_P')),
         evaluation=dict(max_new_tokens=integer('EVAL_MAX_NEW_TOKENS'),
-            suite=eval_suite,data_path=str(eval_path),expected_examples=eval_count,
+            suite=eval_suite,data_path=project_relative_path(eval_path,root),expected_examples=eval_count,
             **({'inference_backend':'vllm'} if fixed_vllm else {}),
             scope='AIME2024/2025/2026 integer-answer evaluation' if eval_suite=='aime' else 'Held-out DAPO development evaluation',
             samples_per_problem=integer('EVAL_SAMPLES_PER_PROBLEM'),temperature=number('EVAL_TEMPERATURE'),top_p=number('EVAL_TOP_P'),
@@ -377,7 +376,7 @@ try:
     common['distillation']=dict(question_filter=os.environ['QUESTION_FILTER'],
         require_eos=boolean('FILTER_REQUIRE_EOS'))
     if os.environ['QUESTION_FILTER']!='all':
-        common['data']['correctness_cache']=str(filter_path)
+        common['data']['correctness_cache']=project_relative_path(filter_path,root)
     if family != 'ouro': fail('The isolated vLLM/top20 fastpath currently supports Ouro only')
     if os.environ['FASTPATH_ROLLOUT_BACKEND'] not in {'vllm','hf'}: fail('FASTPATH_ROLLOUT_BACKEND must be vllm or hf')
     if os.environ['BOUNDARY_SIGNAL'] != 'js': fail('Use the original entry for confidence/probe ablations')
@@ -479,7 +478,7 @@ try:
         teacher_trace_dir=str(absolute(os.environ['TEACHER_TRACE_DIR'])),
         updates=updates,global_batch=prompts*responses,prompts_per_batch=prompts,responses_per_prompt=responses,
         learning_rate=number('LEARNING_RATE'),max_new_tokens=integer('MAX_NEW_TOKENS'),
-        eval_suite=eval_suite,eval_data_path=str(eval_path),eval_samples_per_problem=integer('EVAL_SAMPLES_PER_PROBLEM'),
+        eval_suite=eval_suite,eval_data_path=common['evaluation']['data_path'],eval_samples_per_problem=integer('EVAL_SAMPLES_PER_PROBLEM'),
         eval_responses_per_checkpoint=eval_count*integer('EVAL_SAMPLES_PER_PROBLEM'),
         eval_examples=eval_count,eval_max_new_tokens=integer('EVAL_MAX_NEW_TOKENS'),
         distributed_timeout_seconds=integer('DISTRIBUTED_TIMEOUT_SECONDS'),
@@ -523,8 +522,10 @@ try:
     if eval_suite=='aime':
         if not eval_path.is_file(): fail('AIME JSONL missing; run scripts/prepare_aime_data.py --download')
         evaluation_records,evaluation_metadata = load_evaluation_records(eval_path,eval_count,eval_suite)
-        decontamination_records,decontamination_metadata = load_evaluation_records(
-            absolute(os.environ['TRAIN_DECONTAMINATION_PATH']),suite='aime')
+        decontamination_path = absolute(os.environ['TRAIN_DECONTAMINATION_PATH'])
+        decontamination_records,decontamination_metadata = load_evaluation_records(decontamination_path,suite='aime')
+        evaluation_metadata['path'] = project_relative_path(eval_path,root)
+        decontamination_metadata['path'] = project_relative_path(decontamination_path,root)
         plan['evaluation_dataset'] = evaluation_metadata
         plan['training_decontamination_dataset'] = decontamination_metadata
     if args.check: sys.exit(0)
@@ -591,7 +592,7 @@ try:
         if any(integer_answer(row['answer']) is None for row in partitions['eval.jsonl']):
             fail('Bundled evaluation requires integer ground truth; use suitable data or set RUN_EVAL=0')
     texts = {name:''.join(json.dumps(row,ensure_ascii=False)+'\n' for row in rows) for name,rows in partitions.items()}
-    manifest = dict(source=str(source),source_sha256=digest(source),seed=seed,model_revision=probe['model']['revision'],
+    manifest = dict(source=project_relative_path(source,root),source_sha256=digest(source),seed=seed,model_revision=probe['model']['revision'],
         model_family=family,max_prompt_tokens=integer('MAX_PROMPT_TOKENS'),
         source_expected_examples=integer('SOURCE_EXPECTED_EXAMPLES'),unique_usable_examples=len(records),
         duplicates_removed=duplicates,overlong_removed=too_long,paper_dataset_identity_verified=False,
@@ -602,7 +603,7 @@ try:
                         training_decontamination_dataset=decontamination_metadata)
     paths = [split/name for name in [*partitions,'manifest.json']]
     if any(path.exists() for path in paths):
-        if not all(path.is_file() for path in paths) or json.loads((split/'manifest.json').read_text()) != manifest:
+        if not all(path.is_file() for path in paths) or not split_manifest_matches(json.loads((split/'manifest.json').read_text()), manifest):
             fail('Existing split differs or is incomplete; choose a new SPLIT_DIR')
         if any((split/name).read_text()!=text for name,text in texts.items()): fail('Existing split content changed')
         print('Reusing matching split: '+str(split),flush=True)

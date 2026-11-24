@@ -1,5 +1,4 @@
-# Torch/CUDA is reused read-only from the existing Blackwell environment.
-# Exact versions used: Python 3.10, torch 2.8.0+cu128.
+# Install Torch/CUDA separately. The reference runtime uses Python 3.10 and torch 2.8.0+cu128.
 transformers==4.57.1
 accelerate==1.10.1
 tokenizers==0.22.2

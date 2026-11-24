@@ -25,7 +25,7 @@ SOURCES = [
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--cache-dir',type=Path,default=Path('/local_nvme/data/zhenning/huggingface_datasets'))
+    p.add_argument('--cache-dir',type=Path,default=ROOT/'.cache'/'huggingface_datasets')
     p.add_argument('--output-dir',type=Path,default=ROOT/'data/aime')
     p.add_argument('--years',default='2024,2025,2026')
     p.add_argument('--download',action='store_true',help='Download missing small source files at the pinned revisions')

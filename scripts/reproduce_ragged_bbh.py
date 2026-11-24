@@ -16,6 +16,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+from ep_loop.config import project_relative_path
 from ep_loop.evaluation_data import rad_pass_metrics
 from ep_loop.fastpath.rlt_actor import RltActor, verified_release
 from ep_loop.reproducibility import SAMPLE_SEED_SCHEME, sample_seed
@@ -80,7 +81,7 @@ def make_plan(args):
     records, data_sha256 = load_bbh(args.data)
     if not 1 <= args.shards <= len(records):
         raise ValueError('Shards must be between one and the number of questions')
-    model_dir = (args.model_dir or ROOT / 'models' / args.model).resolve()
+    model_dir = args.model_dir or ROOT / 'models' / args.model
     revision, weight_sha256 = MODELS[args.model]
     files = {name: sha256_file(model_dir / name) for name in MODEL_FILES}
     if files['model.safetensors'] != weight_sha256:
@@ -90,14 +91,17 @@ def make_plan(args):
         if metadata.read_text().splitlines()[0] != revision:
             raise ValueError(f'Unexpected model revision for {model_dir / name}')
     stages = {'core': list(CORE), 'full': [case['name'] for case in cases()]}
+    release = verified_release()
+    for key in ('source', 'python_bin'):
+        release[key] = project_relative_path(release[key], ROOT)
     plan = dict(paper='2610.09013v1 Figure 1(c), Appendix E.1', model=args.model,
-                model_path=str(model_dir), model_revision=revision, model_sha256=files,
-                dataset=str(args.data.resolve()), dataset_sha256=data_sha256, questions=len(records),
+                model_path=project_relative_path(model_dir, ROOT), model_revision=revision, model_sha256=files,
+                dataset=project_relative_path(args.data, ROOT), dataset_sha256=data_sha256, questions=len(records),
                 dataset_sample_seed=SEED, questions_per_task=PER_TASK,
                 shards=args.shards, samples_per_question=ROLLOUTS, generation_seed=GENERATION_SEED,
                 sample_seed_scheme=SAMPLE_SEED_SCHEME, sampling=SAMPLING, cases=cases(), stages=stages,
                 dtype='bfloat16', prompt_format='raw 3-shot CoT; no added special tokens',
-                engine=dict(name='vllm-rlt', release=verified_release(), actor_options=RLT_OPTIONS,
+                engine=dict(name='vllm-rlt', release=release, actor_options=RLT_OPTIONS,
                             kv_layout='last_exited', rlt_top_k=-1),
                 scorer='Last explicit the answer is … up to period or newline, then exact case-sensitive match',
                 completions={name: len(group) * len(records) * ROLLOUTS for name, group in stages.items()})
@@ -130,6 +134,12 @@ def initialize_shard(db, plan_hash):
     db.commit()
 
 
+def plan_asset_path(recorded, project_path):
+    """Use the project asset for a missing recorded path, then verify its hash."""
+    path = ROOT / recorded
+    return path if path.exists() else project_path
+
+
 def generate_shard(args, plan, records, plan_hash, ordered_cases):
     if not 0 <= args.shard < plan['shards']:
         raise ValueError('Shard index is outside the frozen plan')
@@ -153,10 +163,11 @@ def run_pending(args, plan, records, ordered_cases, done, total, db):
     from ep_loop.gpu_resources import require_idle_gpus
     from transformers import AutoTokenizer
 
-    model_dir = Path(plan['model_path'])
+    model_dir = plan_asset_path(plan['model_path'], ROOT / 'models' / plan['model'])
     if any(sha256_file(model_dir / name) != digest for name, digest in plan['model_sha256'].items()):
         raise ValueError('A model file changed after planning')
-    if verified_release() != plan['engine']['release']:
+    release = verified_release()
+    if any(release[key] != plan['engine']['release'][key] for key in ('version', 'commit')):
         raise ValueError('The installed RLT release changed after planning')
     gpu, = require_idle_gpus([args.gpu])
     tokenizer = AutoTokenizer.from_pretrained(model_dir, local_files_only=True)
@@ -324,7 +335,7 @@ def main():
     plan_bytes = args.plan.read_bytes()
     plan_hash = hashlib.sha256(plan_bytes).hexdigest()
     plan = json.loads(plan_bytes)
-    records, data_hash = load_bbh(Path(plan['dataset']))
+    records, data_hash = load_bbh(plan_asset_path(plan['dataset'], DEFAULT_FRONTIER_DIR / 'eval.jsonl'))
     if data_hash != plan['dataset_sha256']:
         raise ValueError('BBH data changed after planning')
     ordered_cases = [case for case in plan['cases'] if case['name'] in plan['stages'][args.stage]]
