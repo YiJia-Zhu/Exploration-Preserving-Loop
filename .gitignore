@@ -24,6 +24,8 @@ dist/
 /data
 /datasets/
 /external/
+/audit/vllm_rlt_v020_release_20261120_144351/vllm-rlt/
+/audit/vllm_rlt_v020_release_20261120_144351/benchmark-venv
 .cache/
 .huggingface/
 

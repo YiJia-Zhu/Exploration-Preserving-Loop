@@ -118,6 +118,16 @@ class VllmActor:
     def generate(self, requests, logprobs=20):
         return self.request('generate',requests=requests,logprobs=logprobs)
 
+    def iter_responses(self, requests):
+        result = self.generate(requests, logprobs=None)
+        responses = result['responses']
+        if len(responses) != len(requests):
+            raise RuntimeError('vLLM returned an incomplete batch')
+        for index, response in enumerate(responses):
+            timing = response.get('request_timing')
+            seconds = sum(timing.values()) if timing else result['seconds']
+            yield index, response, seconds
+
     def teacher_trace(self, requests, output):
         return self.request('teacher_trace',requests=requests,output=str(output))
 

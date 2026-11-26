@@ -24,7 +24,9 @@ python3.10 -m venv .venv
 
 ### 固定轮数 vLLM 推理
 
-`configs/vllm_fixed_*.json` 使用 `ep_loop_envs/vllm026` 中的独立推理环境。该环境使用 Python 3.12、vLLM `0.26.0`、PyTorch `2.11.0+cu130` 和 FlashInfer `0.6.14`。宿主机需要支持 CUDA 13.0 的 NVIDIA 驱动，JIT 编译需要 GCC/G++。先安装 `uv` 并让 shell 能找到 `uv` 命令。[uv 安装说明](https://docs.astral.sh/uv/getting-started/installation/) · [推理依赖](requirements-vllm026.txt)
+`configs/vllm_fixed_*.json` 使用 `ep_loop_envs/vllm026` 中的独立推理环境。本机 H100 安装了官方 vLLM `0.26.0+cu129` 和 PyTorch `2.11.0+cu129`。[本机使用和重建命令](docs/core_environment.md#本机官方-vllm-推理环境)
+
+下面的安装脚本使用 Python 3.12、vLLM `0.26.0`、PyTorch `2.11.0+cu130` 和 FlashInfer `0.6.14`，适用于支持 CUDA 13.0 的 NVIDIA 驱动。JIT 编译需要 GCC/G++。[uv 安装说明](https://docs.astral.sh/uv/getting-started/installation/) · [CUDA 13 推理依赖](requirements-vllm026.txt)
 
 ```bash
 uv venv --python 3.12 ep_loop_envs/vllm026
@@ -34,22 +36,20 @@ ep_loop_envs/vllm026/bin/python -c 'from importlib.metadata import version; prin
 
 训练和评测入口仍用 `.venv/bin/python` 启动，固定轮数配置会通过 `vllm_python_bin` 启动独立推理进程。
 
-### vLLM-RLT 推理与 BBH 复现
+### vLLM-RLT、verl 与 BBH 复现
 
-BBH 复现使用 vLLM-RLT `v0.2.0`，固定到提交 `c08b9d79834bb8b4ff283b15bae2c14c559f6b52`。安装到复现脚本指定的 `benchmark-venv`，使用 Python 3.10、PyTorch `2.8.0+cu128` 和随 PyTorch 安装的 Triton `3.4.0`。[BBH 复现说明](docs/ragged_kv_reproduction.md)
+BBH 复现使用 vLLM-RLT `v0.2.0`，固定到提交 `c08b9d79834bb8b4ff283b15bae2c14c559f6b52`。它与 verl `v0.8.0` 和项目训练依赖统一安装在 `.venv` 中，使用 Python 3.10、PyTorch `2.8.0+cu128`、Triton `3.4.0` 和两者均支持的 NumPy `1.26.4`。[BBH 复现说明](docs/ragged_kv_reproduction.md)
+
+先按[核心环境说明](docs/core_environment.md)准备固定版本源码与兼容链接，然后在已有的 `.venv` 中安装：
 
 ```bash
-RLT_RELEASE=audit/vllm_rlt_v020_release_20261120_144351
-git clone --depth 1 --branch v0.2.0 https://github.com/InferMatrixLab/vllm-rlt.git "$RLT_RELEASE/vllm-rlt"
-python3.10 -m venv "$RLT_RELEASE/benchmark-venv"
-RLT_PY="$RLT_RELEASE/benchmark-venv/bin/python"
-"$RLT_PY" -m pip install --index-url https://download.pytorch.org/whl/cu128 'torch==2.8.0+cu128'
-"$RLT_PY" -m pip install -r requirements-stage.txt -e "$RLT_RELEASE/vllm-rlt"
-"$RLT_PY" -m pip check
+uv pip install --python .venv/bin/python --torch-backend cu128 \
+  -r requirements-core.txt -e external/vllm-rlt -e external/verl
+.venv/bin/python -m pip check
 .venv/bin/python -c 'from ep_loop.fastpath.rlt_actor import verified_release; print(verified_release())'
 ```
 
-使用 `configs/evaluation_vllm_rlt.json` 评测时，`scripts/evaluate_fastpath.py` 从 `external/vllm-rlt` 加载源码。可将该路径链接到上面的源码目录，然后用 `"$RLT_PY"` 启动评测脚本。
+`benchmark-venv` 是指向同一个 `.venv` 的兼容链接。使用 `configs/evaluation_vllm_rlt.json` 评测时，`scripts/evaluate_fastpath.py` 从 `external/vllm-rlt` 加载源码，也用 `.venv/bin/python` 启动。
 
 ## 数据和模型
 
@@ -79,10 +79,10 @@ ln -srT -- "$MODELS_DIR/Ouro-1.4B" models/Ouro-1.4B
 
 全量回归测试还会读取 `models/huginn-0125/` 下的官方 `raven_config_minimal.py` 和 `raven_modeling_minimal.py`。准备好模型源码后运行 `.venv/bin/python -m pytest -q`。[Huginn 固定版本](configs/huginn_math_base.json)
 
-Phase 0 先用非 Thinking Ouro 和 BBH 复现 Ragged KV 图 1(c)，随后在 AIME 2024 上用原始 Thinking 权重执行固定 1／2／4 轮、动态精确回填和动态零回填对照。[复现方案](docs/ragged_kv_reproduction.md)
+Phase 0 先用非 Thinking Ouro 和 BBH 复现 Ragged KV 图 1(c)，随后在 AIME 2024 上测试原始 Thinking 权重。固定 1／2／4 轮用官方 vLLM，动态零回填用 vLLM-RLT，动态精确回填用仓库的 PyTorch 实现。[复现方案](docs/ragged_kv_reproduction.md)
 
 ```bash
-.venv/bin/python scripts/evaluate_stage_distillation.py --phase-zero \
+.venv/bin/python scripts/evaluate_stage_distillation.py --config configs/rad_opd.json --phase-zero \
   --data data/aime/aime2024.jsonl --output ep_loop_runs/rad_phase0/responses.jsonl
 ```
 

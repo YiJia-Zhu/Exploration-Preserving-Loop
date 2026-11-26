@@ -66,10 +66,12 @@ def main():
                 if getattr(args, name) is not None
             })
             cache_options = {} if args.kv_block_size is None else {'block_size': args.kv_block_size}
+            cache_config = CacheConfig(
+                layout='last_exited', gpu_memory_utilization=0.9,
+                enable_prefix_caching=args.enable_prefix_caching, **cache_options)
             engine = StageEngine(
                 model,
-                cache_config=CacheConfig(layout='last_exited', gpu_memory_utilization=.75,
-                    enable_prefix_caching=args.enable_prefix_caching, **cache_options),
+                cache_config=cache_config,
                 scheduler_config=scheduler,
                 attention_backend=args.attention_backend,
                 exit_config=ExitConfig(mode='ouro_delayed' if args.async_scheduling else 'ouro'),
@@ -82,7 +84,8 @@ def main():
             ready=True, executed_loops=args.loops, backend='vllm-rlt',
             module_path=vllm_rlt.__file__,
             attention_backend=args.attention_backend, async_scheduling=args.async_scheduling,
-            kv_layout='last_exited', torch_version=torch.__version__, cuda_version=torch.version.cuda,
+            kv_layout=cache_config.layout, torch_version=torch.__version__, cuda_version=torch.version.cuda,
+            gpu_memory_utilization=cache_config.gpu_memory_utilization,
             cuda_graphs=not args.eager,
             enable_prefix_caching=args.enable_prefix_caching,
             max_num_seqs=effective.max_num_seqs,

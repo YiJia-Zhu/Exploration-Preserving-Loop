@@ -1,0 +1,20 @@
+# Unified RAD-OPD, vLLM-RLT v0.2.0 and verl v0.8.0 environment.
+# Use uv's --torch-backend cu128 and install the pinned external checkouts.
+-r requirements-stage.txt
+torch==2.8.0+cu128
+triton==3.4.0
+peft==0.17.1
+torchdata==0.11.0
+tensordict==0.10.0
+ray[default]==2.54.0
+datasets==4.4.1
+pandas==2.3.3
+# Utilities used by the trainer/FSDP modules in addition to setup.py's deps.
+cachetools
+einops
+pillow
+fastapi
+uvicorn
+packaging
+ninja
+pytest

@@ -6,11 +6,13 @@ import fcntl
 import hashlib
 from itertools import groupby
 import json
+import os
 from pathlib import Path
 import random
 import re
 import sqlite3
 from statistics import mean, quantiles
+import subprocess
 import sys
 
 
@@ -18,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from ep_loop.config import project_relative_path
 from ep_loop.evaluation_data import rad_pass_metrics
+from ep_loop.fastpath.actor import VllmActor
 from ep_loop.fastpath.rlt_actor import RltActor, verified_release
 from ep_loop.reproducibility import SAMPLE_SEED_SCHEME, sample_seed
 from scripts.prepare_ragged_bbh import (
@@ -33,12 +36,20 @@ MODELS = {
 }
 MODEL_FILES = ('model.safetensors', 'config.json', 'configuration_ouro.py', 'modeling_ouro.py',
                'tokenizer.json', 'tokenizer_config.json', 'special_tokens_map.json')
-THRESHOLDS = (.20, .25, .28, .30, .35, .40, .45, .50, .60, .75)
-CORE = ('fixed_2', 'fixed_4', 'ragged_0.20', 'ragged_0.25', 'ragged_0.28', 'ragged_0.30')
+THRESHOLDS = (.10, .15, .20, .25, .30)
+CORE = ('fixed_2', 'fixed_4', *(f'ragged_{tau:.2f}' for tau in THRESHOLDS))
+CONTRASTS = (('ragged_0.20', 'ragged_0.30'), ('ragged_0.30', 'fixed_2'), ('ragged_0.30', 'fixed_4'))
+LEGACY_CONTRASTS = (('ragged_0.20', 'ragged_0.28'), ('ragged_0.28', 'fixed_2'), ('ragged_0.28', 'fixed_4'))
 ROLLOUTS = 4
 SAMPLING = dict(max_new_tokens=1024, temperature=1.0, top_p=.7, top_k=0)
 GENERATION_SEED = 42
-RLT_OPTIONS = dict(max_model_len=4096, max_num_seqs=16, max_num_batched_tokens=4096,
+REQUESTS_PER_BATCH = 8
+VLLM_PYTHON = ROOT / 'ep_loop_envs/vllm026/bin/python'
+VLLM_VERSION = '0.26.0+cu129'
+CUDA_TOOLKIT = '/usr/local/cuda-12.8'
+VLLM_OPTIONS = dict(policy='fixed', max_model_len=4096, memory_fraction=0.90,
+                    attention_backend='FLASHINFER', prefix_caching=False)
+RLT_OPTIONS = dict(max_model_len=4096, max_num_batched_tokens=4096,
                    prefill_chunk_size=128, attention_backend='triton', kv_block_size=64,
                    eager=False, async_scheduling=False, prefix_caching=False)
 ANSWER = re.compile(r'\bthe answer is[ \t]+([^.\r\n]+)', re.IGNORECASE)
@@ -70,9 +81,11 @@ def load_bbh(path):
 
 
 def cases():
-    fixed = [dict(name=f'fixed_{depth}', endpoint='fixed', loops=depth, min_loops=depth, threshold=1.0)
+    fixed = [dict(name=f'fixed_{depth}', endpoint='fixed', backend='vllm',
+                  loops=depth, min_loops=depth, threshold=1.0)
              for depth in range(1, 5)]
-    ragged = [dict(name=f'ragged_{tau:.2f}', endpoint='ragged', loops=4, min_loops=1, threshold=tau)
+    ragged = [dict(name=f'ragged_{tau:.2f}', endpoint='ragged', backend='vllm-rlt',
+                   loops=4, min_loops=1, threshold=tau)
               for tau in THRESHOLDS]
     return fixed + ragged
 
@@ -90,19 +103,29 @@ def make_plan(args):
         metadata = model_dir / '.cache/huggingface/download' / f'{name}.metadata'
         if metadata.read_text().splitlines()[0] != revision:
             raise ValueError(f'Unexpected model revision for {model_dir / name}')
-    stages = {'core': list(CORE), 'full': [case['name'] for case in cases()]}
+    matrix = cases()
+    stages = {'core': list(CORE), 'full': [case['name'] for case in matrix]}
+    vllm_version = subprocess.check_output(
+        [str(VLLM_PYTHON), '-I', '-c', 'from importlib.metadata import version; print(version("vllm"))'],
+        text=True).strip()
+    if vllm_version != VLLM_VERSION:
+        raise ValueError(f'Expected official vLLM {VLLM_VERSION} in {VLLM_PYTHON}, found {vllm_version}')
     release = verified_release()
     for key in ('source', 'python_bin'):
         release[key] = project_relative_path(release[key], ROOT)
+    engines = {
+        'vllm': dict(version=vllm_version, python_bin=project_relative_path(VLLM_PYTHON, ROOT),
+                     cuda_toolkit=CUDA_TOOLKIT, actor_options=VLLM_OPTIONS),
+        'vllm-rlt': dict(release=release, actor_options=RLT_OPTIONS, kv_layout='last_exited', rlt_top_k=-1),
+    }
     plan = dict(paper='2610.09013v1 Figure 1(c), Appendix E.1', model=args.model,
                 model_path=project_relative_path(model_dir, ROOT), model_revision=revision, model_sha256=files,
                 dataset=project_relative_path(args.data, ROOT), dataset_sha256=data_sha256, questions=len(records),
                 dataset_sample_seed=SEED, questions_per_task=PER_TASK,
                 shards=args.shards, samples_per_question=ROLLOUTS, generation_seed=GENERATION_SEED,
-                sample_seed_scheme=SAMPLE_SEED_SCHEME, sampling=SAMPLING, cases=cases(), stages=stages,
+                sample_seed_scheme=SAMPLE_SEED_SCHEME, sampling=SAMPLING, cases=matrix, stages=stages,
                 dtype='bfloat16', prompt_format='raw 3-shot CoT; no added special tokens',
-                engine=dict(name='vllm-rlt', release=release, actor_options=RLT_OPTIONS,
-                            kv_layout='last_exited', rlt_top_k=-1),
+                engines=engines, requests_per_batch=REQUESTS_PER_BATCH, contrasts=CONTRASTS,
                 scorer='Last explicit the answer is … up to period or newline, then exact case-sensitive match',
                 completions={name: len(group) * len(records) * ROLLOUTS for name, group in stages.items()})
     args.output.mkdir(parents=True, exist_ok=False)
@@ -166,33 +189,58 @@ def run_pending(args, plan, records, ordered_cases, done, total, db):
     model_dir = plan_asset_path(plan['model_path'], ROOT / 'models' / plan['model'])
     if any(sha256_file(model_dir / name) != digest for name, digest in plan['model_sha256'].items()):
         raise ValueError('A model file changed after planning')
+    engines = plan['engines'] if 'engines' in plan else {'vllm-rlt': plan['engine']}
     release = verified_release()
-    if any(release[key] != plan['engine']['release'][key] for key in ('version', 'commit')):
+    if any(release[key] != engines['vllm-rlt']['release'][key] for key in ('version', 'commit')):
         raise ValueError('The installed RLT release changed after planning')
+    if 'vllm' in engines:
+        toolkit = Path(engines['vllm']['cuda_toolkit'])
+        # Prefer the installed H100 toolkit for FlashInfer JIT.
+        if (toolkit / 'bin/nvcc').is_file():
+            os.environ.update(CUDA_HOME=str(toolkit), CUDA_PATH=str(toolkit),
+                              PATH=os.pathsep.join((str(toolkit / 'bin'), os.environ.get('PATH', os.defpath))))
+        os.environ.update(HF_HUB_OFFLINE='1', VLLM_NO_USAGE_STATS='1')
     gpu, = require_idle_gpus([args.gpu])
     tokenizer = AutoTokenizer.from_pretrained(model_dir, local_files_only=True)
-    options = plan['engine']['actor_options']
+    max_model_len = min(engine['actor_options']['max_model_len'] for engine in engines.values())
     max_new_tokens = plan['sampling']['max_new_tokens']
     encoded = {}
     for example in records:
         ids = tokenizer.encode(example['prompt'], add_special_tokens=False)
-        if not ids or len(ids) + max_new_tokens > options['max_model_len']:
+        if not ids or len(ids) + max_new_tokens > max_model_len:
             raise ValueError(f"Frozen prompt exceeds Ouro context: {example['id']}")
         encoded[example['id']] = ids
 
     completed = len(done)
-    for loops, group in groupby(ordered_cases, key=lambda case: case['loops']):
+    groups = groupby(ordered_cases, key=lambda case: (case.get('backend', 'vllm-rlt'), case['loops']))
+    for (backend, loops), group in groups:
         pending = [(case, list(pending_jobs(case, records, plan, done, encoded))) for case in group]
         pending = [(case, jobs) for case, jobs in pending if jobs]
         if not pending:
             continue
-        log = args.plan.parent / f'shard_{args.shard:02d}_rlt_prefill{loops}.log'
-        with RltActor.from_release(model_dir, gpu['uuid'], log, loops=loops, **options) as actor:
-            runtime = dict(actor.runtime, gpu_index=args.gpu, gpu_uuid=gpu['uuid'], stage=args.stage)
+        engine = engines[backend]
+        log_prefix = 'vllm' if backend == 'vllm' else 'rlt'
+        log = args.plan.parent / f'shard_{args.shard:02d}_{log_prefix}_prefill{loops}.log'
+        options = engine['actor_options']
+        if backend == 'vllm':
+            actor = VllmActor(model_dir, gpu['uuid'], log, loops=loops,
+                              python_bin=ROOT / engine['python_bin'], **options)
+        else:
+            actor = RltActor.from_release(model_dir, gpu['uuid'], log, loops=loops, **options)
+        with actor:
+            if backend == 'vllm':
+                if (actor.runtime.get('vllm_version') != engine['version']
+                        or not actor.runtime.get('native_fixed_student')):
+                    raise RuntimeError('Expected the pinned official vLLM fixed-depth engine')
+            elif actor.runtime['kv_layout'] != engine['kv_layout']:
+                raise RuntimeError('The running RLT KV layout differs from the frozen plan')
+            batch_size = plan.get('requests_per_batch') or actor.runtime['max_num_seqs']
+            runtime = dict(actor.runtime, backend=backend, gpu_index=args.gpu, gpu_uuid=gpu['uuid'],
+                           stage=args.stage, requests_per_batch=batch_size)
             with db:
                 db.execute('INSERT INTO attempts VALUES (?)', (json.dumps(runtime),))
             for case, jobs in pending:
-                for result in generate_case(actor, tokenizer, case, jobs, options['max_num_seqs']):
+                for result in generate_case(actor, tokenizer, case, jobs, batch_size):
                     key = (result['arm'], result['id'], result['sample'])
                     with db:
                         db.execute('INSERT INTO responses VALUES (?, ?, ?, ?)', (*key, json.dumps(result)))
@@ -223,7 +271,7 @@ def generate_case(actor, tokenizer, case, pending, batch_size):
             if (not 0 < len(tokens) <= request['max_new_tokens'] or len(depths) != len(tokens)
                     or depths[0] != case['loops'] or response['finish_reason'] not in ('stop', 'length')
                     or (response['finish_reason'] == 'length' and len(tokens) != request['max_new_tokens'])):
-                raise RuntimeError(f"Invalid RLT completion for {case['name']}/{example['id']}/{sample}")
+                raise RuntimeError(f"Invalid completion for {case['name']}/{example['id']}/{sample}")
             text = tokenizer.decode(tokens, skip_special_tokens=True, clean_up_tokenization_spaces=False)
             parsed, correct = score_answer(text, example['target'])
             yield dict(arm=case['name'], id=example['id'], task=example['task'], sample=sample,
@@ -303,7 +351,7 @@ def summarize(args, plan, records, plan_hash, ordered_cases):
         metrics, per_arm[name] = summarize_case(rows_by_arm[name])
         report[name] = {**case, **metrics}
     contrasts = {}
-    for left, right in [('ragged_0.20', 'ragged_0.28'), ('ragged_0.28', 'fixed_2'), ('ragged_0.28', 'fixed_4')]:
+    for left, right in plan.get('contrasts', LEGACY_CONTRASTS):
         contrasts[f'{left}_minus_{right}'] = paired_effect(per_arm[left], per_arm[right], records)
     output = args.plan.parent / f'summary_{args.stage}.json'
     temporary = output.with_suffix('.tmp')

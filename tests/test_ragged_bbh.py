@@ -3,9 +3,12 @@ import json
 import sqlite3
 from contextlib import closing
 from types import SimpleNamespace
+from unittest.mock import MagicMock, Mock
 
 import pytest
 
+from ep_loop.fastpath.actor import VllmActor
+from scripts import reproduce_ragged_bbh as bbh
 from scripts.reproduce_ragged_bbh import (
     CORE, SAMPLING, cases, collect_shards, generate_case, initialize_shard, paired_effect,
     pending_jobs, score_answer, summarize_case,
@@ -21,10 +24,66 @@ def test_strict_bbh_answer_extraction():
 
 
 def test_figure_matrix_contains_core_without_duplicate_arms():
-    names = {case['name'] for case in cases()}
-    assert len(cases()) == len(names) == 14
-    assert len(CORE) == 6 and set(CORE) <= names
-    assert all(case['loops'] == 4 for case in cases() if case['endpoint'] == 'ragged')
+    matrix = cases()
+    names = {case['name'] for case in matrix}
+    assert len(matrix) == len(names) == 9
+    assert len(CORE) == 7 and set(CORE) <= names
+    fixed = [case for case in matrix if case['endpoint'] == 'fixed']
+    ragged = [case for case in matrix if case['endpoint'] == 'ragged']
+    assert [case['loops'] for case in fixed] == [1, 2, 3, 4]
+    assert all(case['backend'] == 'vllm' for case in fixed)
+    assert [case['threshold'] for case in ragged] == [.10, .15, .20, .25, .30]
+    assert all(case['backend'] == 'vllm-rlt' and case['loops'] == 4 and case['min_loops'] == 1
+               for case in ragged)
+
+
+def test_bbh_fixed_and_dynamic_at_depth_four_use_different_actors(tmp_path, monkeypatch):
+    release = dict(version='0.2.0', commit='rlt')
+    tokenizer = SimpleNamespace(encode=lambda *args, **kwargs: [12, 13],
+                                decode=lambda *args, **kwargs: 'The answer is True.')
+    monkeypatch.setattr('transformers.AutoTokenizer.from_pretrained', lambda *args, **kwargs: tokenizer)
+    monkeypatch.setattr('ep_loop.gpu_resources.require_idle_gpus', lambda _: [dict(uuid='test-gpu')])
+    monkeypatch.setattr(bbh, 'verified_release', lambda: release)
+    monkeypatch.setenv('HF_HUB_OFFLINE', '1')
+    monkeypatch.setenv('VLLM_NO_USAGE_STATS', '1')
+
+    fixed = VllmActor.__new__(VllmActor)
+    fixed.runtime = dict(vllm_version=bbh.VLLM_VERSION, native_fixed_student=True, max_num_seqs=None)
+    response = dict(token_ids=[7, 0], exit_depths=[4, 4], finish_reason='stop', executed_token_loops=12)
+    fixed.generate = Mock(return_value=dict(responses=[response], seconds=.1))
+    fixed_actor = Mock(return_value=fixed)
+    monkeypatch.setattr(bbh, 'VllmActor', fixed_actor)
+
+    ragged = MagicMock()
+    ragged.runtime = dict(kv_layout='last_exited', max_num_seqs=8, gpu_memory_utilization=0.9)
+    ragged.iter_responses.return_value = [(0, dict(response, exit_depths=[4, 1], executed_token_loops=9), .1)]
+    ragged_actor = Mock(return_value=ragged)
+    monkeypatch.setattr(bbh.RltActor, 'from_release', ragged_actor)
+
+    args = SimpleNamespace(plan=tmp_path / 'plan.json', gpu=0, shard=0, stage='core')
+    plan = dict(model='Ouro-1.4B', model_path=str(tmp_path), model_sha256={}, requests_per_batch=8,
+                sampling=SAMPLING, generation_seed=42, samples_per_question=1, engines={
+                    'vllm': dict(version=bbh.VLLM_VERSION, python_bin=str(bbh.VLLM_PYTHON),
+                                 cuda_toolkit=str(tmp_path), actor_options=bbh.VLLM_OPTIONS),
+                    'vllm-rlt': dict(release=release, actor_options=bbh.RLT_OPTIONS, kv_layout='last_exited'),
+                })
+    example = dict(id='q', task='t', prompt='Prompt', prompt_sha256='prompt', target='True')
+    arms = [case for case in cases() if case['name'] in ('fixed_4', 'ragged_0.10')]
+    with closing(sqlite3.connect(':memory:')) as db:
+        initialize_shard(db, 'test-plan')
+        bbh.run_pending(args, plan, [example], arms, set(), len(arms), db)
+        rows = {arm: json.loads(payload) for arm, payload in db.execute('SELECT arm, payload FROM responses')}
+        attempts = [json.loads(payload) for payload, in db.execute('SELECT runtime FROM attempts')]
+
+    assert rows['fixed_4']['exit_depths'] == [4, 4]
+    assert rows['ragged_0.10']['exit_depths'] == [4, 1]
+    assert fixed_actor.call_args.kwargs['memory_fraction'] == 0.9
+    assert fixed_actor.call_args.kwargs['policy'] == 'fixed'
+    assert all('max_num_seqs' not in actor.call_args.kwargs for actor in (fixed_actor, ragged_actor))
+    assert {row['backend']: row['requests_per_batch'] for row in attempts} == {'vllm': 8, 'vllm-rlt': 8}
+    assert ragged.iter_responses.call_args.args[0][0]['exit_threshold'] == 0.10
+    fixed.generate.assert_called_once()
+    assert fixed.generate.call_args.kwargs == {'logprobs': None}
 
 
 def test_metrics_use_per_question_pass_and_exclude_prefill_depth():

@@ -4,7 +4,8 @@ accelerate==1.10.1
 tokenizers==0.22.2
 huggingface_hub==0.36.2
 safetensors==0.8.0
-numpy==2.2.6
+# Shared with verl v0.8.0, which requires NumPy < 2.
+numpy==1.26.4
 tqdm==4.68.4
 # Read the pinned DAPO/AIME parquet source files during data preparation.
 pyarrow==25.0.0

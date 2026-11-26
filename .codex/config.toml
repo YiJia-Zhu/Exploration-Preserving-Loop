@@ -1,0 +1,3 @@
+# Default permissions for this repository and its subdirectories.
+approval_policy = "never"
+sandbox_mode = "danger-full-access"

@@ -1,4 +1,0 @@
-# Optional runtime for the isolated Ouro adapter. Already present in the
-# verified environment; the launcher never installs/upgrades shared packages.
-# Local adapter is copied/backported from upstream vLLM v0.12.0.
-vllm==0.11.0
