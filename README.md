@@ -1,6 +1,6 @@
 # Exploration-Preserving Loop Distillation
 
-当前默认路线为 **RAD-OPD**。Ouro-1.4B-Thinking 用原生 gate 和零回填 Ragged KV 在策略生成。训练时每题抽取一个退出阈值，冻结的满四轮教师在相同文本上打分，学生沿实际退出轨迹可微重放并做全词表 Reverse KL。退出头参数冻结。[方案](docs/rad_opd_mvp.md) · [默认配置](configs/rad_opd.json)
+当前默认路线为 **RAD-OPD**。Ouro-1.4B-Thinking 用原生 gate 和 Ragged KV 在策略生成。训练时每题抽取一个退出阈值，冻结的满四轮教师在相同文本上打分，学生沿实际退出轨迹可微重放并做全词表 Reverse KL。退出头参数冻结。[方案](docs/rad_opd_mvp.md) · [默认配置](configs/rad_opd.json)
 
 ## Python 环境
 
@@ -53,7 +53,7 @@ uv pip install --python .venv/bin/python --torch-backend cu128 \
 
 ## 数据和模型
 
-项目统一从 `data/` 读取预处理数据。迁移后把 `data` 直接链接到存放 `aime/`、`bbh_frontier/`、`dapo_math17k/` 和 `dapo_ablation/` 的目录。`models/` 通过 `.gitkeep` 随仓库保留，各模型按目录建立相对软链接。以下命令在项目根目录运行。
+项目从 `data/` 读取实验数据。RAD-OPD 本机试跑直接读 `data/DAPO-Math-17k/data/dapo-math-17k.parquet`。迁移时 `data` 可链接到存放原始数据与 `aime/`、`bbh_frontier/`、`dapo_ablation/` 等实验数据的目录。`models/` 通过 `.gitkeep` 随仓库保留，各模型按目录建立相对软链接。以下命令在项目根目录运行。
 
 ```bash
 DATA_DIR=../huggingface_datasets/Exploration-Preserving-Loop
@@ -79,7 +79,7 @@ ln -srT -- "$MODELS_DIR/Ouro-1.4B" models/Ouro-1.4B
 
 全量回归测试还会读取 `models/huginn-0125/` 下的官方 `raven_config_minimal.py` 和 `raven_modeling_minimal.py`。准备好模型源码后运行 `.venv/bin/python -m pytest -q`。[Huginn 固定版本](configs/huginn_math_base.json)
 
-Phase 0 先用非 Thinking Ouro 和 BBH 复现 Ragged KV 图 1(c)，随后在 AIME 2024 上测试原始 Thinking 权重。固定 1／2／4 轮用官方 vLLM，动态零回填用 vLLM-RLT，动态精确回填用仓库的 PyTorch 实现。[复现方案](docs/ragged_kv_reproduction.md)
+Phase 0 先用非 Thinking Ouro 和 BBH 复现 Ragged KV 图 1(c)，随后在 AIME 2024 上测试原始 Thinking 权重。固定 1／2／4 轮和**原生 Ouro KV** 用官方 vLLM，**Ragged KV** 用 vLLM-RLT `LAST_EXITED`。[复现方案](docs/ragged_kv_reproduction.md)
 
 ```bash
 .venv/bin/python scripts/evaluate_stage_distillation.py --config configs/rad_opd.json --phase-zero \
@@ -97,7 +97,7 @@ Phase 0 先用非 Thinking Ouro 和 BBH 复现 Ragged KV 图 1(c)，随后在 AI
 
 消融配置可以继承 `configs/rad_opd.json`。设置 `algorithm.rad_detach_reused_kv=true` 截断浅轮 KV 复用梯度，或设置 `algorithm.rad_tau.fixed` 训练单个阈值。离线对照通过 `data.rad_offline_responses` 指向冻结四轮教师生成的 JSONL，每行包含 `problem_sha256`、`sample` 和 `tokens`，覆盖训练池及每题所需样本。用评测入口的 `--loops 4 --write-token-ids` 导出时，显式传原始权重并将数据校验设置对齐教师语料。离线训练沿给定文本重新计算学生退出轨迹。
 
-当前 rollout 用 PyTorch 维护紧凑物理 KV，并在 attention 读取时临时 gather。训练重放用 `torch.where` 保留梯度，CUDA SDPA 选择可用的 attention kernel。物理槽统计不计分配器余量、索引和临时 gather。
+训练 rollout 用 PyTorch 执行 Ragged KV。每层 KV 缓存给实际执行的轮次写槽，attention 按索引临时 gather。训练重放用 `torch.where` 保留梯度，CUDA SDPA 选择可用的 attention kernel。物理槽统计按各层写入的有效槽计数。
 
 ## 备选路线
 

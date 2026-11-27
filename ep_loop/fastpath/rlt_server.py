@@ -47,9 +47,13 @@ def main():
             from vllm_rlt import SamplingParams
             from vllm_rlt.config import CacheConfig, ExecutionConfig, ExitConfig, SchedulerConfig
             from vllm_rlt.engine.stage_engine import StageEngine
-            from vllm_rlt.models import AutoModelForCausalLM, prepare_model
+            from vllm_rlt.models import AutoModelForCausalLM, ModelConfig, resolve_model_config
 
-            source, revision, config = prepare_model(args.model)
+            source, revision, values = resolve_model_config(args.model)
+            # RAD-OPD records its rollout policy in the Hugging Face checkpoint.
+            if values.get('model_type') == 'ouro' and values.get('ep_loop_student_policy') == 'ragged':
+                values.pop('ep_loop_student_policy')
+            config = ModelConfig.from_dict(values)
             if config.model_type != 'ouro' or not 1 <= args.loops <= config.total_ut_steps:
                 raise ValueError('vLLM-RLT evaluation requires Ouro and a supported prefill depth')
             if args.max_model_len > config.max_position_embeddings:

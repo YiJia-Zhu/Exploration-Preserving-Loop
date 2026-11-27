@@ -1,0 +1,38 @@
+{
+  "extends": "rad_opd.json",
+  "run_name": "rad_opd_pilot",
+  "data": {
+    "train_path": "data/DAPO-Math-17k/data/dapo-math-17k.parquet",
+    "expected_examples": 1791700,
+    "max_prompt_tokens": 49152
+  },
+  "algorithm": {
+    "teacher_update": "frozen",
+    "rad_tau": {
+      "initial_thresholds": [0.8, 0.6, 0.4, 0.3, 0.25, 0.2, 0.15]
+    }
+  },
+  "optimization": {
+    "updates": 16,
+    "global_batch_size": 16
+  },
+  "rollout": {
+    "prompts_per_batch": 4,
+    "responses_per_prompt": 4,
+    "max_new_tokens": 16384,
+    "sample_seeds": [42, 43, 44, 45]
+  },
+  "evaluation": {
+    "ragged_thresholds": [0.20, 0.45]
+  },
+  "implementation": {
+    "rollout_backend": "vllm-rlt",
+    "teacher_backend": "vllm",
+    "vllm_python_bin": "ep_loop_envs/vllm026/bin/python",
+    "vllm_attention_backend": "FLASHINFER",
+    "vllm_memory_fraction": 0.9,
+    "checkpoint_layout": "split",
+    "save_every_updates": 4,
+    "resume_save_every_updates": 1
+  }
+}

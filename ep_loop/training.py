@@ -14,6 +14,7 @@ import os
 import random
 import shutil
 import sys
+from tempfile import TemporaryDirectory
 import time
 
 import torch
@@ -119,8 +120,12 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
         raise ValueError("Native base is an inference baseline; use evaluate_stage_distillation.py")
     policy = config["algorithm"].get("student_policy", "fixed")
     ragged = policy == "ragged"
+    implementation = config['implementation']
+    accelerated = implementation.get('rollout_backend') == 'vllm-rlt' and not smoke
+    rollout_backend = 'vllm-rlt' if accelerated else 'hf'
+    teacher_backend = 'vllm' if accelerated else 'hf'
     if ragged:
-        from .ragged import sample_training_threshold
+        from .ragged import RaggedKVCache, sample_training_threshold
     if not smoke:
         with observer.stage("asset_preflight", echo=True):
             status = assets_status(config, ROOT)
@@ -133,6 +138,8 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
     if device_name == "auto":
         device_name = "cuda" if torch.cuda.is_available() else "cpu"
     device = torch.device(f"cuda:{local_rank}" if device_name == "cuda" else device_name)
+    if accelerated and (device.type != 'cuda' or world != 1 or implementation.get('vllm_tensor_parallel_size', 1) != 1):
+        raise ValueError('RAD-OPD vLLM-RLT and vLLM phases require one CUDA rank')
     if device.type == "cuda":
         torch.cuda.set_device(device)
     observer.event('cpu_runtime', echo=True, num_threads=configure_cpu_threads())
@@ -151,6 +158,7 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
     lock = None
     tensorboard = None
     resume_info = None
+    teacher = None
     try:
         if resume:resume_info = inspect_resume_checkpoint(resume,config,world)
         if rank == 0:
@@ -177,7 +185,10 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                 tokenizer = AutoTokenizer.from_pretrained(model_dir, local_files_only=True)
         # Clone before loading a resumed student: frozen means the INITIAL model.
         with observer.stage("teacher_student_setup", echo=True):
-            if config["algorithm"]["teacher_update"] == "frozen":
+            if accelerated:
+                from .fastpath.teacher import VllmTeacher
+                teacher = VllmTeacher(student, config, output, local_rank, observer)
+            elif config["algorithm"]["teacher_update"] == "frozen":
                 teacher = type(student)(copy.deepcopy(student.model).eval().requires_grad_(False), student.mixed_precision)
             else:
                 teacher = student
@@ -196,6 +207,9 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                 data_report["offline_response_sha256"] = offline.sha256
                 data_report["usable_prompt_hash"] = canonical_hash(
                     [data_report["usable_prompt_hash"], offline.sha256])
+            if accelerated:
+                teacher.max_model_len = (max(len(record['input_ids']) for record in records)
+                                         + config['rollout']['max_new_tokens'])
         validate_resume_data(resume_info,data_report)
         if rank == 0:
             write_json(output / "resolved_config.json", config)
@@ -209,8 +223,8 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                 teacher_parameter_refresh=config["algorithm"]["teacher_update"],
                 teacher_reuses_student_forward=config['algorithm'].get('teacher_reuse_student',False),
                 model_instances_per_rank=1 if config['algorithm']['teacher_update']=='current' else 2,
-                rollout_backend='hf',
-                hf_rollout_batch_size=config['implementation'].get('hf_rollout_batch_size',1),
+                rollout_backend=rollout_backend, teacher_backend=teacher_backend, phase_offload=accelerated,
+                hf_rollout_batch_size=None if accelerated else implementation.get('hf_rollout_batch_size',1),
                 native_exit_reduces_executed_loops=ragged or student.native_exit_reduces_executed_loops,
                 teacher_execution_policy=config['algorithm']['teacher_endpoint'],
                 teacher_native_exit_reduces_executed_loops=config['algorithm']['teacher_endpoint']=='native_adaptive',
@@ -218,13 +232,16 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                 experiment=config.get('experiment',{}),
                 student_policy=config["algorithm"].get("student_policy", "fixed"),
                 learned_student_uses_full_prefix_recomputation=config["algorithm"].get("student_policy") == "learned" and not config["rollout"]["use_cache"],
-                rollout_cache_policy='ragged_zero_backfill' if ragged else 'hf_batched_static_prefix' if execution_mode(config)==HF_SHARED else ("exact_lazy_depth" if policy == "learned"
+                rollout_cache_policy='rlt_last_exited' if accelerated else RaggedKVCache.policy if ragged else 'hf_batched_static_prefix' if execution_mode(config)==HF_SHARED else ("exact_lazy_depth" if policy == "learned"
                                       else "native") if config["rollout"]["use_cache"] else "none",
                 token_loop_accounting="Forward backbone only; excludes checkpoint replay, backward, LM head; teacher coda token-positions logged separately",
                 reproducibility=execution_provenance(ROOT, device, config["seed"], rank, world),
                 observability=observer.metadata(),
             ))
-            for source in [*sorted((ROOT/"ep_loop").glob("*.py")), ROOT/"scripts/train_stage_distillation.py"]:
+            sources = [*sorted((ROOT/"ep_loop").glob("*.py")), ROOT/"scripts/train_stage_distillation.py"]
+            if accelerated:
+                sources.extend(sorted((ROOT/'ep_loop/fastpath').glob('*.py')))
+            for source in sources:
                 destination = output/"code"/source.relative_to(ROOT)
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 if not destination.exists():
@@ -267,6 +284,7 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
         k, s = config["algorithm"]["teacher_max_loops"], student_budget(config)
         dynamic = policy != "fixed"
         rollout = config["rollout"]
+        rollout_seeds = rollout.get("sample_seeds")
         n_local = opt["global_batch_size"] // world
         final_update = min(opt["updates"], stop_after_updates) if stop_after_updates else opt["updates"]
         updates_bar = observer.progress(total=opt["updates"], initial=completed,
@@ -284,7 +302,31 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
             optimizer.zero_grad(set_to_none=True)
             count = rollout["prompts_per_batch"]
             indices = sample_rollout_indices(data_rng, len(records), count)
-            if batcher is not None:
+            if accelerated:
+                from .fastpath.residency import move_training_state
+                from .fastpath.rlt_rollout import generate_rlt_rollouts
+                with observer.stage('training_state_offload', echo=True, update=update+1):
+                    if not teacher.current:
+                        teacher.model.to('cpu')
+                    move_training_state(student.model, optimizer, 'cpu')
+                selected_records = [records[index] for index in indices]
+                with TemporaryDirectory(prefix='.inference_weights_', dir=output) as snapshot:
+                    with observer.stage('inference_weights_save', echo=True, update=update+1, weight_version=update):
+                        weights = student.model.state_dict()
+                        student.model.save_pretrained(snapshot, state_dict=weights, safe_serialization=True,
+                                                      max_shard_size=sum(tensor.nbytes for tensor in weights.values()))
+                        del weights
+                    responses = generate_rlt_rollouts(student, snapshot, config, selected_records, update,
+                                                      generator, output, teacher.gpu, observer)
+                    teacher.prepare([(ident, sample, response) for ident, sample, response, _ in responses],
+                                    selected_records, update,
+                                    weights_path=Path(snapshot)/'model.safetensors' if teacher.current else None)
+                rlt_responses = {(ident, sample): (response, seed) for ident, sample, response, seed in responses}
+                with observer.stage('training_state_restore', echo=True, update=update+1):
+                    move_training_state(student.model, optimizer, device)
+                    if not teacher.current:
+                        teacher.model.to(device)
+            elif batcher is not None:
                 from .hf_rollout import move_optimizer_state
                 offload=config['implementation'].get('optimizer_offload_for_rollout',False) and device.type=='cuda'
                 if offload:
@@ -315,12 +357,25 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                                                        record["problem_sha256"], update)
                              if ragged else config["algorithm"].get("student_stop_threshold", .5))
                 for sample in range(rollout["responses_per_prompt"]):
-                    response_span = observer.start("response", update=update+1, id=record["id"], sample=sample)
-                    response = batcher.pop(record['id'],sample) if batcher is not None else generate(student, record["input_ids"], s, rollout["max_new_tokens"],
+                    log_context = dict(update=update+1, id=record["id"], sample=sample)
+                    if accelerated:
+                        response, sampling_seed = rlt_responses.pop((record['id'], sample))
+                        log_context.update(sampling_seed=sampling_seed, rollout_weight_version=update,
+                                           teacher_weight_version=teacher.weight_version)
+                        teacher.use_response(record['id'], sample)
+                    elif rollout_seeds is not None:
+                        sampling_seed = rollout_seeds[sample]
+                        generator.manual_seed(sampling_seed)
+                        log_context["sampling_seed"] = sampling_seed
+                    response_span = observer.start("response", **log_context)
+                    if batcher is not None:
+                        response = batcher.pop(record['id'], sample)
+                    elif not accelerated:
+                        response = generate(student, record["input_ids"], s, rollout["max_new_tokens"],
                                         rollout["temperature"], rollout["top_p"], generator,
                                         use_cache=rollout["use_cache"], endpoint=policy,
                                         exit_threshold=threshold,
-                                        observer=observer, log_context=dict(update=update+1,id=record["id"],sample=sample),
+                                        observer=observer, log_context=log_context,
                                         progress=True, progress_desc=f"Generate {record['id']} #{sample}",
                                         forced_token_ids=offline.tokens(record["problem_sha256"], sample) if offline else None)
                     decoded = tokenizer.decode(response.token_ids) if config['implementation']['write_rollout_text'] else None
@@ -358,15 +413,15 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                     ragged_record = {}
                     if ragged:
                         decode_depths = response.exit_depths[1:]
-                        if response.physical_kv_token_slots != response.executed_token_loops or response.backfill_token_loops:
-                            raise RuntimeError("RAD-OPD rollout did not preserve zero-backfill KV accounting")
-                        ragged_cost += torch.tensor([response.physical_kv_token_slots, len(decode_depths),
+                        if (response.backfill_token_loops or (not accelerated and
+                                response.physical_kv_token_slots != response.executed_token_loops)):
+                            raise RuntimeError("RAD-OPD rollout did not preserve Ragged KV accounting")
+                        ragged_cost += torch.tensor([response.physical_kv_token_slots or 0, len(decode_depths),
                                                      sum(decode_depths), decode_depths.count(1)], device=device)
                         ragged_record.update(exit_threshold=threshold,
                                              physical_kv_token_slots=response.physical_kv_token_slots,
                                              response_source="offline_teacher" if offline else "online_student")
-                    append_json(output/f"rollouts_rank{rank}.jsonl", dict(
-                        update=update+1, id=record["id"], sample=sample,
+                    append_json(output/f"rollouts_rank{rank}.jsonl", dict(log_context,
                         problem_sha256=record["problem_sha256"], tokens=response.token_ids,
                         text=decoded if config["implementation"]["write_rollout_text"] else None,
                         reached_eos=response.reached_eos, student_executed_loops=None if dynamic else s,
@@ -401,7 +456,8 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                 mean_adjacent_js_nats=float(totals[8]/totals[9]) if totals[9]>0 else None,
                 exit_hist=exit_hist.tolist(), stage_count_hist=stage_hist.tolist(),
                 teacher_depth_by_student_slot=mapping.tolist(), learning_rate=optimizer.param_groups[0]["lr"],
-                gradient_norm=float(grad_norm), teacher_weight_version=update if teacher is student else 'initial',
+                gradient_norm=float(grad_norm),
+                teacher_weight_version=update if config['algorithm']['teacher_update']=='current' else 'initial',
                 student_loss_executed_token_loops=int(totals[10]),
                 teacher_coda_token_positions=int(totals[11]),
                 teacher_executed_loops=info["teacher_executed_loops"], student_executed_loops=None if dynamic else s,
@@ -422,14 +478,15 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                 teacher_backfill_token_loops=int(totals[26]),
                 teacher_reused_token_loops=int(totals[27]),replay_unique_token_loops=int(totals[28]),
                 teacher_reuses_student_forward=config['algorithm'].get('teacher_reuse_student',False),
-                rollout_backend='hf',hf_rollout_batch_size=config['implementation'].get('hf_rollout_batch_size',1),
+                rollout_backend=rollout_backend, teacher_backend=teacher_backend,
+                hf_rollout_batch_size=None if accelerated else implementation.get('hf_rollout_batch_size',1),
                 teacher_execution_policy=config['algorithm']['teacher_endpoint'],
                 teacher_max_loops=k,
                 native_exit_reduces_executed_loops=ragged or student.native_exit_reduces_executed_loops,
                 seconds=time.perf_counter()-start)
             if ragged:
                 slots, positions, loops, depth_one = ragged_cost.tolist()
-                row.update(physical_kv_token_slots=slots, decode_token_positions=positions,
+                row.update(physical_kv_token_slots=None if accelerated else slots, decode_token_positions=positions,
                            decode_token_loops=loops, mean_decode_depth=loops/positions if positions else None,
                            decode_depth_one_fraction=depth_one/positions if positions else None,
                            response_source="offline_teacher" if offline else "online_student")
@@ -441,8 +498,19 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                 observer.event("update_metrics", update=completed, metrics=row)
             updates_bar.set_postfix(loss=row["mean_response_loss"], depth=row["mean_actual_student_depth"], refresh=False)
             updates_bar.update(1)
-            keep_latest = config['implementation'].get('keep_latest_checkpoints', 0)
-            if keep_latest or completed % config["implementation"]["save_every_updates"] == 0 or completed == final_update:
+            keep_latest = implementation.get('keep_latest_checkpoints', 0)
+            if implementation.get('checkpoint_layout') == 'split':
+                from .fastpath.checkpoints import checkpoint_due, save_split_checkpoint
+                model_due, resume_due = checkpoint_due(implementation, completed, final_update)
+                if model_due or resume_due:
+                    path = output / 'checkpoints' / f'update_{completed:06d}' if model_due else output / 'resume/latest'
+                    with observer.stage('checkpoint_save', echo=True, update=completed, checkpoint=str(path),
+                                        save_model=model_due, save_resume=resume_due):
+                        save_split_checkpoint(output, student, tokenizer, optimizer, completed, config,
+                                              data_rng, generator, rank, world, ROOT,
+                                              save_model=model_due, save_resume=resume_due,
+                                              data_identity=data_report['usable_prompt_hash'])
+            elif keep_latest or completed % implementation['save_every_updates'] == 0 or completed == final_update:
                 folder = output/"checkpoints"/f"update_{completed:06d}"
                 with observer.stage("checkpoint_save", echo=True, update=completed, checkpoint=str(folder)):
                     save_checkpoint(folder, student, tokenizer, optimizer, completed, config, data_rng, generator, rank, world,
@@ -453,9 +521,10 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                         if step <= completed-keep_latest and step % config['implementation']['save_every_updates']:
                             shutil.rmtree(previous)
                             observer.event('checkpoint_pruned', update=step, checkpoint=str(previous))
-            if batcher is not None:
-                # Release the last response's graph before the next batch's
-                # long static generation caches are allocated.
+            if accelerated:
+                teacher.clear_batch()
+            if accelerated or batcher is not None:
+                # Release the final training graph before allocating rollout caches.
                 del loss,info,ids
                 if device.type=='cuda':torch.cuda.empty_cache()
             observer.finish(update_span, update_metrics_seconds=row["seconds"])
@@ -468,7 +537,8 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
                 world_size=world, teacher_update=config["algorithm"]["teacher_update"],
                 teacher_reuses_student_forward=config['algorithm'].get('teacher_reuse_student',False),
                 model_instances_per_rank=1 if teacher is student else 2,
-                rollout_backend='hf',hf_rollout_batch_size=config['implementation'].get('hf_rollout_batch_size',1),
+                rollout_backend=rollout_backend, teacher_backend=teacher_backend,
+                hf_rollout_batch_size=None if accelerated else implementation.get('hf_rollout_batch_size',1),
                 student_policy=policy,
                 teacher_endpoint=config["algorithm"]["teacher_endpoint"], stage_selection=config["algorithm"]["stage_selection"],
                 seconds=time.perf_counter()-started, data_report=data_report,
@@ -481,9 +551,13 @@ def _train(config_path, output, device_name, smoke, resume, stop_after_updates, 
             write_json(output/"failure.json",dict(error=type(exc).__name__,message=str(exc)))
         raise
     finally:
-        if tensorboard is not None:tensorboard.close()
-        if lock is not None:
-            lock.close()
+        try:
+            if accelerated and teacher is not None:
+                teacher.close()
+        finally:
+            if tensorboard is not None:tensorboard.close()
+            if lock is not None:
+                lock.close()
         # An OOM rank must exit promptly so torchrun can terminate its peers.
         # Collective cleanup on an exceptional path can wait the full multi-hour
         # rollout timeout while another rank is still inside backward/all-reduce.

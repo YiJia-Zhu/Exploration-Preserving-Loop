@@ -63,7 +63,7 @@ class RadOpdTests(unittest.TestCase):
         expected = [41, 52, 63, 74]
         ids = [1, 19, 31]
         outcomes = {}
-        for policy in ('fixed', 'native_backfill', 'ragged'):
+        for policy in ('fixed', 'ragged'):
             with patch('ep_loop.inference.sample_token', side_effect=[torch.tensor(t) for t in expected]):
                 outcomes[policy] = generate(backend, ids, 4, 4, 1., 1., torch.Generator(),
                                             endpoint=policy, exit_threshold=1.)
@@ -79,20 +79,19 @@ class RadOpdTests(unittest.TestCase):
                 ragged = backend.trace(ids[:, pos:pos+1], 4, ragged.cache, True, 'ragged', 1.)
             torch.testing.assert_close(ragged.states[-1][:, -1], dense, rtol=3e-4, atol=3e-6)
 
-    def test_backfill_control_catches_up_only_missing_history(self):
+    def test_ragged_changes_depth_without_backfilling(self):
         backend = self.backend()
         backend.model.eval()
-        for policy, expected in (('native_backfill', 3), ('ragged', 0)):
-            gate = backend.model.model.early_exit_gate
-            with torch.no_grad(), patch.object(gate, 'forward', side_effect=lambda x: x.new_full((*x.shape[:2], 1), 100.)):
-                prefill = backend.trace(torch.tensor([[1, 19, 31]]), 4, use_cache=True,
-                                        endpoint=policy, exit_threshold=.5)
-                shallow = backend.trace(torch.tensor([[42]]), 4, prefill.cache, True, policy, .5)
-            with torch.no_grad(), patch.object(gate, 'forward', side_effect=lambda x: x.new_full((*x.shape[:2], 1), -100.)):
-                deep = backend.trace(torch.tensor([[54]]), 4, shallow.cache, True, policy, .5)
-            self.assertEqual([len(prefill.states), len(shallow.states), len(deep.states)], [4, 1, 4])
-            self.assertEqual(deep.backfill_token_loops, expected)
-            self.assertEqual(deep.executed_token_loops, 4+expected)
+        gate = backend.model.model.early_exit_gate
+        with torch.no_grad(), patch.object(gate, 'forward', side_effect=lambda x: x.new_full((*x.shape[:2], 1), 100.)):
+            prefill = backend.trace(torch.tensor([[1, 19, 31]]), 4, use_cache=True,
+                                    endpoint='ragged', exit_threshold=.5)
+            shallow = backend.trace(torch.tensor([[42]]), 4, prefill.cache, True, 'ragged', .5)
+        with torch.no_grad(), patch.object(gate, 'forward', side_effect=lambda x: x.new_full((*x.shape[:2], 1), -100.)):
+            deep = backend.trace(torch.tensor([[54]]), 4, shallow.cache, True, 'ragged', .5)
+        self.assertEqual([len(prefill.states), len(shallow.states), len(deep.states)], [4, 1, 4])
+        self.assertEqual(deep.backfill_token_loops, 0)
+        self.assertEqual(deep.executed_token_loops, 4)
 
     def test_fixed_budget_timing_does_not_stop_on_eos(self):
         backend = self.backend()
@@ -154,6 +153,16 @@ class RadOpdTests(unittest.TestCase):
         self.assertEqual(rad_pass_metrics({'a': [1, 0, 0, 0], 'b': [0]*4}),
                          {'p_at_1': .125, 'p_at_4': .5})
         self.assertIsNone(rad_pass_metrics({'a': [1]})['p_at_4'])
+
+    def test_initial_thresholds_are_shared_by_questions_in_each_update(self):
+        tau = load_config(DEFAULT_CONFIG)['algorithm']['rad_tau']
+        initial = [.8, .6, .4, .3, .25, .2, .15]
+        scheduled = {**tau, 'initial_thresholds': initial}
+        for update, threshold in enumerate(initial):
+            for fingerprint in ('a', 'b'):
+                self.assertEqual(sample_training_threshold(scheduled, 42, fingerprint, update), threshold)
+        self.assertEqual(sample_training_threshold(scheduled, 42, 'a', len(initial)),
+                         sample_training_threshold(tau, 42, 'a', len(initial)))
 
 
 if __name__ == '__main__':

@@ -17,9 +17,9 @@ def align_teacher_traces(traces, request_ids):
         matches=[key for key in traces if key==request_id or
                  re.fullmatch(re.escape(request_id)+r'-[0-9a-f]{8}',key)]
         if len(matches)!=1 or matches[0] in used:
-            raise RuntimeError(f'Teacher request/trace mapping is not one-to-one: {request_id}, {matches}')
+            raise RuntimeError(f'vLLM request/trace mapping is not one-to-one: {request_id}, {matches}')
         used.add(matches[0]);result.append(traces[matches[0]])
-    if used!=set(traces):raise RuntimeError('Teacher returned unmatched traces')
+    if used!=set(traces):raise RuntimeError('vLLM returned unmatched traces')
     return result
 
 

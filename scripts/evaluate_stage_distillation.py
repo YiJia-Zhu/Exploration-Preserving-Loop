@@ -9,7 +9,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-PHASE_ZERO_BACKENDS = {'fixed': 'vllm', 'ragged': 'vllm-rlt', 'native_backfill': 'pytorch'}
+PHASE_ZERO_BACKENDS = {'fixed': 'vllm', 'ragged': 'vllm-rlt', 'native': 'vllm'}
 
 
 def evaluation_engines(modes, pending, args, config, directory, max_model_len, gpu, observer):
@@ -17,19 +17,25 @@ def evaluation_engines(modes, pending, args, config, directory, max_model_len, g
     from ep_loop.observability import model_progress
 
     def engine_key(mode):
-        endpoint, loops, _ = mode
-        name = PHASE_ZERO_BACKENDS[endpoint] if args.phase_zero else 'pytorch'
-        return name, None if name == 'pytorch' else loops
+        endpoint, loops, threshold = mode
+        if args.vllm_rlt:
+            return 'vllm-rlt', endpoint, loops, None
+        if not args.phase_zero:
+            return 'pytorch', None, None, None
+        return PHASE_ZERO_BACKENDS[endpoint], endpoint, loops, threshold if endpoint == 'native' else None
 
-    for (name, loops), grouped_modes in groupby(modes, key=engine_key):
+    for (name, policy, loops, threshold), grouped_modes in groupby(modes, key=engine_key):
         group = list(grouped_modes)
         if not any(pending[mode] for mode in group):
             for mode in group:
                 yield mode, None, name
             continue
-        log = args.output.with_suffix(f'.{name}.{loops}.engine.log')
+        suffix = (f'.{name}.native.{loops}.tau_{threshold}' if policy == 'native'
+                  else f'.{name}.{loops}')
+        log = args.output.with_suffix(f'{suffix}.engine.log')
         with observer.stage('model_load', echo=True, model_path=str(directory),
-                            backend=name, device=args.device, loops=loops):
+                            backend=name, device=args.device, loops=loops, policy=policy,
+                            exit_threshold=threshold):
             if name == 'pytorch':
                 with model_progress(observer.show_progress):
                     backend, _ = load_backend(config['model'], directory, args.device,
@@ -38,9 +44,11 @@ def evaluation_engines(modes, pending, args, config, directory, max_model_len, g
                 backend.model.eval()
             elif name == 'vllm':
                 from ep_loop.fastpath.actor import VllmActor
-                backend = VllmActor(directory, gpu, log, loops=loops, policy='fixed',
+                readout = {'native_threshold': threshold} if policy == 'native' else {}
+                backend = VllmActor(directory, gpu, log, loops=loops, policy=policy,
                     max_model_len=max_model_len, memory_fraction=.90,
-                    python_bin=ROOT / 'ep_loop_envs/vllm026/bin/python', attention_backend='FLASHINFER')
+                    python_bin=ROOT / 'ep_loop_envs/vllm026/bin/python', attention_backend='FLASHINFER',
+                    **readout)
             else:
                 from ep_loop.fastpath.rlt_actor import RltActor
                 backend = RltActor.from_release(directory, gpu, log, loops=loops,
@@ -54,11 +62,12 @@ def evaluation_engines(modes, pending, args, config, directory, max_model_len, g
                 yield mode, backend, name
         else:
             with backend:
-                if name == 'vllm' and (backend.runtime.get('vllm_version') != '0.26.0+cu129'
-                                       or not backend.runtime.get('native_fixed_student')):
-                    raise RuntimeError('Phase 0 fixed loops require official vLLM 0.26.0+cu129')
+                if name == 'vllm':
+                    route = 'native_readout' if policy == 'native' else 'native_fixed_student'
+                    if backend.runtime.get('vllm_version') != '0.26.0+cu129' or not backend.runtime.get(route):
+                        raise RuntimeError(f'Phase 0 {policy} requires its vLLM 0.26.0+cu129 Ouro route')
                 if name == 'vllm-rlt' and backend.runtime['kv_layout'] != 'last_exited':
-                    raise RuntimeError('Phase 0 zero-backfill requires the LAST_EXITED KV layout')
+                    raise RuntimeError('Ragged KV evaluation requires the LAST_EXITED KV layout')
                 observer.event('inference_engine', echo=True, backend=name, runtime=backend.runtime)
                 for mode in group:
                     yield mode, backend, name
@@ -84,7 +93,8 @@ def evaluation_responses(backend, engine, mode, jobs, settings, observer):
 
     batch_size = min(8, backend.runtime.get('max_num_seqs') or 8)
     limit = settings['max_new_tokens']
-    cache_policy = 'rlt_last_exited' if engine == 'vllm-rlt' else 'vllm_fixed_depth'
+    cache_policy = {'fixed': 'vllm_fixed_depth', 'native': 'vllm_native_full_depth',
+                    'ragged': 'rlt_last_exited'}[endpoint]
     for start in range(0, len(jobs), batch_size):
         batch = jobs[start:start + batch_size]
         requests = [dict(input_ids=ids, seed=seed, min_loops=1 if endpoint == 'ragged' else loops,
@@ -93,15 +103,19 @@ def evaluation_responses(backend, engine, mode, jobs, settings, observer):
         with observer.stage('evaluation_batch', echo=True, backend=engine, policy=endpoint,
                             loops=loops, exit_threshold=threshold, start=start, requests=len(batch)):
             for index, output, seconds in backend.iter_responses(requests):
-                record, sample, seed, _ = batch[index]
+                record, sample, seed, ids = batch[index]
                 tokens, depths = output['token_ids'], output['exit_depths']
+                execution_depths = output['execution_depths'] if endpoint == 'native' else depths
                 finish = output['finish_reason']
                 if (not 0 < len(tokens) <= limit or len(tokens) != len(depths) or depths[0] != loops
                         or finish not in ('stop', 'length') or (finish == 'length' and len(tokens) != limit)):
                     raise RuntimeError(f"Invalid {engine} completion for {record['id']}/{sample}")
+                if endpoint == 'native' and (execution_depths != [loops] * len(tokens)
+                        or output['executed_token_loops'] != loops * (len(ids) + len(tokens) - 1)):
+                    raise RuntimeError(f"Invalid full-depth Ouro trace for {record['id']}/{sample}")
                 yield record, sample, seed, GeneratedResponse(token_ids=tokens, exit_depths=depths,
                     reached_eos=finish == 'stop', executed_token_loops=output['executed_token_loops'],
-                    seconds=seconds, execution_depths=depths, cache_policy=cache_policy)
+                    seconds=seconds, execution_depths=execution_depths, cache_policy=cache_policy)
 
 
 def load_completed_responses(stream, modes, jobs, settings):
@@ -120,6 +134,12 @@ def load_completed_responses(stream, modes, jobs, settings):
             stream.truncate()
             break
         row = json.loads(line)
+        finished_at = stream.tell()
+        if (settings.get('phase_zero') and row['policy'] not in PHASE_ZERO_BACKENDS
+                and row['inference_backend'] == 'pytorch' and row.get('cache_policy') == 'exact_lazy_depth'
+                and 'budget_correct' in row):
+            # Only accelerated groups enter the current Phase 0 summary.
+            continue
         mode = (row['policy'], row['max_loops'], row['exit_threshold'])
         key = (row['id'], row['sample'])
         tokens = row.get('tokens', [])
@@ -138,7 +158,6 @@ def load_completed_responses(stream, modes, jobs, settings):
             execution_depths=row['actual_execution_depths'], backfill_token_loops=row['backfill_token_loops'],
             coda_token_positions=row['coda_token_positions'], cache_policy=row['cache_policy'],
             physical_kv_token_slots=row['physical_kv_token_slots'])
-        finished_at = stream.tell()
     return completed
 
 
@@ -152,16 +171,21 @@ def main():
     p.add_argument('--device', default='cuda')
     p.add_argument('--loops', type=int, action='append', help='Explicit fixed-depth evaluation ablation')
     p.add_argument('--threshold', type=float, action='append', help='RAD-OPD threshold; repeat to scan')
-    p.add_argument('--phase-zero', action='store_true', help='Compare base fixed loops (vLLM), backfill and ragged KV (vLLM-RLT)')
-    p.add_argument('--skip-backfill', action='store_true', help='Run Phase 0 fixed loops and Ragged KV')
-    p.add_argument('--resume', action='store_true', help='Resume the same Phase 0 output recorded with --write-token-ids')
+    p.add_argument('--phase-zero', action='store_true',
+                   help='Compare fixed loops and 原生 Ouro KV (vLLM) with Ragged KV (vLLM-RLT)')
+    p.add_argument('--vllm-rlt', action='store_true', help='Evaluate a RAD-OPD checkpoint with vLLM-RLT')
+    p.add_argument('--skip-native', action='store_true',
+                   help='Run Phase 0 fixed loops and Ragged KV')
+    p.add_argument('--resume', action='store_true', help='Resume accelerated evaluation recorded with --write-token-ids')
     p.add_argument('--max-new-tokens', type=int, help='Use a smaller generation cap for a short check')
     p.add_argument('--write-token-ids', action='store_true', help='Include token IDs for offline teacher export')
     p.add_argument('--samples-per-problem', type=int)
     p.add_argument('--smoke',action='store_true',help='CPU-only saved/random tiny architecture with ByteTokenizer')
     args = p.parse_args()
-    if (args.skip_backfill or args.resume) and not args.phase_zero:
-        p.error('--skip-backfill and --resume require --phase-zero')
+    if args.skip_native and not args.phase_zero:
+        p.error('--skip-native requires --phase-zero')
+    if args.resume and not (args.phase_zero or args.vllm_rlt):
+        p.error('--resume requires --phase-zero or --vllm-rlt')
     if args.resume and not args.write_token_ids:
         p.error('--resume requires --write-token-ids')
     from ep_loop.config import load_config
@@ -176,7 +200,7 @@ def main():
     with RunLogger(args.output.with_suffix('.events.jsonl'), args.output.with_suffix('.console.log'), 'evaluation') as observer:
         with observer.stage('evaluation_run', echo=True, config_path=args.config,
                             checkpoint=str(args.checkpoint) if args.checkpoint else None, data=str(args.data),
-                            skip_backfill=args.skip_backfill, resume=args.resume):
+                            skip_native=args.skip_native, vllm_rlt=args.vllm_rlt, resume=args.resume):
             evaluate(args, p, observer)
 
 
@@ -187,7 +211,7 @@ def evaluate(args, p, observer):
     from ep_loop.data import prompt_ids, ByteTokenizer
     from ep_loop.inference import integer_answer, math_metrics, verify_integer_response
     from ep_loop.reproducibility import execution_provenance, sample_seed, seed_everything
-    from ep_loop.evaluation_data import load_evaluation_records, benchmark_math_metrics, rad_pass_metrics
+    from ep_loop.evaluation_data import load_evaluation_records, benchmark_math_metrics, rad_pass_metrics, ouro_evaluation_group
     from ep_loop.cpu_runtime import configure_cpu_threads
     observer.event('cpu_runtime', echo=True, num_threads=configure_cpu_threads())
     config = load_config(args.config)
@@ -201,8 +225,11 @@ def evaluate(args, p, observer):
         p.error('--phase-zero/--threshold require the RAD-OPD config and no --loops override')
     if args.phase_zero and args.checkpoint is not None:
         p.error('--phase-zero evaluates the original model from the config')
-    if args.phase_zero and (args.smoke or torch.device(args.device).type != 'cuda'):
-        p.error('--phase-zero requires a CUDA device for vLLM and vLLM-RLT')
+    if args.vllm_rlt and (not rad_eval or policy != 'ragged' or args.checkpoint is None or args.loops or args.phase_zero):
+        p.error('--vllm-rlt requires a RAD-OPD checkpoint and Ragged KV evaluation')
+    accelerated = args.phase_zero or args.vllm_rlt
+    if accelerated and (args.smoke or torch.device(args.device).type != 'cuda'):
+        p.error('--phase-zero and --vllm-rlt require CUDA')
     if args.checkpoint is None and policy not in {'native','native_adaptive'} and not args.phase_zero:
         p.error('--checkpoint is required for a trained student')
     # Hash the exact bytes being evaluated, once, before a potentially long run.
@@ -235,6 +262,8 @@ def evaluate(args, p, observer):
     if rad_eval:
         budgets = sorted({min(n, settings['max_new_tokens']) for n in settings['budget_slices']})
         settings.update(budget_slices=budgets, phase_zero=args.phase_zero)
+    if args.vllm_rlt:
+        settings['inference_backend'] = 'vllm-rlt'
     if rad_eval and not args.loops and (policy == 'ragged' or args.phase_zero):
         thresholds = args.threshold or settings['ragged_thresholds']
         if not all(0 < t <= 1 for t in thresholds) or len(set(thresholds)) != len(thresholds):
@@ -243,10 +272,10 @@ def evaluate(args, p, observer):
         depth = student_budget(config)
         modes = [('ragged', depth, tau) for tau in thresholds]
         if args.phase_zero:
-            settings['skip_backfill'] = args.skip_backfill
+            settings['skip_native'] = args.skip_native
             modes = [('fixed', k, 1.0) for k in (depth, 2, 1)] + modes
-            if not args.skip_backfill:
-                modes.extend(('native_backfill', depth, tau) for tau in thresholds)
+            if not args.skip_native:
+                modes.extend(('native', depth, tau) for tau in thresholds)
     else:
         threshold = (config['algorithm'].get('student_stop_threshold', .5) if policy == 'learned'
                      else config['algorithm']['exit_threshold'])
@@ -254,7 +283,7 @@ def evaluate(args, p, observer):
     if any(not 1 <= depth <= config['algorithm']['teacher_max_loops'] for _, depth, _ in modes):
         p.error('Requested loop count is outside the configured maximum')
     gpu = None
-    if args.phase_zero:
+    if accelerated:
         gpu = 'GPU-' + reproducibility['gpu']['uuid'].removeprefix('GPU-')
         toolkit = Path('/usr/local/cuda-12.8')
         if (toolkit / 'bin/nvcc').is_file():
@@ -273,7 +302,7 @@ def evaluate(args, p, observer):
     summaries = {}
     with ExitStack() as run:
         f = run.enter_context(args.output.open('r+b' if args.resume else 'xb'))
-        if args.phase_zero:
+        if accelerated:
             from fcntl import flock, LOCK_EX, LOCK_NB
             flock(f.fileno(), LOCK_EX | LOCK_NB)
         completed = (load_completed_responses(f, modes, jobs, settings) if args.resume
@@ -290,14 +319,16 @@ def evaluate(args, p, observer):
             modes, pending, args, config, directory, max_model_len, gpu, observer)))
         for mode, backend, engine in engines:
             endpoint, loops, threshold = mode
+            experiment_group = ouro_evaluation_group(endpoint, loops) if rad_eval else None
             mode_span = observer.start('evaluation_mode', echo=True, backend=engine,
-                                       policy=endpoint, loops=loops, exit_threshold=threshold)
+                                       policy=endpoint, loops=loops, exit_threshold=threshold,
+                                       experiment_group=experiment_group)
             correctness = {record['id']: [] for record in records}
             depths, selected_depths, seconds, token_loops = [], [], [], 0
             backfill_token_loops, coda_token_positions = 0, 0
             if rad_eval:
                 sliced = {cap: {record['id']: [] for record in records} for cap in budgets}
-                output_tokens = truncated = decode_tokens = decode_loops = depth_one = 0
+                output_tokens = truncated = decode_tokens = decode_loops = decode_readout_loops = depth_one = 0
                 physical_slots = []
             saved = completed[mode]
             restored = ((record, sample, seed, saved[record['id'], sample])
@@ -318,13 +349,14 @@ def evaluate(args, p, observer):
                 if args.write_token_ids:
                     extra['tokens'] = response.token_ids
                 if rad_eval:
-                    decode_depths = response.exit_depths[1:]
+                    decode_depths = response.execution_depths[1:]
                     output_tokens += len(response.token_ids)
                     truncated += not response.reached_eos
                     if response.physical_kv_token_slots is not None:
                         physical_slots.append(response.physical_kv_token_slots)
                     decode_tokens += len(decode_depths)
                     decode_loops += sum(decode_depths)
+                    decode_readout_loops += sum(response.exit_depths[1:])
                     depth_one += decode_depths.count(1)
                     slices = {}
                     for cap in budgets:
@@ -333,7 +365,7 @@ def evaluate(args, p, observer):
                                                            record['answer'], record['messages'])['correct'])
                         slices[cap] = correct
                         sliced[cap][record['id']].append(correct)
-                    extra.update(exit_threshold=threshold,
+                    extra.update(experiment_group=experiment_group, exit_threshold=threshold,
                                  physical_kv_token_slots=response.physical_kv_token_slots,
                                  budget_correct=slices)
                 if (record['id'], sample) in saved:
@@ -356,7 +388,7 @@ def evaluate(args, p, observer):
             ordered = sorted(depths)
             percentile = lambda q: ordered[min(len(ordered)-1,int(q*(len(ordered)-1)))]
             name = f'{endpoint}_{loops}'
-            if endpoint in {'ragged', 'native_backfill'}:
+            if endpoint == 'ragged' or (args.phase_zero and endpoint == 'native'):
                 name += f'_tau_{threshold}'
             summaries[name] = dict(**math_metrics(correctness), inference_backend=engine,
                 benchmarks=benchmark_math_metrics(records,correctness),
@@ -368,8 +400,10 @@ def evaluate(args, p, observer):
                 generation_seconds_sum=sum(seconds),mean_response_seconds=sum(seconds)/len(seconds))
             if rad_eval:
                 summaries[name].update(
-                    **rad_pass_metrics(correctness), exit_threshold=threshold, max_loops=loops,
+                    **rad_pass_metrics(correctness), experiment_group=experiment_group,
+                    exit_threshold=threshold, max_loops=loops,
                     mean_decode_depth=decode_loops/decode_tokens if decode_tokens else None,
+                    mean_decode_readout_depth=decode_readout_loops/decode_tokens if decode_tokens else None,
                     decode_depth_one_fraction=depth_one/decode_tokens if decode_tokens else None,
                     mean_response_tokens=output_tokens/len(seconds), truncation_rate=truncated/len(seconds),
                     mean_executed_token_loops=token_loops/len(seconds),

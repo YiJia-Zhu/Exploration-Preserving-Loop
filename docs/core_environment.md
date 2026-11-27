@@ -99,7 +99,7 @@ RAD-OPD 的现有训练入口仍是 `scripts/train_stage_distillation.py`。verl
 
 ## 本机官方 vLLM 推理环境
 
-固定轮数的 vLLM 配置使用 `ep_loop_envs/vllm026/bin/python`。在 H100 和驱动 `570.172.08` 上安装的是官方 `vllm 0.26.0+cu129`，配套 Python `3.12.14`、PyTorch `2.11.0+cu129`、Transformers `5.5.3` 和 FlashInfer `0.6.14`。
+固定轮数和原生 Ouro KV 的官方 vLLM 评测使用 `ep_loop_envs/vllm026/bin/python`。在 H100 和驱动 `570.172.08` 上安装的是官方 `vllm 0.26.0+cu129`，配套 Python `3.12.14`、PyTorch `2.11.0+cu129`、Transformers `5.5.3` 和 FlashInfer `0.6.14`。
 
 在仓库根目录可直接检查版本。需要在终端中使用官方 vLLM CLI 时，激活该环境。
 

@@ -34,7 +34,10 @@ def validate_execution(config):
     implementation = config.get('implementation', {})
     algorithm = config.get('algorithm', {})
     backend = 'vllm' if mode in VLLM_MODES else 'hf'
-    if implementation.get('rollout_backend', backend) != backend:
+    allowed_rollout = {'hf', 'vllm-rlt'} if mode == HF_RAD_OPD else {backend}
+    if implementation.get('rollout_backend', backend) not in allowed_rollout:
+        if mode == HF_RAD_OPD:
+            raise ValueError('RAD-OPD rollout_backend must be hf or vllm-rlt')
         raise ValueError(f'{mode} requires rollout_backend={backend}')
     if mode in {*HF_TRAIN_MODES, VLLM_FIXED}:
         if algorithm.get('teacher_top_k') is not None or algorithm.get('teacher_distribution', 'full_vocab') != 'full_vocab':

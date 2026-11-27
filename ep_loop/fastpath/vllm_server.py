@@ -58,13 +58,18 @@ def main():
         protocol.write(json.dumps(row,ensure_ascii=False)+'\n');protocol.flush()
     try:
         if args.tensor_parallel_size<1:raise ValueError('tensor_parallel_size must be positive')
-        if modern and args.policy != 'fixed':
-            raise ValueError('vLLM 0.26 adapter currently supports fixed-depth Ouro only')
-        native_fixed = modern and not args.teacher_trace
+        if modern and args.policy == 'learned':
+            raise ValueError('vLLM 0.26 adapter supports fixed and native Ouro readouts')
+        native_readout = modern and args.policy == 'native'
+        native_fixed = modern and args.policy == 'fixed' and not args.teacher_trace
         validate_ngram_actor(args.rollout_ngram,args.policy,args.teacher_trace,modern)
         if modern and args.teacher_trace:
+            if native_readout:
+                raise ValueError('Teacher traces require the fixed readout policy')
             # The teacher's all-token trace hook belongs to the V1 runner.
             os.environ['VLLM_USE_V2_MODEL_RUNNER']='0'
+        elif native_readout:
+            os.environ['VLLM_USE_V2_MODEL_RUNNER']='1'
         with redirect_stdout(sys.stderr):
             from vllm import LLM,SamplingParams
             extra={}
@@ -94,6 +99,8 @@ def main():
                     ep_loop_stop_threshold=args.stop_threshold,ep_loop_native_threshold=args.native_threshold),**extra)
         runtime=dict(vllm_version=vllm_version,attention_backend=args.attention_backend,
                      native_fixed_student=native_fixed,teacher_trace=args.teacher_trace,
+                     native_readout=native_readout,
+                     native_threshold=args.native_threshold if native_readout else None,
                      max_num_seqs=args.max_num_seqs,tensor_parallel_size=args.tensor_parallel_size,
                      enable_prefix_caching=args.enable_prefix_caching,
                      rollout_ngram=args.rollout_ngram,
@@ -159,19 +166,42 @@ def main():
                             max_tokens=r['max_new_tokens'],seed=r['seed'],logprobs=request.get('logprobs',20),
                             min_tokens=r.get('min_new_tokens',0),ignore_eos=r.get('ignore_eos',False),
                             detokenize=False) for r in request['requests']]
-                        if not native_fixed:engine.collective_rpc('ep_start_trace')
                         before=counters()
+                        if native_readout:
+                            engine.collective_rpc('ep_begin_native_readout')
+                        elif not native_fixed:
+                            engine.collective_rpc('ep_start_trace')
                         start=time.perf_counter()
-                        outputs=engine.generate([dict(prompt_token_ids=r['input_ids']) for r in request['requests']],sampling,use_tqdm=False)
-                        elapsed=time.perf_counter()-start
-                        depths={} if native_fixed else engine.collective_rpc('ep_finish_trace')[0]
+                        try:
+                            outputs=engine.generate([dict(prompt_token_ids=r['input_ids']) for r in request['requests']],sampling,use_tqdm=False)
+                            elapsed=time.perf_counter()-start
+                        finally:
+                            if native_readout:
+                                depths=engine.collective_rpc('ep_end_native_readout')[0]
+                            elif not native_fixed:
+                                depths=engine.collective_rpc('ep_finish_trace')[0]
                         after=counters()
+                        if native_readout:
+                            ordered_traces=align_teacher_traces(depths,[row.request_id for row in outputs])
                         responses=[]
-                        for row in outputs:
+                        for index,row in enumerate(outputs):
                             completion=row.outputs[0]
-                            selected=([args.loops]*len(completion.token_ids) if native_fixed else depths[row.request_id]['depths'])
-                            if len(selected)!=len(completion.token_ids):
-                                raise RuntimeError(f'Depth count differs from generated length: {len(selected)} vs {len(completion.token_ids)}')
+                            length=len(completion.token_ids)
+                            if native_fixed:
+                                selected,gate_logits=[args.loops]*length,[]
+                            elif native_readout:
+                                trace=ordered_traces[index]
+                                if any(position not in trace for position in range(length)):
+                                    raise RuntimeError(f'Missing Ouro readouts for request {row.request_id}')
+                                # With async scheduling, a sample after EOS may be discarded.
+                                samples=[trace[position] for position in range(length)]
+                                selected=[int(sample[0]) for sample in samples]
+                                gate_logits=[sample[1:] for sample in samples]
+                            else:
+                                trace=depths[row.request_id]
+                                selected,gate_logits=trace['depths'],trace['gate_logits']
+                            if len(selected)!=length:
+                                raise RuntimeError(f'Depth count differs from generated length: {len(selected)} vs {length}')
                             sparse=[]
                             for probabilities in completion.logprobs or []:
                                 top=sorted(probabilities.items(),key=lambda pair:pair[1].logprob,reverse=True)
@@ -183,11 +213,14 @@ def main():
                             if metrics is not None:
                                 timing=dict(time_to_first_token_seconds=metrics.first_token_latency,
                                     first_to_last_token_seconds=metrics.last_token_ts-metrics.first_token_ts)
-                            responses.append(dict(request_id=row.request_id,token_ids=list(completion.token_ids),
+                            response=dict(request_id=row.request_id,token_ids=list(completion.token_ids),
                                 exit_depths=selected,finish_reason=completion.finish_reason,
-                                gate_logits=[] if native_fixed else depths[row.request_id]['gate_logits'],
-                                executed_token_loops=args.loops*(len(row.prompt_token_ids)+len(completion.token_ids)-1),
-                                logprobs=sparse,request_timing=timing))
+                                gate_logits=gate_logits,
+                                executed_token_loops=args.loops*(len(row.prompt_token_ids)+length-1),
+                                logprobs=sparse,request_timing=timing)
+                            if native_readout:
+                                response['execution_depths']=[args.loops]*length
+                            responses.append(response)
                         result=dict(responses=responses,seconds=elapsed,executed_loops=args.loops,policy=args.policy,
                                     engine_metrics={key:after[key]-before.get(key,0) for key in after},runtime=runtime)
                     else:raise ValueError(f'Unknown operation {op}')

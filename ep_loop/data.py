@@ -10,7 +10,7 @@ PROMPT_SAMPLING = 'uniform_without_replacement_within_batch_independent_across_u
 
 
 def sample_rollout_indices(rng, pool_size, prompts_per_batch):
-    """Independent batches can revisit questions; one batch has distinct prompts."""
+    """Sample distinct rows within an update and allow revisits across updates."""
     if not 1 <= prompts_per_batch <= pool_size:
         raise ValueError('Training pool must contain at least prompts_per_batch distinct questions')
     return rng.sample(range(pool_size), prompts_per_batch)
@@ -160,33 +160,57 @@ def filter_policy(config):
 
 
 def prepare_training_records(config, tokenizer, root, smoke=False, observer=None):
+    parquet = None
     if smoke:
         raw = [{"id":f"smoke-{i}", "problem":f"What is {i}+1?", "answer":str(i+1)} for i in range(8)]
     else:
         path = Path(config["data"]["train_path"])
         path = path if path.is_absolute() else root / path
         if not path.is_file():
-            raise FileNotFoundError(f"Training JSONL missing: {path}. Use scripts/prepare_stage_data.py with the intended DAPO release.")
-        raw = read_jsonl(path)
+            raise FileNotFoundError(f"Training data missing: {path}")
+        if path.suffix == '.parquet':
+            from pyarrow.parquet import ParquetFile
+            parquet = ParquetFile(path)
+            batches = parquet.iter_batches(batch_size=4096, columns=['prompt', 'reward_model'])
+            raw = (row for batch in batches for row in batch.to_pylist())
+        else:
+            raw = read_jsonl(path)
+    source_count = parquet.metadata.num_rows if parquet is not None else len(raw)
     expected = config["data"]["expected_examples"]
-    if expected is not None and len(raw) != expected:
-        raise ValueError(f"Source dataset has {len(raw)} rows; paper configuration expects {expected}. Record a deliberate adapted configuration for another subset.")
-    records = [normalize_record(row, i) for i, row in enumerate(raw)]
-    if len({r["id"] for r in records}) != len(records):
-        raise ValueError("Training IDs are not unique")
-    source_count = len(records)
+    if expected is not None and source_count != expected:
+        raise ValueError(f"Source dataset has {source_count} rows; configuration expects {expected}")
     encoded = []
+    seen_ids = set()
+    # Published DAPO repeats prompts. Reuse tokenization, preserving each source row.
+    encoded_prompts = {} if parquet is not None else None
     overlong = 0
-    source_records = observer.progress(records, desc="Tokenize prompts", unit="prompt", leave=False) if observer else records
-    for record in source_records:
-        ids = prompt_ids(tokenizer, record, config["model"]["enable_thinking"],
-                         config["model"]["repair_template_newlines"])
+    source_records = (observer.progress(raw, total=source_count, desc="Tokenize prompts", unit="row", leave=False)
+                      if observer else raw)
+    for index, row in enumerate(source_records):
+        record = None
+        if encoded_prompts is not None:
+            key = (tuple((msg['role'], msg['content']) for msg in row['prompt']),
+                   (row.get('reward_model') or {}).get('ground_truth'))
+            record = encoded_prompts.get(key)
+        if record is None:
+            record = normalize_record(row, index)
+            record['input_ids'] = prompt_ids(tokenizer, record, config['model']['enable_thinking'],
+                                             config['model']['repair_template_newlines'])
+            if encoded_prompts is not None:
+                encoded_prompts[key] = record
+        if encoded_prompts is not None:
+            record = dict(record, id=str(index))
+        else:
+            if record['id'] in seen_ids:
+                raise ValueError('Training IDs are not unique')
+            seen_ids.add(record['id'])
+        ids = record['input_ids']
         if len(ids) > config["data"]["max_prompt_tokens"]:
             overlong += 1
             continue
         if not ids:
             raise ValueError("Empty prompt")
-        encoded.append({**record, "input_ids": ids})
+        encoded.append(record)
     filter_path = config["data"].get("correctness_cache")
     question_filter = config.get('distillation',{}).get('question_filter','teacher_correct' if filter_path else 'all')
     filter_rejected = 0

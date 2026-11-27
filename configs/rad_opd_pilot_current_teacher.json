@@ -1,0 +1,7 @@
+{
+  "extends": "rad_opd_pilot.json",
+  "run_name": "rad_opd_pilot_current_teacher",
+  "algorithm": {
+    "teacher_update": "current"
+  }
+}

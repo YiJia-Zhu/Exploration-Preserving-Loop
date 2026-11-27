@@ -67,6 +67,37 @@ class FastpathTests(unittest.TestCase):
         torch.testing.assert_close(torch.tensor(result['b']['gate_logits']),torch.tensor([[.3,.4]]))
         self.assertIsNone(model._depth_callback)
 
+    def test_native_readout_tracks_first_tokens_in_mixed_and_chunked_batches(self):
+        from types import SimpleNamespace
+        from ep_loop.fastpath.vllm_worker import OuroWorkerExtension
+
+        worker = OuroWorkerExtension()
+        model = SimpleNamespace()
+        worker.get_model = lambda: model
+
+        def sample(_hidden, batch, _grammar):
+            depths = torch.where(model._ep_prefill_readout_mask, 4., 2.)
+            model._depth_callback(torch.stack((depths, torch.zeros_like(depths)), dim=-1))
+            return None, batch.sampled, None
+
+        worker.model_runner = SimpleNamespace(sample=sample, req_states=SimpleNamespace(
+            prompt_len=SimpleNamespace(gpu=torch.tensor([5, 3]))))
+        worker.ep_begin_native_readout()
+        for ids, slots, positions, logits, sampled in (
+            (['a', 'b'], [1, 0], [0, 1, 2, 0, 1], [2, 4], [1, 0]),
+            (['b', 'a'], [0, 1], [2, 3, 4, 3], [2, 3], [1, 1]),
+            (['b'], [0], [5], [0], [1]),
+        ):
+            batch = SimpleNamespace(req_ids=ids, idx_mapping=torch.tensor(slots),
+                                    positions=torch.tensor(positions), logits_indices=torch.tensor(logits),
+                                    sampled=torch.tensor(sampled))
+            worker.model_runner.sample(None, batch, None)
+        self.assertEqual(worker.ep_end_native_readout(), {
+            'a': {0: [4., 0.], 1: [2., 0.]}, 'b': {0: [4., 0.], 1: [2., 0.]},
+        })
+        self.assertIs(worker.model_runner.sample, sample)
+        self.assertIsNone(model._ep_prefill_readout_mask)
+
     def test_full_vocab_limit_preserves_original_objective_stop_labels_and_gradients(self):
         from ep_loop.config import load_config
         from ep_loop.ouro import tiny_ouro

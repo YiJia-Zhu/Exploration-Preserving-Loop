@@ -41,10 +41,10 @@ def load_config(path, seen=()):
 
 def validate_rad_opd(config):
     a = config["algorithm"]
-    if (config["model"]["family"] != "ouro" or a["teacher_update"] != "frozen"
+    if (config["model"]["family"] != "ouro"
             or a["teacher_endpoint"] != "fixed" or a["teacher_max_loops"] != 4
             or a["stage_selection"] != "endpoint" or a.get("stop_loss_weight") != 0):
-        raise ValueError("RAD-OPD requires Ouro, a frozen dense four-loop endpoint teacher and zero gate loss")
+        raise ValueError("RAD-OPD requires Ouro, a dense four-loop endpoint teacher and zero gate loss")
     if not config["rollout"]["use_cache"] or not config["evaluation"].get("use_cache", True):
         raise ValueError("RAD-OPD requires a KV cache for rollout and evaluation")
     if config["evaluation"].get("student_policy", "ragged") not in {"ragged", "fixed"}:
@@ -57,6 +57,9 @@ def validate_rad_opd(config):
     if not isinstance(tau, dict):
         raise ValueError("RAD-OPD requires a threshold mixture object")
     valid_threshold = lambda value: type(value) in (int, float) and 0 < value <= 1
+    initial = tau.get("initial_thresholds", [])
+    if not isinstance(initial, list) or not all(map(valid_threshold, initial)):
+        raise ValueError("rad_tau.initial_thresholds must be a list of thresholds in (0, 1]")
     fixed = tau.get("fixed")
     low, anchors, p = tau.get("low_range", []), tau.get("anchors", []), tau.get("low_probability")
     if (type(p) not in (int, float) or not 0 <= p <= 1
@@ -75,8 +78,8 @@ def validate_rad_opd(config):
 
 
 def validate_config(config):
-    from .execution import validate_execution
-    validate_execution(config)
+    from .execution import HF_RAD_OPD, HF_SHARED, HF_TRAIN_MODES, VLLM_FIXED, validate_execution
+    mode = validate_execution(config)
     from .fastpath.speculation import rollout_ngram_enabled
     rollout_ngram_enabled(config)
     a, o, r, d = (config[k] for k in ("algorithm", "optimization", "rollout", "data"))
@@ -127,9 +130,11 @@ def validate_config(config):
         raise ValueError('shallow_target_placement must be prefix or last')
     teacher_backend=config['implementation'].get('teacher_backend','hf')
     if teacher_backend not in {'hf','vllm'}:raise ValueError('Unknown teacher backend')
-    if teacher_backend=='vllm' and (family!='ouro' or
-            config['implementation'].get('execution_mode')!='vllm_fixed'):
-        raise ValueError('The vLLM teacher supports Ouro in vllm_fixed only')
+    rlt_rollout = config['implementation'].get('rollout_backend') == 'vllm-rlt'
+    if teacher_backend=='vllm' and (family!='ouro' or mode not in {VLLM_FIXED, HF_RAD_OPD}):
+        raise ValueError('The vLLM teacher requires Ouro with vllm_fixed or RAD-OPD')
+    if mode == HF_RAD_OPD and rlt_rollout != (teacher_backend == 'vllm'):
+        raise ValueError('Accelerated RAD-OPD pairs vllm-rlt rollout with a vllm teacher')
     if type(config['implementation'].get('phase_offload',False)) is not bool:
         raise ValueError('phase_offload must be boolean')
     hf_batch=config['implementation'].get('hf_rollout_batch_size',1)
@@ -164,6 +169,8 @@ def validate_config(config):
     offline = d.get("rad_offline_responses")
     if offline is not None and (policy != "ragged" or not isinstance(offline, str) or not offline.strip()):
         raise ValueError("data.rad_offline_responses requires a RAD-OPD JSONL path")
+    if rlt_rollout and offline is not None:
+        raise ValueError('vLLM-RLT rollout requires online responses')
     if (not math.isfinite(a["exit_threshold"]) or a["exit_threshold"] <= 0
             or (family == "ouro" and a["exit_threshold"] > 1)
             or not math.isfinite(a["js_threshold"]) or a["js_threshold"] < 0):
@@ -172,6 +179,14 @@ def validate_config(config):
         raise ValueError("Huginn reference generation requires independent native KV caches")
     if r["prompts_per_batch"] * r["responses_per_prompt"] != o["global_batch_size"]:
         raise ValueError("Global batch must equal prompts per batch times responses per prompt")
+    seeds = r.get("sample_seeds")
+    if seeds is not None:
+        if mode not in HF_TRAIN_MODES or mode == HF_SHARED or offline is not None:
+            raise ValueError("rollout.sample_seeds requires online PyTorch or RAD-OPD generation")
+        if (not isinstance(seeds, list) or len(seeds) != r["responses_per_prompt"]
+                or any(type(seed) is not int or not 0 <= seed < 2**63 for seed in seeds)
+                or len(set(seeds)) != len(seeds)):
+            raise ValueError("rollout.sample_seeds requires one distinct integer seed in [0, 2**63) per response to each prompt")
     if min(o["updates"], o["global_batch_size"], r["max_new_tokens"], d["max_prompt_tokens"]) < 1:
         raise ValueError("Counts must be positive")
     if o["learning_rate"] <= 0 or o["weight_decay"] < 0 or o["warmup_steps"] < 0:
@@ -192,12 +207,9 @@ def validate_config(config):
     if type(config['implementation'].get('save_final_resume',False)) is not bool:
         raise ValueError('save_final_resume must be boolean')
     if layout=='split':
-        from .execution import execution_mode,VLLM_FIXED
-        if execution_mode(config)!=VLLM_FIXED:
-            raise ValueError('Split checkpoints currently require the fixed-vLLM training route')
         interval=config['implementation'].get('resume_save_every_updates',config['implementation']['save_every_updates'])
-        if (type(interval) is not int or interval<1 or interval%config['implementation']['save_every_updates']):
-            raise ValueError('resume_save_every_updates must be a positive multiple of save_every_updates')
+        if type(interval) is not int or interval<1:
+            raise ValueError('resume_save_every_updates must be a positive integer')
         if not config['implementation']['save_optimizer']:
             raise ValueError('Split recovery requires save_optimizer=true')
     evaluation_every=config['evaluation'].get('every_updates',0)
@@ -235,6 +247,10 @@ def smoke_config(config):
                            "save_optimizer": True},
         "algorithm": {"js_threshold": 0.0},
     })
+    if config["rollout"].get("sample_seeds") is not None:
+        responses = config["rollout"]["responses_per_prompt"]
+        result["rollout"]["responses_per_prompt"] = responses
+        result["optimization"]["global_batch_size"] = result["rollout"]["prompts_per_batch"] * responses
     if config["algorithm"].get("student_policy") == "learned":
         result["algorithm"]["js_threshold"] = config["algorithm"]["js_threshold"]
     if config["algorithm"].get("student_policy") == "ragged":
@@ -270,6 +286,10 @@ def assets_status(config, root):
     if not data.is_file():
         missing.append(str(data))
         rows = None
+    elif data.suffix == '.parquet':
+        from pyarrow.parquet import ParquetFile
+        with ParquetFile(data) as parquet:
+            rows = parquet.metadata.num_rows
     else:
         with data.open() as f:
             rows = sum(bool(line.strip()) for line in f)

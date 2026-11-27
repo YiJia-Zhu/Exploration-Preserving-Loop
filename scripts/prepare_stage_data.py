@@ -40,12 +40,15 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--input", type=Path, action="append", required=True)
     p.add_argument("--output", type=Path, required=True)
-    p.add_argument("--expected-examples", type=int, default=17398)
+    p.add_argument("--expected-examples", type=int, default=17398,
+                   help="Expected normalized examples before excluding evaluation overlaps")
     p.add_argument("--deduplicate", action="store_true", help="Explicitly deduplicate identical message lists; conflicting answers are errors")
     p.add_argument("--conflicting-answers", choices=["error", "drop"], default="error",
                    help="drop explicitly excludes every prompt with inconsistent labels; default: error")
     p.add_argument("--source-repo", default="unspecified")
     p.add_argument("--source-revision", default="unspecified")
+    p.add_argument("--exclude-evaluation", type=Path,
+                   help="Exclude prompts that contain the complete text of an evaluation question")
     args = p.parse_args()
     if args.conflicting_answers == 'drop' and not args.deduplicate:
         p.error('--conflicting-answers drop requires --deduplicate')
@@ -78,6 +81,14 @@ def prepare(args, observer):
         raise ValueError(f"Obtained {len(records)} examples, expected {args.expected_examples}. Source release/subset identity must be resolved explicitly.")
     if len({r["id"] for r in records}) != len(records):
         raise ValueError("Duplicate IDs; resolve them at the source")
+    overlap = {}
+    evaluation_path = getattr(args, 'exclude_evaluation', None)
+    if evaluation_path is not None:
+        from ep_loop.evaluation_data import exclude_evaluation_overlaps, load_evaluation_records
+        evaluation, evaluation_data = load_evaluation_records(evaluation_path)
+        records, details = exclude_evaluation_overlaps(records, evaluation)
+        overlap = dict(evaluation_dataset=evaluation_data, evaluation_overlaps_dropped=details['removed'],
+                       evaluation_overlap_method=details['method'], removed_evaluation_overlaps=details['matches'])
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("x") as f:
         for record in records:
@@ -93,6 +104,7 @@ def prepare(args, observer):
         conflicting_labels={key:sorted(values) for key,values in sorted(conflicts.items())},
         output_sha256=sha256(args.output), original_prompt_messages_preserved=True,
         paper_dataset_identity_verified=False,
+        **overlap,
         scope="Row count and source hashes do not by themselves prove the exact paper training subset")
     args.output.with_suffix(".manifest.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n")
     print(json.dumps(report,ensure_ascii=False,indent=2))

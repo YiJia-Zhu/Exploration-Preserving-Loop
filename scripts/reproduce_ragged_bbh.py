@@ -19,7 +19,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from ep_loop.config import project_relative_path
-from ep_loop.evaluation_data import rad_pass_metrics
+from ep_loop.evaluation_data import ouro_evaluation_group, rad_pass_metrics
 from ep_loop.fastpath.actor import VllmActor
 from ep_loop.fastpath.rlt_actor import RltActor, verified_release
 from ep_loop.reproducibility import SAMPLE_SEED_SCHEME, sample_seed
@@ -82,9 +82,11 @@ def load_bbh(path):
 
 def cases():
     fixed = [dict(name=f'fixed_{depth}', endpoint='fixed', backend='vllm',
+                  experiment_group=ouro_evaluation_group('fixed', depth),
                   loops=depth, min_loops=depth, threshold=1.0)
              for depth in range(1, 5)]
     ragged = [dict(name=f'ragged_{tau:.2f}', endpoint='ragged', backend='vllm-rlt',
+                   experiment_group=ouro_evaluation_group('ragged', 4),
                    loops=4, min_loops=1, threshold=tau)
               for tau in THRESHOLDS]
     return fixed + ragged
@@ -263,6 +265,7 @@ def pending_jobs(case, records, plan, done, encoded):
 
 
 def generate_case(actor, tokenizer, case, pending, batch_size):
+    experiment_group = ouro_evaluation_group(case['endpoint'], case['loops'])
     for start in range(0, len(pending), batch_size):
         batch = pending[start:start + batch_size]
         for index, response, seconds in actor.iter_responses([request for _, _, request in batch]):
@@ -275,6 +278,7 @@ def generate_case(actor, tokenizer, case, pending, batch_size):
             text = tokenizer.decode(tokens, skip_special_tokens=True, clean_up_tokenization_spaces=False)
             parsed, correct = score_answer(text, example['target'])
             yield dict(arm=case['name'], id=example['id'], task=example['task'], sample=sample,
+                       experiment_group=experiment_group,
                        prompt_sha256=example['prompt_sha256'], prompt_tokens=len(request['input_ids']),
                        seed=request['seed'], target=example['target'], parsed_answer=parsed, correct=correct,
                        text=text, tokens=tokens, exit_depths=depths, reached_eos=response['finish_reason'] == 'stop',
@@ -349,7 +353,7 @@ def summarize(args, plan, records, plan_hash, ordered_cases):
     for case in ordered_cases:
         name = case['name']
         metrics, per_arm[name] = summarize_case(rows_by_arm[name])
-        report[name] = {**case, **metrics}
+        report[name] = {**case, **metrics, 'experiment_group': ouro_evaluation_group(case['endpoint'], case['loops'])}
     contrasts = {}
     for left, right in plan.get('contrasts', LEGACY_CONTRASTS):
         contrasts[f'{left}_minus_{right}'] = paired_effect(per_arm[left], per_arm[right], records)

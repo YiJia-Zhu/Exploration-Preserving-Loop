@@ -10,6 +10,56 @@ import torch
 
 
 class OuroWorkerExtension:
+    def ep_begin_native_readout(self):
+        """Select and trace full-KV Ouro readouts using the V2 request metadata."""
+        if getattr(self, '_ep_native_sample', None) is not None:
+            raise RuntimeError('Native Ouro readout is already active')
+        runner = self.model_runner
+        model = self.get_model()
+        original = runner.sample
+        leader = getattr(self, 'rank', 0) == 0
+        self._ep_native_sample = original
+        self._ep_native_rows = []
+
+        def sample(hidden_states, input_batch, grammar_output):
+            prompt_lengths = runner.req_states.prompt_len.gpu[input_batch.idx_mapping]
+            positions = input_batch.positions[input_batch.logits_indices]
+            output_indices = positions - prompt_lengths + 1
+            captured = []
+            model._ep_prefill_readout_mask = output_indices <= 0
+            model._depth_callback = captured.append if leader else None
+            try:
+                result = original(hidden_states, input_batch, grammar_output)
+            finally:
+                model._ep_prefill_readout_mask = None
+                model._depth_callback = None
+            if leader:
+                diagnostics, = captured
+                self._ep_native_rows.append((tuple(input_batch.req_ids), output_indices,
+                                             diagnostics, result[1].detach().clone()))
+            return result
+
+        runner.sample = sample
+        return True
+
+    def ep_end_native_readout(self):
+        self.model_runner.sample = self._ep_native_sample
+        self._ep_native_sample = None
+        rows, self._ep_native_rows = self._ep_native_rows, []
+        traces = {}
+        if rows:
+            diagnostics = torch.cat([values for _, _, values, _ in rows]).float().cpu().tolist()
+            positions = torch.cat([indices for _, indices, _, _ in rows]).cpu().tolist()
+            sampled = torch.cat([counts for _, _, _, counts in rows]).cpu().tolist()
+            offset = 0
+            for requests, _, _, _ in rows:
+                for index, request in enumerate(requests, offset):
+                    # Partial prefills have logits that the sampler discards.
+                    if sampled[index] and positions[index] >= 0:
+                        traces.setdefault(request, {})[positions[index]] = diagnostics[index]
+                offset += len(requests)
+        return traces
+
     def ep_begin_teacher_trace(self, output):
         """Capture teacher-forced prefill states on the V1 runner.
 

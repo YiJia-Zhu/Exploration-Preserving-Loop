@@ -43,6 +43,7 @@ class VllmTeacher:
                     copy.deepcopy(student.model.lm_head).cpu().eval().requires_grad_(False))
         self.weight_version=None if self.current else 'initial'
         self.config,self.output,self.observer=config,Path(output),observer
+        self.max_model_len = config['data']['max_prompt_tokens'] + config['rollout']['max_new_tokens']
         visible=os.environ.get('CUDA_VISIBLE_DEVICES','').split(',')
         self.gpu=visible[local_rank] if visible!=[''] else str(local_rank)
         if config['implementation'].get('vllm_tensor_parallel_size',1)>1 and inference_group is None:
@@ -51,7 +52,7 @@ class VllmTeacher:
         self.gpu=self.group.gpu
         self.rank=local_rank;self.actor=None;self.pending=deque();self.temporary=None;self.active=None
 
-    def prepare(self,responses,records,update):
+    def prepare(self,responses,records,update,*,weights_path=None):
         self.clear_batch()
         self.weight_version=update if self.current else 'initial'
         c=self.config;i=c['implementation'];k=c['algorithm']['teacher_max_loops']
@@ -62,7 +63,7 @@ class VllmTeacher:
                                  weight_version=self.weight_version,
                                  tensor_parallel_size=self.group.size,inference_group_gpus=self.gpu):
             torch.cuda.empty_cache()
-            result=self.group.execute(requests,lambda merged:self._label(merged,update,k))
+            result=self.group.execute(requests,lambda merged:self._label(merged,update,k,weights_path))
             if result['executed_loops']!=k or len(result['responses'])!=len(responses):
                 raise RuntimeError('Teacher readout count or physical depth mismatch')
             if result['weight_version']!=self.weight_version:
@@ -72,7 +73,7 @@ class VllmTeacher:
                     raise RuntimeError('Teacher did not label exactly the supplied student prefix')
                 self.pending.append((ident,sample,dict(trace,weight_version=self.weight_version)))
 
-    def _label(self,requests,update,k):
+    def _label(self,requests,update,k,weights_path=None):
         c=self.config;i=c['implementation']
         # Only the leader owns the directory. Unique response files are handed
         # back to their HF ranks, then consumed/deleted once during the objective.
@@ -86,7 +87,7 @@ class VllmTeacher:
             self.actor=VllmActor(c['model']['path'],self.gpu,self.output/f'vllm_teacher_rank{self.rank}.log',
                 loops=k,policy='fixed',teacher_trace=True,sleep=True,tensor_parallel_size=self.group.size,
                 rollout_ngram=False,
-                max_model_len=c['data']['max_prompt_tokens']+c['rollout']['max_new_tokens'],
+                max_model_len=self.max_model_len,
                 memory_fraction=i.get('vllm_memory_fraction',.45),eager=i.get('vllm_eager',False),
                 python_bin=i.get('vllm_python_bin'),attention_backend=i.get('vllm_attention_backend'),
                 **({'max_num_seqs':i['vllm_max_num_seqs']} if i.get('vllm_max_num_seqs') else {}))
@@ -94,13 +95,16 @@ class VllmTeacher:
         try:
             if self.current:
                 from safetensors.torch import save_file
-                weights=self.output/f'.vllm_teacher_weights_rank{self.rank}.safetensors'
+                weights = weights_path or self.output/f'.vllm_teacher_weights_rank{self.rank}.safetensors'
                 try:
-                    save_file(self.student.model.state_dict(),str(weights))
+                    if weights_path is None:
+                        save_file(self.student.model.state_dict(), str(weights))
                     acknowledgement=self.actor.request('weights',path=str(weights),version=update)
                     if acknowledgement['weight_version']!=update:
                         raise RuntimeError('Stale teacher weights')
-                finally:weights.unlink(missing_ok=True)
+                finally:
+                    if weights_path is None:
+                        weights.unlink(missing_ok=True)
                 self.observer.event('teacher_weights_refreshed',update=update+1,weight_version=update,
                     tensor_parallel_size=self.group.size,inference_group_gpus=self.gpu,
                     readout_head='shared_current_student_head',stop_gradient=True)

@@ -98,7 +98,7 @@ def _generate(backend, input_ids, loops, max_new_tokens, temperature, top_p,
             backfill += trace.backfill_token_loops
             coda += trace.coda_token_positions
             execution_depths.append((trace.executed_token_loops - trace.backfill_token_loops) // current.shape[1])
-            if endpoint in {"learned", "native_adaptive", "native_backfill", "ragged"}:
+            if endpoint in {"learned", "native_adaptive", "ragged"}:
                 chosen = int(trace.exits[0, -1])
             elif endpoint == "native":
                 chosen = int(backend.native_exit_depths(trace, exit_threshold)[0,-1])
@@ -131,7 +131,7 @@ def _generate(backend, input_ids, loops, max_new_tokens, temperature, top_p,
     slots = None
     if endpoint == "ragged":
         slots = trace.cache.physical_slots
-    elif use_cache and endpoint in {"fixed", "native_backfill"}:
+    elif use_cache and endpoint == "fixed":
         slots = token_loops
     return GeneratedResponse(response, depths, not ignore_eos and response[-1] in eos_ids, token_loops,
                              time.perf_counter()-started, execution_depths, backfill, coda, policy, slots)

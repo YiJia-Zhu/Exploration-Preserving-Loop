@@ -42,7 +42,7 @@ def main():
     parser.add_argument('--mix', action='store_true', help='Use question-level training thresholds instead of fixed tau')
     parser.add_argument('--tau', type=float, default=.20)
     parser.add_argument('--case', action='append',
-                        choices=('hf_fixed_2', 'hf_fixed_4', 'exact_dense_4', 'rad_dense_4', 'rad_dynamic'))
+                        choices=('hf_fixed_2', 'hf_fixed_4', 'rad_dense_4', 'rad_dynamic'))
     parser.add_argument('--prefix', choices=('8192', '14336'), help='Use the archived fixed-length prefix case')
     parser.add_argument('--questions', type=int, default=8)
     args = parser.parse_args()
@@ -77,7 +77,6 @@ def main():
         'rad_dynamic': ('ragged', 4, args.tau),
     }
     if args.case:
-        policies['exact_dense_4'] = ('native_backfill', 4, 1.0)
         policies = {case: policies[case] for case in args.case}
     jobs = work['jobs'][:args.questions]
     if args.prefix:

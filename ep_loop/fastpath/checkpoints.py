@@ -1,4 +1,4 @@
-"""Permanent model snapshots, final embedded resume, and legacy rolling resume."""
+"""Permanent model snapshots, final embedded resume, and rolling resume."""
 import json
 import os
 from pathlib import Path
@@ -30,6 +30,16 @@ def _write_json(path, value):
 
 def _barrier(world_size):
     if world_size>1:dist.barrier()
+
+
+def _write_model(folder, student, tokenizer, config, project_root):
+    student.model.save_pretrained(folder, safe_serialization=True)
+    source = (Path(project_root) / config['model']['path']).resolve()
+    for filename in student.source_filenames:
+        shutil.copy2(source / filename, folder / filename)
+    if hasattr(tokenizer, 'save_pretrained'):
+        tokenizer.save_pretrained(folder)
+    _write_json(folder / 'run_config.json', config)
 
 
 def _save_final_resume(model,student,optimizer,data_rng,generator,metadata,rank,world_size):
@@ -68,9 +78,9 @@ def save_split_checkpoint(output, student, tokenizer, optimizer, completed, conf
                           save_model=True, save_resume=True, data_identity=None,is_final=False):
     """All ranks participate; publish recovery only after all matching RNG files.
 
-    Model-only layout embeds recovery in the final model directory. Legacy
-    split layout hardlinks model files into a rolling recovery directory;
-    the old latest stays usable until the new recovery is fully published.
+    Model-only layout embeds recovery in the final model directory. Split layout
+    hardlinks model files on snapshot updates and writes them into recovery on
+    other updates. The previous recovery stays usable until publication.
     """
     output=Path(output)
     model=output/'checkpoints'/f'update_{completed:06d}'
@@ -92,11 +102,7 @@ def save_split_checkpoint(output, student, tokenizer, optimizer, completed, conf
                 pending=model.with_name('.'+model.name+'.pending')
                 if pending.exists():shutil.rmtree(pending)
                 pending.mkdir(parents=True)
-                student.model.save_pretrained(pending,safe_serialization=True)
-                source=(Path(project_root)/config['model']['path']).resolve()
-                for filename in student.source_filenames:shutil.copy2(source/filename,pending/filename)
-                if hasattr(tokenizer,'save_pretrained'):tokenizer.save_pretrained(pending)
-                _write_json(pending/'run_config.json',config)
+                _write_model(pending, student, tokenizer, config, project_root)
                 _write_json(pending/'checkpoint.complete.json',metadata|dict(resumable=False,storage_role='permanent_model'))
                 pending.replace(model)
         _barrier(world_size)
@@ -108,19 +114,17 @@ def save_split_checkpoint(output, student, tokenizer, optimizer, completed, conf
     pending=resume_root/f'.update_{completed:06d}.pending'
     recovery=resume_root/f'update_{completed:06d}'
     if rank==0:
-        if not (model/'checkpoint.complete.json').is_file():
-            raise ValueError('Recovery requires a complete model snapshot from the same update')
-        marker=json.loads((model/'checkpoint.complete.json').read_text())
-        if any(marker.get(key)!=value for key,value in metadata.items()):
-            raise ValueError('Model and recovery update/configuration do not match')
         if recovery.exists():raise FileExistsError(recovery)
         if pending.exists():shutil.rmtree(pending)
         pending.mkdir(parents=True)
-        for path in model.rglob('*'):
-            if not path.is_file() or path==model/'checkpoint.complete.json':continue
-            target=pending/path.relative_to(model)
-            target.parent.mkdir(parents=True,exist_ok=True)
-            os.link(path,target)
+        if save_model:
+            for path in model.rglob('*'):
+                if not path.is_file() or path==model/'checkpoint.complete.json':continue
+                target=pending/path.relative_to(model)
+                target.parent.mkdir(parents=True,exist_ok=True)
+                os.link(path,target)
+        else:
+            _write_model(pending, student, tokenizer, config, project_root)
         torch.save(dict(optimizer=optimizer.state_dict(),completed_updates=completed,
             world_size=world_size,config_hash=metadata['config_hash'],data_identity=data_identity),
             pending/'training_state.pt')
@@ -130,8 +134,10 @@ def save_split_checkpoint(output, student, tokenizer, optimizer, completed, conf
     _barrier(world_size)
     if rank==0:
         assert all((pending/f'rng_rank{r}.pt').is_file() for r in range(world_size))
-        _write_json(pending/'checkpoint.complete.json',metadata|dict(resumable=True,
-            storage_role='latest_resume',permanent_model=str(model.resolve())))
+        marker = metadata | dict(resumable=True, storage_role='latest_resume')
+        if save_model:
+            marker['permanent_model'] = str(model.resolve())
+        _write_json(pending/'checkpoint.complete.json', marker)
         pending.replace(recovery)
         link=resume_root/'.latest.tmp'
         link.unlink(missing_ok=True)

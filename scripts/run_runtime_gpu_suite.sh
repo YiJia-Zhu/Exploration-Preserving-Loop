@@ -57,7 +57,7 @@ benchmark() {
 for depth in 2 4; do
     serial=(vllm rlt hf)
     if [[ $depth == 4 ]]; then
-        serial+=(backfill-dense ragged-dense)
+        serial+=(ragged-dense)
     fi
     for profile in short 8192 14336; do
         benchmark "${profile}_n${depth}_c8" --profile "$profile" --loops "$depth" --concurrency 8 \
@@ -68,7 +68,7 @@ for depth in 2 4; do
     benchmark "natural_n${depth}_c8" --profile natural --loops "$depth" --concurrency 8 --case vllm rlt
 done
 benchmark natural_n2_c1 --profile natural --loops 2 --concurrency 1 --case vllm rlt hf
-benchmark natural_n4_c1 --profile natural --loops 4 --concurrency 1 --tau 0.20 --case vllm rlt hf backfill ragged
+benchmark natural_n4_c1 --profile natural --loops 4 --concurrency 1 --tau 0.20 --case vllm rlt hf vllm-native ragged
 benchmark repeated_n2_c64 --profile repeated --loops 2 --concurrency 64 \
     --case vllm vllm-prefix-cache rlt rlt-prefix-cache
 

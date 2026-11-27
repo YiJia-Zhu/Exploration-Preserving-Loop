@@ -78,9 +78,35 @@ class SplitCheckpointTests(unittest.TestCase):
         settings=dict(save_every_updates=5,resume_save_every_updates=10)
         self.assertEqual([s for s in range(1,13) if checkpoint_due(settings,s,12)[0]],[5,10,12])
         self.assertEqual([s for s in range(1,13) if checkpoint_due(settings,s,12)[1]],[10,12])
-        invalid=config();invalid['implementation']['resume_save_every_updates']=6
-        with self.assertRaisesRegex(ValueError,'multiple'):validate_config(invalid)
+        invalid=config();invalid['implementation']['resume_save_every_updates']=0
+        with self.assertRaisesRegex(ValueError,'positive integer'):validate_config(invalid)
         validate_config(config())
+
+    def test_reference_training_keeps_latest_resume_between_model_snapshots(self):
+        c = load_config(ROOT / 'configs/rad_opd.json')
+        c['implementation'].update(checkpoint_layout='split', save_every_updates=4,
+                                   resume_save_every_updates=1)
+        validate_config(c)
+        model = Model(2, 2)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=.01)
+        rng = random.Random(42)
+        generator = torch.Generator().manual_seed(42)
+        student = SimpleNamespace(model=model, source_filenames=(), device=torch.device('cpu'))
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for completed in range(1, 6):
+                step(model, optimizer, rng, generator)
+                save_model, save_resume = checkpoint_due(c['implementation'], completed, 16)
+                save_split_checkpoint(root, student, None, optimizer, completed, c, rng, generator,
+                                      0, 1, ROOT, save_model=save_model, save_resume=save_resume)
+                latest = root / 'resume/latest'
+                self.assertEqual(inspect_resume_checkpoint(latest, c, 1)['completed_updates'], completed)
+            self.assertEqual([p.name for p in (root / 'checkpoints').iterdir()], ['update_000004'])
+            self.assertEqual([p.name for p in (root / 'resume').glob('update_*')], ['update_000005'])
+            for name, value in load_file(latest / 'model.safetensors').items():
+                torch.testing.assert_close(value, model.state_dict()[name], rtol=0, atol=0)
+            state = torch.load(latest / 'training_state.pt', weights_only=True)
+            validate_resume_state(state, inspect_resume_checkpoint(latest, c, 1))
 
     def test_publication_failure_keeps_old_resume_and_all_model_snapshots(self):
         torch.manual_seed(42)

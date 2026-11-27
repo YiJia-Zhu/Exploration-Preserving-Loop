@@ -13,6 +13,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+from ep_loop.evaluation_data import ouro_evaluation_group
 
 AIME = ROOT / 'audit/rlt_v020_bf16_vs_vllm_20261120_152301/workload.json'
 PREFIXES = ROOT / 'audit/rlt_v020_runtime_probe_20261120_151153/workload.json'
@@ -22,6 +23,7 @@ FIXED_CAPS = {'short': 1024, '8192': 128, '14336': 128, 'repeated': 256}
 CASES = {
     'hf': ('fixed', 1.),
     'vllm': ('fixed', 1.),
+    'vllm-native': ('native', None),
     'vllm-triton': ('fixed', 1.),
     'vllm-prefix-cache': ('fixed', 1.),
     'rlt': ('fixed', 1.),
@@ -29,9 +31,7 @@ CASES = {
     'rlt-block128': ('fixed', 1.),
     'rlt-prefix-cache': ('fixed', 1.),
     'ragged-dense': ('ragged', 1.),
-    'backfill-dense': ('native_backfill', 1.),
     'ragged': ('ragged', None),
-    'backfill': ('native_backfill', None),
 }
 
 
@@ -61,9 +61,9 @@ def parse_args():
         parser.error('Use concurrency 64 and one timed cold-cache batch per engine startup')
     if args.profile != 'repeated' and (args.concurrency == 64 or any(case.endswith('-prefix-cache') for case in args.case)):
         parser.error('Concurrency 64 and the prefix cache variants belong to the repeated workload')
-    if any(case != 'hf' for case in hf_cases) and args.loops != 4:
+    if (any(case != 'hf' for case in hf_cases) or 'vllm-native' in args.case) and args.loops != 4:
         parser.error('Use four loops for the RAD cache and policy comparisons')
-    if {'ragged', 'backfill'}.intersection(args.case) and args.profile != 'natural':
+    if 'ragged' in args.case and args.profile != 'natural':
         parser.error('Dynamic exit belongs to the natural workload')
     return args
 
@@ -167,13 +167,16 @@ def gpu_actor(work, case, output):
     model, gpu = work['model'], work['gpu']['uuid']
     if case.startswith('vllm'):
         from ep_loop.fastpath.actor import VllmActor
-        actor = VllmActor(model, gpu, output / f'{case}.log', policy='fixed', memory_fraction=.75,
+        policy = work['cases'][case]
+        actor = VllmActor(model, gpu, output / f'{case}.log', policy=policy['endpoint'],
+                          native_threshold=policy['tau'], memory_fraction=.75,
                           python_bin=ROOT / 'ep_loop_envs/vllm026/bin/python',
                           attention_backend='TRITON_ATTN' if case == 'vllm-triton' else 'FLASHINFER',
                           **common)
-        if not (actor.runtime['native_fixed_student'] and actor.runtime['vllm_version'].startswith('0.26.')):
+        route = 'native_readout' if case == 'vllm-native' else 'native_fixed_student'
+        if not (actor.runtime[route] and actor.runtime['vllm_version'].startswith('0.26.')):
             actor.close()
-            raise RuntimeError('Expected the official vLLM 0.26 native fixed-depth model')
+            raise RuntimeError(f'Expected the vLLM 0.26 Ouro {policy["endpoint"]} route')
         return actor
     from ep_loop.fastpath.rlt_actor import RltActor
     return RltActor.from_release(model, gpu, output / f'{case}.log', max_num_batched_tokens=CONTEXT,
@@ -247,7 +250,8 @@ def run_case(work, case, run, tokenizer, output):
                 row.update(verify_integer_response(row['text'], job['answer'], job['messages']))
         elapsed = sum(batch['client_seconds'] for batch in measured)
         tokens = sum(row['output_tokens'] for row in rows)
-        decode_depths = [depth for row in rows for depth in row['exit_depths'][1:]]
+        decode_depths = [depth for row in rows for depth in row.get('execution_depths', row['exit_depths'])[1:]]
+        decode_readouts = [depth for row in rows for depth in row['exit_depths'][1:]]
         ttft = [row['request_timing']['time_to_first_token_seconds'] for row in rows
                 if row.get('request_timing', {}).get('time_to_first_token_seconds') is not None]
         tpot = [row['request_timing']['first_to_last_token_seconds'] / (row['output_tokens'] - 1)
@@ -264,6 +268,7 @@ def run_case(work, case, run, tokenizer, output):
             median_tpot_seconds=statistics.median(tpot) if tpot and len(tpot) == sum(n > 1 for n in lengths) else None,
             decode_depth_histogram=[decode_depths.count(depth) for depth in range(1, work['loops'] + 1)],
             mean_decode_depth=statistics.mean(decode_depths) if decode_depths else None,
+            mean_decode_readout_depth=statistics.mean(decode_readouts) if decode_readouts else None,
             executed_token_loops=sum(row['executed_token_loops'] for row in rows),
             backfill_token_loops=sum(row.get('backfill_token_loops', 0) for row in rows),
             physical_kv_token_slots=None if None in slots else sum(slots)))
@@ -271,8 +276,12 @@ def run_case(work, case, run, tokenizer, output):
         print(f'{case} {repeat + 1}/{work["repeats"]}: {tokens} tokens / {elapsed:.2f}s', flush=True)
     summary = {key: statistics.median(record[key] for record in records)
                for key in ('client_seconds', 'output_tok_s', 'output_tokens')}
+    summary['experiment_group'] = ouro_evaluation_group(policy['endpoint'], work['loops'])
+    summary['inference_backend'] = ('vllm' if case.startswith('vllm') else
+                                    'vllm-rlt' if case.startswith('rlt') else 'pytorch')
     for key in ('correct', 'stopped_at_limit', 'median_ttft_seconds', 'median_tpot_seconds', 'mean_decode_depth',
-                'executed_token_loops', 'backfill_token_loops', 'physical_kv_token_slots'):
+                'mean_decode_readout_depth', 'executed_token_loops', 'backfill_token_loops',
+                'physical_kv_token_slots'):
         if records[0][key] is not None:
             summary[key] = statistics.median(record[key] for record in records)
     summary['client_seconds_each'] = [record['client_seconds'] for record in records]

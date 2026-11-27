@@ -273,6 +273,26 @@ class DataAndConfigTests(unittest.TestCase):
             self.assertEqual([r["id"] for r in records],["short"])
             self.assertEqual(report["overlong_prompts_dropped"],1)
 
+    def test_dapo_parquet_keeps_repeated_rows_and_original_answers(self):
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / 'train.parquet'
+            prompt = [{'role': 'user', 'content': '1+1?'}]
+            rows = [dict(prompt=prompt, reward_model={'ground_truth': answer}, extra_info={'index': 'same'})
+                    for answer in ('2', '2', '3')]
+            pq.write_table(pa.Table.from_pylist(rows), path)
+            config = merge(load_config(ROOT / 'configs/rad_opd.json'), {
+                'data': {'train_path': path.name, 'expected_examples': len(rows)},
+            })
+            records, report = prepare_training_records(config, ByteTokenizer(), root)
+            self.assertEqual([r['messages'] for r in records], [prompt] * 3)
+            self.assertEqual([r['answer'] for r in records], ['2', '2', '3'])
+            self.assertEqual([r['id'] for r in records], ['0', '1', '2'])
+            self.assertEqual(report['usable_examples'], 3)
+
 
 if __name__=="__main__":
     unittest.main()

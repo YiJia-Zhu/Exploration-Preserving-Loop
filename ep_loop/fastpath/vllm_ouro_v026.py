@@ -400,6 +400,10 @@ class OuroModel(nn.Module):
                                         self.stop_threshold, self.native_threshold)
         # Internal diagnostics never enter LM-head or alter sampling logits.
         gate_logits = torch.stack(gates, -1).squeeze(-2)
+        if self.readout_policy == 'native':
+            # The runner can identify the first sample of each request after
+            # gathering the logits rows, including mixed prefill/decode batches.
+            return torch.cat((selected, states[-1], depth[:, None].to(selected.dtype), gate_logits), -1)
         return torch.cat((selected, depth[:, None].to(selected.dtype),gate_logits.to(selected.dtype)), -1)
 
 class OuroForCausalLM(nn.Module, SupportsLoRA):
@@ -471,6 +475,16 @@ class OuroForCausalLM(nn.Module, SupportsLoRA):
                 raise ValueError('Teacher readout must carry all loop states and gates')
             end=self.config.hidden_size*self.model.total_ut_steps
             return self.logits_processor(self.lm_head,hidden_states[:,end-self.config.hidden_size:end])
+        if self.model.readout_policy == 'native':
+            size = self.config.hidden_size
+            selected, final, depth, gates = hidden_states.split((size, size, 1, self.model.total_ut_steps), dim=-1)
+            prefill = getattr(self, '_ep_prefill_readout_mask', None)
+            if prefill is not None:
+                selected = torch.where(prefill[:, None], final, selected)
+                depth = torch.where(prefill[:, None], self.model.total_ut_steps, depth)
+            if getattr(self, '_depth_callback', None) is not None:
+                self._depth_callback(torch.cat((depth, gates), dim=-1))
+            return self.logits_processor(self.lm_head, selected)
         if hidden_states.shape[-1] != self.config.hidden_size + 1 + self.model.total_ut_steps:
             raise ValueError('Ouro readout must carry one internal depth channel')
         if getattr(self, '_depth_callback', None) is not None:

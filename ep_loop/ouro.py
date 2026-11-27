@@ -137,8 +137,7 @@ and the original cached fixed-depth baseline remain on the author's path.
         return LoopTrace(tuple(states), tuple(gates), exits=exits,
                          executed_token_loops=ids.shape[1]*actual)
 
-    def learned_cached_trace(self, ids, loops, threshold, cache=None, stop_rule='local',
-                             force_full=False):
+    def learned_cached_trace(self, ids, loops, threshold, cache=None, stop_rule='local'):
         from .cache import ExactLoopCache, causal_suffix_mask
         if ids.ndim != 2 or ids.shape[0] != 1 or ids.shape[1] < 1 or loops < 1 or not 0 < threshold <= 1:
             raise ValueError("Invalid learned-exit suffix/depth/threshold")
@@ -177,8 +176,6 @@ and the original cached fixed-depth baseline remain on the author's path.
                 states.append(cache.levels[depth + 1].value()[:, -ids.shape[1]:])
                 gate = backbone.early_exit_gate(states[-1])
                 gates.append(gate)
-                if force_full:
-                    continue
                 if stop_rule == 'local':
                     stop = gate[:, -1, 0].sigmoid() >= threshold
                 elif stop_rule == 'native_cdf':
@@ -189,11 +186,6 @@ and the original cached fixed-depth baseline remain on the author's path.
                         pdf.append(remaining if index==loops-1 else probability*remaining)
                         remaining=remaining*(1-probability)
                     stop=torch.stack(pdf,-1).cumsum(-1)[...,-1]>=threshold
-                elif stop_rule == 'rad_cdf':
-                    from .ragged import reached_native_threshold
-                    if depth + 1 == loops or reached_native_threshold(gates, threshold):
-                        break
-                    continue
                 else:
                     raise ValueError('Unknown cached stop rule')
                 if bool(stop.all()):
@@ -231,14 +223,11 @@ and the original cached fixed-depth baseline remain on the author's path.
 
     def trace(self, ids, loops, cache=None, use_cache=False, endpoint="fixed", exit_threshold=0.9,
               attention_mask=None, position_ids=None, cache_position=None):
-        if endpoint in {"ragged", "native_backfill"}:
+        if endpoint == "ragged":
             if not use_cache or any(x is not None for x in (attention_mask, position_ids, cache_position)):
                 raise ValueError("RAD rollout requires internal caching and unpadded positions")
-            if endpoint == "ragged":
-                from .ragged import rollout_trace
-                return rollout_trace(self, ids, loops, exit_threshold, cache)
-            return self.learned_cached_trace(ids, loops, exit_threshold, cache,
-                                             stop_rule="rad_cdf", force_full=cache is None)
+            from .ragged import rollout_trace
+            return rollout_trace(self, ids, loops, exit_threshold, cache)
         if endpoint == "learned":
             if use_cache:
                 return self.learned_cached_trace(ids, loops, exit_threshold, cache)

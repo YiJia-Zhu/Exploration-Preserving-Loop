@@ -31,10 +31,14 @@ def test_figure_matrix_contains_core_without_duplicate_arms():
     fixed = [case for case in matrix if case['endpoint'] == 'fixed']
     ragged = [case for case in matrix if case['endpoint'] == 'ragged']
     assert [case['loops'] for case in fixed] == [1, 2, 3, 4]
+    assert [case['experiment_group'] for case in fixed] == [
+        'Static 1-Loop', 'Static 2-Loop', 'Static 3-Loop', 'Dense 4-Loop',
+    ]
     assert all(case['backend'] == 'vllm' for case in fixed)
     assert [case['threshold'] for case in ragged] == [.10, .15, .20, .25, .30]
     assert all(case['backend'] == 'vllm-rlt' and case['loops'] == 4 and case['min_loops'] == 1
                for case in ragged)
+    assert all(case['experiment_group'] == 'Ragged KV' for case in ragged)
 
 
 def test_bbh_fixed_and_dynamic_at_depth_four_use_different_actors(tmp_path, monkeypatch):
@@ -77,6 +81,8 @@ def test_bbh_fixed_and_dynamic_at_depth_four_use_different_actors(tmp_path, monk
 
     assert rows['fixed_4']['exit_depths'] == [4, 4]
     assert rows['ragged_0.10']['exit_depths'] == [4, 1]
+    assert rows['fixed_4']['experiment_group'] == 'Dense 4-Loop'
+    assert rows['ragged_0.10']['experiment_group'] == 'Ragged KV'
     assert fixed_actor.call_args.kwargs['memory_fraction'] == 0.9
     assert fixed_actor.call_args.kwargs['policy'] == 'fixed'
     assert all('max_num_seqs' not in actor.call_args.kwargs for actor in (fixed_actor, ragged_actor))

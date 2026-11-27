@@ -10,6 +10,12 @@ import unicodedata
 from .data import normalize_record
 
 
+def ouro_evaluation_group(policy, loops):
+    if policy == 'fixed':
+        return 'Dense 4-Loop' if loops == 4 else f'Static {loops}-Loop'
+    return {'native': '原生 Ouro KV', 'ragged': 'Ragged KV'}[policy]
+
+
 def load_evaluation_records(path, expected_examples=None, suite=None):
     path = Path(path)
     data = path.read_bytes()

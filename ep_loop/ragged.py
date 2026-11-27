@@ -11,7 +11,10 @@ from .reproducibility import sample_seed
 
 
 def sample_training_threshold(settings, seed, problem_hash, update):
-    """One threshold per question and update, independent of rank and response length."""
+    """Use the configured threshold for an initial update, then sample per question."""
+    initial = settings.get("initial_thresholds", [])
+    if update < len(initial):
+        return initial[update]
     if settings.get("fixed") is not None:
         return settings["fixed"]
     rng = random.Random(sample_seed(seed, problem_hash, update))
@@ -39,7 +42,7 @@ class RaggedKVCache:
     Logical depth maps are integer aliases. Attention gathers the current
     depth's visible prefix into temporary tensors for SDPA.
     """
-    policy = "ragged_zero_backfill"
+    policy = "ragged_kv"
 
     def __init__(self, model, loops):
         self.owner = weakref.ref(model)
